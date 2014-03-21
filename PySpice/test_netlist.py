@@ -18,18 +18,24 @@ line_peak_voltage = 10
 
 circuit = Circuit('Simple Rectifier', global_nodes=(0, 'out'))
 circuit.subcircuit(subcircuit_1N4148)
-circuit.V('input', 'in', 0, 'DC 0V', 'SIN(0V {}V {}Hz)'.format(line_peak_voltage, frequence))
+circuit.V('input', 'in', circuit.gnd, 'DC 0V', 'SIN(0V {}V {}Hz)'.format(line_peak_voltage, frequence))
 circuit.X('D', '1N4148', 'in', 'out')
-circuit.C('load', 'out', 0, micro(100))
-circuit.R('load', 'out', 0, kilo(1), ac='1k')
-circuit.options(TEMP=25)
-circuit.options(TNOM=25)
-circuit.options('NOINIT')
-circuit.options(filetype='binary')
-circuit.save('V(in)', 'V(out)')
-circuit.tran(step_time, end_time)
+circuit.C('load', 'out', circuit.gnd, micro(100))
+circuit.R('load', 'out', circuit.gnd, kilo(1), ac='1k')
 
-print str(circuit)
+print circuit.nodes
+print circuit.Cload
+# print circuit.1N4148
+print subcircuit_1N4148['1N4148']
+print circuit.out
+
+simulation = circuit.simulation(temperature=25, nominal_temperature=25, pipe=True)
+simulation.options(filetype='binary')
+simulation.save('V(in)', 'V(out)')
+simulation.tran(step_time, end_time)
+
+print str(simulation)
+# python PySpice/test_netlist.py | ngspice -s > data
 
 ####################################################################################################
 # 

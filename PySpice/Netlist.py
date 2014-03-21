@@ -6,46 +6,21 @@
 ####################################################################################################
 
 ####################################################################################################
+#
+# Graph:
+#   dipole
+#   n-pole: transistor (be, bc) ?
+#
+# circuit -> element -> node
+#   circuit.Q1.b
+#   Element -> ElementQ
+#   use prefix?
+#
+####################################################################################################
 
-def tera(x):
-    """ T Tera 1e12 """
-    return x*1e12
+####################################################################################################
 
-def giga(x):
-    """ G Giga 1e9 """
-    return x*1e9
-
-def mega(x):
-    """ Meg Mega 1e6 """
-    return x*1e6
-
-def kilo(x):
-    """ K Kilo 1e3 """
-    return x*1e3
-
-def mil(x):
-    """ mil Mil 25.4e-6 """
-    return x*25.4e-6
-
-def milli(x):
-    """ m milli 1e-3 """
-    return x*1e-3
-
-def micro(x):
-    """ u micro 1e-6 """
-    return x*1e-6
-
-def nano(x):
-    """ n nano 1e-9 """
-    return x*1e-9
-
-def pico(x):
-    """ p pico 1e-12 """
-    return x*1e-12
-
-def femto(x):
-    """ f femto 1e-15 """
-    return x*1e-15
+# import networkx
 
 ####################################################################################################
 
@@ -71,7 +46,7 @@ class Element(object):
     def __init__(self, name, nodes, *args, **kwargs):
 
         self.name = str(name)
-        self.nodes = set(nodes)
+        self.nodes = list(nodes)
         self.parameters = list(args)
         self.dict_parameters = dict(kwargs)
 
@@ -111,8 +86,13 @@ class Netlist(object):
 
     def __init__(self):
 
+        self._ground = None
         self._elements = {}
         self._models = {}
+        self._dirty = True
+        self._nodes = set()
+
+        # self._graph = networkx.Graph()
 
     ##############################################
 
@@ -142,6 +122,7 @@ class Netlist(object):
         element = Element(name, nodes, *args, **kwargs)
         if element.name not in self._elements:
             self._elements[element.name] = element
+        self._dirty = True
 
     ##############################################
 
@@ -155,6 +136,42 @@ class Netlist(object):
         model = DeviceModel(name, modele_type, **parameters)
         if model.name not in self._models:
             self._models[model.name] = model
+
+    ##############################################
+
+    @property
+    def nodes(self):
+
+        if self._dirty:
+            nodes = set()
+            for element in self.element_iterator():
+                nodes |= set(element.nodes)
+            if self._ground is not None:
+                nodes -= set((self._ground,))
+            self._nodes = nodes
+        return self._nodes
+
+    ##############################################
+
+    def __getitem__(self, attribute_name):
+
+        if attribute_name in self._elements:
+            return self._elements[attribute_name]
+        elif attribute_name in self._models:
+            return self._models[attribute_name]
+        elif attribute_name in self.nodes:
+            return attribute_name
+        else:
+            raise IndexError(attribute_name)
+
+    ##############################################
+
+    def __getattr__(self, attribute_name):
+        
+        try:
+            return self.__getitem__(attribute_name)
+        except IndexError:
+            raise AttributeError(attribute_name)
 
     ##############################################
 
@@ -254,16 +271,17 @@ class SubCircuit(Netlist):
         super(SubCircuit, self).__init__()
 
         self.name = str(name)
-        self.nodes = set(nodes)
+        self._external_nodes = set(nodes)
 
     ##############################################
 
     def check_nodes(self):
 
+        nodes = set(self._external_nodes)
         connected_nodes = set()
         for element in self.element_iterator():
-            connected_nodes.add(self.nodes & element.nodes)
-        not_connected_nodes = self.nodes - connected_nodes
+            connected_nodes.add(nodes & element.nodes)
+        not_connected_nodes = nodes - connected_nodes
         if not_connected_nodes:
             raise NameError("SubCircuit Nodes {} are not connected".format(not_connected_nodes))
 
@@ -271,7 +289,7 @@ class SubCircuit(Netlist):
 
     def __str__(self):
 
-        netlist = '.subckt {} {}\n'.format(self.name, join_list(self.nodes))
+        netlist = '.subckt {} {}\n'.format(self.name, join_list(self._external_nodes))
         netlist += super(SubCircuit, self).__str__()
         netlist += '.ends\n'
         return netlist
@@ -287,34 +305,30 @@ class Circuit(Netlist):
     ##############################################
 
     def __init__(self, title,
+                 ground=0,
                  global_nodes=(),
              ):
 
         super(Circuit, self).__init__()
 
         self.title = str(title)
+        self._ground = ground
         self._global_nodes = set(global_nodes) # .global
         self._includes = set() # .include
         self._parameters = {} # .param
-        self._options = {} # .options
         self._subcircuits = {}
-        self._saved_nodes = ()
-        self._analysis_parameters = {}
+
+    ##############################################
+
+    @property
+    def gnd(self):
+        return self._ground
 
     ##############################################
 
     def parameter(self, name, expression):
 
         self._parameters[str(name)] = str(expression)
-
-    ##############################################
-
-    def options(self, *args, **kwargs):
-
-        for item in args:
-            self._options[str(item)] = None
-        for key, value in kwargs.iteritems():
-            self._options[str(key)] = str(value)
 
     ##############################################
 
@@ -327,6 +341,82 @@ class Circuit(Netlist):
     def subcircuit_iterator(self):
 
         return self._subcircuits.itervalues()
+
+    ##############################################
+
+    def __str__(self):
+
+        netlist = '.title {}\n'.format(self.title)
+        if self._includes:
+            netlist += join_lines(self._includes, prefix='.include ')  + '\n'
+        if self._global_nodes:
+            netlist += '.global ' + join_list(self._global_nodes) + '\n'
+        if self._parameters:
+            netlist += join_lines(self._parameters, prefix='.param ') + '\n'
+        if self._subcircuits:
+            netlist += join_lines(self.subcircuit_iterator())
+        netlist += super(Circuit, self).__str__()
+        netlist += '.end\n'
+        return netlist
+
+    ##############################################
+
+    def simulation(self, *args, **kwargs):
+        return CircuitSimulation(self, *args, **kwargs)
+
+####################################################################################################
+
+class CircuitSimulation(object):
+
+    ##############################################
+
+    def __init__(self, circuit,
+                 temperature=27,
+                 nominal_temperature=27,
+                 pipe=False
+                ):
+
+        self._circuit = circuit
+
+        self._options = {} # .options
+        self._saved_nodes = ()
+        self._analysis_parameters = {}
+
+        self.temperature = temperature
+        self.nominal_temperature = nominal_temperature
+
+        if pipe:
+            self.options('NOINIT')
+            self.options(filetype='binary')
+
+    ##############################################
+
+    def options(self, *args, **kwargs):
+
+        for item in args:
+            self._options[str(item)] = None
+        for key, value in kwargs.iteritems():
+            self._options[str(key)] = str(value)
+
+    ##############################################
+
+    @property
+    def temperature(self):
+        return self._options['TEMP']
+
+    @temperature.setter
+    def temperature(self, value):
+        self._options['TEMP'] = value
+
+    ##############################################
+
+    @property
+    def nominal_temperature(self):
+        return self._options['TNOM']
+
+    @nominal_temperature.setter
+    def nominal_temperature(self, value):
+        self._options['TNOM'] = value
 
     ##############################################
 
@@ -344,27 +434,17 @@ class Circuit(Netlist):
 
     def __str__(self):
 
-        netlist = '.title {}\n'.format(self.title)
-        if self._includes:
-            netlist += join_lines(self._includes, prefix='.include ')  + '\n'
+        netlist = str(self._circuit)
         if self.options:
             for key, value in self._options.iteritems():
                 if value is not None:
                     netlist += '.options {} = {}\n'.format(key, value)
                 else:
                     netlist += '.options {}\n'.format(key)
-        if self._global_nodes:
-            netlist += '.global ' + join_list(self._global_nodes) + '\n'
-        if self._parameters:
-            netlist += join_lines(self._parameters, prefix='.param ') + '\n'
-        if self._subcircuits:
-            netlist += join_lines(self.subcircuit_iterator())
-        netlist += super(Circuit, self).__str__()
         if self._saved_nodes:
             netlist += '.save ' + join_list(self._saved_nodes) + '\n'
         for analysis, analysis_parameters in self._analysis_parameters.iteritems():
             netlist += '.' + analysis + ' ' + join_list(analysis_parameters) + '\n'
-        netlist += '.end\n'
         return netlist
 
 ####################################################################################################
