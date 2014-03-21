@@ -1,0 +1,19 @@
+include	.bzrignore
+include .gitignore
+include .pyflymakerc
+include CHANGES.txt
+include GPL-V3.0.txt
+include LICENSE.txt
+include MANIFEST.in
+include TODO.rst
+include make-release.sh
+include pylintrc.ini
+include setenv.sh start.sh
+include setup_data.py
+recursive-include doc *
+recursive-include share *
+recursive-include spec *.spec *.desktop
+recursive-include tools *
+recursive-include unit-test *.py
+prune build
+prune doc/sphinx/build
