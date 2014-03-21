@@ -1,0 +1,135 @@
+#! /usr/bin/env python
+# -*- Python -*-
+
+####################################################################################################
+# 
+# PySpice - A Spice Package for Python
+# Copyright (C) 2014 Fabrice Salvaire
+# 
+####################################################################################################
+
+####################################################################################################
+
+import argparse
+import os
+import subprocess
+
+####################################################################################################
+#
+# Options
+#
+
+argument_parser = argparse.ArgumentParser(description='Check License Header',
+                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+argument_parser.add_argument('source_path', metavar='PATH',
+                             help='source path')
+
+argument_parser.add_argument('--check',
+                             action='store_true', default=False,
+                             help='source path')
+
+argument_parser.add_argument('--set',
+                             # default=None,
+                             action='store_true', default=False,
+                             help='Set license')
+
+args = argument_parser.parse_args()
+
+####################################################################################################
+
+class LicenseChecker(object):
+
+    __excluded_extension__ = (
+        '.o',
+        '.png',
+        '.ui',
+        )
+
+    ##############################################
+
+    def __init__(self, path):
+
+        self._path = path
+
+    ##############################################
+
+    def iter_file(self, followlinks=False):
+
+        for root, directories, files in os.walk(self._path, followlinks=followlinks):
+            # if root == self._path:
+            for directory in ('.git', '.bzr'):
+                if directory in directories:
+                    directories.remove(directory)
+            for filename in files:
+                extension = os.path.splitext(filename)[-1]
+                if not filename.endswith('~') and extension not in self.__excluded_extension__:
+                    yield os.path.join(root, filename)
+
+    ##############################################
+
+    def check(self):
+
+        for path in self.iter_file():
+            if self._check_file(path) is None:
+                print path
+
+    ##############################################
+
+    def set(self):
+
+        root_path = os.path.dirname(os.path.realpath(__file__))
+        replace_slice = os.path.join(root_path, 'replace-slice')
+        license_model_py = os.path.join(root_path, 'license-model.py')
+
+        for path in self.iter_file():
+            line_slice = self._check_file(path)
+            if path != license_model_py and line_slice is not None:
+                # input_path = path + '~'
+                # os.rename(path, input_path)
+                print 'Set', path
+                subprocess.call((replace_slice, path, license_model_py, str(line_slice.start), str(line_slice.stop +1)))
+
+    ##############################################
+
+    def _check_file(self, path):
+
+        with open(path, 'r') as file_handle:
+            inside_banner = False
+            copyright_found = False
+            line_slice_start = None
+            line_slice_stop = None
+            for line_index, line in enumerate(file_handle):
+                if not inside_banner:
+                    if line.startswith('#'*10):
+                        inside_banner = True
+                        line_slice_start = line_index
+                else:
+                    if line.startswith('#'*10):
+                        line_slice_stop = line_index
+                        break
+                    elif line.startswith('# '):
+                        if 'Copyright' in line:
+                            copyright_found = True
+                    else:
+                        copyright_found = False
+                        break
+            if not copyright_found:
+                return None
+            else:
+                return slice(line_slice_start, line_slice_stop +1)
+
+####################################################################################################
+
+license_checker = LicenseChecker(os.path.realpath(args.source_path))
+
+if args.check:
+    license_checker.check()
+elif args.set:
+    license_checker.set()
+
+####################################################################################################
+# 
+# End
+# 
+####################################################################################################

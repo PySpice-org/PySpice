@@ -1,0 +1,119 @@
+#! /usr/bin/env python
+# -*- python -*-
+
+####################################################################################################
+# 
+# PySpice - A Spice package for Python
+# Copyright (C) 2014 Salvaire Fabrice
+#
+####################################################################################################
+
+####################################################################################################
+
+import argparse
+import ast
+    
+####################################################################################################
+#
+# Options
+#
+
+argument_parser = argparse.ArgumentParser(description='Dump class attibutes in REST')
+
+argument_parser.add_argument('file_name',
+                             metavar='file.py',
+                             help='Source File')
+
+args = argument_parser.parse_args()
+
+####################################################################################################
+
+class AttributeVisitor(ast.NodeVisitor):
+
+    ##############################################
+
+    def reset(self):
+
+        self._attributes = set()
+        self._functions = set()
+        self._class_name = ''
+        self._function_name = ''
+
+    ##############################################
+
+    def visit_Module(self, node):
+
+        self.reset()
+        self.generic_visit(node)
+
+    ##############################################
+
+    def visit_ClassDef(self, node):
+
+        self.reset()
+        self._class_name = node.name
+        self.generic_visit(node)
+        self.dump_attributes()
+        self.reset()
+
+    ##############################################
+
+    def visit_FunctionDef(self, node):
+
+        self._function_name = node.name
+        self._functions.add(self._function_name)
+        self.generic_visit(node)
+        self._function_name = ''
+
+    ##############################################
+
+    def visit_Attribute(self, node):
+
+        # Miss class attributes
+        if isinstance(node.value, ast.Name) and node.value.id == 'self':
+            attribute_name = node.attr
+            attribute_path = '%s.%s' % (self._function_name, attribute_name)
+            self._attributes.add(attribute_path)
+            self.generic_visit(node)
+
+    ##############################################
+
+    def dump_attributes(self):
+
+        public_attributes = set()
+        private_attributes = set()
+        for attribute_path in self._attributes:
+            function_name, attribute_name = attribute_path.split('.')
+            if function_name and attribute_name not in self._functions:
+                if attribute_name.startswith('_'):
+                    if attribute_name != '__dict__':
+                        private_attributes.add(attribute_name)
+                else:
+                    public_attributes.add(attribute_name)
+
+        print '\nClass %s' % (self._class_name)
+        print '''
+    """
+    
+    Private Attributes:'''
+        for attribute_name in sorted(private_attributes):
+            print '\n      :attr:`%s`' % (attribute_name)
+        print '''
+    Public Attributes:'''
+        for attribute_name in sorted(public_attributes):
+            print '\n      :attr:`%s`' % (attribute_name)
+        print '''
+    """
+'''
+
+####################################################################################################
+
+source = open(args.file_name).read()
+source_ast = ast.parse(source, args.file_name)
+AttributeVisitor().visit(source_ast)
+
+####################################################################################################
+# 
+# End
+# 
+####################################################################################################

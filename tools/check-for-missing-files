@@ -1,0 +1,90 @@
+#! /usr/bin/env python
+# -*- Python -*-
+
+####################################################################################################
+# 
+# PySpice - A Spice package for Python
+# Copyright (C) 2014 Salvaire Fabrice
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+# 
+####################################################################################################
+
+####################################################################################################
+
+import os
+import tarfile
+
+####################################################################################################
+
+def parent_directory_of(file_name, step=1):
+    directory = file_name
+    for i in xrange(step):
+        directory = os.path.dirname(directory)
+    return directory
+
+####################################################################################################
+
+def absolut_to_relative_path(path, prefix):
+    if path == prefix:
+        return '.'
+    if prefix[-1] != os.sep:
+        prefix += os.sep
+    try:
+        if path[:len(prefix)] == prefix:
+            relative_path = path[len(prefix):]
+            if not relative_path:
+                return '.'
+            else:
+                return relative_path
+        else:
+            raise
+    except:
+        raise NameError("Path don't start by given prefix")
+
+####################################################################################################
+
+project_path = parent_directory_of(os.path.realpath(__file__), step=2)
+# print project_path
+
+execfile(os.path.join(project_path, 'setup_data.py'))
+
+root_prefix = setup_dict['name'] + '-' + setup_dict['version']
+file_name = os.path.join('dist', root_prefix + '.tar.gz')
+
+tar_file = tarfile.open(file_name)
+file_names_in_tar = [absolut_to_relative_path(x, root_prefix)
+                    for x in tar_file.getnames()
+                    if x != root_prefix]
+# print file_names_in_tar
+
+for path, directories, file_names in os.walk(project_path):
+    directory = absolut_to_relative_path(path, project_path)
+    for sub_directory in ('.bzr', '.git', 'build', 'dist'):
+        try:
+            index = directories.index(sub_directory)
+            del directories[index]
+        except:
+            pass
+    for file_name in file_names:
+        if directory != '.':
+            file_name = os.path.join(directory, file_name)
+        if file_name not in file_names_in_tar and file_name[-1] != '~':
+            print file_name
+
+####################################################################################################
+#
+# End
+#
+####################################################################################################
