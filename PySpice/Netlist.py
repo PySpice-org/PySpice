@@ -39,44 +39,215 @@ def join_dict(d):
 
 ####################################################################################################
 
-class Element(object):
-
-    ##############################################
-
-    def __init__(self, name, nodes, *args, **kwargs):
-
-        self.name = str(name)
-        self.nodes = list(nodes)
-        self.parameters = list(args)
-        self.dict_parameters = dict(kwargs)
-
-    ##############################################
-
-    def __str__(self):
-
-        return "{} {} {} {}".format(self.name,
-                                    join_list(self.nodes),
-                                    join_list(self.parameters),
-                                    join_dict(self.dict_parameters),
-                                   )
-
-####################################################################################################
-
 class DeviceModel(object):
 
     ##############################################
 
     def __init__(self, name, modele_type, **parameters):
 
-        self.name = str(name)
-        self.model = str(modele_type)
-        self.parameters = dict(**parameters)
+        self._name = str(name)
+        self._model = str(modele_type)
+        self._parameters = dict(**parameters)
+
+    ##############################################
+
+    @property
+    def name(self):
+        return self._name
+
+    ##############################################
+
+    @property
+    def model(self):
+        return self._model
+
+    ##############################################
+
+    def __repr__(self):
+
+        return str(self.__class__) + ' ' + self.name
 
     ##############################################
 
     def __str__(self):
 
-        return ".model {} {} ({})".format(self.name, self.model, join_dict(self.parameters))
+        return ".model {} {} ({})".format(self._name, self._model, join_dict(self._parameters))
+
+####################################################################################################
+
+class Element(object):
+
+    prefix = None
+
+    ##############################################
+
+    def __init__(self, name, nodes, *args, **kwargs):
+
+        self._name = str(name)
+        self._nodes = list(nodes)
+        self._parameters = list(args)
+        self._dict_parameters = dict(kwargs)
+
+    ##############################################
+
+    @property
+    def name(self):
+        return self.prefix + self._name
+
+    ##############################################
+
+    @property
+    def nodes(self):
+        return self._nodes
+
+    ##############################################
+
+    def __repr__(self):
+
+        return str(self.__class__) + ' ' + self.name
+
+    ##############################################
+
+    def __str__(self):
+
+        return "{} {} {} {}".format(self.name,
+                                    join_list(self._nodes),
+                                    join_list(self._parameters),
+                                    join_dict(self._dict_parameters),
+                                   )
+
+####################################################################################################
+
+class SubCircuitElement(Element):
+
+    prefix = 'X'
+
+    ##############################################
+
+    def __init__(self, name, subcircuit_name, *nodes):
+
+        super(SubCircuitElement, self).__init__(name, nodes, subcircuit_name)
+
+####################################################################################################
+
+class TwoPortElement(Element):
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        super(TwoPortElement, self).__init__(name, (node_plus, node_minus), *args, **kwargs)
+
+    ##############################################
+
+    @property
+    def node_plus(self):
+        return self._nodes[0]
+
+    ##############################################
+
+    @property
+    def node_minus(self):
+        return self._nodes[1]
+
+####################################################################################################
+
+class Resistor(TwoPortElement):
+
+    """
+    Resistors
+    RXXXXXXX n+ n- value <ac=val> <m=val> <scale=val> <temp=val> <dtemp=val> <noisy=0|1>
+    
+    Semiconductor Resistors
+    RXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <temp=val> <dtemp=val> m=<val> <ac=val> <scale=val> <noisy=0|1>
+    
+    Resistors, dependent on expressions (behavioral resistor)
+    RXXXXXXX n+ n- R='expression' <tc1=value> <tc2=value>
+    RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
+    """
+
+    prefix = 'R'
+
+####################################################################################################
+
+class Capacitor(TwoPortElement):
+
+    """
+    Capacitors
+    CXXXXXXX n+ n- <value> <mname> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
+    
+    Semiconductor Capacitors
+    CXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
+    
+    Capacitors, dependent on expressions (behavioral capacitor)
+    CXXXXXXX n+ n- C='expression' <tc1=value> <tc2=value>
+    CXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
+    """
+
+    prefix = 'C'
+
+####################################################################################################
+
+class Inductor(TwoPortElement):
+
+    """
+    Inductors
+    LYYYYYYY n+ n- <value> <mname> <nt=val> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
+    
+    Inductors, dependent on expressions (behavioral inductor)
+    LXXXXXXX n+ n- L='expression' <tc1=value> <tc2=value>
+    LXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
+    """
+    
+    prefix = 'L'
+
+####################################################################################################
+
+class Diode(TwoPortElement):
+
+    """
+    Junction Diodes
+    DXXXXXXX n+ n- mname <area=val> <m=val> <pj=val> <off> <ic=vd> <temp=val> <dtemp=val>
+    """
+
+    prefix = 'D'
+
+####################################################################################################
+
+class VoltageSource(TwoPortElement):
+
+    """
+    Independent Sources for Voltage
+    VXXXXXXX N+ N- <<DC> DC/TRAN VALUE> <AC <ACMAG <ACPHASE>>> <DISTOF1 <F1MAG <F1PHASE>>> <DISTOF2 <F2MAG <F2PHASE>>>
+    """
+
+    prefix = 'V'
+
+####################################################################################################
+
+class Node(object):
+
+    ##############################################
+
+    def __init__(self, name):
+
+        self._name = name
+        self._elements = set()
+
+    ##############################################
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def elements(self):
+        return self._elements
+
+    ##############################################
+
+    def add_element(self, element):
+        self._elements.add(element) 
 
 ####################################################################################################
 
@@ -90,7 +261,8 @@ class Netlist(object):
         self._elements = {}
         self._models = {}
         self._dirty = True
-        self._nodes = set()
+        # self._nodes = set()
+        self._nodes = {}
 
         # self._graph = networkx.Graph()
 
@@ -117,17 +289,11 @@ class Netlist(object):
 
     ##############################################
 
-    def element(self, name, nodes, *args, **kwargs):
+    def _add_element(self, element):
 
-        element = Element(name, nodes, *args, **kwargs)
         if element.name not in self._elements:
             self._elements[element.name] = element
         self._dirty = True
-
-    ##############################################
-
-    def _prefix_element(self, prefix, name, nodes, *args, **kwargs):
-        self.element(prefix+name, nodes, *args, **kwargs)
 
     ##############################################
 
@@ -143,12 +309,21 @@ class Netlist(object):
     def nodes(self):
 
         if self._dirty:
-            nodes = set()
+            # nodes = set()
+            # for element in self.element_iterator():
+            #     nodes |= set(element.nodes)
+            # if self._ground is not None:
+            #     nodes -= set((self._ground,))
+            # self._nodes = nodes
+            self._nodes.clear()
             for element in self.element_iterator():
-                nodes |= set(element.nodes)
-            if self._ground is not None:
-                nodes -= set((self._ground,))
-            self._nodes = nodes
+                for node_name in element.nodes:
+                    if node_name not in self._nodes:
+                        node = Node(node_name)
+                        self._nodes[node_name] = node
+                    else:
+                        node = self._nodes[node_name]
+                    node.add_element(element)
         return self._nodes
 
     ##############################################
@@ -175,90 +350,33 @@ class Netlist(object):
 
     ##############################################
 
-    def X(self, name, subcircuit_name, *nodes):
-        self._prefix_element('x', name, nodes, subcircuit_name)
+    def X(self, *args):
+        self._add_element(SubCircuitElement(*args))
 
     ##############################################
 
-    def R(self, name, node_plus, node_minus, *args, **kwargs):
-
-        """
-        Resistors
-        RXXXXXXX n+ n- value <ac=val> <m=val> <scale=val> <temp=val> <dtemp=val> <noisy=0|1>
-
-        Semiconductor Resistors
-        RXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <temp=val> <dtemp=val> m=<val> <ac=val> <scale=val> <noisy=0|1>
-
-        Resistors, dependent on expressions (behavioral resistor)
-        RXXXXXXX n+ n- R='expression' <tc1=value> <tc2=value>
-        RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
-        """
-
-        self._prefix_element('R', name, (node_plus, node_minus), *args, **kwargs)
+    def R(self, *args, **kwargs):
+        self._add_element(Resistor(*args, **kwargs))
 
     ##############################################
 
-    def C(self, name, node_plus, node_minus, *args, **kwargs):
-
-        """
-        Capacitors
-        CXXXXXXX n+ n- <value> <mname> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
-        
-        Semiconductor Capacitors
-        CXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
-        
-        Capacitors, dependent on expressions (behavioral capacitor)
-        CXXXXXXX n+ n- C='expression' <tc1=value> <tc2=value>
-        CXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
-        """
-
-        self._prefix_element('C', name, (node_plus, node_minus), *args, **kwargs)
+    def C(self, *args, **kwargs):
+        self._add_element(Capacitor(*args, **kwargs))
 
     ##############################################
 
-    def L(self, name, node_plus, node_minus, *args, **kwargs):
-
-        """
-        Inductors
-        LYYYYYYY n+ n- <value> <mname> <nt=val> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
-
-        Inductors, dependent on expressions (behavioral inductor)
-        LXXXXXXX n+ n- L='expression' <tc1=value> <tc2=value>
-        LXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
-        """
-
-        self._prefix_element('L', name, (node_plus, node_minus), *args, **kwargs)
+    def L(self, *args, **kwargs):
+        self._add_element(Inductor(*args, **kwargs))
 
     ##############################################
 
-    def D(self, name, node_plus, node_minus, *args, **kwargs):
-
-        """
-        Junction Diodes
-        DXXXXXXX n+ n- mname <area=val> <m=val> <pj=val> <off> <ic=vd> <temp=val> <dtemp=val>
-        """
-
-        self._prefix_element('D', name, (node_plus, node_minus), *args, **kwargs)
+    def D(self, *args, **kwargs):
+        self._add_element(Diode(*args, **kwargs))
 
     ##############################################
 
-    def V(self, name, node_plus, node_minus, *args, **kwargs):
-
-        """
-        Independent Sources for Voltage or Current
-        VXXXXXXX N+ N- <<DC> DC/TRAN VALUE> <AC <ACMAG <ACPHASE>>> <DISTOF1 <F1MAG <F1PHASE>>> <DISTOF2 <F2MAG <F2PHASE>>>
-        """
-
-        self._prefix_element('V', name, (node_plus, node_minus), *args, **kwargs)
-
-    ##############################################
-
-    # def (self, name, node_plus, node_minus, *args, **kwargs):
-
-    #     """
-    #     """
-
-    #     self._prefix_element('', name, (node_plus, node_minus), *args, **kwargs)
+    def V(self, *args, **kwargs):
+        self._add_element(VoltageSource(*args, **kwargs))
 
 ####################################################################################################
 

@@ -23,16 +23,17 @@ circuit.X('D', '1N4148', 'in', 'out')
 circuit.C('load', 'out', circuit.gnd, micro(100))
 circuit.R('load', 'out', circuit.gnd, kilo(1), ac='1k')
 
-print circuit.nodes
-print circuit.Cload
-# print circuit.1N4148
-print subcircuit_1N4148['1N4148']
-print circuit.out
-
 simulation = circuit.simulation(temperature=25, nominal_temperature=25, pipe=True)
 simulation.options(filetype='binary')
 simulation.save('V(in)', 'V(out)')
 simulation.tran(step_time, end_time)
+
+print circuit.nodes
+print repr(circuit.Cload)
+# print circuit.1N4148
+print subcircuit_1N4148['1N4148']
+print circuit.out
+print '\n\n'
 
 print str(simulation)
 # python PySpice/test_netlist.py | ngspice -s > data

@@ -46,7 +46,7 @@ Junction Field-Effect Transistors (JFETs)
 JXXXXXXX nd ng ns mname <area> <off> <ic=vds,vgs> <temp=t>
 
 MESFETs
-ZXXXXXXX ND NG NS MNAME <AREA> <OFF> <IC=VDS,VGS>
+ZXXXXXXX nd ng ns mname <area> <off> <ic=vds,vgs>
 
 MOSFET devices
 MXXXXXXX nd ng ns nb mname <m=val> <l=val> <w=val> <ad=val> <as=val> <pd=val> <ps=val> <nrd=val> <nrs=val> <off> <ic=vds,vgs,vbs> <temp=t>
