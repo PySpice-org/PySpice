@@ -75,16 +75,42 @@ class DeviceModel(object):
 
 ####################################################################################################
 
+class Pin(object):
+
+    ##############################################
+
+    def __init__(self, element, name, node):
+
+        self.element = element
+        self.name = name
+        self.node = node
+
+    ##############################################
+
+    def __repr__(self):
+
+        return "Pin {} of {} on node {}".format(self.name, self.element.name, self.node)
+
+    ##############################################
+
+    def add_current_probe(self, circuit):
+
+        node = self.node
+        self.node = '_'.join((self.element.name, self.name))
+        circuit.V(self.node, node, self.node, '0')
+
+####################################################################################################
+
 class Element(object):
 
     prefix = None
 
     ##############################################
 
-    def __init__(self, name, nodes, *args, **kwargs):
+    def __init__(self, name, pins, *args, **kwargs):
 
         self._name = str(name)
-        self._nodes = list(nodes)
+        self._pins = list(pins)
         self._parameters = list(args)
         self._dict_parameters = dict(kwargs)
 
@@ -97,21 +123,27 @@ class Element(object):
     ##############################################
 
     @property
+    def pins(self):
+        return self._pins
+
+    ##############################################
+
+    @property
     def nodes(self):
-        return self._nodes
+        return [pin.node for pin in self._pins]
 
     ##############################################
 
     def __repr__(self):
 
-        return str(self.__class__) + ' ' + self.name
+        return self.__class__.__name__ + ' ' + self.name
 
     ##############################################
 
     def __str__(self):
 
         return "{} {} {} {}".format(self.name,
-                                    join_list(self._nodes),
+                                    join_list(self.nodes),
                                     join_list(self._parameters),
                                     join_dict(self._dict_parameters),
                                    )
@@ -126,7 +158,9 @@ class SubCircuitElement(Element):
 
     def __init__(self, name, subcircuit_name, *nodes):
 
-        super(SubCircuitElement, self).__init__(name, nodes, subcircuit_name)
+        pins = [Pin(self, None, node) for node in nodes]
+
+        super(SubCircuitElement, self).__init__(name, pins, subcircuit_name)
 
 ####################################################################################################
 
@@ -136,19 +170,21 @@ class TwoPortElement(Element):
 
     def __init__(self, name, node_plus, node_minus, *args, **kwargs):
 
-        super(TwoPortElement, self).__init__(name, (node_plus, node_minus), *args, **kwargs)
+        pins = (Pin(self, 'plus', node_plus), Pin(self, 'minus', node_minus))
+
+        super(TwoPortElement, self).__init__(name, pins, *args, **kwargs)
 
     ##############################################
 
     @property
-    def node_plus(self):
-        return self._nodes[0]
+    def plus(self):
+        return self.pins[0]
 
     ##############################################
 
     @property
-    def node_minus(self):
-        return self._nodes[1]
+    def minus(self):
+        return self.pins[1]
 
 ####################################################################################################
 
@@ -233,6 +269,11 @@ class Node(object):
 
         self._name = name
         self._elements = set()
+
+    ##############################################
+
+    def __repr__(self):
+        return 'Node {}'.format(self._name)
 
     ##############################################
 
@@ -324,7 +365,7 @@ class Netlist(object):
                     else:
                         node = self._nodes[node_name]
                     node.add_element(element)
-        return self._nodes
+        return self._nodes.values()
 
     ##############################################
 
@@ -334,7 +375,7 @@ class Netlist(object):
             return self._elements[attribute_name]
         elif attribute_name in self._models:
             return self._models[attribute_name]
-        elif attribute_name in self.nodes:
+        elif attribute_name in self._nodes:
             return attribute_name
         else:
             raise IndexError(attribute_name)
