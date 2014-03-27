@@ -46,7 +46,7 @@ class DeviceModel(object):
     def __init__(self, name, modele_type, **parameters):
 
         self._name = str(name)
-        self._model = str(modele_type)
+        self._model_type = str(modele_type)
         self._parameters = dict(**parameters)
 
     ##############################################
@@ -58,8 +58,8 @@ class DeviceModel(object):
     ##############################################
 
     @property
-    def model(self):
-        return self._model
+    def model_type(self):
+        return self._model_type
 
     ##############################################
 
@@ -71,7 +71,7 @@ class DeviceModel(object):
 
     def __str__(self):
 
-        return ".model {} {} ({})".format(self._name, self._model, join_dict(self._parameters))
+        return ".model {} {} ({})".format(self._name, self._model_type, join_dict(self._parameters))
 
 ####################################################################################################
 
