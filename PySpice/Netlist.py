@@ -485,6 +485,12 @@ class Circuit(Netlist):
 
     ##############################################
 
+    def include(self, path):
+
+        self._includes.add(path)
+
+    ##############################################
+
     def parameter(self, name, expression):
 
         self._parameters[str(name)] = str(expression)

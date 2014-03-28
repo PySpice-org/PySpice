@@ -18,7 +18,7 @@ class SpiceLibrary(object):
 
     def __init__(self, root_path):
 
-        self._directory = Directory(root_path)
+        self._directory = Directory(root_path).expand_vars_and_user()
 
         self._subcircuits = {}
         self._models = {}

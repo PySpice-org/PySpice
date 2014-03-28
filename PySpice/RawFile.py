@@ -75,6 +75,8 @@ class RawFile(object):
 
     """
 
+    _logger = _module_logger.getChild('RawFile')
+
     ##############################################
 
     def __init__(self, stdout, stderr):
@@ -106,16 +108,27 @@ class RawFile(object):
         self.variables = []
         for i in xrange(self.number_of_variables):
             line = header_line_iterator.next()
+            self._logger.debug(line)
             index, name, unit = [x.strip() for x in line.split('\t') if x]
             self.variables.append(WaveFormVariable(index, name, unit))
         # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
 
-        dtype = {}
+        # dtype = {}
+        # for variable in enumerate(self.variables):
+        # (name, offset, title)
+        #     dtype[variable.name] = ('f8', 0, '{} [{}]'.format(variable.name, variable.unit))
+        dtype = [(variable.name, 'f8') for variable in self.variables]
+        self.data = np.zeros(self.number_of_points, dtype=dtype)
+        # Fixme: simpler way
+        input_data = np.fromstring(raw_data, count=self.number_of_variables*self.number_of_points, dtype='f8')
+        input_data = input_data.reshape((self.number_of_points, self.number_of_variables))
+        input_data = input_data.transpose()
+        # self.data[:] = input_data # don't work
+        # ValueError: could not broadcast input array from shape (2023,5) into shape (2023)
         for variable in self.variables:
-            dtype[variable.name] = ('f8', 0, '{} [{}]'.format(variable.name, variable.unit))
-        data = np.fromstring(raw_data, count=self.number_of_variables*self.number_of_points, dtype=dtype)
-        data = data.reshape((self.number_of_points, self.number_of_variables))
-        self.data = data.transpose()
+            self.data[variable.name] = input_data[variable.index,:]
+        # for i in xrange(self.number_of_points):
+        #    self.data[i] = tuple(input_data[i,:])
 
     ##############################################
         
@@ -132,6 +145,7 @@ class RawFile(object):
     def _read_header_line(self, header_line_iterator, head_line):
 
         line = self._read_line(header_line_iterator)
+        self._logger.debug(line)
         if not line.startswith(head_line):
             raise NameError("Unexpected line: %s" % (line))
 
@@ -140,9 +154,11 @@ class RawFile(object):
     def _read_header_field_line(self, header_line_iterator, expected_label, has_value=True):
 
         line = self._read_line(header_line_iterator)
-        # print line
+        self._logger.debug(line)
         if has_value:
-            label, value = line.split(': ')
+            # a title can have ': ' after 'title: '
+            location = line.find(': ') # first occurence
+            label, value = line[:location], line[location+2:]
         else:
             label = line[:-1]
         if label != expected_label:

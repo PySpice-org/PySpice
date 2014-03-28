@@ -103,6 +103,12 @@ class Path(object):
 
     ##############################################
 
+    def expand_vars_and_user(self):
+
+        return self.clone_for_path(os.path.expandvars(os.path.expanduser(self._path)))
+
+    ##############################################
+
     def real_path(self):
 
         return self.clone_for_path(os.path.realpath(self._path))
