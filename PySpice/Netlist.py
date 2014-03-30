@@ -1,6 +1,6 @@
 ####################################################################################################
 # 
-# @Project@ - @ProjectDescription@.
+# PySpice - A Spice package for Python
 # Copyright (C) 2014 Fabrice Salvaire
 # 
 ####################################################################################################
@@ -21,6 +21,8 @@
 ####################################################################################################
 
 # import networkx
+
+####################################################################################################
 
 ####################################################################################################
 
@@ -188,79 +190,6 @@ class TwoPortElement(Element):
 
 ####################################################################################################
 
-class Resistor(TwoPortElement):
-
-    """
-    Resistors
-    RXXXXXXX n+ n- value <ac=val> <m=val> <scale=val> <temp=val> <dtemp=val> <noisy=0|1>
-    
-    Semiconductor Resistors
-    RXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <temp=val> <dtemp=val> m=<val> <ac=val> <scale=val> <noisy=0|1>
-    
-    Resistors, dependent on expressions (behavioral resistor)
-    RXXXXXXX n+ n- R='expression' <tc1=value> <tc2=value>
-    RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
-    """
-
-    prefix = 'R'
-
-####################################################################################################
-
-class Capacitor(TwoPortElement):
-
-    """
-    Capacitors
-    CXXXXXXX n+ n- <value> <mname> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
-    
-    Semiconductor Capacitors
-    CXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
-    
-    Capacitors, dependent on expressions (behavioral capacitor)
-    CXXXXXXX n+ n- C='expression' <tc1=value> <tc2=value>
-    CXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
-    """
-
-    prefix = 'C'
-
-####################################################################################################
-
-class Inductor(TwoPortElement):
-
-    """
-    Inductors
-    LYYYYYYY n+ n- <value> <mname> <nt=val> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
-    
-    Inductors, dependent on expressions (behavioral inductor)
-    LXXXXXXX n+ n- L='expression' <tc1=value> <tc2=value>
-    LXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
-    """
-    
-    prefix = 'L'
-
-####################################################################################################
-
-class Diode(TwoPortElement):
-
-    """
-    Junction Diodes
-    DXXXXXXX n+ n- mname <area=val> <m=val> <pj=val> <off> <ic=vd> <temp=val> <dtemp=val>
-    """
-
-    prefix = 'D'
-
-####################################################################################################
-
-class VoltageSource(TwoPortElement):
-
-    """
-    Independent Sources for Voltage
-    VXXXXXXX N+ N- <<DC> DC/TRAN VALUE> <AC <ACMAG <ACPHASE>>> <DISTOF1 <F1MAG <F1PHASE>>> <DISTOF2 <F2MAG <F2PHASE>>>
-    """
-
-    prefix = 'V'
-
-####################################################################################################
-
 class Node(object):
 
     ##############################################
@@ -393,31 +322,6 @@ class Netlist(object):
 
     def X(self, *args):
         self._add_element(SubCircuitElement(*args))
-
-    ##############################################
-
-    def R(self, *args, **kwargs):
-        self._add_element(Resistor(*args, **kwargs))
-
-    ##############################################
-
-    def C(self, *args, **kwargs):
-        self._add_element(Capacitor(*args, **kwargs))
-
-    ##############################################
-
-    def L(self, *args, **kwargs):
-        self._add_element(Inductor(*args, **kwargs))
-
-    ##############################################
-
-    def D(self, *args, **kwargs):
-        self._add_element(Diode(*args, **kwargs))
-
-    ##############################################
-
-    def V(self, *args, **kwargs):
-        self._add_element(VoltageSource(*args, **kwargs))
 
 ####################################################################################################
 

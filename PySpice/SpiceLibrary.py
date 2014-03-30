@@ -1,14 +1,14 @@
 ####################################################################################################
 # 
-# @Project@ - @ProjectDescription@.
-# Copyright (C) 2014 Fabrice Salvaire
+# PySpice - A Spice package for Python
+# Copyright (C) Salvaire Fabrice 2014
 # 
 ####################################################################################################
 
 ####################################################################################################
 
-from PySpice.File import Directory
-from PySpice.SpiceParser import SpiceParser
+from .Tools.File import Directory
+from .SpiceParser import SpiceParser
 
 ####################################################################################################
 

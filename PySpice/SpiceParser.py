@@ -1,7 +1,7 @@
 ####################################################################################################
 # 
-# @Project@ - @ProjectDescription@.
-# Copyright (C) 2014 Fabrice Salvaire
+# PySpice - A Spice package for Python
+# Copyright (C) Salvaire Fabrice 2014
 # 
 ####################################################################################################
 
