@@ -5,11 +5,11 @@
 * **************************************************************************************************
 
 * 1N4148
-.include ../../libraries/diode/standard-rectifier/1N4148.lib
+.include /home/gv/sys/fc14/fabrice/electronic-design-pattern/spice/libraries/diode/standard-rectifier/1N4148.lib
 
 * 1N5919B: 5.6 V, 3.0 W Zener Diode Voltage Regulator
 * d1n5919brl
-.include ../../libraries/diode/zener/1N5919B-spice3.lib
+.include /home/gv/sys/fc14/fabrice/electronic-design-pattern/spice/libraries/diode/zener/1N5919B-spice3.lib
 
 * **************************************************************************************************
 

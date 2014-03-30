@@ -60,9 +60,9 @@ for field in raw_file.variables:
 data = raw_file.data
 pylab.plot(data['time'], data['v(in)']/100,
            data['time'], data['v(out)'],
-           data['time'], (data['v(out)'] - data['v(in)'])/10,
+           data['time'], (data['v(out)'] - data['v(in)'])/100,
            data['time'], data['v(out)'] - data['v(1)'],
-           data['time'], (data['v(1)'] - data['v(2)'])/10,
+           data['time'], (data['v(1)'] - data['v(2)'])/100,
        )
 pylab.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
 pylab.grid()
