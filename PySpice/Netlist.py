@@ -136,6 +136,18 @@ class Element(object):
 
     ##############################################
 
+    @property
+    def parameters(self):
+        return self._parameters
+
+    ##############################################
+
+    @property
+    def dict_parameters(self):
+        return self._dict_parameters
+
+    ##############################################
+
     def __repr__(self):
 
         return self.__class__.__name__ + ' ' + self.name
@@ -146,8 +158,8 @@ class Element(object):
 
         return "{} {} {} {}".format(self.name,
                                     join_list(self.nodes),
-                                    join_list(self._parameters),
-                                    join_dict(self._dict_parameters),
+                                    join_list(self.parameters),
+                                    join_dict(self.dict_parameters),
                                    )
 
 ####################################################################################################
@@ -263,7 +275,9 @@ class Netlist(object):
 
         if element.name not in self._elements:
             self._elements[element.name] = element
-        self._dirty = True
+            self._dirty = True
+        else:
+            raise NameError("Element name {} is already defined".format(element.name))
 
     ##############################################
 
@@ -442,7 +456,7 @@ class CircuitSimulation(object):
     def __init__(self, circuit,
                  temperature=27,
                  nominal_temperature=27,
-                 pipe=False
+                 pipe=True,
                 ):
 
         self._circuit = circuit
@@ -495,9 +509,9 @@ class CircuitSimulation(object):
 
     ##############################################
 
-    def tran(self, *args):
+    def tran(self, step_time, end_time):
 
-        self._analysis_parameters['tran'] = list(args)
+        self._analysis_parameters['tran'] = (step_time, end_time)
 
     ##############################################
 

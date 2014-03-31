@@ -1,7 +1,6 @@
 ####################################################################################################
 
 import logging
-import math
 
 from matplotlib import pylab
 
@@ -23,21 +22,13 @@ spice_server = SpiceServer()
 
 ####################################################################################################
 
-# Fixme: Sin class
-frequence = 50
-perdiod = 1. / frequence
-step_time = perdiod/200
-end_time = perdiod*10
-line_rms_voltage = 230
-line_peak_voltage = line_rms_voltage * math.sqrt(2)
-
 circuit = Circuit('STM AN1476: Low-Cost Power Supply For Home Appliances')
 
 circuit.include(spice_library['1N4148'])
 # 1N5919B: 5.6 V, 3.0 W Zener Diode Voltage Regulator
 circuit.include(spice_library['d1n5919brl'])
 
-circuit.V('input', 'out', 'in', 'DC 0V', 'SIN(0V {}V {}Hz)'.format(line_peak_voltage, frequence))
+ac_line = circuit.AcLine('input', 'out', 'in', rms_voltage=230, frequency=50)
 circuit.R('load', 'out', circuit.gnd, kilo(1))
 circuit.C('load', 'out', circuit.gnd, micro(220))
 circuit.X('D1', '1N4148', circuit.gnd, 1)
@@ -45,11 +36,12 @@ circuit.X('Dz1', 'd1n5919brl', 1, 'out')
 circuit.C('ac', 1, 2, nano(470))
 circuit.R('ac', 2, 'in', 470)
 
-simulation = circuit.simulation(temperature=25, nominal_temperature=25, pipe=True)
+simulation = circuit.simulation(temperature=25, nominal_temperature=25)
 # Fixme: circuit.nodes[2].v, circuit.branch.current
 print circuit.nodes
 simulation.save('V(in)', 'V(out)', 'V(1)', 'V(2)')
-simulation.tran(step_time, end_time)
+simulation.tran(step_time=ac_line.period/200,
+                end_time=ac_line.period*10)
 
 print str(simulation)
 
