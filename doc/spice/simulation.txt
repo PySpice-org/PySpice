@@ -1,0 +1,60 @@
+####################################################################################################
+
+.control
+commands
+.endc
+
+####################################################################################################
+
+.options opt1 opt2 ... ( or opt=optval ...)
+.nodeset v(nodnum)=val v(nodnum)=val ...
+.ic v(nodnum)=val v(nodnum)=val
+
+####################################################################################################
+
+.ac dec nd fstart fstop
+.ac oct no fstart fstop
+.ac lin np fstart fstop
+
+.dc srcnam vstart vstop vincr [ src2 start2 stop2 incr2 ]
+
+.disto dec nd fstart fstop <f2overf1>
+.disto oct no fstart fstop <f2overf1>
+.disto lin np fstart fstop <f2overf1>
+
+.noise v(output <,ref>) src (dec|lin|oct) pts fstart fstop <pts_per_summary>
+
+.op
+
+.pz node1 node2 node3 node4 cur pol
+.pz node1 node2 node3 node4 cur zer
+.pz node1 node2 node3 node4 cur pz
+.pz node1 node2 node3 node4 vol pol
+.pz node1 node2 NODE3 node4 vol zer
+.pz node1 node2 node3 node4 vol pz
+
+.sens outvar
+.sens outvar ac dec nd fstart fstop
+.sens outvar ac oct no fstart fstop
+.sens outvar ac lin np fstart fstop
+
+.tf outvar insrc
+
+.tran tstep tstop <tstart <tmax>> <uic>
+
+.pss gfreq tstab oscnob psspoints harms sciter steadycoeff <uic>
+
+####################################################################################################
+
+.measure ...
+
+.save vector ...
+.probe vector ...
+
+.print prtype ov1 <ov2 ... ov8>
+
+.plot pltype ov1 <(plo1,phi1)> <ov2 <(plo2,phi2)> ... ov8>
+
+.four freq ov1 <ov2 ov3 ...>
+
+####################################################################################################
