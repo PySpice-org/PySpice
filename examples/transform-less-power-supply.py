@@ -40,8 +40,8 @@ simulation = circuit.simulation(temperature=25, nominal_temperature=25)
 # Fixme: circuit.nodes[2].v, circuit.branch.current
 print circuit.nodes
 simulation.save('V(in)', 'V(out)', 'V(1)', 'V(2)')
-simulation.tran(step_time=ac_line.period/200,
-                end_time=ac_line.period*10)
+simulation.transient(step_time=ac_line.period/200,
+                     end_time=ac_line.period*10)
 
 print str(simulation)
 

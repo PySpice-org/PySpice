@@ -43,7 +43,7 @@ class WaveFormVariable(object):
 
     def __repr__(self):
 
-        return 'node[{self.index}]: {self.name} [{self.unit}]'.format(self=self)
+        return 'variable[{self.index}]: {self.name} [{self.unit}]'.format(self=self)
 
 ####################################################################################################
 

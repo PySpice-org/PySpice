@@ -509,7 +509,19 @@ class CircuitSimulation(object):
 
     ##############################################
 
-    def tran(self, step_time, end_time):
+    def operating_point(self):
+
+        self._analysis_parameters['op'] = ''
+
+    ##############################################
+
+    def dc_sensitivity(self, output_variable):
+
+        self._analysis_parameters['sens'] = (output_variable,)
+
+    ##############################################
+
+    def transient(self, step_time, end_time):
 
         self._analysis_parameters['tran'] = (step_time, end_time)
 
