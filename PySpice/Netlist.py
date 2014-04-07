@@ -24,20 +24,7 @@
 
 ####################################################################################################
 
-####################################################################################################
-
-def join_lines(items, prefix=''):
-    return '\n'.join([prefix + str(item) for item in items])
-
-####################################################################################################
-
-def join_list(items):
-    return ' '.join([str(item) for item in items])
-
-####################################################################################################
-
-def join_dict(d):
-    return ' '.join(["{}={}".format(key, value) for key, value in d.iteritems()])
+from .Tools.StringTools import join_lines, join_list, join_dict
 
 ####################################################################################################
 
@@ -517,11 +504,33 @@ class CircuitSimulation(object):
 
     def dc_sensitivity(self, output_variable):
 
+        """
+        .sens outvar
+        .sens outvar ac dec nd fstart fstop
+        .sens outvar ac oct no fstart fstop
+        .sens outvar ac lin np fstart fstop
+        """
+
         self._analysis_parameters['sens'] = (output_variable,)
 
     ##############################################
 
+    def dc(self, **kwargs):
+
+        """ .dc srcnam vstart vstop vincr [ src2 start2 stop2 incr2 ] """
+
+        parameters = []
+        for source_name, voltage_slice in kwargs.iteritems():
+            parameters += [source_name, voltage_slice.start, voltage_slice.stop, voltage_slice.step]
+        self._analysis_parameters['dc'] = parameters
+
+    ##############################################
+
     def transient(self, step_time, end_time):
+
+        """
+        .tran tstep tstop <tstart <tmax>> <uic>
+        """
 
         self._analysis_parameters['tran'] = (step_time, end_time)
 

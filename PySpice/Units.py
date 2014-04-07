@@ -35,7 +35,7 @@ def mil(x):
 def milli(x):
     """ m milli 1e-3 """
     # return x*1e-3
-    return str(x) + 'milli'
+    return str(x) + 'm'
 
 def micro(x):
     """ u micro 1e-6 """

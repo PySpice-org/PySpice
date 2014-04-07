@@ -9,7 +9,6 @@
 
 import logging
 import numpy as np
-import re
 
 ####################################################################################################
 
@@ -79,13 +78,9 @@ class RawFile(object):
 
     ##############################################
 
-    def __init__(self, stdout, stderr):
+    def __init__(self, stdout, number_of_points):
 
-        match = re.match(r'@@@ (\d+) (\d+)', stderr)
-        if match is not None:
-            self.number_of_points = int(match.group(2))
-        else:
-            raise NameError("Cannot decode the number of points")
+        self.number_of_points = number_of_points
 
         binary_line = 'Binary:\n'
         binary_location = stdout.find(binary_line)
