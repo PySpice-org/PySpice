@@ -1,0 +1,27 @@
+#! /bin/bash
+
+repository=$1
+
+if [ -z ${repository} ]; then
+  echo Usage: init-gh-pages REPOSITORY
+  exit 1
+fi
+
+tmp_dir=$(mktemp -d)
+pushd ${tmp_dir}
+
+git clone git@github.com:FabriceSalvaire/${repository}.git
+pushd ${repository}
+git checkout --orphan gh-pages
+git rm -rf .
+echo "My GitHub Page" > index.html
+git add index.html
+git commit -a -m "First pages commit"
+git push origin gh-pages
+
+popd -1 ; popd
+if [ -d ${tmp_dir} ]; then
+  rm -rf ${tmp_dir}
+fi
+
+# End

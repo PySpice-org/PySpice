@@ -1,0 +1,51 @@
+#! /bin/bash
+
+####################################################################################################
+
+root_dir=$(dirname $(dirname $(realpath $0)))
+html_build="${root_dir}/doc/sphinx/build/html"
+source_gh_pages=${root_dir}/gh-pages
+
+echo Source Path: ${root_dir}
+echo HTML Build Path: ${html_build}
+
+origin='git@github.com:FabriceSalvaire/PySpice.git'
+
+####################################################################################################
+
+tmp_dir=$(mktemp -d)
+if [ -e ${tmp_dir} ]; then
+  pushd ${tmp_dir}
+
+  git clone ${origin} PySpice-gh-pages --branch gh-pages --single-branch
+  pushd PySpice-gh-pages
+  # sync with origin if already cloned
+  # git fetch origin
+  git checkout gh-pages
+
+  rm -rf static images
+  rsync --delete -av --exclude-from=${source_gh_pages}/html-rsync-filter.txt ${html_build}/ .
+  cp ${source_gh_pages}/README.rst .
+  if [ -e _images ]; then
+    mv _images images
+    find . -name "*.html" -exec sed -e 's/_images/images/;' -i {} \;
+  fi
+  if [ -e _static ]; then
+    mv _static static
+    find . -name "*.html" -exec sed -e 's/_static/static/;' -i {} \;
+  fi
+  find . -name '.#*html' -exec rm {} \;
+
+  git add --all *
+  git commit -m 'update'
+  git push -u origin gh-pages
+
+  popd -1 ; popd
+  rm -rf ${tmp_dir}
+fi
+
+####################################################################################################
+# 
+# End
+# 
+####################################################################################################

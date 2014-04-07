@@ -1,0 +1,7 @@
+.buildinfo
+.git
+.gitignore
+README.rst
+push-to-github.sh
+html-rsync-filter.txt
+update.sh
