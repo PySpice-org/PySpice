@@ -7,11 +7,11 @@
 
 ####################################################################################################
 
-from .Netlist import TwoPortElement
+from .Netlist import TwoPortElement, TwoPortElementWithValue
 
 ####################################################################################################
 
-class Resistor(TwoPortElement):
+class Resistor(TwoPortElementWithValue):
 
     """
     Resistors
@@ -29,7 +29,7 @@ class Resistor(TwoPortElement):
 
 ####################################################################################################
 
-class Capacitor(TwoPortElement):
+class Capacitor(TwoPortElementWithValue):
 
     """
     Capacitors
@@ -47,7 +47,7 @@ class Capacitor(TwoPortElement):
 
 ####################################################################################################
 
-class Inductor(TwoPortElement):
+class Inductor(TwoPortElementWithValue):
 
     """
     Inductors

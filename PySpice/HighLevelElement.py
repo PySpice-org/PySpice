@@ -11,40 +11,68 @@ import math
 
 ####################################################################################################
 
+from .Math import rms_to_amplitude, amplitude_to_rms
 from .SpiceElement import VoltageSource
 from .Tools.StringTools import join_lines, join_list, join_dict
+from .Units import Frequency, Period
 
 ####################################################################################################
 
-class AcLine(VoltageSource):
+class Sinusoidal(VoltageSource):
+
+    """
+    SIN ( VO VA FREQ TD THETA )
+    """
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, rms_voltage=230, frequency=50):
+    def __init__(self, name, node_plus, node_minus,
+                 dc_offset=0,
+                 offset=0, amplitude=1, frequency=50,
+                 delay=0, damping_factor=0):
 
-        super(AcLine, self).__init__(name, node_plus, node_minus)
+        super(Sinusoidal, self).__init__(name, node_plus, node_minus)
 
-        self.rms_voltage = rms_voltage
-        self.frequency = frequency
+        self.dc_offset = dc_offset
+        self.offset = offset
+        self.amplitude = amplitude
+        self.frequency = Frequency(frequency)
+        self.delay = delay
+        self.damping_factor = damping_factor
 
     ##############################################
 
     @property
-    def peak_to_peak_voltage(self):
-        return self.rms_voltage * math.sqrt(2)
+    def rms_voltage(self):
+        return amplitude_to_rms(self.amplitude)
 
     ##############################################
 
     @property
     def period(self):
-        return 1./self.frequency
+        return self.frequency.period
 
     ##############################################
 
     @property
     def parameters(self):
 
-        return ('DC 0V', 'SIN(0V {}V {}Hz)'.format(self.peak_to_peak_voltage, self.frequency))
+        return ('DC {}V'.format(self.dc_offset),
+                'SIN({}V {}V {}Hz {}s {})'.format(self.offset, self.amplitude,
+                                                  self.frequency, self.delay,
+                                                  self.damping_factor))
+        
+####################################################################################################
+
+class AcLine(Sinusoidal):
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, rms_voltage=230, frequency=50):
+
+        super(AcLine, self).__init__(name, node_plus, node_minus,
+                                     amplitude=rms_to_amplitude(rms_voltage),
+                                     frequency=frequency)
 
 ####################################################################################################
 
@@ -85,7 +113,7 @@ class Pulse(VoltageSource):
         self.rise_time = rise_time
         self.fall_time = fall_time
         self.pulse_width = pulse_width
-        self.period = period
+        self.period = Period(period)
 
         # # Fixme: to func?
         # # Check parameters
@@ -102,7 +130,7 @@ class Pulse(VoltageSource):
 
     @property
     def frequency(self):
-        return 1./self.period
+        return self.period.frequency
 
     ##############################################
 

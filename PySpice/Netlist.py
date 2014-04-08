@@ -25,6 +25,7 @@
 ####################################################################################################
 
 from .Tools.StringTools import join_lines, join_list, join_dict
+from .Units import Unit
 
 ####################################################################################################
 
@@ -186,6 +187,27 @@ class TwoPortElement(Element):
     @property
     def minus(self):
         return self.pins[1]
+
+####################################################################################################
+
+class TwoPortElementWithValue(TwoPortElement):
+
+    ##############################################
+
+    @property
+    def value(self):
+
+        value = self._parameters[0]
+        if isinstance(value, Unit):
+            return value
+        else:
+            return Unit(value)
+
+    ##############################################
+
+    @property
+    def float_value(self):
+        return float(self._parameters[0]) # self.value
 
 ####################################################################################################
 
