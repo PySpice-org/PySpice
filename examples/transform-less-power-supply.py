@@ -1,12 +1,8 @@
 ####################################################################################################
 
-import logging
+import os
 
 from matplotlib import pylab
-
-####################################################################################################
-
-logging.basicConfig(level=logging.DEBUG)
 
 ####################################################################################################
 
@@ -17,7 +13,13 @@ from PySpice.Units import *
 
 ####################################################################################################
 
-spice_library = SpiceLibrary('~/electronic-design-pattern/spice/libraries')
+import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
+
+####################################################################################################
+
+libraries_path = os.path.join(os.path.dirname(__file__), 'libraries')
+spice_library = SpiceLibrary(libraries_path)
 spice_server = SpiceServer()
 
 ####################################################################################################
@@ -42,7 +44,6 @@ print circuit.nodes
 simulation.save('V(in)', 'V(out)', 'V(1)', 'V(2)')
 simulation.transient(step_time=ac_line.period/200,
                      end_time=ac_line.period*10)
-
 print str(simulation)
 
 raw_file = spice_server(simulation)

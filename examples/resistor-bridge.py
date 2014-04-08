@@ -1,16 +1,13 @@
 ####################################################################################################
 
-import logging
-
-####################################################################################################
-
-logging.basicConfig(level=logging.DEBUG)
-
-####################################################################################################
-
 from PySpice.Netlist import Circuit
 from PySpice.Pipe import SpiceServer
 from PySpice.Units import *
+
+####################################################################################################
+
+import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
 
 ####################################################################################################
 
@@ -29,6 +26,7 @@ circuit.R(5, 3, 2, kilo(2))
 
 simulation = circuit.simulation(temperature=25, nominal_temperature=25)
 simulation.operating_point()
+print str(simulation)
 
 raw_file = spice_server(simulation)
 for field in raw_file.variables:

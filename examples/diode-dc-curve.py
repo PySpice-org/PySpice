@@ -1,12 +1,8 @@
 ####################################################################################################
 
-import logging
+import os
 
 from matplotlib import pylab
-
-####################################################################################################
-
-logging.basicConfig(level=logging.DEBUG)
 
 ####################################################################################################
 
@@ -17,7 +13,13 @@ from PySpice.Units import *
 
 ####################################################################################################
 
-spice_library = SpiceLibrary('~/electronic-design-pattern/spice/libraries')
+import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
+
+####################################################################################################
+
+libraries_path = os.path.join(os.path.dirname(__file__), 'libraries')
+spice_library = SpiceLibrary(libraries_path)
 spice_server = SpiceServer()
 
 ####################################################################################################
@@ -35,6 +37,7 @@ circuit.X('DZ1', 'd1n5919brl', 'out', circuit.gnd)
 
 simulation = circuit.simulation(temperature=25, nominal_temperature=25)
 simulation.dc(Vinput=slice(-20, 20, .1))
+print str(simulation)
 
 raw_file = spice_server(simulation)
 for field in raw_file.variables:
