@@ -1,13 +1,13 @@
 ####################################################################################################
 
-from PySpice.Netlist import Circuit
-from PySpice.Pipe import SpiceServer
-from PySpice.Units import *
+import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
 
 ####################################################################################################
 
-import PySpice.Logging.Logging as Logging
-logger = Logging.setup_logging()
+from PySpice.Netlist import Circuit
+from PySpice.Pipe import SpiceServer
+from PySpice.Units import *
 
 ####################################################################################################
 

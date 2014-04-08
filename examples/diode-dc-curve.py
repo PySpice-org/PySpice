@@ -6,15 +6,15 @@ from matplotlib import pylab
 
 ####################################################################################################
 
+import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
+
+####################################################################################################
+
 from PySpice.Netlist import Circuit
 from PySpice.SpiceLibrary import SpiceLibrary
 from PySpice.Pipe import SpiceServer
 from PySpice.Units import *
-
-####################################################################################################
-
-import PySpice.Logging.Logging as Logging
-logger = Logging.setup_logging()
 
 ####################################################################################################
 

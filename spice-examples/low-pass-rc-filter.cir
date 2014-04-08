@@ -2,11 +2,11 @@
 Vinput in 0 DC 0V AC SIN(0V 10V 1kHz)
 R1 in out 1k
 C1 out 0 1u
-.ac dec 10 1 10k
+.ac dec 1 1 10k
 .save v(in) v(out)
 .control
 run
-plot v(out)
+* plot v(out)
+print v(out)
 .endc
 .end
-
