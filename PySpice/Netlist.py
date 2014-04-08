@@ -528,6 +528,7 @@ class CircuitSimulation(object):
 
         """
         .sens outvar
+
         .sens outvar ac dec nd fstart fstop
         .sens outvar ac oct no fstart fstop
         .sens outvar ac lin np fstart fstop
@@ -548,13 +549,35 @@ class CircuitSimulation(object):
 
     ##############################################
 
-    def transient(self, step_time, end_time):
+    def ac(self, start_frequency, stop_frequency, number_of_points, variation):
+
+        # fixme: concise keyword ?
+
+        """
+        .ac dec nd fstart fstop
+        .ac oct no fstart fstop
+        .ac lin np fstart fstop
+        """
+
+        if variation not in ('dec', 'oct', 'lin'):
+            raise ValueError("Incorrect variation type")
+
+        self._analysis_parameters['ac'] = (variation, number_of_points, start_frequency, stop_frequency)
+
+    ##############################################
+
+    def transient(self, step_time, end_time, start_time=None, max_time=None,
+                  use_initial_condition=False):
 
         """
         .tran tstep tstop <tstart <tmax>> <uic>
         """
 
-        self._analysis_parameters['tran'] = (step_time, end_time)
+        if use_initial_condition:
+            uic = 'uic'
+        else:
+            uic = None
+        self._analysis_parameters['tran'] = (step_time, end_time, start_time, max_time, uic)
 
     ##############################################
 

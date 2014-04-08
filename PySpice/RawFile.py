@@ -34,9 +34,9 @@ class WaveFormVariable(object):
 
     def __init__(self, index, name, unit):
 
-        self.index = index
-        self.name = name
-        self.unit = unit
+        self.index = int(index)
+        self.name = str(name)
+        self.unit = str(unit)
 
     ##############################################
 
@@ -53,18 +53,21 @@ class RawFile(object):
     Public Attributes:
 
       :attr:`circuit`
+        same as title
 
       :attr:`data`
 
       :attr:`date`
 
       :attr:`flags`
+        'real' or 'complex'
 
       :attr:`number_of_points`
 
       :attr:`number_of_variables`
 
       :attr:`plot_name`
+        AC Analysis, Operating Point, Sensitivity Analysis, DC transfer characteristic
 
       :attr:`temperature`
 
@@ -104,7 +107,9 @@ class RawFile(object):
         for i in xrange(self.number_of_variables):
             line = header_line_iterator.next()
             self._logger.debug(line)
-            index, name, unit = [x.strip() for x in line.split('\t') if x]
+            items = [x.strip() for x in line.split('\t') if x]
+            # 0 frequency frequency grid=3
+            index, name, unit = items[:3]
             self.variables.append(WaveFormVariable(index, name, unit))
         # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
 
@@ -112,16 +117,33 @@ class RawFile(object):
         # for variable in enumerate(self.variables):
         # (name, offset, title)
         #     dtype[variable.name] = ('f8', 0, '{} [{}]'.format(variable.name, variable.unit))
-        dtype = [(variable.name, 'f8') for variable in self.variables]
-        self.data = np.zeros(self.number_of_points, dtype=dtype)
+        if self.flags == 'real':
+            dtype = 'f8' # 64-bit float
+            number_of_columns = self.number_of_variables
+        elif self.flags == 'complex':
+            dtype = np.complex64
+            number_of_columns = self.number_of_variables * 2
+        else:
+            raise NotImplementedError
+        data_dtype = [(variable.name, dtype) for variable in self.variables]
+        self.data = np.zeros(self.number_of_points, dtype=data_dtype)
+
         # Fixme: simpler way
-        input_data = np.fromstring(raw_data, count=self.number_of_variables*self.number_of_points, dtype='f8')
-        input_data = input_data.reshape((self.number_of_points, self.number_of_variables))
+        self._logger.debug("Raw data is {} bytes and {} number of points".format(len(raw_data), self.number_of_points))
+        input_data = np.fromstring(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
+        input_data = input_data.reshape((self.number_of_points, number_of_columns))
+        # self._logger.debug(str(input_data.shape) + '\n' + str(input_data))
         input_data = input_data.transpose()
         # self.data[:] = input_data # don't work
         # ValueError: could not broadcast input array from shape (2023,5) into shape (2023)
         for variable in self.variables:
-            self.data[variable.name] = input_data[variable.index,:]
+            if self.flags == 'real':
+                column_index = variable.index
+                variable_data = input_data[column_index,:]
+            elif self.flags == 'complex':
+                column_index = variable.index * 2
+                variable_data = input_data[column_index,:] + input_data[column_index+1,:]*1j
+            self.data[variable.name] = variable_data
         # for i in xrange(self.number_of_points):
         #    self.data[i] = tuple(input_data[i,:])
 

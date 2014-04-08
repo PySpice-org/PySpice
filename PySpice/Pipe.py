@@ -45,6 +45,8 @@ class SpiceServer(object):
 
     def _parse_stdout(self, stdout):
 
+        # self._logger.debug('\n' + stdout)
+
         error_found = False
         location = stdout.find('Doing analysis')
         if location == -1:

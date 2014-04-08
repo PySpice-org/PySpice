@@ -58,9 +58,9 @@ class Sinusoidal(VoltageSource):
     def parameters(self):
 
         return ('DC {}V'.format(self.dc_offset),
-                'SIN({}V {}V {}Hz {}s {})'.format(self.offset, self.amplitude,
-                                                  self.frequency, self.delay,
-                                                  self.damping_factor))
+                'AC SIN({}V {}V {}Hz {}s {})'.format(self.offset, self.amplitude,
+                                                     self.frequency, self.delay,
+                                                     self.damping_factor))
         
 ####################################################################################################
 
