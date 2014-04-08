@@ -1,0 +1,4 @@
+doc/sphinx/source/api
+doc/sphinx/build
+.git
+.git-backup
