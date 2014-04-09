@@ -1,0 +1,16 @@
+Small Signal Amplifier
+*
+* This circuit simulates a simple small signal amplifier.
+*
+Vin input 0 0V SIN(0V .1V 500Hz)
+Rsource input amp_in 100
+C1 amp_in 0 1uF
+R_amp_input amp_in 0 1Meg
+E1 (amp_out 0) (amp_in 0) -10
+Rload amp_out 0 1k
+.tran 1us 10ms
+.control
+run
+plot V(input) V(amp_out)
+.endc
+.end

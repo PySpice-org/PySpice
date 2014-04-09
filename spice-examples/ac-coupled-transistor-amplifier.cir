@@ -1,0 +1,25 @@
+A Berkeley SPICE3 compatible circuit
+*
+* This circuit contains only Berkeley SPICE3 components.
+*
+* The circuit is an AC coupled transistor amplifier with
+* a sine wave input at node "1", again of approximately -3.9,
+* and output on node "coll".
+*
+Vcc vcc 0 12V
+Vin 1 0 0V AC 1V SIN(0V 1V 1kHz)
+Ccouple 1 base 10uF
+Rbias1 vcc base 100k
+Rbias2 base 0 24k
+Q1 coll base emit generic
+Rcollector vcc coll 3.9k
+Remitter emit 0 1k
+*
+.model generic npn
+*
+.tran  1us 10ms
+.control
+run
+plot V(1) V(coll) 
+.endc
+.end

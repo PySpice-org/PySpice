@@ -1,0 +1,26 @@
+Small Signal Amplifier
+*
+* This circuit simulates a small signal amplifier with a diode limiter.
+*
+Vin input 0 DC 0V
+Rsource input amp_in 100
+*
+Dneg 0 amp_in 1n4148
+Dpos amp_in 0 1n4148
+*
+C1 amp_in 0 1uF
+A1 amp_in 0 amp_out amplifier
+Rload amp_out 0 1000
+*
+.model 1n4148 D (is=2.495E-09 rs=4.755E-01 n=1.679E+00
++ tt=3.030E-09 cjo=1.700E-12 vj=1 m=1.959E-01 bv=1.000E+02
++ ibv=1.000E-04)
+*
+.model amplifier Amp (gain = -10 in_offset = 1e-3 rin = 1meg rout = 0.4)
+*
+.dc Vin -1V 1V .05V
+.control
+run
+plot V(input) V(amp_out)
+.endc
+.end

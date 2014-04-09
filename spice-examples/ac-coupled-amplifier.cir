@@ -1,0 +1,18 @@
+AC-coupled amplifier
+Vpwr 6 0 DC 15V
+Vin 1 0 AC 1V SIN(0V .5V 1KHz)
+C1 1 2 10u
+R1 6 2 100k
+R2 2 0 20k
+RC 6 4 10k
+Q1 4 2 3 bjt
+RE 3 0 2k
+C2 4 5 10u
+RL 5 0 1Meg
+.model bjt npn(bf=80 cjc=5p rb=100)
+.ac dec 5 10m 1G
+*.tran .02ms 2ms 0 .01ms
+.control
+run
+plot V(1) V(5)
+.end
