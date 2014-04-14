@@ -43,9 +43,9 @@ raw_file = spice_server(simulation)
 for field in raw_file.variables:
     print field
 
-data = raw_file.data
+analysis = raw_file.analysis
 # pylab.plot(data['v(out)'], (data['v(in)'] - data['v(out)'])/1000)
-pylab.plot(data['v(out)'], -data['i(vinput)'])
+pylab.plot(analysis.out.v, -analysis.vinput.v) # .i
 pylab.axvline(x=-5.6, color='blue')
 pylab.legend(('Diode curve',), loc=(.1,.8))
 pylab.grid()

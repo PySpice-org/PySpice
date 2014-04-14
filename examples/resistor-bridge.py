@@ -17,7 +17,7 @@ spice_server = SpiceServer()
 
 circuit = Circuit('Resistor Bridge')
 
-circuit.V('input', 1, circuit.gnd, '10V')
+circuit.V('input', 1, circuit.gnd, 10) # Fixme: V(10) uV(10) 10*V
 circuit.R(1, 1, 2, kilo(2))
 circuit.R(2, 1, 3, kilo(1))
 circuit.R(3, 2, circuit.gnd, kilo(1))
@@ -32,9 +32,9 @@ raw_file = spice_server(simulation)
 for field in raw_file.variables:
     print field
 
-data = raw_file.data
-for node in xrange(1, 4):
-    print 'Node {}: {} V'.format(node, data['v({})'.format(node)][0])
+analysis = raw_file.analysis
+for node in analysis.nodes.itervalues():
+    print 'Node {}: {} V'.format(str(node), float(node)) # Fixme: format value + unit
 
 ####################################################################################################
 # 

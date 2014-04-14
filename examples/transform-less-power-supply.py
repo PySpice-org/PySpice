@@ -50,12 +50,12 @@ raw_file = spice_server(simulation)
 for field in raw_file.variables:
     print field
 
-data = raw_file.data
-pylab.plot(data['time'], data['v(in)']/100,
-           data['time'], data['v(out)'],
-           data['time'], (data['v(out)'] - data['v(in)'])/100,
-           data['time'], data['v(out)'] - data['v(1)'],
-           data['time'], (data['v(1)'] - data['v(2)'])/100,
+analysis = raw_file.analysis
+pylab.plot(analysis.time.v, analysis['in'].v/100,
+           analysis.time.v, analysis.out.v,
+           analysis.time.v, (analysis.out.v - analysis['in'].v)/100,
+           analysis.time.v, analysis.out.v - analysis['1'].v,
+           analysis.time.v, (analysis['1'].v - analysis['2'].v)/100,
        )
 pylab.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
 pylab.grid()

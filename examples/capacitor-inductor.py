@@ -52,6 +52,8 @@ for element_type in 'capacitor', 'inductor':
     print str(simulation)
 
     raw_file = spice_server(simulation)
+    for field in raw_file.variables:
+        print field
 
     figure = pylab.figure()
     axe = pylab.subplot(111)
@@ -61,12 +63,13 @@ for element_type in 'capacitor', 'inductor':
     else:
         title = "Inductor: current is constant"
     axe.set_title(title)
-    data = raw_file.data
+    analysis = raw_file.analysis
     current_scale = 1000
-    axe.plot(data['time'], data['v(in)'],
-             data['time'], data['v(out)'],
+    print analysis.nodes
+    axe.plot(analysis.time.v, analysis['in'].v,
+             analysis.time.v, analysis.out.v,
              # Fixme: resistor current, scale
-             data['time'], current_scale*(data['v(in)']-data['v(out)'])/1000)
+             analysis.time.v, current_scale*(analysis['in'].v-analysis.out.v)/1000)
     axe.set_ylim(-11, 11)
     axe.set_xlabel('t [s]')
     axe.set_ylabel('[V]')

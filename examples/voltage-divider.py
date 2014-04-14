@@ -31,9 +31,9 @@ raw_file = spice_server(simulation)
 for field in raw_file.variables:
     print field
 
-data = raw_file.data
-for node in ('in', 'out'):
-    print 'Node {}: {} V'.format(node, data['v({})'.format(node)][0])
+analysis = raw_file.analysis
+for node in (analysis['in'], analysis.out): # .in is invalid !
+    print 'Node {}: {} V'.format(str(node), float(node))
 
 ####################################################################################################
 
@@ -43,7 +43,11 @@ print str(simulation)
 
 raw_file = spice_server(simulation)
 for field in raw_file.variables:
-    print field, raw_file.data[field.name]
+    print field
+
+analysis = raw_file.analysis
+for element in analysis.elements.itervalues():
+    print element, element.v
 
 ####################################################################################################
 # 
