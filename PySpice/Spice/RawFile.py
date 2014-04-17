@@ -12,9 +12,9 @@ import numpy as np
 
 ####################################################################################################
 
-from .WaveForm import (OperatingPoint, SensitivityAnalysis,
-                       DcAnalysis, AcAnalysis, TransientAnalysis,
-                       WaveForm)
+from ..Probe.WaveForm import (OperatingPoint, SensitivityAnalysis,
+                              DcAnalysis, AcAnalysis, TransientAnalysis,
+                              WaveForm)
 
 ####################################################################################################
 

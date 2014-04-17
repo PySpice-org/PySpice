@@ -7,8 +7,8 @@
 
 ####################################################################################################
 
-from .Tools.File import Directory
-from .SpiceParser import SpiceParser
+from ..Tools.File import Directory
+from .Parser import SpiceParser
 
 ####################################################################################################
 

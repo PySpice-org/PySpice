@@ -7,14 +7,10 @@
 
 ####################################################################################################
 
-import math
-
-####################################################################################################
-
-from .Math import rms_to_amplitude, amplitude_to_rms
-from .SpiceElement import VoltageSource
-from .Tools.StringTools import join_lines, join_list, join_dict
-from .Units import Frequency, Period
+from ..Math import rms_to_amplitude, amplitude_to_rms
+from ..Tools.StringTools import join_list
+from ..Unit.Units import Frequency, Period
+from .BasicElement import VoltageSource
 
 ####################################################################################################
 

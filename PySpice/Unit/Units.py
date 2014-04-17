@@ -445,17 +445,19 @@ class femto(Unit):
 #     __scale__ = 25.4e-6
 #     __spice_suffix__ = 'mil'
 
-__power_to_unit__ = {unit.__power__:unit for unit in (tera,
-                                                      giga,
-                                                      mega,
-                                                      kilo,
-                                                      Unit,
-                                                      milli,
-                                                      micro,
-                                                      nano,
-                                                      pico,
-                                                      femto,
-                                                  )}
+
+__units__ = (tera,
+             giga,
+             mega,
+             kilo,
+             Unit,
+             milli,
+             micro,
+             nano,
+             pico,
+             femto,
+)
+__power_to_unit__ = {unit.__power__:unit for unit in __units__}
 
 ####################################################################################################
 

@@ -11,10 +11,10 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Netlist import Circuit
-from PySpice.Pipe import SpiceServer
-from PySpice.SpiceLibrary import SpiceLibrary
-from PySpice.Units import *
+from PySpice.Spice.Library import SpiceLibrary
+from PySpice.Spice.Netlist import Circuit
+from PySpice.Spice.Server import SpiceServer
+from PySpice.Unit.Units import *
 
 ####################################################################################################
 
