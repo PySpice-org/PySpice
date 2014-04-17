@@ -78,7 +78,9 @@ class SpiceServer(object):
 
     ##############################################
 
-    def __call__(self, desk):
+    def __call__(self, spice_input):
+
+        """ Run spice in server mode for the given input. """
 
         self._logger.info("Start server")
 
@@ -86,7 +88,7 @@ class SpiceServer(object):
                                    stdin=subprocess.PIPE,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate(str(desk))
+        stdout, stderr = process.communicate(str(spice_input))
 
         self._parse_stdout(stdout)
         number_of_points = self._parse_stderr(stderr)

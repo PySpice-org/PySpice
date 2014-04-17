@@ -88,6 +88,8 @@ class RawFile(object):
 
     Public Attributes:
 
+      :attr:`analysis`
+
       :attr:`circuit`
         same as title
 
@@ -121,6 +123,14 @@ class RawFile(object):
 
         self.number_of_points = number_of_points
 
+        raw_data = self._read_header(stdout)
+        self._read_probes(raw_data)
+        self._to_analysis()
+
+    ##############################################
+
+    def _read_header(self, stdout):
+
         binary_line = 'Binary:\n'
         binary_location = stdout.find(binary_line)
         if binary_line < 0:
@@ -149,35 +159,7 @@ class RawFile(object):
             self.variables[name] = Variable(index, name, unit)
         # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
 
-        if self.flags == 'real':
-            number_of_columns = self.number_of_variables
-        elif self.flags == 'complex':
-            number_of_columns = 2*self.number_of_variables
-        else:
-            raise NotImplementedError
-
-        input_data = np.fromstring(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
-        input_data = input_data.reshape((self.number_of_points, number_of_columns))
-        input_data = input_data.transpose()
-        if self.flags == 'complex':
-            raw_data = input_data
-            input_data = np.array(raw_data[0::2], dtype='complex64')
-            input_data.imag = raw_data[1::2]
-        for variable in self.variables.itervalues():
-            variable.data = input_data[variable.index]
-
-        if self.plot_name == 'Operating Point':
-            self._operating_point_analysis()
-        elif self.plot_name == 'Sensitivity Analysis':
-            self._sensitivity_analysis()
-        elif self.plot_name == 'DC transfer characteristic':
-            self._dc_analysis()
-        elif self.plot_name == 'AC Analysis':
-            self._ac_analysis()
-        elif self.plot_name == 'Transient Analysis':
-            self._transient_analysis()
-        else:
-            raise NotImplementedError("Unsupported plot name {}".format(self.plot_name))
+        return raw_data
 
     ##############################################
         
@@ -214,6 +196,44 @@ class RawFile(object):
             raise NameError("Expected label %s instead of %s" % (expected_label, label))
         if has_value:
             return value.strip()
+
+    ##############################################
+
+    def _read_probes(self, raw_data):
+
+        if self.flags == 'real':
+            number_of_columns = self.number_of_variables
+        elif self.flags == 'complex':
+            number_of_columns = 2*self.number_of_variables
+        else:
+            raise NotImplementedError
+
+        input_data = np.fromstring(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
+        input_data = input_data.reshape((self.number_of_points, number_of_columns))
+        input_data = input_data.transpose()
+        if self.flags == 'complex':
+            raw_data = input_data
+            input_data = np.array(raw_data[0::2], dtype='complex64')
+            input_data.imag = raw_data[1::2]
+        for variable in self.variables.itervalues():
+            variable.data = input_data[variable.index]
+
+    ##############################################
+
+    def _to_analysis(self):
+
+        if self.plot_name == 'Operating Point':
+            self._operating_point_analysis()
+        elif self.plot_name == 'Sensitivity Analysis':
+            self._sensitivity_analysis()
+        elif self.plot_name == 'DC transfer characteristic':
+            self._dc_analysis()
+        elif self.plot_name == 'AC Analysis':
+            self._ac_analysis()
+        elif self.plot_name == 'Transient Analysis':
+            self._transient_analysis()
+        else:
+            raise NotImplementedError("Unsupported plot name {}".format(self.plot_name))
 
     ##############################################
 
