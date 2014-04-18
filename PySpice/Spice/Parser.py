@@ -7,7 +7,13 @@
 
 ####################################################################################################
 
+""" This module implements a partial Spice netlist parser. """
+
+####################################################################################################
+
 class Token(object):
+
+    """ This class implements a token, in fact a line in a Spice netlist. """
 
     ##############################################
 
@@ -18,6 +24,13 @@ class Token(object):
     ##############################################
 
     def split_line(self, keyword):
+
+        """ Split the line according to the following pattern::
+
+            keyword parameter1 parameter2 ... key1=value1 key2=value2 ...
+
+        Return the list of parameters and the dictionnary.
+        """
 
         raw_parameters = str(self._line)[len(keyword):].split()
         parameters = []
@@ -45,6 +58,8 @@ class Comment(Token):
 
 class SubCircuit(Token):
 
+    """ This class implements a sub-circuit definition. """
+
     ##############################################
 
     def __init__(self, line):
@@ -60,6 +75,7 @@ class SubCircuit(Token):
 
     @property
     def name(self):
+        """ Name of the sub-circuit. """
         return self._name
 
     ##############################################
@@ -74,17 +90,23 @@ class SubCircuit(Token):
 
     def __iter__(self):
 
+        """ Return an iterator on the tokens. """
+        
         return iter(self._tokens)
 
     ##############################################
 
     def append(self, token):
 
+        """ Append a token to the token's list. """
+
         self._tokens .append(token)
 
 ####################################################################################################
 
 class Title(Token):
+
+    """ This class implements a title definition. """
 
     ##############################################
 
@@ -105,6 +127,8 @@ class Title(Token):
 
 class Element(Token):
 
+    """ This class implements an element definition. """
+
     ##############################################
 
     def __init__(self, line):
@@ -114,12 +138,14 @@ class Element(Token):
         parameters, dict_parameters = self.split_line('R')
         self._element_type = str(line)[0]
         self._name, self._nodes = parameters[0], parameters[1:]
-        self._parameters = dict_parameters
+        self._parameters = parameters[2:]
+        self._dict_parameters = dict_parameters
 
     ##############################################
 
     @property
     def name(self):
+        """ Name of the element """
         return self._name
 
     ##############################################
@@ -131,6 +157,8 @@ class Element(Token):
 ####################################################################################################
 
 class Model(Token):
+
+    """ This class implements a model definition. """
 
     ##############################################
 
@@ -146,6 +174,7 @@ class Model(Token):
 
     @property
     def name(self):
+        """ Name of the model """
         return self._name
 
     ##############################################
@@ -157,6 +186,8 @@ class Model(Token):
 ####################################################################################################
 
 class Line(object):
+
+    """ This class implements a line in the netlist. """
 
     ##############################################
 
@@ -179,6 +210,18 @@ class Line(object):
 
 class SpiceParser(object):
 
+    """ This class parse a Spice netlist file and build a syntax tree.
+
+    Public Attributes:
+
+      :attr:`circuit`
+
+      :attr:`models`
+
+      :attr:`subcircuits`
+
+    """
+
     ##############################################
 
     def __init__(self, path):
@@ -193,6 +236,8 @@ class SpiceParser(object):
     ##############################################
 
     def _merge_lines(self, raw_lines):
+
+        """ Merge broken lines and return a new list of lines. """
 
         lines = []
         current_line = ''
@@ -212,6 +257,8 @@ class SpiceParser(object):
     ##############################################
 
     def _parse(self, lines):
+
+        """ Parse the lines and return a list of tokens. """
 
         tokens = []
         sub_circuit = None
@@ -253,6 +300,8 @@ class SpiceParser(object):
     ##############################################
 
     def _find_sections(self):
+
+        """ Look for model, sub-circuit and circuit definitions in the token list. """
 
         self.circuit = None
         self.subcircuits = []

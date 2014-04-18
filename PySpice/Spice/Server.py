@@ -23,6 +23,16 @@ _module_logger = logging.getLogger(__name__)
 
 class SpiceServer(object):
 
+    """ This class wraps the execution of Spice in server mode and convert the output in Python data
+    structure.
+
+    Example of usage::
+
+      spice_server = SpiceServer(spice_command='/path/to/ngspice')
+      XXX = spice_server(spice_input)
+
+    """
+
     _logger = _module_logger.getChild('SpiceServer')
 
     ##############################################
@@ -35,6 +45,8 @@ class SpiceServer(object):
 
     def _decode_number_of_points(self, line):
 
+        """ Decode the number of points in stderr line. """
+
         match = re.match(r'@@@ (\d+) (\d+)', line)
         if match is not None:
             return int(match.group(2))
@@ -44,6 +56,8 @@ class SpiceServer(object):
     ##############################################
 
     def _parse_stdout(self, stdout):
+
+        """ Parse stdout for errors. """
 
         # self._logger.debug('\n' + stdout)
 
@@ -58,11 +72,13 @@ class SpiceServer(object):
                     error_found = True
                     self._logger.error('\n' + line + '\n' + lines[line_index+1])
         if error_found:
-            raise NameError("Errors was found by spice")
+            raise NameError("Errors was found by Spice")
 
     ##############################################
 
     def _parse_stderr(self, stderr):
+
+        """ Parse stderr for warnings and return the number of points. """
 
         stderr_lines = stderr.splitlines()
         number_of_points = None
@@ -80,7 +96,7 @@ class SpiceServer(object):
 
     def __call__(self, spice_input):
 
-        """ Run spice in server mode for the given input. """
+        """ Run spice in server mode for the given input and return XXX. """
 
         self._logger.info("Start server")
 

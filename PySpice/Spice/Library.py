@@ -14,6 +14,22 @@ from .Parser import SpiceParser
 
 class SpiceLibrary(object):
 
+    """ This class implements a Spice sub-circuits and models library.
+
+    A library is a directory which is recursively scanned for '.lib' file and parsed for sub-circuit
+    and models definitions.
+
+    Example of usage::
+
+        spice_library = SpiceLibrary('/some/path/')
+
+    If the directory hierarchy contains a file that define a 1N4148 sub-circuit then we can retrieve
+    the file path using::
+
+        spice_library['1N4148']
+
+    """
+
     ##############################################
 
     def __init__(self, root_path):
@@ -48,10 +64,12 @@ class SpiceLibrary(object):
 
     @property
     def subcircuits(self):
+        """ Dictionary of sub-circuits """
         return self._subcircuits
 
     @property
     def models(self):
+        """ Dictionary of models """
         return self._models
 
     # ##############################################

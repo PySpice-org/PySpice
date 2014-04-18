@@ -32,6 +32,8 @@ from .Simulation import CircuitSimulation
 
 class DeviceModel(object):
 
+    """ This class implements a device model. """
+
     ##############################################
 
     def __init__(self, name, modele_type, **parameters):
@@ -68,6 +70,8 @@ class DeviceModel(object):
 
 class Pin(object):
 
+    """ This class implements a pin of an element. """
+
     ##############################################
 
     def __init__(self, element, name, node):
@@ -86,6 +90,8 @@ class Pin(object):
 
     def add_current_probe(self, circuit):
 
+        # Fixme: require a reference to circuit
+
         node = self.node
         self.node = '_'.join((self.element.name, self.name))
         circuit.V(self.node, node, self.node, '0')
@@ -93,6 +99,8 @@ class Pin(object):
 ####################################################################################################
 
 class Element(object):
+
+    """ This class implements a base class for an element. """
 
     prefix = None
 
@@ -155,6 +163,8 @@ class Element(object):
 
 class SubCircuitElement(Element):
 
+    """ This class implements a sub-circuit. """
+
     prefix = 'X'
 
     ##############################################
@@ -168,6 +178,8 @@ class SubCircuitElement(Element):
 ####################################################################################################
 
 class TwoPortElement(Element):
+
+    """ This class implements a base class for a two-port element. """
 
     ##############################################
 
@@ -193,6 +205,8 @@ class TwoPortElement(Element):
 
 class TwoPortElementWithValue(TwoPortElement):
 
+    """ This class implements a base class for a two-port element with a mandatory parameter value. """
+
     ##############################################
 
     @property
@@ -213,6 +227,8 @@ class TwoPortElementWithValue(TwoPortElement):
 ####################################################################################################
 
 class Node(object):
+
+    """ This class implements a node in the circuit. """
 
     ##############################################
 
@@ -244,6 +260,8 @@ class Node(object):
 ####################################################################################################
 
 class Netlist(object):
+
+    """ This class implements a base class for a netlist. """
 
     ##############################################
 
@@ -351,6 +369,8 @@ class Netlist(object):
 
 class SubCircuit(Netlist):
 
+    """ This class implements a sub-cicuit netlist. """
+
     ##############################################
 
     def __init__(self, name, *nodes):
@@ -385,6 +405,16 @@ class SubCircuit(Netlist):
 
 class Circuit(Netlist):
 
+    """ This class implements a cicuit netlist.
+
+    To get the corresponding Spice source use::
+
+       circuit = Circuit()
+       ...
+       str(circuit)
+
+    """
+
     # .lib
     # .func
     # .csparam
@@ -415,23 +445,31 @@ class Circuit(Netlist):
 
     def include(self, path):
 
+        """ Include a file. """
+
         self._includes.add(path)
 
     ##############################################
 
     def parameter(self, name, expression):
 
+        """ Set a parameter. """
+        
         self._parameters[str(name)] = str(expression)
 
     ##############################################
 
     def subcircuit(self, subcircuit):
 
+        """ Add a sub-circuit. """
+
         self._subcircuits[str(subcircuit.name)] = subcircuit
 
     ##############################################
 
     def subcircuit_iterator(self):
+
+        """ Return a sub-circuit iterator. """
 
         return self._subcircuits.itervalues()
 

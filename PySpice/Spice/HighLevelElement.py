@@ -5,6 +5,8 @@
 # 
 ####################################################################################################
 
+""" This module implements high level elements built on Spice elements. """
+
 ####################################################################################################
 
 from ..Math import rms_to_amplitude, amplitude_to_rms
@@ -17,7 +19,11 @@ from .BasicElement import VoltageSource
 class Sinusoidal(VoltageSource):
 
     """
-    SIN ( VO VA FREQ TD THETA )
+
+    SIN waveform::
+
+        SIN ( VO VA FREQ TD THETA )
+
     """
 
     ##############################################
@@ -75,18 +81,28 @@ class AcLine(Sinusoidal):
 class Pulse(VoltageSource):
 
     """
+
+    Pulse waveform::
     
-    PULSE ( V1 V2 TD TR TF PW PER )
+        PULSE ( V1 V2 TD TR TF PW PER )
     
     A single pulse so specified is described by the following table:
     
-    || Time        || Value ||
-    || 0           || V1    ||
-    || TD          || V1    ||
-    || TD+TR       || V2    ||
-    || TD+TR+PW    || V2    ||
-    || TD+TR+PW+TF || V1    ||
-    || TSTOP       || V1    ||
+    +-------------+-------+
+    | Time        | Value |
+    +-------------+-------+
+    | 0           | V1    |
+    +-------------+-------+
+    | TD          | V1    |
+    +-------------+-------+
+    | TD+TR       | V2    |
+    +-------------+-------+
+    | TD+TR+PW    | V2    |
+    +-------------+-------+
+    | TD+TR+PW+TF | V1    |
+    +-------------+-------+
+    | TSTOP       | V1    |
+    +-------------+-------+
     
     default value for rise and fall time in the transient step, period is stop time.
 
