@@ -9,13 +9,8 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Netlist import Circuit
-from PySpice.Pipe import SpiceServer
-from PySpice.Units import *
-
-####################################################################################################
-
-spice_server = SpiceServer()
+from PySpice.Spice.Netlist import Circuit
+from PySpice.Unit.Units import *
 
 ####################################################################################################
 
@@ -46,14 +41,9 @@ for element_type in 'capacitor', 'inductor':
     else:
         print 'tau = ', circuit['L1'].value  / circuit['R1'].value
 
-    simulation = circuit.simulation(temperature=25, nominal_temperature=25)
-    simulation.save('V(in)', 'V(out)')
-    simulation.transient(step_time=micro(1), end_time=source.period*3)
-    print str(simulation)
-
-    raw_file = spice_server(simulation)
-    for field in raw_file.variables:
-        print field
+    simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+    analysis = simulator.transient(step_time=micro(1), end_time=source.period*3,
+                                   probes=('V(in)', 'V(out)'))
 
     figure = pylab.figure()
     axe = pylab.subplot(111)
@@ -63,7 +53,6 @@ for element_type in 'capacitor', 'inductor':
     else:
         title = "Inductor: current is constant"
     axe.set_title(title)
-    analysis = raw_file.analysis
     current_scale = 1000
     print analysis.nodes
     axe.plot(analysis.time.v, analysis['in'].v,

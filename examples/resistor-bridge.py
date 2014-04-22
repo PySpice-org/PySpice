@@ -5,13 +5,8 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Netlist import Circuit
-from PySpice.Pipe import SpiceServer
-from PySpice.Units import *
-
-####################################################################################################
-
-spice_server = SpiceServer()
+from PySpice.Spice.Netlist import Circuit
+from PySpice.Unit.Units import *
 
 ####################################################################################################
 
@@ -24,15 +19,9 @@ circuit.R(3, 2, circuit.gnd, kilo(1))
 circuit.R(4, 3, circuit.gnd, kilo(2))
 circuit.R(5, 3, 2, kilo(2))
 
-simulation = circuit.simulation(temperature=25, nominal_temperature=25)
-simulation.operating_point()
-print str(simulation)
+simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+analysis = simulator.operating_point()
 
-raw_file = spice_server(simulation)
-for field in raw_file.variables:
-    print field
-
-analysis = raw_file.analysis
 for node in analysis.nodes.itervalues():
     print 'Node {}: {} V'.format(str(node), float(node)) # Fixme: format value + unit
 

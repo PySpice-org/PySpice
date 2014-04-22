@@ -8,10 +8,17 @@
 ####################################################################################################
 
 from ..Tools.StringTools import join_list
+from .Server import SpiceServer
 
 ####################################################################################################
 
 class CircuitSimulation(object):
+
+    """ Define and generate the spice instruction to perform a circuit simulation.
+
+    In some cases NgSpice can perform several analyses one after the other. This case is partially
+    supported.
+    """
 
     ##############################################
 
@@ -74,6 +81,12 @@ class CircuitSimulation(object):
     def save(self, *args):
 
         self._saved_nodes = list(args)
+
+    ##############################################
+
+    def reset_analysis(self):
+
+        self._analysis_parameters.clear()
 
     ##############################################
 
@@ -154,6 +167,82 @@ class CircuitSimulation(object):
         for analysis, analysis_parameters in self._analysis_parameters.iteritems():
             netlist += '.' + analysis + ' ' + join_list(analysis_parameters) + '\n'
         return netlist
+
+####################################################################################################
+
+class CircuitSimulator(CircuitSimulation):
+
+    """ This class implements a circuit simulator. Each analysis mode is performed by a method that
+    return the measured probes.
+
+    For *ac* and *transient* analyses, the user must specify a list of nodes using the *probes* key
+    argument.
+    """
+
+    ##############################################
+
+    def __init__(self, circuit,
+                 temperature=27,
+                 nominal_temperature=27,
+                 spice_command='ngspice',
+                ):
+
+        super(CircuitSimulator, self).__init__(circuit, temperature, nominal_temperature, pipe=True)
+
+        self._spice_server = SpiceServer()
+        
+    ##############################################
+
+    def _run(self, analysis_method, *args, **kwargs):
+
+        self.reset_analysis()
+        if analysis_method in ('ac', 'transient'):
+            try:
+                self.save(* kwargs.pop('probes'))
+            except KeyError:
+                raise NameError("A list of probes is required")
+
+        method = getattr(CircuitSimulation, analysis_method)
+        method(self, *args, **kwargs)
+
+        print str(self)
+        raw_file = self._spice_server(str(self))
+        self.reset_analysis()
+
+        # for field in raw_file.variables:
+        #     print field
+
+        return raw_file.to_analysis()
+
+    ##############################################
+
+    def operating_point(self, *args, **kwargs):
+
+        return self._run('operating_point', *args, **kwargs)
+
+    ##############################################
+
+    def dc(self, *args, **kwargs):
+
+        return self._run('dc', *args, **kwargs)
+
+    ##############################################
+
+    def dc_sensitivity(self, *args, **kwargs):
+
+        return self._run('dc_sensitivity', *args, **kwargs)
+
+    ##############################################
+
+    def ac(self, *args, **kwargs):
+
+        return self._run('ac', *args, **kwargs)
+
+    ##############################################
+
+    def transient(self, *args, **kwargs):
+
+        return self._run('transient', *args, **kwargs)
 
 ####################################################################################################
 # 

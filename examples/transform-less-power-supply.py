@@ -13,14 +13,12 @@ logger = Logging.setup_logging()
 
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Spice.Server import SpiceServer
 from PySpice.Unit.Units import *
 
 ####################################################################################################
 
 libraries_path = os.path.join(os.path.dirname(__file__), 'libraries')
 spice_library = SpiceLibrary(libraries_path)
-spice_server = SpiceServer()
 
 ####################################################################################################
 
@@ -38,19 +36,15 @@ circuit.X('Dz1', 'd1n5919brl', 1, 'out')
 circuit.C('ac', 1, 2, nano(470))
 circuit.R('ac', 2, 'in', 470)
 
-simulation = circuit.simulation(temperature=25, nominal_temperature=25)
-# Fixme: circuit.nodes[2].v, circuit.branch.current
-print circuit.nodes
-simulation.save('V(in)', 'V(out)', 'V(1)', 'V(2)')
-simulation.transient(step_time=ac_line.period/200,
-                     end_time=ac_line.period*10)
-print str(simulation)
+# # Fixme: circuit.nodes[2].v, circuit.branch.current
+# print circuit.nodes
 
-raw_file = spice_server(simulation)
-for field in raw_file.variables:
-    print field
+# Simulator(circuit, ...).transient(...)
+simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*10,
+                               probes=('V(in)', 'V(out)', 'V(1)', 'V(2)'))
 
-analysis = raw_file.analysis
+print analysis.nodes
 pylab.plot(analysis.time.v, analysis['in'].v/100,
            analysis.time.v, analysis.out.v,
            analysis.time.v, (analysis.out.v - analysis['in'].v)/100,

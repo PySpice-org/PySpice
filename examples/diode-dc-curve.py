@@ -11,16 +11,14 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Netlist import Circuit
-from PySpice.SpiceLibrary import SpiceLibrary
-from PySpice.Pipe import SpiceServer
-from PySpice.Units import *
+from PySpice.Spice.Netlist import Circuit
+from PySpice.Spice.Library import SpiceLibrary
+from PySpice.Unit.Units import *
 
 ####################################################################################################
 
 libraries_path = os.path.join(os.path.dirname(__file__), 'libraries')
 spice_library = SpiceLibrary(libraries_path)
-spice_server = SpiceServer()
 
 ####################################################################################################
 
@@ -35,15 +33,9 @@ circuit.R(1, 'in', 'out', kilo(1))
 # circuit.X('D1', '1N4148', 'out', circuit.gnd)
 circuit.X('DZ1', 'd1n5919brl', 'out', circuit.gnd)
 
-simulation = circuit.simulation(temperature=25, nominal_temperature=25)
-simulation.dc(Vinput=slice(-20, 20, .1))
-print str(simulation)
+simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+analysis = simulator.dc(Vinput=slice(-20, 20, .1))
 
-raw_file = spice_server(simulation)
-for field in raw_file.variables:
-    print field
-
-analysis = raw_file.analysis
 # pylab.plot(data['v(out)'], (data['v(in)'] - data['v(out)'])/1000)
 pylab.plot(analysis.out.v, -analysis.vinput.v) # .i
 pylab.axvline(x=-5.6, color='blue')

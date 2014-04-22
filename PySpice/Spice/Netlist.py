@@ -26,7 +26,7 @@
 
 from ..Tools.StringTools import join_lines, join_list, join_dict
 from ..Unit.Units import Unit
-from .Simulation import CircuitSimulation
+from .Simulation import CircuitSimulator
 
 ####################################################################################################
 
@@ -492,8 +492,8 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def simulation(self, *args, **kwargs):
-        return CircuitSimulation(self, *args, **kwargs)
+    def simulator(self, *args, **kwargs):
+        return CircuitSimulator(self, *args, **kwargs)
 
 ####################################################################################################
 # 

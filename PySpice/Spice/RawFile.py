@@ -24,11 +24,12 @@ _module_logger = logging.getLogger(__name__)
 
 class Variable(object):
 
-    """
+    """ This class implements a variable or probe in a Spice simulation output.
 
     Public Attributes:
 
       :attr:`index`
+        index in the array
 
       :attr:`name`
 
@@ -84,11 +85,9 @@ class Variable(object):
 
 class RawFile(object):
 
-    """
+    """ This class parse the stdout of ngspice and the raw data output.
 
     Public Attributes:
-
-      :attr:`analysis`
 
       :attr:`circuit`
         same as title
@@ -124,12 +123,14 @@ class RawFile(object):
         self.number_of_points = number_of_points
 
         raw_data = self._read_header(stdout)
-        self._read_probes(raw_data)
-        self._to_analysis()
+        self._read_variable_data(raw_data)
+        # self._to_analysis()
 
     ##############################################
 
     def _read_header(self, stdout):
+
+        """ Parse the header """
 
         binary_line = 'Binary:\n'
         binary_location = stdout.find(binary_line)
@@ -165,15 +166,20 @@ class RawFile(object):
         
     def _read_line(self, header_line_iterator):
 
+        """ Return the next line """
+
+        # Fixme: self._header_line_iterator, etc.
+
         line = None
         while not line:
             line = header_line_iterator.next()
-
         return line
 
     ##############################################
         
     def _read_header_line(self, header_line_iterator, head_line):
+
+        """ Read an header line and check it starts with *head_line*. """
 
         line = self._read_line(header_line_iterator)
         self._logger.debug(line)
@@ -183,6 +189,11 @@ class RawFile(object):
     ##############################################
         
     def _read_header_field_line(self, header_line_iterator, expected_label, has_value=True):
+
+        """ Read an header line and check it starts with *expected_label*.
+
+        Return the values next to the label if the flag *has_value* is set.
+        """
 
         line = self._read_line(header_line_iterator)
         self._logger.debug(line)
@@ -199,7 +210,9 @@ class RawFile(object):
 
     ##############################################
 
-    def _read_probes(self, raw_data):
+    def _read_variable_data(self, raw_data):
+
+        """ Read the raw data and set the variable values. """
 
         if self.flags == 'real':
             number_of_columns = self.number_of_variables
@@ -220,24 +233,7 @@ class RawFile(object):
 
     ##############################################
 
-    def _to_analysis(self):
-
-        if self.plot_name == 'Operating Point':
-            self._operating_point_analysis()
-        elif self.plot_name == 'Sensitivity Analysis':
-            self._sensitivity_analysis()
-        elif self.plot_name == 'DC transfer characteristic':
-            self._dc_analysis()
-        elif self.plot_name == 'AC Analysis':
-            self._ac_analysis()
-        elif self.plot_name == 'Transient Analysis':
-            self._transient_analysis()
-        else:
-            raise NotImplementedError("Unsupported plot name {}".format(self.plot_name))
-
-    ##############################################
-
-    def _nodes(self, to_float=False):
+    def nodes(self, to_float=False):
 
         return [variable.to_waveform(to_float=to_float) 
                 for variable in self.variables.itervalues()
@@ -245,7 +241,7 @@ class RawFile(object):
 
     ##############################################
 
-    def _branches(self, to_float=False):
+    def branches(self, to_float=False):
 
         return [variable.to_waveform(to_float=to_float)
                 for variable in self.variables.itervalues()
@@ -253,45 +249,61 @@ class RawFile(object):
 
     ##############################################
 
-    def _elements(self):
+    def elements(self):
 
         return [variable.to_waveform(to_float=True) 
                 for variable in self.variables.itervalues()]
 
     ##############################################
 
-    def _operating_point_analysis(self):
+    def to_analysis(self):
 
-        self.analysis = OperatingPoint(nodes=self._nodes(to_float=True),
-                                       branches=self._branches(to_float=True))
+        if self.plot_name == 'Operating Point':
+            return self._to_operating_point_analysis()
+        elif self.plot_name == 'Sensitivity Analysis':
+            return self._to_sensitivity_analysis()
+        elif self.plot_name == 'DC transfer characteristic':
+            return self._to_dc_analysis()
+        elif self.plot_name == 'AC Analysis':
+            return self._to_ac_analysis()
+        elif self.plot_name == 'Transient Analysis':
+            return self._to_transient_analysis()
+        else:
+            raise NotImplementedError("Unsupported plot name {}".format(self.plot_name))
 
     ##############################################
 
-    def _sensitivity_analysis(self):
+    def _to_operating_point_analysis(self):
+
+        return OperatingPoint(nodes=self.nodes(to_float=True), branches=self.branches(to_float=True))
+
+    ##############################################
+
+    def _to_sensitivity_analysis(self):
 
         # Fixme: separate v(vinput), analysis.R2.m
-        self.analysis = SensitivityAnalysis(elements=self._elements())
+        return SensitivityAnalysis(elements=self.elements())
 
     ##############################################
 
-    def _dc_analysis(self):
+    def _to_dc_analysis(self):
 
-        self.analysis = DcAnalysis(v_sweep=self.variables['v(v-sweep)'].to_waveform(),
-                                   nodes=self._nodes(), branches=self._branches())
+        v_sweep = self.variables['v(v-sweep)'].to_waveform()
+        return DcAnalysis(v_sweep, nodes=self.nodes(), branches=self.branches())
         
     ##############################################
 
-    def _ac_analysis(self):
+    def _to_ac_analysis(self):
 
-        self.analysis = AcAnalysis(frequency=self.variables['frequency'].to_waveform(to_real=True),
-                                   nodes=self._nodes(), branches=self._branches())
+        frequency = self.variables['frequency'].to_waveform(to_real=True)
+        return AcAnalysis(frequency, nodes=self.nodes(), branches=self.branches())
         
     ##############################################
 
-    def _transient_analysis(self):
+    def _to_transient_analysis(self):
 
-        self.analysis = TransientAnalysis(time=self.variables['time'].to_waveform(to_real=True),
-                                          nodes=self._nodes(), branches=self._branches())
+        time = self.variables['time'].to_waveform(to_real=True)
+        return TransientAnalysis(time, nodes=self.nodes(), branches=self.branches())
 
 ####################################################################################################
 # 
