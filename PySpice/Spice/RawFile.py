@@ -66,7 +66,17 @@ class Variable(object):
 
     ##############################################
 
-    def to_waveform(self, to_real=False, to_float=False):
+    @property
+    def simplified_name(self):
+
+        if self.is_node_voltage() or self.is_branch_current():
+            return self.name[2:-1]
+        else:
+            return self.name
+
+    ##############################################
+
+    def to_waveform(self, abscissa=None, to_real=False, to_float=False):
 
         data = self.data
         if to_real:
@@ -74,12 +84,7 @@ class Variable(object):
         if to_float:
             data = float(data[0])
 
-        if self.is_node_voltage() or self.is_branch_current():
-            name = self.name[2:-1]
-        else:
-            name = self.name
-
-        return WaveForm(name, self.unit, data)
+        return WaveForm(self.simplified_name, self.unit, data, abscissa=abscissa)
 
 ####################################################################################################
 
@@ -233,25 +238,25 @@ class RawFile(object):
 
     ##############################################
 
-    def nodes(self, to_float=False):
+    def nodes(self, to_float=False, abscissa=None):
 
-        return [variable.to_waveform(to_float=to_float) 
+        return [variable.to_waveform(abscissa, to_float=to_float) 
                 for variable in self.variables.itervalues()
                 if variable.is_node_voltage()]
 
     ##############################################
 
-    def branches(self, to_float=False):
+    def branches(self, to_float=False, abscissa=None):
 
-        return [variable.to_waveform(to_float=to_float)
+        return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.variables.itervalues()
                 if variable.is_branch_current()]
 
     ##############################################
 
-    def elements(self):
+    def elements(self, abscissa=None):
 
-        return [variable.to_waveform(to_float=True) 
+        return [variable.to_waveform(abscissa, to_float=True) 
                 for variable in self.variables.itervalues()]
 
     ##############################################
@@ -303,7 +308,7 @@ class RawFile(object):
     def _to_transient_analysis(self):
 
         time = self.variables['time'].to_waveform(to_real=True)
-        return TransientAnalysis(time, nodes=self.nodes(), branches=self.branches())
+        return TransientAnalysis(time, nodes=self.nodes(abscissa=time), branches=self.branches(abscissa=time))
 
 ####################################################################################################
 # 

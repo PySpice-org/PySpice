@@ -9,6 +9,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Probe.Plot import plot
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit.Units import *
 
@@ -54,16 +55,14 @@ for element_type in 'capacitor', 'inductor':
         title = "Inductor: current is constant"
     axe.set_title(title)
     current_scale = 1000
-    print analysis.nodes
-    axe.plot(analysis.time.v, analysis['in'].v,
-             analysis.time.v, analysis.out.v,
-             # Fixme: resistor current, scale
-             analysis.time.v, current_scale*(analysis['in'].v-analysis.out.v)/1000)
+    plot(analysis['in'])
+    plot(analysis['out'])
+    # Fixme: resistor current, scale
+    plot((analysis['in'] - analysis.out)/1000*current_scale)
     axe.set_ylim(-11, 11)
     axe.set_xlabel('t [s]')
     axe.set_ylabel('[V]')
     axe.legend(('Vin [V]', 'Vout [V]', 'I'), loc=(.8,.8))
-    figure.show()
 
 pylab.show()
 

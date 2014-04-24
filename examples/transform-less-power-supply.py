@@ -11,6 +11,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit.Units import *
@@ -44,13 +45,13 @@ simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*10,
                                probes=('V(in)', 'V(out)', 'V(1)', 'V(2)'))
 
-print analysis.nodes
-pylab.plot(analysis.time.v, analysis['in'].v/100,
-           analysis.time.v, analysis.out.v,
-           analysis.time.v, (analysis.out.v - analysis['in'].v)/100,
-           analysis.time.v, analysis.out.v - analysis['1'].v,
-           analysis.time.v, (analysis['1'].v - analysis['2'].v)/100,
-       )
+plot(analysis['in'] / 100)
+plot(analysis.out)
+plot((analysis.out - analysis['in']) / 100)
+plot(analysis.out - analysis['1'])
+plot((analysis['1'] - analysis['2']) / 100)
+# or:
+#   pylab.plot(analysis.out.abscissa.v, analysis.out.v)
 pylab.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
 pylab.grid()
 pylab.xlabel('t [s]')
