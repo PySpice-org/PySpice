@@ -37,7 +37,7 @@ simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vinput=slice(-20, 20, .1))
 
 # pylab.plot(data['v(out)'], (data['v(in)'] - data['v(out)'])/1000)
-pylab.plot(analysis.out.v, -analysis.vinput.v) # .i
+pylab.plot(analysis.out, -analysis.vinput) # .i
 pylab.axvline(x=-5.6, color='blue')
 pylab.legend(('Diode curve',), loc=(.1,.8))
 pylab.grid()

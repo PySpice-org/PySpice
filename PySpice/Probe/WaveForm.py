@@ -47,17 +47,36 @@
 
 ####################################################################################################
 
-class WaveForm(object):
+import numpy as np
+
+####################################################################################################
+
+class WaveForm(np.ndarray):
 
     ##############################################
 
-    def __init__(self, name, unit, data, title=None, abscissa=None):
+    def __new__(cls, name, unit, data, title=None, abscissa=None):
 
-        self.name = str(name)
-        self.unit = str(unit)
-        self.title = title # str(title)
-        self._data = data
-        self.abscissa = abscissa
+        obj = np.asarray(data).view(cls)
+
+        obj.name = str(name)
+        obj.unit = str(unit)
+        obj.title = title # str(title)
+        obj.abscissa = abscissa
+
+        return obj
+
+    ##############################################
+
+    def __array_finalize__(self, obj):
+
+        if obj is None:
+            return
+
+        self.name = getattr(obj, 'name', None)
+        self.unit = getattr(obj, 'unit', None)
+        self.title = getattr(obj, 'title', None)
+        self.abscissa = getattr(obj, 'abscissa', None)
 
     ##############################################
 
@@ -73,110 +92,6 @@ class WaveForm(object):
             return self.title
         else:
             return '{self.name} [{self.unit}]'.format(self=self)
-
-    ##############################################
-
-    def __float__(self):
-
-        return self._data
-
-    ##############################################
-
-    @property
-    def v(self):
-        return self._data
-
-    ##############################################
-
-    def __pos__(self):
-        
-        return self.__class__(name=self.name,
-                              unit=self.unit,
-                              data=self._data,
-                              abscissa=self.abscissa,
-                             )
-
-    ##############################################
-
-    def __neg__(self):
-        
-        return self.__class__(name=self.name,
-                              unit=self.unit,
-                              data=-self._data,
-                              abscissa=self.abscissa,
-                             )
-
-    ##############################################
-
-    def __add__(self, other):
-        
-        if isinstance(other, self.__class__):
-            if self.abscissa != other.abscissa:
-                raise NameError("Abscissa is different")
-            name = self.name + ' + ' + other.name
-            data = self._data + other._data
-        else:
-            name = self.name + ' + ?'
-            data = self._data + other
-        return self.__class__(name=name,
-                              unit=self.unit,
-                              data=data,
-                              abscissa=self.abscissa,
-                             )
-
-    ##############################################
-
-    def __sub__(self, other):
-        
-        if isinstance(other, self.__class__):
-            if self.abscissa != other.abscissa:
-                raise NameError("Abscissa is different")
-            name = self.name + ' - ' + other.name
-            data = self._data - other._data
-        else:
-            name = self.name + ' - ?'
-            data = self._data - other
-        return self.__class__(name=name,
-                              unit=self.unit,
-                              data=data,
-                              abscissa=self.abscissa,
-                             )
-
-    ##############################################
-
-    def __mul__(self, other):
-        
-        if isinstance(other, self.__class__):
-            if self.abscissa != other.abscissa:
-                raise NameError("Abscissa is different")
-            name = self.name + ' * ' + other.name
-            data = self._data * other._data
-        else:
-            name = self.name + ' * ?'
-            data = self._data * other
-        return self.__class__(name=name,
-                              unit=None, # Fixme:
-                              data=data,
-                              abscissa=self.abscissa,
-                             )
-
-    ##############################################
-
-    def __div__(self, other):
-        
-        if isinstance(other, self.__class__):
-            if self.abscissa != other.abscissa:
-                raise NameError("Abscissa is different")
-            name = self.name + ' / ' + other.name
-            data = self._data / other._data
-        else:
-            name = self.name + ' / ?'
-            data = self._data / other
-        return self.__class__(name=name,
-                              unit=None, # Fixme
-                              data=data,
-                              abscissa=self.abscissa,
-                             )
 
 ####################################################################################################
 

@@ -27,9 +27,9 @@ simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.ac(start_frequency=1, stop_frequency=mega(1), number_of_points=10,  variation='dec',
                         probes=('V(in)', 'V(out)'))
 
-bode_diagram(frequency=analysis.frequency.v,
-             gain=20*np.log10(np.absolute(analysis.out.v)),
-             phase=np.angle(analysis.out.v, deg=False),
+bode_diagram(frequency=analysis.frequency,
+             gain=20*np.log10(np.absolute(analysis.out)),
+             phase=np.angle(analysis.out, deg=False),
              title="Bode Diagram of a Low-Pass RC Filter",
              marker='.',
              color='blue',

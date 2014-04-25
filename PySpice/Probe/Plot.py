@@ -14,7 +14,7 @@ from matplotlib import pylab
 def plot(waveform, *args, **kwargs):
 
     axis = kwargs.get('axis', pylab)
-    axis.plot(waveform.abscissa.v, waveform.v, *args, **kwargs)
+    axis.plot(waveform.abscissa, waveform, *args, **kwargs)
 
 ####################################################################################################
 # 

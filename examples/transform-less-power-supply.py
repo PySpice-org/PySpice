@@ -51,7 +51,7 @@ plot((analysis.out - analysis['in']) / 100)
 plot(analysis.out - analysis['1'])
 plot((analysis['1'] - analysis['2']) / 100)
 # or:
-#   pylab.plot(analysis.out.abscissa.v, analysis.out.v)
+#   pylab.plot(analysis.out.abscissa, analysis.out)
 pylab.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
 pylab.grid()
 pylab.xlabel('t [s]')
