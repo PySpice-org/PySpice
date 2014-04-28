@@ -1,0 +1,31 @@
+OPMODEL1.CIR - OPAMP MODEL SINGLE-POLE
+* from http://www.ecircuitcenter.com/OpModels/OpampModels.htm
+*
+VS	1	0	AC	1  PWL(0US 0V  0.01US 1V)
+XOP	1 0	3	OPAMP1
+RL	3	0	1K
+*
+* OPAMP MACRO MODEL, SINGLE-POLE 
+* connections:      non-inverting input
+*                   |   inverting input
+*                   |   |   output
+*                   |   |   |
+.SUBCKT OPAMP1	    1   2   6
+* INPUT IMPEDANCE
+RIN	1	2	10MEG
+* DC GAIN=100K AND POLE1=100HZ
+* UNITY GAIN = DCGAIN X POLE1 = 10MHZ
+EGAIN	3 0	1 2	100K
+RP1	3	4	1K
+CP1	4	0	1.5915UF
+* OUTPUT BUFFER AND RESISTANCE
+EBUFFER	5 0	4 0	1
+ROUT	5	6	10
+.ENDS
+* 
+* ANALYSIS
+.AC 	DEC 	5 1 100MEG
+*.TRAN 	0.05US  2US
+.PLOT	AC 	VM(3)
+.PROBE
+.END

@@ -177,9 +177,9 @@ class SubCircuitElement(Element):
 
 ####################################################################################################
 
-class TwoPortElement(Element):
+class TwoPinElement(Element):
 
-    """ This class implements a base class for a two-port element. """
+    """ This class implements a base class for a two-pin element. """
 
     ##############################################
 
@@ -187,7 +187,7 @@ class TwoPortElement(Element):
 
         pins = (Pin(self, 'plus', node_plus), Pin(self, 'minus', node_minus))
 
-        super(TwoPortElement, self).__init__(name, pins, *args, **kwargs)
+        super(TwoPinElement, self).__init__(name, pins, *args, **kwargs)
 
     ##############################################
 
@@ -203,9 +203,56 @@ class TwoPortElement(Element):
 
 ####################################################################################################
 
-class TwoPortElementWithValue(TwoPortElement):
+class TwoPortElement(Element):
 
-    """ This class implements a base class for a two-port element with a mandatory parameter value. """
+    """ This class implements a base class for a two-port element.
+
+    Input nodes comes before to output nodes contrary to Spice.
+    """
+
+    ##############################################
+
+    def __init__(self, name,
+                 input_node_plus, input_node_minus,
+                 output_node_plus, output_node_minus,
+                 *args, **kwargs):
+
+        pins = (Pin(self, 'output_plus', output_node_plus),
+                Pin(self, 'output_minus', output_node_minus),
+                Pin(self, 'input_plus', input_node_plus),
+                Pin(self, 'input_minus', input_node_minus))
+
+        super(TwoPortElement, self).__init__(name, pins, *args, **kwargs)
+
+    ##############################################
+
+    @property
+    def output_plus(self):
+        return self.pins[0]
+
+    ##############################################
+
+    @property
+    def output_minus(self):
+        return self.pins[1]
+
+    ##############################################
+
+    @property
+    def input_plus(self):
+        return self.pins[2]
+
+    ##############################################
+
+    @property
+    def input_minus(self):
+        return self.pins[3]
+
+####################################################################################################
+
+class ElementWithValue(Element):
+
+    """ This class implements a base class for an element with a mandatory parameter value. """
 
     ##############################################
 
@@ -223,6 +270,16 @@ class TwoPortElementWithValue(TwoPortElement):
     @property
     def float_value(self):
         return float(self._parameters[0]) # self.value
+
+####################################################################################################
+
+class TwoPinElementWithValue(TwoPinElement, ElementWithValue):
+    """ This class implements a base class for a two-pin element with a mandatory parameter value. """
+
+####################################################################################################
+
+class TwoPortElementWithValue(TwoPortElement, ElementWithValue):
+    """ This class implements a base class for a two-port element with a mandatory parameter value. """
 
 ####################################################################################################
 
@@ -373,12 +430,20 @@ class SubCircuit(Netlist):
 
     ##############################################
 
-    def __init__(self, name, *nodes):
+    def __init__(self, name, *nodes, **kwargs):
 
         super(SubCircuit, self).__init__()
 
         self.name = str(name)
-        self._external_nodes = set(nodes)
+        self._external_nodes = list(nodes)
+        self._ground = kwargs.get('ground', 0)
+        
+    ##############################################
+
+    @property
+    def gnd(self):
+        """ Local ground """
+        return self._ground
 
     ##############################################
 

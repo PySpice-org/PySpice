@@ -9,11 +9,11 @@
 
 ####################################################################################################
 
-from .Netlist import TwoPortElement, TwoPortElementWithValue
+from .Netlist import TwoPinElement, TwoPinElementWithValue, TwoPortElementWithValue
 
 ####################################################################################################
 
-class Resistor(TwoPortElementWithValue):
+class Resistor(TwoPinElementWithValue):
 
     """
 
@@ -36,7 +36,7 @@ class Resistor(TwoPortElementWithValue):
 
 ####################################################################################################
 
-class Capacitor(TwoPortElementWithValue):
+class Capacitor(TwoPinElementWithValue):
 
     """
 
@@ -59,7 +59,7 @@ class Capacitor(TwoPortElementWithValue):
 
 ####################################################################################################
 
-class Inductor(TwoPortElementWithValue):
+class Inductor(TwoPinElementWithValue):
 
     """
 
@@ -78,7 +78,7 @@ class Inductor(TwoPortElementWithValue):
 
 ####################################################################################################
 
-class Diode(TwoPortElement):
+class Diode(TwoPinElement):
 
     """
 
@@ -92,7 +92,7 @@ class Diode(TwoPortElement):
 
 ####################################################################################################
 
-class VoltageSource(TwoPortElement):
+class VoltageSource(TwoPinElement):
 
     """
 
@@ -103,6 +103,66 @@ class VoltageSource(TwoPortElement):
     """
 
     prefix = 'V'
+
+####################################################################################################
+
+class VoltageControlledVoltageSource(TwoPortElementWithValue):
+
+    """
+
+    Linear Voltage-Controlled Voltage Sources (VCVS)::
+
+        EXXXXXXX N+ N- NC+ NC- VALUE
+
+    """
+
+    alias = 'VCVS'
+    prefix = 'E'
+
+####################################################################################################
+
+class CurrentControlledCurrentSource(TwoPortElementWithValue):
+
+    """
+
+    Linear Current-Controlled Current Sources (CCCS)::
+
+       FXXXXXXX N+ N- VNAM VALUE
+
+    """
+
+    alais = 'CCCS'
+    prefix = 'F'
+
+####################################################################################################
+
+class VoltageControlledCurrentSource(TwoPortElementWithValue):
+
+    """
+
+    Linear Voltage-Controlled Current Sources (VCCS)::
+
+        GXXXXXXX N+ N- NC+ NC- VALUE
+
+    """
+
+    alias = 'VCCS'
+    prefix = 'G'
+
+####################################################################################################
+
+class CurrentControlledVoltageSource(TwoPortElementWithValue):
+
+    """
+
+    Linear Current-Controlled Voltage Sources (CCVS)::
+
+        HXXXXXXX n+ n- vnam value
+
+    """
+
+    alias = 'CCVS'
+    prefix = 'H'
 
 ####################################################################################################
 # 

@@ -43,6 +43,10 @@ for element_class in spice_elements + high_level_elements:
 
     setattr(Netlist, function_name, _make_function(element_class))
 
+    if hasattr(element_class, 'alias'):
+        function_name = element_class.alias
+        setattr(Netlist, function_name, _make_function(element_class))
+
 ####################################################################################################
 # 
 # End
