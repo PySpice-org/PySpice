@@ -1,28 +1,33 @@
-Astable multivibrator
-***********************************************************
-*Parameters
-.PARAM Vcc=15 Vol=0 Voh=15
-***********************************************************
-Vcc Vcc 0 {Vcc}
-***********************************************************
+.title Astable Multivibrator
+*
+****************************************************************************************************
+.subckt BasicComparator output voltage_minus non_inverting_input inverting_input
+E1 output voltage_minus TABLE {V(non_inverting_input, inverting_input)} = (-1uV, 0V) (1uV, 15V)
+* Error on line 0 : b.xcomparator.b*1 xcomparator.*1_int1 0 v= v(reference,comparator) ,   -1.0000000000e-06 ,   0.0000000000e+00 ,   1.0000000000e-06 ,   1.5000000000e+01
+*  unknown parameter (-1.0000000000e-06) 
+.ends
+****************************************************************************************************
+Vcc vcc 0 15 
+****************************************************************************************************
 * Time constant
-R1 Vo Vc 1K
-C1 Vc 0 100n
-.IC V(Vc)=0
-***********************************************************
+R1 output comparator 1k
+C1 comparator 0 100n 
+* mandatory
+.IC V(comparator)=0
+****************************************************************************************************
 * Reference
-R2 Vo Vr 100K
-R3 Vcc Vr 100K
-R4 Vr 0 100K
-***********************************************************
+R2 output reference 100k 
+R3 Vcc reference 100k 
+R4 reference 0 100k 
+****************************************************************************************************
 * Comparator
-* E1 Vo 0 Vr Vc table=(-1m {Vol} -1u {Vol} 1u {Voh} 1m {Voh})
-* E1 Vo 0 table {V(Vr, Vc)} = (-1mV, {Vol}V) (-1uV, {Vol}V) (1uV, {Voh}V) (1mV, {Voh}V)
-* E1 Vo 0 table {V(Vr, Vc)} = (-1mV, 0V) (-1uV, 0V) (1uV, 15V) (1mV, 15V)
-E1 Vo 0 table {V(Vr, Vc)} = (-1uV, 0V) (1uV, 15V)
-***********************************************************
+* Xcomparator output 0 reference comparator BasicComparator 
+E1 output 0 TABLE {V(reference, comparator)} = (-1uV, 0V) (1uV, 15V)
+****************************************************************************************************
+.end
+****************************************************************************************************
 .control
 tran 1u 500u
-plot V(Vo) V(Vr) V(Vc)
+plot V(output) V(reference) V(comparator)
 .endc
-.END
+****************************************************************************************************
