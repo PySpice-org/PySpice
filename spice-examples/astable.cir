@@ -1,0 +1,28 @@
+Astable multivibrator
+***********************************************************
+*Parameters
+.PARAM Vcc=15 Vol=0 Voh=15
+***********************************************************
+Vcc Vcc 0 {Vcc}
+***********************************************************
+* Time constant
+R1 Vo Vc 1K
+C1 Vc 0 100n
+.IC V(Vc)=0
+***********************************************************
+* Reference
+R2 Vo Vr 100K
+R3 Vcc Vr 100K
+R4 Vr 0 100K
+***********************************************************
+* Comparator
+* E1 Vo 0 Vr Vc table=(-1m {Vol} -1u {Vol} 1u {Voh} 1m {Voh})
+* E1 Vo 0 table {V(Vr, Vc)} = (-1mV, {Vol}V) (-1uV, {Vol}V) (1uV, {Voh}V) (1mV, {Voh}V)
+* E1 Vo 0 table {V(Vr, Vc)} = (-1mV, 0V) (-1uV, 0V) (1uV, 15V) (1mV, 15V)
+E1 Vo 0 table {V(Vr, Vc)} = (-1uV, 0V) (1uV, 15V)
+***********************************************************
+.control
+tran 1u 500u
+plot V(Vo) V(Vr) V(Vc)
+.endc
+.END
