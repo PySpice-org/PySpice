@@ -147,6 +147,18 @@ class SensitivityAnalysis(Analysis):
 
 class DcAnalysis(Analysis):
 
+    """
+
+    When the DC analysis is performed with multiple sources, v-sweep is the last source.
+
+    The loop scheme is::
+
+        for  v1 in vsource1: 
+             for v2 in vsource2:
+                 ...
+
+    """
+
     ##############################################
 
     def __init__(self, v_sweep, nodes, branches):
@@ -159,7 +171,7 @@ class DcAnalysis(Analysis):
 
     @property
     def v_sweep(self):
-        pass
+        return self._v_sweep
 
 ####################################################################################################
 

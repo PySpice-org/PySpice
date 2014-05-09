@@ -7,7 +7,7 @@
 
 ####################################################################################################
 
-from ..Tools.StringTools import join_list
+from ..Tools.StringTools import join_list, join_dict
 from .Server import SpiceServer
 
 ####################################################################################################
@@ -31,6 +31,7 @@ class CircuitSimulation(object):
         self._circuit = circuit
 
         self._options = {} # .options
+        self._initial_condition = {} # .ic
         self._saved_nodes = ()
         self._analysis_parameters = {}
 
@@ -75,6 +76,13 @@ class CircuitSimulation(object):
     @nominal_temperature.setter
     def nominal_temperature(self, value):
         self._options['TNOM'] = value
+
+    ##############################################
+
+    def initial_condition(self, kwargs):
+
+        for key, value in kwargs.iteritems():
+            self._initial_condition[str(key)] = str(value)
 
     ##############################################
 
@@ -162,6 +170,8 @@ class CircuitSimulation(object):
                     netlist += '.options {} = {}\n'.format(key, value)
                 else:
                     netlist += '.options {}\n'.format(key)
+        if self.initial_condition:
+            netlist += '.ic ' + join_dict(self._initial_condition) + '\n'
         if self._saved_nodes:
             netlist += '.save ' + join_list(self._saved_nodes) + '\n'
         for analysis, analysis_parameters in self._analysis_parameters.iteritems():

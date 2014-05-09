@@ -29,6 +29,26 @@ circuit.R('out', 3, 'output', 10)
 # print str(basic_operational_amplifier)
 
 ####################################################################################################
+
+basic_comparator = SubCircuit('BasicComparator',
+                              'non_inverting_input', 'inverting_input',
+                              'voltage_plus', 'voltage_minus',
+                              'output')
+circuit = basic_comparator
+
+# Fixme: how to pass voltage_plus, voltage_minus ?
+output_voltage_minus, output_voltage_plus = 0, 15
+
+# to plug the voltage source
+circuit.R(1, 'voltage_plus', 'voltage_minus', mega(1))
+circuit.NonLinearVoltageSource(1, 'output', 'voltage_minus',
+                               expression='V(non_inverting_input, inverting_input)',
+                               # table=((-micro(1), output_voltage_minus),
+                               #       (micro(1), output_voltage_plus))
+                               table=(('-1uV', '0V'), ('1uV', '15V'))
+                               )
+
+####################################################################################################
 # 
 # End
 # 

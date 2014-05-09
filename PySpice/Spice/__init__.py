@@ -36,7 +36,9 @@ for element_class in spice_elements + high_level_elements:
             return element
         return function
 
-    if element_class in spice_elements:
+    # Fixme: do something more flexible
+    # generalise alias usage ?
+    if element_class in spice_elements and not hasattr(element_class, '__dont_register_prefix__'):
         function_name = element_class.prefix
     else:
         function_name = element_class.__name__

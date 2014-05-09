@@ -109,7 +109,7 @@ class Element(object):
     def __init__(self, name, pins, *args, **kwargs):
 
         self._name = str(name)
-        self._pins = list(pins)
+        self._pins = list(pins) # Fixme: pins is not a ordered dict, cf. property
         self._parameters = list(args)
         self._dict_parameters = dict(kwargs)
 
@@ -151,13 +151,17 @@ class Element(object):
 
     ##############################################
 
+    def format_name_nodes(self):
+
+        return join_list((self.name, join_list(self.nodes)))
+
+    ##############################################
+
     def __str__(self):
 
-        return "{} {} {} {}".format(self.name,
-                                    join_list(self.nodes),
-                                    join_list(self.parameters),
-                                    join_dict(self.dict_parameters),
-                                   )
+        return join_list((self.format_name_nodes(),
+                          join_list(self.parameters),
+                          join_dict(self.dict_parameters)))
 
 ####################################################################################################
 

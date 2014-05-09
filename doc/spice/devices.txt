@@ -31,8 +31,8 @@ LXXXXXXX n+ n- L='expression' <tc1=value> <tc2=value>
 LXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
 
 Switches
-SXXXXXXX N+ N- NC+ NC- MODEL <ON><OFF>
-WYYYYYYY N+ N- VNAM MODEL <ON><OFF>
+SXXXXXXX n+ n- nc+ nc- model <on><off>
+WYYYYYYY n+ n- vnam model <on><off>
 
 ####################################################################################################
 
