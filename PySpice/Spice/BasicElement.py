@@ -97,7 +97,10 @@ class CoupledInductor(ElementWithValue):
 
     def __init__(self, name, inductor_name1, inductor_name2, coupling_factor):
 
-        super(CoupledInductor, self).__init__(name, inductor_name1, inductor_name2, coupling_factor)
+        # Fixme: any pins here
+        super(CoupledInductor, self).__init__(name, (),
+                                              inductor_name1, inductor_name2, coupling_factor)
+        self._inductor_names = (inductor_name1, inductor_name2)
 
 ####################################################################################################
 

@@ -30,6 +30,8 @@ circuit.R('out', 3, 'output', 10)
 
 ####################################################################################################
 
+# Fixme: ngspice is buggy with such subcircuit
+
 basic_comparator = SubCircuit('BasicComparator',
                               'non_inverting_input', 'inverting_input',
                               'voltage_plus', 'voltage_minus',
