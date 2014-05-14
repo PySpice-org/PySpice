@@ -29,7 +29,7 @@ circuit.include(spice_library['1N4148'])
 circuit.include(spice_library['d1n5919brl'])
 
 circuit.V('input', 'in', circuit.gnd, '10V')
-circuit.R(1, 'in', 'out', kilo(1))
+circuit.R(1, 'in', 'out', kilo(1)) # not required for simulation
 # circuit.X('D1', '1N4148', 'out', circuit.gnd)
 circuit.X('DZ1', 'd1n5919brl', 'out', circuit.gnd)
 

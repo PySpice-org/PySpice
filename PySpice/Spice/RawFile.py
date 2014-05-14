@@ -1,3 +1,4 @@
+
 ####################################################################################################
 # 
 # PySpice - A Spice package for Python
@@ -229,6 +230,7 @@ class RawFile(object):
         input_data = np.fromstring(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
         input_data = input_data.reshape((self.number_of_points, number_of_columns))
         input_data = input_data.transpose()
+        # print input_data
         if self.flags == 'complex':
             raw_data = input_data
             input_data = np.array(raw_data[0::2], dtype='complex64')
@@ -293,8 +295,14 @@ class RawFile(object):
 
     def _to_dc_analysis(self):
 
-        v_sweep = self.variables['v(v-sweep)'].to_waveform()
-        return DcAnalysis(v_sweep, nodes=self.nodes(), branches=self.branches())
+        if 'v(v-sweep)' in self.variables:
+            sweep_variable = self.variables['v(v-sweep)']
+        elif 'v(i-sweep)' in self.variables:
+            sweep_variable = self.variables['v(i-sweep)']
+        else:
+            raise NotImplementedError
+        sweep = sweep_variable.to_waveform()
+        return DcAnalysis(sweep, nodes=self.nodes(), branches=self.branches())
         
     ##############################################
 
