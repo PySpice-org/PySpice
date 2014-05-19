@@ -7,6 +7,8 @@
 
 """ This module implements high level elements built on Spice elements. """
 
+# Fixme: these waveforms can be current sources as well
+
 ####################################################################################################
 
 from ..Math import rms_to_amplitude, amplitude_to_rms
@@ -18,11 +20,34 @@ from .BasicElement import VoltageSource
 
 class Sinusoidal(VoltageSource):
 
-    """
+    r""" This class implements a sinusoidal waveform.
 
-    SIN waveform::
+    The shape of the waveform is described by the following formula:
 
-        SIN ( VO VA FREQ TD THETA )
+    .. math::
+
+        V(t) = \begin{cases}
+          V_o & \text{if}\ 0 \leq t < T_d, \\
+          V_o + V_a e^{-D_f(t-T_d)} \sin\left(2\pi f (t-T_d)\right) & \text{if}\ T_d \leq t < T_{stop}.
+        \end{cases}
+
+    Spice syntax::
+
+        SIN ( Voffset Vamplitude Freq Tdelay DampingFactor )
+
+    Public Attributes:
+
+      :attr:`amplitude`
+
+      :attr:`damping_factor`
+
+      :attr:`dc_offset`
+
+      :attr:`delay`
+
+      :attr:`frequency`
+
+      :attr:`offset`
 
     """
 
@@ -38,7 +63,7 @@ class Sinusoidal(VoltageSource):
         self.dc_offset = dc_offset
         self.offset = offset
         self.amplitude = amplitude
-        self.frequency = Frequency(frequency)
+        self.frequency = Frequency(frequency) # Fixme: protect by setter?
         self.delay = delay
         self.damping_factor = damping_factor
 
@@ -80,11 +105,27 @@ class AcLine(Sinusoidal):
 
 class Pulse(VoltageSource):
 
-    """
+    """This class implements a pulse waveform.
 
-    Pulse waveform::
+    Nomenclature:
+
+    +----+---------------+
+    | V1 | initial_value |
+    +----+---------------+
+    | V2 | pulsed_value  |
+    +----+---------------+
+    | Pw | pulse_width   |
+    +----+---------------+
+    | Td | delay_time    |
+    +----+---------------+
+    | Tr | rise_time     |
+    +----+---------------+
+    | Tf | fall_time     |
+    +----+---------------+
+
+    Spice Syntax::
     
-        PULSE ( V1 V2 TD TR TF PW PER )
+        PULSE ( V1 V2 Td Tr Tf Pw Period )
     
     A single pulse so specified is described by the following table:
     
@@ -93,18 +134,35 @@ class Pulse(VoltageSource):
     +-------------+-------+
     | 0           | V1    |
     +-------------+-------+
-    | TD          | V1    |
+    | Td          | V1    |
     +-------------+-------+
-    | TD+TR       | V2    |
+    | Td+Tr       | V2    |
     +-------------+-------+
-    | TD+TR+PW    | V2    |
+    | Td+Tr+Pw    | V2    |
     +-------------+-------+
-    | TD+TR+PW+TF | V1    |
+    | Td+Tr+Pw+Tf | V1    |
     +-------------+-------+
-    | TSTOP       | V1    |
+    | Tstop       | V1    |
     +-------------+-------+
     
-    default value for rise and fall time in the transient step, period is stop time.
+    Note: default value in Spice for rise and fall time is the simulation transient step, pulse
+    width and period is the simulation stop time.
+
+    Public Attributes:
+
+      :attr:`delay_time`
+
+      :attr:`fall_time`
+
+      :attr:`initial_value`
+
+      :attr:`period`
+
+      :attr:`pulse_width`
+
+      :attr:`pulsed_value`
+
+      :attr:`rise_time`
 
     """
 
@@ -117,6 +175,10 @@ class Pulse(VoltageSource):
                  # delay_time=.0,
                  # rise_time=None, fall_time=None, pulse_width=None, period=None):
 
+        # Fixme: default
+        #  rise_time, fall_time = Tstep
+        #  pulse_width, period = Tstop
+
         super(Pulse, self).__init__(name, node_plus, node_minus)
 
         self.initial_value = initial_value
@@ -125,7 +187,7 @@ class Pulse(VoltageSource):
         self.rise_time = rise_time
         self.fall_time = fall_time
         self.pulse_width = pulse_width
-        self.period = Period(period)
+        self.period = Period(period) # Fixme: protect by setter?
 
         # # Fixme: to func?
         # # Check parameters
