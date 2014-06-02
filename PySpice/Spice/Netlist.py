@@ -98,9 +98,173 @@ class Pin(object):
 
 ####################################################################################################
 
+class ElementParameter(object):
+
+    ##############################################
+
+    def __init__(self, spice_name, default=None):
+
+        self.spice_name = spice_name
+        self.value = default
+
+        self.attribute_name = None
+
+    ##############################################
+
+    def __get__(self, obj, object_type):
+        return self.value
+
+    ##############################################
+
+    def validate(self, value):
+        return value
+        
+    ##############################################
+
+    def __set__(self, obj, value):
+        self.value = self.validate(value)
+
+    ##############################################
+
+    def __nonzero__(self):
+        return self.value is not None
+
+    ##############################################
+
+    def __str__(self):
+        raise NotImplementedError
+
+####################################################################################################
+
+class KeyValueParameter(ElementParameter):
+
+    ##############################################
+
+    def str_value(self):
+        return str(self.value)
+
+    ##############################################
+
+    def __str__(self):
+
+        if bool(self):
+            return '{}={}'.format(self.spice_name, self.str_value())
+        else:
+            return ''
+
+####################################################################################################
+
+class IntKeyParameter(KeyValueParameter):
+
+    ##############################################
+
+    def validate(self, value):
+        return int(value)
+
+####################################################################################################
+
+class FloatKeyParameter(KeyValueParameter):
+
+    ##############################################
+
+    def validate(self, value):
+        return float(value)
+
+####################################################################################################
+
+class FloatPairKeyParameter(KeyValueParameter):
+
+    ##############################################
+
+    def str_value(self):
+        return ','.join([str(value) for value in self.value])
+
+    ##############################################
+
+    def validate(self, pair):
+
+        if len(pair) == 2:
+            return (float(pair[0]), float(pair[1]))
+        else:
+            raise ValueError()
+
+####################################################################################################
+
+class FlagKeyParameter(ElementParameter):
+
+    def __init__(self, spice_name, default=False):
+
+        super(FlagKeyParameter, self).__init__(spice_name, default)
+
+    ##############################################
+
+    def __nonzero__(self):
+        return bool(self.value)
+
+    ##############################################
+
+    def __str__(self):
+
+        if bool(self):
+            return 'off'
+        else:
+            return ''
+
+####################################################################################################
+
+class BoolKeyParameter(ElementParameter):
+
+    def __init__(self, spice_name, default=False):
+
+        super(BoolKeyParameter, self).__init__(spice_name, default)
+
+    ##############################################
+
+    def __nonzero__(self):
+        return bool(self.value)
+
+    ##############################################
+
+    def __str__(self):
+
+        if bool(self):
+            return '0'
+        else:
+            return '1'
+
+####################################################################################################
+
+class ExpressionKeyParameter(KeyValueParameter):
+
+    ##############################################
+
+    def validate(self, value):
+        return str(value)
+
+####################################################################################################
+
+class ElementParameterMetaClass(type):
+
+    ##############################################
+
+    def __new__(cls, name, bases, attributes):
+
+        parameters = {}
+        for attribute_name, obj in attributes.iteritems():
+            if isinstance(obj, ElementParameter):
+                obj.attribute_name = attribute_name
+                parameters[attribute_name] = obj
+        attributes['optional_parameters'] = parameters
+
+        return super(ElementParameterMetaClass, cls).__new__(cls, name, bases, attributes)
+
+####################################################################################################
+
 class Element(object):
 
     """ This class implements a base class for an element. """
+
+    __metaclass__ = ElementParameterMetaClass
 
     prefix = None
 
@@ -111,7 +275,10 @@ class Element(object):
         self._name = str(name)
         self._pins = list(pins) # Fixme: pins is not a ordered dict, cf. property
         self._parameters = list(args)
-        self._dict_parameters = dict(kwargs)
+
+        for key, value in kwargs.iteritems():
+            if key in self.optional_parameters:
+                setattr(self, key, value)
 
     ##############################################
 
@@ -139,29 +306,31 @@ class Element(object):
 
     ##############################################
 
-    @property
-    def dict_parameters(self):
-        return self._dict_parameters
-
-    ##############################################
-
     def __repr__(self):
 
         return self.__class__.__name__ + ' ' + self.name
 
     ##############################################
 
-    def format_name_nodes(self):
+    def format_node_names(self):
 
         return join_list((self.name, join_list(self.nodes)))
 
     ##############################################
 
+    def format_spice_parameters(self):
+
+        return join_list(str(parameter)
+                         for parameter in self.optional_parameters.itervalues()
+                         if bool(parameter))
+
+    ##############################################
+
     def __str__(self):
 
-        return join_list((self.format_name_nodes(),
+        return join_list((self.format_node_names(),
                           join_list(self.parameters),
-                          join_dict(self.dict_parameters)))
+                          self.format_spice_parameters()))
 
 ####################################################################################################
 

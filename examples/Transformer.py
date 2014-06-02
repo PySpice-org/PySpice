@@ -28,11 +28,11 @@ circuit.R('primary', 2, 'output_minus', 1)
 # Secondary
 circuit.C('secondary', 'output_plus', 'output_minus', pico(20))
 circuit.L('secondary_leakage', 'output_plus', 3, milli(1))
-secondary_inductor = circuit.L('secondary', 3, 4, 1)
+secondary_inductor = circuit.L('secondary', 3, 4, .5)
 circuit.R('secondary', 4, 'output_minus', 1)
 
 # Coupling
-circuit.K('coupling', primary_inductor.name, secondary_inductor.name, .999)
+circuit.CoupledInductor('coupling', primary_inductor.name, secondary_inductor.name, .999)
 
 ####################################################################################################
 # 

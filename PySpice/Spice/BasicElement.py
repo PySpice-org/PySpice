@@ -10,81 +10,195 @@
 ####################################################################################################
 
 from ..Tools.StringTools import join_list
-from .Netlist import (Pin, Element, ElementWithValue,
+from .Netlist import (Pin, 
+                      IntKeyParameter, FloatKeyParameter, FloatPairKeyParameter,
+                      FlagKeyParameter, BoolKeyParameter,
+                      ExpressionKeyParameter,
+                      Element, ElementWithValue,
                       TwoPinElement, TwoPinElementWithValue, TwoPortElementWithValue)
 
 ####################################################################################################
 
 class Resistor(TwoPinElementWithValue):
 
-    """
+    """ This class implements a resistor.
 
-    Resistors::
+    Spice syntax::
 
         RXXXXXXX n+ n- value <ac=val> <m=val> <scale=val> <temp=val> <dtemp=val> <noisy=0|1>
     
-    Semiconductor Resistors::
-
-        RXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <temp=val> <dtemp=val> m=<val> <ac=val> <scale=val> <noisy=0|1>
-    
-    Resistors, dependent on expressions (behavioral resistor)::
-
-        Rxxxxxxx n+ n- R='expression' <tc1=value> <tc2=value>
-        RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
 
     """
 
+    alias = 'R'
     prefix = 'R'
+
+    ac = FloatKeyParameter('ac')
+    multiplier = IntKeyParameter('m')
+    scale = FloatKeyParameter('scale')
+    temperature = FloatKeyParameter('temp')
+    device_temperature = FloatKeyParameter('dtemp')
+    noisy = BoolKeyParameter('noisy')
+
+####################################################################################################
+
+class SemiconductorResistor(TwoPinElementWithValue):
+
+    """ This class implements a Semiconductor resistor.
+
+    Spice syntax::
+
+        RXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <temp=val> <dtemp=val> m=<val> <ac=val> <scale=val> <noisy=0|1>
+
+    """
+
+    alias = 'SemiconductorResistor'
+    prefix = 'R'
+
+    # modele
+    length = FloatKeyParameter('l')
+    width = FloatKeyParameter('w')
+    temperature = FloatKeyParameter('temp')
+    device_temperature = FloatKeyParameter('dtemp')
+    multiplier = IntKeyParameter('m')
+    ac = FloatKeyParameter('ac')
+    scale = FloatKeyParameter('scale')
+    noisy = BoolKeyParameter('noisy')
+
+####################################################################################################
+
+class BehavorialResistor(TwoPinElementWithValue):
+
+    """ This class implements a behavorial resistor.
+
+    Spice syntax::
+
+        RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
+        Rxxxxxxx n+ n- R='expression' <tc1=value> <tc2=value>
+
+    """
+
+    alias = 'BehavorialResistor'
+    prefix = 'R'
+
+    tc1 = FloatKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc2')
 
 ####################################################################################################
 
 class Capacitor(TwoPinElementWithValue):
 
-    """
+    """ This class implements a capacitor.
 
-    Capacitors::
+    Spice syntax::
 
         CXXXXXXX n+ n- <value> <mname> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
-    
-    Semiconductor Capacitors::
+
+    """
+
+    alias = 'C'
+    prefix = 'C'
+
+    # Modele
+    multiplier = IntKeyParameter('m')
+    scale = FloatKeyParameter('scale')
+    temperature = FloatKeyParameter('temp')
+    device_temperature = FloatKeyParameter('dtemp')
+    initial_condition = FloatKeyParameter('init_condition')
+
+####################################################################################################
+
+class SemiconductorCapacitor(TwoPinElementWithValue):
+
+    """ This class implements a semiconductor capacitor.
+
+    Spice syntax::
 
         CXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
     
-    Capacitors, dependent on expressions (behavioral capacitor)::
-
-        CXXXXXXX n+ n- C='expression' <tc1=value> <tc2=value>
-        CXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
 
     """
 
+    alias = 'SemiconductorCapacitor'
     prefix = 'C'
+
+    # modele
+    length = FloatKeyParameter('l')
+    width = FloatKeyParameter('w')
+    multiplier = IntKeyParameter('m')
+    scale = FloatKeyParameter('scale')
+    temperature = FloatKeyParameter('temp')
+    device_temperature = FloatKeyParameter('dtemp')
+    initial_condition = FloatKeyParameter('init_condition')
+
+####################################################################################################
+
+class BehavorialCapacitor(TwoPinElementWithValue):
+
+    """ This class implements a behavioral capacitor.
+
+    Spice syntax::
+
+        CXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
+        CXXXXXXX n+ n- C='expression' <tc1=value> <tc2=value>
+
+    """
+
+    alias = 'BehavorialCapacitor'
+    prefix = 'C'
+
+    tc1 = FloatKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc2')
 
 ####################################################################################################
 
 class Inductor(TwoPinElementWithValue):
 
-    """
+    """ This class implements an inductor.
 
-    Inductors::
+    Spice syntax::
 
         LYYYYYYY n+ n- <value> <mname> <nt=val> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
-    
-    Inductors, dependent on expressions (behavioral inductor)::
-
-        LXXXXXXX n+ n- L='expression' <tc1=value> <tc2=value>
-        LXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
 
     """
-    
+
+    alias = 'L'
     prefix = 'L'
+
+    # Modele
+    nt = FloatKeyParameter('nt')
+    multiplier = IntKeyParameter('m')
+    scale = FloatKeyParameter('scale')
+    temperature = FloatKeyParameter('temp')
+    device_temperature = FloatKeyParameter('dtemp')
+    initial_condition = FloatKeyParameter('init_condition')
+
+####################################################################################################
+
+class BehavorialInductor(TwoPinElementWithValue):
+
+    """ This class implements a behavioral inductor.
+
+    Spice syntax::
+
+        LXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
+        LXXXXXXX n+ n- L='expression' <tc1=value> <tc2=value>
+
+    """
+
+    alias = 'BehavorialInductor'
+    prefix = 'L'
+
+    tc1 = FloatKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc2')
 
 ####################################################################################################
 
 class CoupledInductor(ElementWithValue):
 
-    """ Coupled (Mutual) Inductors
+    """ This class implementss a coupled (mutual) inductors.
 
-    Spice syntax:
+    Spice syntax::
 
         KXXXXXXX LYYYYYYY LZZZZZZZ value
 
@@ -106,9 +220,9 @@ class CoupledInductor(ElementWithValue):
 
 class VoltageControlledSwitch(TwoPortElementWithValue):
 
-    """
+    """ This class implements a voltage controlled switch.
 
-    Spice syntax:
+    Spice syntax::
 
         SXXXXXXX N+ N- NC+ NC- MODEL <ON><OFF>
 
@@ -121,9 +235,9 @@ class VoltageControlledSwitch(TwoPortElementWithValue):
 
 class CurrentControlledSwitch(TwoPinElementWithValue):
 
-    """
+    """ This class implements a current controlled switch.
 
-    Spice syntax:
+    Spice syntax::
 
         WYYYYYYY N+ N- VNAM MODEL <ON><OFF>
 
@@ -136,37 +250,39 @@ class CurrentControlledSwitch(TwoPinElementWithValue):
 
 class VoltageSource(TwoPinElement):
 
-    """
+    """ This class implements an independent sources for voltage.
 
-    Independent Sources for Voltage::
+    Spice syntax::
 
         VXXXXXXX n+ n- <<dc> dc/tran value> <ac <acmag <acphase>>> <distof1 <f1mag <f1phase>>> <distof2 <f2mag <f2phase>>>
 
     """
 
+    alias = 'V'
     prefix = 'V'
 
 ####################################################################################################
 
 class CurrentSource(TwoPinElement):
 
-    """
+    """ This class implements an independent sources for current.
 
-    Independent Sources for Current::
+    Spice syntax::
 
        IYYYYYYY N+ N- <<DC> DC/TRAN VALUE> <AC <ACMAG <ACPHASE>>> <DISTOF1 <F1MAG <F1PHASE>>> <DISTOF2 <F2MAG <F2PHASE>>>
 
     """
 
+    alias = 'I'
     prefix = 'I'
 
 ####################################################################################################
 
 class VoltageControlledVoltageSource(TwoPortElementWithValue):
 
-    """
+    """ This class implements a linear voltage-controlled voltage sources (VCVS).
 
-    Linear Voltage-Controlled Voltage Sources (VCVS)::
+    Spice syntax::
 
         EXXXXXXX N+ N- NC+ NC- VALUE
 
@@ -179,24 +295,24 @@ class VoltageControlledVoltageSource(TwoPortElementWithValue):
 
 class CurrentControlledCurrentSource(TwoPortElementWithValue):
 
-    """
+    """ This class implements a linear current-controlled current sources (CCCS).
 
-    Linear Current-Controlled Current Sources (CCCS)::
+    Spice syntax::
 
        FXXXXXXX N+ N- VNAM VALUE
 
     """
 
-    alais = 'CCCS'
+    alias = 'CCCS'
     prefix = 'F'
 
 ####################################################################################################
 
 class VoltageControlledCurrentSource(TwoPortElementWithValue):
 
-    """
+    """ This class implements a linear voltage-controlled current sources (VCCS).
 
-    Linear Voltage-Controlled Current Sources (VCCS)::
+    Spice syntax::
 
         GXXXXXXX N+ N- NC+ NC- VALUE
 
@@ -209,9 +325,9 @@ class VoltageControlledCurrentSource(TwoPortElementWithValue):
 
 class CurrentControlledVoltageSource(TwoPortElementWithValue):
 
-    """
+    """ This class implements a linear current-controlled voltage sources (ccvs).
 
-    Linear Current-Controlled Voltage Sources (CCVS)::
+    Spice syntax::
 
         HXXXXXXX n+ n- vnam value
 
@@ -224,7 +340,7 @@ class CurrentControlledVoltageSource(TwoPortElementWithValue):
 
 class BehavorialSource(TwoPinElement):
 
-    """ B source (ASRC)
+    """ This class implements a behavorial source.
 
     Spice syntax::
 
@@ -232,28 +348,21 @@ class BehavorialSource(TwoPinElement):
 
     """
 
+    alias = 'BehavorialSource'
     prefix = 'B'
 
-    ##############################################
-
-    def __init__(self, name,
-                 node_plus, node_minus,
-                 current_expression=None, voltage_expression=None,
-                 tc1=None, tc2=None,
-                 temperature=None, dtemp=None):
-
-        kwargs = {'i':current_expression, 'v':voltage_expression,
-                  'tc1':tc1, 'tc2':tc2,
-                  'temp':temperature, 'dtemp':dtemp,
-                 }
-        
-        super(BehavorialSource, self).__init__(name, node_plus, node_minus, **kwargs)
+    current_expression = ExpressionKeyParameter('i')
+    voltage_expression = ExpressionKeyParameter('v')
+    tc1 = FloatKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc2')
+    temperature = FloatKeyParameter('temp')
+    device_temperature = FloatKeyParameter('dtemp')
 
 ####################################################################################################
 
 class NonLinearVoltageSource(TwoPinElement):
 
-    """
+    """ This class implements a non linear voltage source.
 
     Spice syntax::
 
@@ -265,8 +374,8 @@ class NonLinearVoltageSource(TwoPinElement):
 
     """
 
+    alias = 'NonLinearVoltageSource'
     prefix = 'E'
-    __dont_register_prefix__ = True
 
     ##############################################
 
@@ -284,7 +393,7 @@ class NonLinearVoltageSource(TwoPinElement):
 
     def __str__(self):
 
-        spice_element = self.format_name_nodes()
+        spice_element = self.format_node_names()
         if self.table is not None:
             # TABLE {expression} = (x0, y0) (x1, y1) ...
             table = ['({}, {})'.format(x, y) for x, y in self.table]
@@ -303,7 +412,16 @@ class Diode(TwoPinElement):
 
     """
 
+    alias = 'D'
     prefix = 'D'
+
+    area = FloatKeyParameter('area')
+    multiplier = IntKeyParameter('m')
+    pj = FloatKeyParameter('pj')
+    off = FlagKeyParameter('off')
+    ic = FloatPairKeyParameter('ic')
+    temperature = FloatKeyParameter('temp')
+    device_temperature = FloatKeyParameter('dtemp')
 
 ####################################################################################################
 
@@ -321,6 +439,15 @@ class BipolarJunctionTransistor(Element):
 
     alias = 'BJT'
     prefix = 'Q'
+
+    area = FloatKeyParameter('area')
+    areac = FloatKeyParameter('areac')
+    areab = FloatKeyParameter('areab')
+    multiplier = IntKeyParameter('m')
+    off = FlagKeyParameter('off')
+    ic = FloatPairKeyParameter('ic')
+    temperature = FloatKeyParameter('temp')
+    device_temperature = FloatKeyParameter('dtemp')
 
     ##############################################
 
