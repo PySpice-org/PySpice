@@ -20,6 +20,8 @@
 
 ####################################################################################################
 
+from collections import OrderedDict
+
 # import networkx
 
 ####################################################################################################
@@ -98,21 +100,26 @@ class Pin(object):
 
 ####################################################################################################
 
-class ElementParameter(object):
+class PositionalElementParameter(object):
 
     ##############################################
 
-    def __init__(self, spice_name, default=None):
+    def __init__(self, position, default=None, key_parameter=False):
 
-        self.spice_name = spice_name
-        self.value = default
+        self.position = position
+        self.default_value = default
+        self.key_parameter = key_parameter
 
         self.attribute_name = None
 
     ##############################################
 
-    def __get__(self, obj, object_type):
-        return self.value
+    def __get__(self, instance, owner=None):
+        
+        try:
+            return getattr(instance, '_' + self.attribute_name)
+        except AttributeError:
+            return self.default_value
 
     ##############################################
 
@@ -121,17 +128,121 @@ class ElementParameter(object):
         
     ##############################################
 
-    def __set__(self, obj, value):
-        self.value = self.validate(value)
+    def __set__(self, instance, value):
+        setattr(instance, '_' + self.attribute_name, value)
 
     ##############################################
 
-    def __nonzero__(self):
-        return self.value is not None
+    def nonzero(self, instance):
+        return self.__get__(instance) is not None
 
     ##############################################
 
-    def __str__(self):
+    def to_str(self, instance):
+        return str(self.__get__(instance))
+
+    ##############################################
+
+    def __cmp__(self, other):
+
+        return cmp(self.key_parameter, other.key_parameter)
+
+####################################################################################################
+
+class FloatPositionalParameter(PositionalElementParameter):
+
+    ##############################################
+
+    def validate(self, value):
+        if isinstance(value, Unit):
+            return value
+        else:
+            return Unit(value)
+
+####################################################################################################
+
+class ExpressionPositionalParameter(PositionalElementParameter):
+
+    ##############################################
+
+    def validate(self, value):
+        return str(value)
+
+####################################################################################################
+
+class ElementNamePositionalParameter(PositionalElementParameter):
+
+    ##############################################
+
+    def validate(self, value):
+        return str(value)
+
+####################################################################################################
+
+class ModelPositionalParameter(PositionalElementParameter):
+
+    ##############################################
+
+    def validate(self, value):
+        return str(value)
+
+####################################################################################################
+
+class InitialStatePositionalParameter(PositionalElementParameter):
+
+    ##############################################
+
+    def validate(self, value):
+        return bool(value) # Fixme: check KeyParameter
+
+    ##############################################
+
+    def to__str_(self, instance):
+
+        if self.__get__(instance):
+            return 'on'
+        else:
+            return 'off'
+
+####################################################################################################
+
+class ElementParameter(object):
+
+    ##############################################
+
+    def __init__(self, spice_name, default=None):
+
+        self.spice_name = spice_name
+        self.default_value = default
+
+        self.attribute_name = None
+
+    ##############################################
+
+    def __get__(self, instance, owner=None):
+        try:
+            return getattr(instance, '_' + self.attribute_name)
+        except AttributeError:
+            return self.default_value
+
+    ##############################################
+
+    def validate(self, value):
+        return value
+        
+    ##############################################
+
+    def __set__(self, instance, value):
+        setattr(instance, '_' + self.attribute_name, value)
+
+    ##############################################
+
+    def nonzero(self, instance):
+        return self.__get__(instance) is not None
+
+    ##############################################
+
+    def to_str(self, instance):
         raise NotImplementedError
 
 ####################################################################################################
@@ -140,15 +251,15 @@ class KeyValueParameter(ElementParameter):
 
     ##############################################
 
-    def str_value(self):
-        return str(self.value)
+    def str_value(self, instance):
+        return str(self.__get__(instance))
 
     ##############################################
 
-    def __str__(self):
+    def to_str(self, instance):
 
         if bool(self):
-            return '{}={}'.format(self.spice_name, self.str_value())
+            return '{}={}'.format(self.spice_name, self.str_value(instance))
         else:
             return ''
 
@@ -176,8 +287,8 @@ class FloatPairKeyParameter(KeyValueParameter):
 
     ##############################################
 
-    def str_value(self):
-        return ','.join([str(value) for value in self.value])
+    def str_value(self, instance):
+        return ','.join([str(value) for value in self.__get__(instance)])
 
     ##############################################
 
@@ -198,14 +309,14 @@ class FlagKeyParameter(ElementParameter):
 
     ##############################################
 
-    def __nonzero__(self):
-        return bool(self.value)
+    def nonzero(self, instance):
+        return bool(self.__get__(instance))
 
     ##############################################
 
-    def __str__(self):
+    def to_str(self, instance):
 
-        if bool(self):
+        if self.nonzero(instance):
             return 'off'
         else:
             return ''
@@ -220,14 +331,14 @@ class BoolKeyParameter(ElementParameter):
 
     ##############################################
 
-    def __nonzero__(self):
-        return bool(self.value)
+    def nonzero(self, instance):
+        return bool(self.__get__(instance))
 
     ##############################################
 
-    def __str__(self):
+    def to_str(self, instance):
 
-        if bool(self):
+        if self.nonzero(instance):
             return '0'
         else:
             return '1'
@@ -249,12 +360,21 @@ class ElementParameterMetaClass(type):
 
     def __new__(cls, name, bases, attributes):
 
-        parameters = {}
+        positional_parameters = OrderedDict()
+        parameters = OrderedDict() # not required
         for attribute_name, obj in attributes.iteritems():
+            if isinstance(obj, PositionalElementParameter):
+                obj.attribute_name = attribute_name
+                positional_parameters[attribute_name] = obj
             if isinstance(obj, ElementParameter):
                 obj.attribute_name = attribute_name
                 parameters[attribute_name] = obj
+        attributes['positional_parameters'] = positional_parameters
         attributes['optional_parameters'] = parameters
+
+        attributes['parameters_from_args'] = [parameter
+                                              for parameter in sorted(positional_parameters.itervalues())
+                                              if not parameter.key_parameter]
 
         return super(ElementParameterMetaClass, cls).__new__(cls, name, bases, attributes)
 
@@ -274,10 +394,14 @@ class Element(object):
 
         self._name = str(name)
         self._pins = list(pins) # Fixme: pins is not a ordered dict, cf. property
-        self._parameters = list(args)
+
+        # self._parameters = list(args)
+
+        for parameter, value in zip(self.parameters_from_args, args):
+            setattr(self, parameter.attribute_name, value)
 
         for key, value in kwargs.iteritems():
-            if key in self.optional_parameters:
+            if key in self.positional_parameters or self.optional_parameters:
                 setattr(self, key, value)
 
     ##############################################
@@ -300,12 +424,6 @@ class Element(object):
 
     ##############################################
 
-    @property
-    def parameters(self):
-        return self._parameters
-
-    ##############################################
-
     def __repr__(self):
 
         return self.__class__.__name__ + ' ' + self.name
@@ -318,25 +436,38 @@ class Element(object):
 
     ##############################################
 
+    def parameter_iterator(self):
+
+        for parameter_dict in self.positional_parameters, self.optional_parameters:
+            for parameter in parameter_dict.itervalues():
+                if parameter.nonzero(self):
+                    yield parameter
+
+    ##############################################
+
+    # @property
+    # def parameters(self):
+    #     return self._parameters
+
+    ##############################################
+
     def format_spice_parameters(self):
 
-        return join_list(str(parameter)
-                         for parameter in self.optional_parameters.itervalues()
-                         if bool(parameter))
+        return join_list([parameter.to_str(self) for parameter in self.parameter_iterator()])
 
     ##############################################
 
     def __str__(self):
 
-        return join_list((self.format_node_names(),
-                          join_list(self.parameters),
-                          self.format_spice_parameters()))
+        return join_list((self.format_node_names(), self.format_spice_parameters()))
 
 ####################################################################################################
 
 class SubCircuitElement(Element):
 
     """ This class implements a sub-circuit. """
+
+    subcircuit_name = ElementNamePositionalParameter(position=0, key_parameter=False)
 
     prefix = 'X'
 
@@ -420,39 +551,6 @@ class TwoPortElement(Element):
     @property
     def input_minus(self):
         return self.pins[3]
-
-####################################################################################################
-
-class ElementWithValue(Element):
-
-    """ This class implements a base class for an element with a mandatory parameter value. """
-
-    ##############################################
-
-    @property
-    def value(self):
-
-        value = self._parameters[0]
-        if isinstance(value, Unit):
-            return value
-        else:
-            return Unit(value)
-
-    ##############################################
-
-    @property
-    def float_value(self):
-        return float(self._parameters[0]) # self.value
-
-####################################################################################################
-
-class TwoPinElementWithValue(TwoPinElement, ElementWithValue):
-    """ This class implements a base class for a two-pin element with a mandatory parameter value. """
-
-####################################################################################################
-
-class TwoPortElementWithValue(TwoPortElement, ElementWithValue):
-    """ This class implements a base class for a two-port element with a mandatory parameter value. """
 
 ####################################################################################################
 

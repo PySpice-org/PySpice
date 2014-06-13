@@ -36,7 +36,7 @@ circuit.R(4, 'reference', circuit.gnd,  kilo(100))
 circuit.NonLinearVoltageSource(1, 'output', circuit.gnd,
                                expression='V(reference, comparator)',
                                table=((-micro(1), 0),
-                                      (micro(1), source.parameters[0])) # Fixme: better way to get value
+                                      (micro(1), source.dc_value))
                                )
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)

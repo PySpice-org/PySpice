@@ -11,15 +11,18 @@
 
 from ..Tools.StringTools import join_list
 from .Netlist import (Pin, 
+                      FloatPositionalParameter,
+                      ExpressionPositionalParameter, ElementNamePositionalParameter, ModelPositionalParameter,
+                      InitialStatePositionalParameter,
                       IntKeyParameter, FloatKeyParameter, FloatPairKeyParameter,
                       FlagKeyParameter, BoolKeyParameter,
                       ExpressionKeyParameter,
-                      Element, ElementWithValue,
-                      TwoPinElement, TwoPinElementWithValue, TwoPortElementWithValue)
+                      Element, TwoPinElement, TwoPortElement,
+                     )
 
 ####################################################################################################
 
-class Resistor(TwoPinElementWithValue):
+class Resistor(TwoPinElement):
 
     """ This class implements a resistor.
 
@@ -33,6 +36,7 @@ class Resistor(TwoPinElementWithValue):
     alias = 'R'
     prefix = 'R'
 
+    resistance = FloatPositionalParameter(position=0, key_parameter=False)
     ac = FloatKeyParameter('ac')
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
@@ -42,7 +46,7 @@ class Resistor(TwoPinElementWithValue):
 
 ####################################################################################################
 
-class SemiconductorResistor(TwoPinElementWithValue):
+class SemiconductorResistor(TwoPinElement):
 
     """ This class implements a Semiconductor resistor.
 
@@ -55,7 +59,8 @@ class SemiconductorResistor(TwoPinElementWithValue):
     alias = 'SemiconductorResistor'
     prefix = 'R'
 
-    # modele
+    resistance = FloatPositionalParameter(position=0, key_parameter=False)
+    model = ModelPositionalParameter(position=1, key_parameter=True)
     length = FloatKeyParameter('l')
     width = FloatKeyParameter('w')
     temperature = FloatKeyParameter('temp')
@@ -67,7 +72,7 @@ class SemiconductorResistor(TwoPinElementWithValue):
 
 ####################################################################################################
 
-class BehavorialResistor(TwoPinElementWithValue):
+class BehavorialResistor(TwoPinElement):
 
     """ This class implements a behavorial resistor.
 
@@ -81,12 +86,13 @@ class BehavorialResistor(TwoPinElementWithValue):
     alias = 'BehavorialResistor'
     prefix = 'R'
 
+    resistance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
     tc2 = FloatKeyParameter('tc2')
 
 ####################################################################################################
 
-class Capacitor(TwoPinElementWithValue):
+class Capacitor(TwoPinElement):
 
     """ This class implements a capacitor.
 
@@ -99,7 +105,8 @@ class Capacitor(TwoPinElementWithValue):
     alias = 'C'
     prefix = 'C'
 
-    # Modele
+    capacitance = FloatPositionalParameter(position=0, key_parameter=False)
+    model = ModelPositionalParameter(position=1, key_parameter=True)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
     temperature = FloatKeyParameter('temp')
@@ -108,21 +115,21 @@ class Capacitor(TwoPinElementWithValue):
 
 ####################################################################################################
 
-class SemiconductorCapacitor(TwoPinElementWithValue):
+class SemiconductorCapacitor(TwoPinElement):
 
     """ This class implements a semiconductor capacitor.
 
     Spice syntax::
 
         CXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
-    
 
     """
 
     alias = 'SemiconductorCapacitor'
     prefix = 'C'
 
-    # modele
+    capacitance = FloatPositionalParameter(position=0, key_parameter=False)
+    model = ModelPositionalParameter(position=1, key_parameter=True)
     length = FloatKeyParameter('l')
     width = FloatKeyParameter('w')
     multiplier = IntKeyParameter('m')
@@ -133,7 +140,7 @@ class SemiconductorCapacitor(TwoPinElementWithValue):
 
 ####################################################################################################
 
-class BehavorialCapacitor(TwoPinElementWithValue):
+class BehavorialCapacitor(TwoPinElement):
 
     """ This class implements a behavioral capacitor.
 
@@ -147,12 +154,13 @@ class BehavorialCapacitor(TwoPinElementWithValue):
     alias = 'BehavorialCapacitor'
     prefix = 'C'
 
+    capacitance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
     tc2 = FloatKeyParameter('tc2')
 
 ####################################################################################################
 
-class Inductor(TwoPinElementWithValue):
+class Inductor(TwoPinElement):
 
     """ This class implements an inductor.
 
@@ -165,7 +173,8 @@ class Inductor(TwoPinElementWithValue):
     alias = 'L'
     prefix = 'L'
 
-    # Modele
+    inductance = FloatPositionalParameter(position=0, key_parameter=False)
+    model = ModelPositionalParameter(position=1, key_parameter=True)
     nt = FloatKeyParameter('nt')
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
@@ -175,7 +184,7 @@ class Inductor(TwoPinElementWithValue):
 
 ####################################################################################################
 
-class BehavorialInductor(TwoPinElementWithValue):
+class BehavorialInductor(TwoPinElement):
 
     """ This class implements a behavioral inductor.
 
@@ -189,12 +198,13 @@ class BehavorialInductor(TwoPinElementWithValue):
     alias = 'BehavorialInductor'
     prefix = 'L'
 
+    inductance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
     tc2 = FloatKeyParameter('tc2')
 
 ####################################################################################################
 
-class CoupledInductor(ElementWithValue):
+class CoupledInductor(Element):
 
     """ This class implementss a coupled (mutual) inductors.
 
@@ -207,7 +217,11 @@ class CoupledInductor(ElementWithValue):
     alias = 'CoupledInductor'
     prefix = 'K'
 
-    ##############################################
+    inductor1 = ElementNamePositionalParameter(position=0, key_parameter=False)
+    inductor2 = ElementNamePositionalParameter(position=1, key_parameter=False)
+    coupling_factor = FloatPositionalParameter(position=2, key_parameter=False)
+
+ ##############################################
 
     def __init__(self, name, inductor_name1, inductor_name2, coupling_factor):
 
@@ -218,33 +232,40 @@ class CoupledInductor(ElementWithValue):
 
 ####################################################################################################
 
-class VoltageControlledSwitch(TwoPortElementWithValue):
+class VoltageControlledSwitch(TwoPortElement):
 
     """ This class implements a voltage controlled switch.
 
     Spice syntax::
 
-        SXXXXXXX N+ N- NC+ NC- MODEL <ON><OFF>
+        SXXXXXXX n+ n- nc+ nc- model <on> <off>
 
     """
 
     alias = 'VCS'
     prefix = 'S'
 
+    model = ModelPositionalParameter(position=0, key_parameter=True)
+    initial_state = InitialStatePositionalParameter(position=1, key_parameter=True)
+
 ####################################################################################################
 
-class CurrentControlledSwitch(TwoPinElementWithValue):
+class CurrentControlledSwitch(TwoPinElement):
 
     """ This class implements a current controlled switch.
 
     Spice syntax::
 
-        WYYYYYYY N+ N- VNAM MODEL <ON><OFF>
+        WYYYYYYY n+ n- vname model <on> <off>
 
     """
 
     alias = 'CCS'
     prefix = 'W'
+
+    source = ElementNamePositionalParameter(position=0, key_parameter=True)
+    model = ModelPositionalParameter(position=1, key_parameter=True)
+    initial_state = InitialStatePositionalParameter(position=2, key_parameter=True)
 
 ####################################################################################################
 
@@ -261,6 +282,9 @@ class VoltageSource(TwoPinElement):
     alias = 'V'
     prefix = 'V'
 
+    # Fixme: gnspice manual doesn't describe well the syntax
+    dc_value = FloatPositionalParameter(position=0, key_parameter=False)
+
 ####################################################################################################
 
 class CurrentSource(TwoPinElement):
@@ -269,72 +293,85 @@ class CurrentSource(TwoPinElement):
 
     Spice syntax::
 
-       IYYYYYYY N+ N- <<DC> DC/TRAN VALUE> <AC <ACMAG <ACPHASE>>> <DISTOF1 <F1MAG <F1PHASE>>> <DISTOF2 <F2MAG <F2PHASE>>>
+       IYYYYYYY n+ n- <<dc> dc/tran value> <ac <acmag <acphase>>> <distof1 <f1mag <f1phase>>> <distof2 <f2mag <f2phase>>>
 
     """
 
     alias = 'I'
     prefix = 'I'
 
+    # Fixme: ngspice manual doesn't describe well the syntax
+    dc_value = FloatPositionalParameter(position=0, key_parameter=False)
+
 ####################################################################################################
 
-class VoltageControlledVoltageSource(TwoPortElementWithValue):
+class VoltageControlledVoltageSource(TwoPortElement):
 
     """ This class implements a linear voltage-controlled voltage sources (VCVS).
 
     Spice syntax::
 
-        EXXXXXXX N+ N- NC+ NC- VALUE
+        EXXXXXXX n+ n- nc+ nc- value
 
     """
 
     alias = 'VCVS'
     prefix = 'E'
 
+    voltage_gain = ExpressionPositionalParameter(position=0, key_parameter=False)
+
 ####################################################################################################
 
-class CurrentControlledCurrentSource(TwoPortElementWithValue):
+class CurrentControlledCurrentSource(TwoPortElement):
 
     """ This class implements a linear current-controlled current sources (CCCS).
 
     Spice syntax::
 
-       FXXXXXXX N+ N- VNAM VALUE
+       FXXXXXXX n+ n- vname value
 
     """
 
     alias = 'CCCS'
     prefix = 'F'
 
+    source = ElementNamePositionalParameter(position=0, key_parameter=True)
+    current_gain = ExpressionPositionalParameter(position=1, key_parameter=False)
+
 ####################################################################################################
 
-class VoltageControlledCurrentSource(TwoPortElementWithValue):
+class VoltageControlledCurrentSource(TwoPortElement):
 
     """ This class implements a linear voltage-controlled current sources (VCCS).
 
     Spice syntax::
 
-        GXXXXXXX N+ N- NC+ NC- VALUE
+        GXXXXXXX n+ n- nc+ nc- value
 
     """
 
     alias = 'VCCS'
     prefix = 'G'
 
+    transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
+
 ####################################################################################################
 
-class CurrentControlledVoltageSource(TwoPortElementWithValue):
+class CurrentControlledVoltageSource(TwoPortElement):
 
     """ This class implements a linear current-controlled voltage sources (ccvs).
 
     Spice syntax::
 
-        HXXXXXXX n+ n- vnam value
+        HXXXXXXX n+ n- vname value
 
     """
 
     alias = 'CCVS'
     prefix = 'H'
+
+    source = ElementNamePositionalParameter(position=0, key_parameter=True)
+    transresistance = ExpressionPositionalParameter(position=1, key_parameter=False)
 
 ####################################################################################################
 
@@ -415,6 +452,7 @@ class Diode(TwoPinElement):
     alias = 'D'
     prefix = 'D'
 
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
     multiplier = IntKeyParameter('m')
     pj = FloatKeyParameter('pj')
@@ -440,6 +478,7 @@ class BipolarJunctionTransistor(Element):
     alias = 'BJT'
     prefix = 'Q'
 
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
     areac = FloatKeyParameter('areac')
     areab = FloatKeyParameter('areab')
@@ -453,7 +492,6 @@ class BipolarJunctionTransistor(Element):
 
     def __init__(self, name,
                  collector_node, base_node, emitter_node,
-                 model_name,
                  substrate_node=None, # default is ground
                  **kwargs):
 
@@ -463,10 +501,8 @@ class BipolarJunctionTransistor(Element):
         if substrate_node is not None:
             self._substrate_pin = Pin(self, 'substrate', substrate_node)
             pins.append(self._substrate_pin)
-        else:
-            self._substrate_pin = None
 
-        super(BipolarJunctionTransistor, self).__init__(name, pins, model_name, **kwargs)
+        super(BipolarJunctionTransistor, self).__init__(name, pins, **kwargs)
 
     ##############################################
 
@@ -490,7 +526,10 @@ class BipolarJunctionTransistor(Element):
 
     @property
     def substrate(self):
-        return self._substrate_pin
+        try:
+            return self.pins[3]
+        except IndexError:
+            return None
 
 ####################################################################################################
 # 

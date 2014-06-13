@@ -81,13 +81,12 @@ class Sinusoidal(VoltageSource):
 
     ##############################################
 
-    @property
-    def parameters(self):
+    def format_spice_parameters(self):
 
-        return ('DC {}V'.format(self.dc_offset),
-                'AC SIN({}V {}V {}Hz {}s {})'.format(self.offset, self.amplitude,
-                                                     self.frequency, self.delay,
-                                                     self.damping_factor))
+        return join_list(('DC {}V'.format(self.dc_offset),
+                          'AC SIN({}V {}V {}Hz {}s {})'.format(self.offset, self.amplitude,
+                                                               self.frequency, self.delay,
+                                                               self.damping_factor)))
         
 ####################################################################################################
 
@@ -208,14 +207,13 @@ class Pulse(VoltageSource):
 
     ##############################################
 
-    @property
-    def parameters(self):
+    def format_spice_parameters(self):
 
         # Fixme: to func?
         return ('PULSE(' + \
                 join_list((self.initial_value, self.pulsed_value, self.delay_time, 
                            self.rise_time, self.fall_time, self.pulse_width, self.period)) + \
-                ')',)
+                ')')
 
 ####################################################################################################
 # 

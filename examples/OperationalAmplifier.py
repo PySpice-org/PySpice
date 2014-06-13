@@ -17,10 +17,9 @@ circuit.R('input', 'non_inverting_input', 'inverting_input', mega(10))
 
 # dc gain=100k and pole1=100hz
 # unity gain = dcgain x pole1 = 10MHZ
-# Fixme: gain=...
-circuit.VCVS('gain', 'non_inverting_input', 'inverting_input', 1, circuit.gnd, kilo(100))
+circuit.VCVS('gain', 'non_inverting_input', 'inverting_input', 1, circuit.gnd, voltage_gain=kilo(100))
 circuit.R('P1', 1, 2, kilo(1))
-circuit.C('P1', 2, circuit.gnd, '1.5915UF')
+circuit.C('P1', 2, circuit.gnd, micro(1.5915))
 
 # Output buffer and resistance
 circuit.VCVS('buffer', 2, circuit.gnd, 3, circuit.gnd, 1)
