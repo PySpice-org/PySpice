@@ -16,6 +16,7 @@ from .Netlist import Netlist, Element, ElementParameterMetaClass
 def _get_elements(module):
     element_classes = []
     for item  in module.__dict__.itervalues():
+        print item
         if (type(item) is ElementParameterMetaClass
             and item.prefix is not None
            ):

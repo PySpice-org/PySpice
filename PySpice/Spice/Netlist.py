@@ -100,22 +100,20 @@ class Pin(object):
 
 ####################################################################################################
 
-class PositionalElementParameter(object):
+class ParameterDescriptor(object):
 
     ##############################################
 
-    def __init__(self, position, default=None, key_parameter=False):
+    def __init__(self, default=None):
 
-        self.position = position
         self.default_value = default
-        self.key_parameter = key_parameter
 
         self.attribute_name = None
 
     ##############################################
 
     def __get__(self, instance, owner=None):
-        
+
         try:
             return getattr(instance, '_' + self.attribute_name)
         except AttributeError:
@@ -124,21 +122,44 @@ class PositionalElementParameter(object):
     ##############################################
 
     def validate(self, value):
+
         return value
         
     ##############################################
 
     def __set__(self, instance, value):
+
         setattr(instance, '_' + self.attribute_name, value)
 
     ##############################################
 
     def nonzero(self, instance):
+
         return self.__get__(instance) is not None
 
     ##############################################
 
     def to_str(self, instance):
+
+        raise NotImplementedError
+
+####################################################################################################
+
+class PositionalElementParameter(ParameterDescriptor):
+
+    ##############################################
+
+    def __init__(self, position, default=None, key_parameter=False):
+
+        super(PositionalElementParameter, self).__init__(default)
+
+        self.position = position
+        self.key_parameter = key_parameter
+
+    ##############################################
+
+    def to_str(self, instance):
+
         return str(self.__get__(instance))
 
     ##############################################
@@ -149,11 +170,24 @@ class PositionalElementParameter(object):
 
 ####################################################################################################
 
+class ElementParameter(ParameterDescriptor):
+
+    ##############################################
+
+    def __init__(self, spice_name, default=None):
+
+        super(ElementParameter, self).__init__(default)
+
+        self.spice_name = spice_name
+
+####################################################################################################
+
 class FloatPositionalParameter(PositionalElementParameter):
 
     ##############################################
 
     def validate(self, value):
+
         if isinstance(value, Unit):
             return value
         else:
@@ -166,6 +200,7 @@ class ExpressionPositionalParameter(PositionalElementParameter):
     ##############################################
 
     def validate(self, value):
+
         return str(value)
 
 ####################################################################################################
@@ -175,6 +210,7 @@ class ElementNamePositionalParameter(PositionalElementParameter):
     ##############################################
 
     def validate(self, value):
+
         return str(value)
 
 ####################################################################################################
@@ -184,6 +220,7 @@ class ModelPositionalParameter(PositionalElementParameter):
     ##############################################
 
     def validate(self, value):
+
         return str(value)
 
 ####################################################################################################
@@ -193,6 +230,7 @@ class InitialStatePositionalParameter(PositionalElementParameter):
     ##############################################
 
     def validate(self, value):
+
         return bool(value) # Fixme: check KeyParameter
 
     ##############################################
@@ -206,52 +244,12 @@ class InitialStatePositionalParameter(PositionalElementParameter):
 
 ####################################################################################################
 
-class ElementParameter(object):
-
-    ##############################################
-
-    def __init__(self, spice_name, default=None):
-
-        self.spice_name = spice_name
-        self.default_value = default
-
-        self.attribute_name = None
-
-    ##############################################
-
-    def __get__(self, instance, owner=None):
-        try:
-            return getattr(instance, '_' + self.attribute_name)
-        except AttributeError:
-            return self.default_value
-
-    ##############################################
-
-    def validate(self, value):
-        return value
-        
-    ##############################################
-
-    def __set__(self, instance, value):
-        setattr(instance, '_' + self.attribute_name, value)
-
-    ##############################################
-
-    def nonzero(self, instance):
-        return self.__get__(instance) is not None
-
-    ##############################################
-
-    def to_str(self, instance):
-        raise NotImplementedError
-
-####################################################################################################
-
 class KeyValueParameter(ElementParameter):
 
     ##############################################
 
     def str_value(self, instance):
+
         return str(self.__get__(instance))
 
     ##############################################
@@ -270,6 +268,7 @@ class IntKeyParameter(KeyValueParameter):
     ##############################################
 
     def validate(self, value):
+
         return int(value)
 
 ####################################################################################################
@@ -279,16 +278,12 @@ class FloatKeyParameter(KeyValueParameter):
     ##############################################
 
     def validate(self, value):
+
         return float(value)
 
 ####################################################################################################
 
 class FloatPairKeyParameter(KeyValueParameter):
-
-    ##############################################
-
-    def str_value(self, instance):
-        return ','.join([str(value) for value in self.__get__(instance)])
 
     ##############################################
 
@@ -299,9 +294,17 @@ class FloatPairKeyParameter(KeyValueParameter):
         else:
             raise ValueError()
 
+    ##############################################
+
+    def str_value(self, instance):
+
+        return ','.join([str(value) for value in self.__get__(instance)])
+
 ####################################################################################################
 
 class FlagKeyParameter(ElementParameter):
+
+    ##############################################
 
     def __init__(self, spice_name, default=False):
 
@@ -310,6 +313,7 @@ class FlagKeyParameter(ElementParameter):
     ##############################################
 
     def nonzero(self, instance):
+
         return bool(self.__get__(instance))
 
     ##############################################
@@ -332,6 +336,7 @@ class BoolKeyParameter(ElementParameter):
     ##############################################
 
     def nonzero(self, instance):
+
         return bool(self.__get__(instance))
 
     ##############################################
@@ -350,6 +355,7 @@ class ExpressionKeyParameter(KeyValueParameter):
     ##############################################
 
     def validate(self, value):
+
         return str(value)
 
 ####################################################################################################
@@ -460,24 +466,6 @@ class Element(object):
     def __str__(self):
 
         return join_list((self.format_node_names(), self.format_spice_parameters()))
-
-####################################################################################################
-
-class SubCircuitElement(Element):
-
-    """ This class implements a sub-circuit. """
-
-    subcircuit_name = ElementNamePositionalParameter(position=0, key_parameter=False)
-
-    prefix = 'X'
-
-    ##############################################
-
-    def __init__(self, name, subcircuit_name, *nodes):
-
-        pins = [Pin(self, None, node) for node in nodes]
-
-        super(SubCircuitElement, self).__init__(name, pins, subcircuit_name)
 
 ####################################################################################################
 
@@ -687,11 +675,6 @@ class Netlist(object):
             return self.__getitem__(attribute_name)
         except IndexError:
             raise AttributeError(attribute_name)
-
-    ##############################################
-
-    def X(self, *args):
-        self._add_element(SubCircuitElement(*args))
 
 ####################################################################################################
 

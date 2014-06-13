@@ -12,13 +12,33 @@
 from ..Tools.StringTools import join_list
 from .Netlist import (Pin, 
                       FloatPositionalParameter,
-                      ExpressionPositionalParameter, ElementNamePositionalParameter, ModelPositionalParameter,
+                      ExpressionPositionalParameter,
+                      ElementNamePositionalParameter, ModelPositionalParameter,
                       InitialStatePositionalParameter,
                       IntKeyParameter, FloatKeyParameter, FloatPairKeyParameter,
                       FlagKeyParameter, BoolKeyParameter,
                       ExpressionKeyParameter,
                       Element, TwoPinElement, TwoPortElement,
                      )
+
+####################################################################################################
+
+class SubCircuitElement(Element):
+
+    """ This class implements a sub-circuit. """
+
+    alias = 'X'
+    prefix = 'X'
+
+    subcircuit_name = ElementNamePositionalParameter(position=0, key_parameter=False)
+
+    ##############################################
+
+    def __init__(self, name, subcircuit_name, *nodes):
+
+        pins = [Pin(self, None, node) for node in nodes]
+
+        super(SubCircuitElement, self).__init__(name, pins, subcircuit_name)
 
 ####################################################################################################
 
@@ -282,7 +302,7 @@ class VoltageSource(TwoPinElement):
     alias = 'V'
     prefix = 'V'
 
-    # Fixme: gnspice manual doesn't describe well the syntax
+    # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False)
 
 ####################################################################################################
