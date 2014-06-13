@@ -40,7 +40,7 @@ for element_type in 'capacitor', 'inductor':
     if element_type == 'capacitor':
         print 'tau = ', float(circuit['R1'].resistance) * float(circuit['C1'].capacitance )
     else:
-        print 'tau = ', float(circuit['L1'].inductance)  / float(circuit['R1'].resistance)
+        print 'tau = ', float(circuit['L1'].inductance) / float(circuit['R1'].resistance)
 
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.transient(step_time=micro(1), end_time=source.period*3,

@@ -9,14 +9,13 @@
 
 from . import BasicElement
 from . import HighLevelElement
-from .Netlist import Netlist, Element, ElementParameterMetaClass
+from .Netlist import Netlist, ElementParameterMetaClass
 
 ####################################################################################################
 
 def _get_elements(module):
     element_classes = []
     for item  in module.__dict__.itervalues():
-        print item
         if (type(item) is ElementParameterMetaClass
             and item.prefix is not None
            ):

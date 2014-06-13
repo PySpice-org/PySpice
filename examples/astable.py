@@ -15,7 +15,7 @@ from PySpice.Probe.Plot import plot
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit.Units import *
 
-from OperationalAmplifier import basic_comparator
+# from OperationalAmplifier import basic_comparator
 
 ####################################################################################################
 
@@ -40,7 +40,7 @@ circuit.NonLinearVoltageSource(1, 'output', circuit.gnd,
                                )
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-simulator.initial_condition({'V(comparator)':0})
+simulator.initial_condition({'V(comparator)':0}) # Fixme: simulator.comparator == 0
 analysis = simulator.transient(step_time=micro(1), end_time=micro(500),
                                probes=('V(output)', 'V(comparator)', 'V(reference)'))
 

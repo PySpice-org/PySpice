@@ -131,7 +131,7 @@ class Capacitor(TwoPinElement):
     scale = FloatKeyParameter('scale')
     temperature = FloatKeyParameter('temp')
     device_temperature = FloatKeyParameter('dtemp')
-    initial_condition = FloatKeyParameter('init_condition')
+    initial_condition = FloatKeyParameter('ic')
 
 ####################################################################################################
 
@@ -156,7 +156,7 @@ class SemiconductorCapacitor(TwoPinElement):
     scale = FloatKeyParameter('scale')
     temperature = FloatKeyParameter('temp')
     device_temperature = FloatKeyParameter('dtemp')
-    initial_condition = FloatKeyParameter('init_condition')
+    initial_condition = FloatKeyParameter('ic')
 
 ####################################################################################################
 
@@ -200,7 +200,7 @@ class Inductor(TwoPinElement):
     scale = FloatKeyParameter('scale')
     temperature = FloatKeyParameter('temp')
     device_temperature = FloatKeyParameter('dtemp')
-    initial_condition = FloatKeyParameter('init_condition')
+    initial_condition = FloatKeyParameter('ic')
 
 ####################################################################################################
 

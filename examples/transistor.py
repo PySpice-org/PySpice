@@ -57,8 +57,7 @@ figure = pylab.figure()
 axe = pylab.subplot(111)
 axe.grid()
 for base_voltage in np.arange(-1, 5, 1):
-    # Fixme: parameters API
-    Vbase.parameters[0] = base_voltage
+    Vbase.dc_value = base_voltage
 
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.dc(Vcollector=slice(-5, 5, .01))
@@ -106,8 +105,7 @@ figure = pylab.figure()
 axe = pylab.subplot(111)
 axe.grid()
 for base_current in np.arange(1, 50, 10):
-    # Fixme: parameters API
-    Ibase.parameters[0] = milli(base_current)
+    Ibase.dc_value = milli(base_current)
 
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.dc(Vcollector=slice(-1, 5, .01))
