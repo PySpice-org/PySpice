@@ -15,7 +15,7 @@ from PySpice.Probe.Plot import plot
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit.Units import *
 
-from OperationalAmplifier import basic_operational_amplifier
+from OperationalAmplifier import BasicOperationalAmplifier
 from BodeDiagram import bode_diagram
 
 ####################################################################################################
@@ -24,7 +24,7 @@ circuit = Circuit('Operational Amplifier')
 
 # AC 1 PWL(0US 0V  0.01US 1V)
 circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=1)
-circuit.subcircuit(basic_operational_amplifier)
+circuit.subcircuit(BasicOperationalAmplifier())
 circuit.X('op', 'BasicOperationalAmplifier', 'in', circuit.gnd, 'out')
 circuit.R('load', 'out', circuit.gnd, 470)
 

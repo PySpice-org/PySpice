@@ -18,14 +18,14 @@ from PySpice.Unit.Units import *
 
 ####################################################################################################
 
-from Transformer import transformer
+from Transformer import Transformer
 
 ####################################################################################################
 
 circuit = Circuit('Transformer')
 
 ac_line = circuit.AcLine('input', 'input', circuit.gnd, rms_voltage=230, frequency=50)
-circuit.subcircuit(transformer)
+circuit.subcircuit(Transformer(turn_ratio=10))
 circuit.X('transformer', 'Transformer', 'input', circuit.gnd, 'output', circuit.gnd)
 circuit.R('load', 'output', circuit.gnd, kilo(1))
 

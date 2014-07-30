@@ -722,6 +722,21 @@ class SubCircuit(Netlist):
 
 ####################################################################################################
 
+class SubCircuitFactory(SubCircuit):
+
+    # Fixme : versus SubCircuit
+
+    __name__ = None
+    __nodes__ = None
+
+    ##############################################
+
+    def __init__(self, **kwargs):
+
+        super(SubCircuitFactory, self).__init__(self.__name__, *self.__nodes__, **kwargs)
+
+####################################################################################################
+
 class Circuit(Netlist):
 
     """ This class implements a cicuit netlist.
