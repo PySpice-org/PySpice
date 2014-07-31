@@ -30,8 +30,10 @@ Vbase = circuit.V('base', '1', circuit.gnd, 1)
 circuit.R('base', 1, 'base', kilo(1))
 Vcollector = circuit.V('collector', '2', circuit.gnd, 0)
 circuit.R('collector', 2, 'collector', kilo(1))
-circuit.BJT(1, 'collector', 'base', circuit.gnd, 'generic')
-circuit.model('generic', 'npn')
+# circuit.BJT(1, 'collector', 'base', circuit.gnd, 'generic')
+# circuit.model('generic', 'npn')
+circuit.include(spice_library['2n2222a'])
+circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
 
 ####################################################################################################
 
@@ -40,24 +42,26 @@ figure = pylab.figure()
 ####################################################################################################
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.dc(Vbase=slice(-1, 3, .01))
+analysis = simulator.dc(Vbase=slice(0, 3, .01))
 
-axe = pylab.subplot(121)
+axe1 = pylab.subplot(221)
 # Fixme: i(vinput) -> analysis.vinput
-axe.plot(analysis.base, -analysis.vbase*1000)
-axe.axvline(x=.65, color='red')
-axe.legend(('Base-Emitter Diode curve',), loc=(.1,.8))
-axe.grid()
-axe.set_xlabel('Voltage [V]')
-axe.set_ylabel('Current [mA]')
+axe1.plot(analysis.base, -analysis.vbase*1000)
+axe1.axvline(x=.65, color='red')
+axe1.legend(('Base-Emitter Diode curve',), loc=(.1,.8))
+axe1.grid()
+axe1.set_xlabel('Vbe [V]')
+axe1.set_ylabel('Ib [mA]')
 
 ####################################################################################################
 
 circuit = Circuit('Transistor')
 Ibase = circuit.I('base', circuit.gnd, 'base', micro(10)) # take care to the orientation
 Vcollector = circuit.V('collector', 'collector', circuit.gnd, 5)
-circuit.BJT(1, 'collector', 'base', circuit.gnd, 'generic')
-circuit.model('generic', 'npn')
+# circuit.BJT(1, 'collector', 'base', circuit.gnd, 'generic')
+# circuit.model('generic', 'npn')
+circuit.include(spice_library['2n2222a'])
+circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
 
 # Fixme: ngspice doesn't support multi-sweep ???
 #   it works in interactive mode
@@ -84,17 +88,44 @@ circuit.model('generic', 'npn')
  # 2 v(base) voltage
 # 3 i(vcollector)   current
 
-axe = pylab.subplot(122)
-axe.grid()
-# axe.legend(('Ic(Vce, Ib)',), loc=(.5,.5))
-axe.set_xlabel('Vce [V]')
-axe.set_ylabel('Ic [mA]')
+axe2 = pylab.subplot(222)
+axe2.grid()
+# axe2.legend(('Ic(Vce, Ib)',), loc=(.5,.5))
+axe2.set_xlabel('Vce [V]')
+axe2.set_ylabel('Ic [mA]')
+axe2.axvline(x=.2, color='red')
+
+axe3 = pylab.subplot(223)
+axe3.grid()
+# axe3.legend(('beta(Vce)',), loc=(.5,.5))
+axe3.set_xlabel('Vce [V]')
+axe3.set_ylabel('beta')
+axe3.axvline(x=.2, color='red')
+
 for base_current in np.arange(0, 100, 10):
-    Ibase.dc_value = micro(base_current)
+    base_current = micro(base_current)
+    Ibase.dc_value = base_current
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.dc(Vcollector=slice(0, 5, .01))
     # Fixme: lower case 
-    axe.plot(analysis.collector, -analysis.vcollector*1000)
+    # add ib as text, linear and saturate region
+    axe2.plot(analysis.collector, -analysis.vcollector*1000)
+    # Plot beta
+    axe3.plot(analysis.collector, -analysis.vcollector/float(base_current))
+    # # trans-resistance U = RI   R = U / I = Vce / Ie
+    # # axe3.plot(analysis.collector, analysis.v_sweep/(float(base_current)-analysis.vcollector))
+    # # Fixme: v_sweep is not so explicit
+
+axe4 = pylab.subplot(224)
+axe4.grid()
+axe4.set_xlabel('Ib [uA]')
+axe4.set_ylabel('Ic [mA]')
+
+simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+analysis = simulator.dc(Ibase=slice(0, 100e-6, 10e-6))
+# Fixme: v_sweep
+axe4.plot(analysis.v_sweep*1e6, -analysis.vcollector*1000, 'o-')
+axe4.legend(('Ic(Ib)',), loc=(.1,.8))
 
 ####################################################################################################
 
