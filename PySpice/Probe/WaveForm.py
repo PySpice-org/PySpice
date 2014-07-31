@@ -161,6 +161,8 @@ class DcAnalysis(Analysis):
 
     ##############################################
 
+    # Fixme: can be current sweep too
+
     def __init__(self, v_sweep, nodes, branches):
 
         super(DcAnalysis, self).__init__(nodes, branches)
