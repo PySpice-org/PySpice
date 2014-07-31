@@ -1,3 +1,15 @@
+* plot scale mA
+* units
+* circuit class
+* Fixme: i(vinput) -> analysis.vinput
+* element ddp, node voltage, current : cf. Modelica
+    (analysis['in'] - analysis.out) / float(circuit['R1'].resistance
+* OpAmp / Transformer 
+* waveform slice : cf. numpy
+* analysis.in is invalid
+
+----
+
 * define netlist
 * expand variables
 * current probes? voltage source Vxxx#branch  *--Vxxx--...--*

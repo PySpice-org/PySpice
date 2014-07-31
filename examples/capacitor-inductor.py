@@ -58,7 +58,7 @@ for element_type in 'capacitor', 'inductor':
     plot(analysis['in'])
     plot(analysis['out'])
     # Fixme: resistor current, scale
-    plot((analysis['in'] - analysis.out)/1000*current_scale)
+    plot((analysis['in'] - analysis.out)/float(circuit['R1'].resistance)*current_scale)
     axe.set_ylim(-11, 11)
     axe.set_xlabel('t [s]')
     axe.set_ylabel('[V]')

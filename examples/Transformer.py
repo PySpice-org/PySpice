@@ -24,16 +24,19 @@ class Transformer(SubCircuitFactory):
 
         super(Transformer, self).__init__()
 
+        # For an ideal transformer you can reduce the values for the flux leakage inductances, the
+        # copper resistors and the winding capacitances. But
+        if copper_resistance <= 0:
+            raise ValueError("copper resistance must be > 0")
+        if leakage_inductance <= 0:
+            raise ValueError("leakage inductance must be > 0")
+
         # primary_turns =
         # secondary_turns =
         # turn_ratio = primary_turns / secondary_turns
         # primary_inductance =
+        # primary_inductance / secondary_inductance = turn_ratio**2
         secondary_inductance = primary_inductance / float(turn_ratio**2)
-        
-        # L_primary / L_secondary = (N1/N2)^2 = Nr^2
-        #
-        # For an ideal transformer you can reduce the values for the flux leakage inductances, the copper
-        # resistors and the winding capacitances.
 
         # Primary
         self.C('primary', 'input_plus', 'input_minus', winding_capacitance)
