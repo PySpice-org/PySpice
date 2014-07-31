@@ -11,12 +11,12 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Plot.BodeDiagram import bode_diagram
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit.Units import *
 
 from OperationalAmplifier import BasicOperationalAmplifier
-from BodeDiagram import bode_diagram
 
 ####################################################################################################
 

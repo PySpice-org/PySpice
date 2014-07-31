@@ -18,7 +18,7 @@ from PySpice.Unit.Units import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.path.dirname(__file__), 'libraries')
+libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################

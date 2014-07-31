@@ -1,0 +1,43 @@
+#! /usr/bin/env python
+# -*- Python -*-
+
+####################################################################################################
+# 
+# PySpice - A Spice package for Python
+# Copyright (C) Salvaire Fabrice 2014
+# 
+####################################################################################################
+
+####################################################################################################
+
+import glob
+import os
+import subprocess
+import sys
+
+####################################################################################################
+
+for topic in (
+        'diode',
+        'electricity',
+        'filter',
+        'operational-amplifier',
+        'passive',
+        'power-supply',
+        'resistor',
+        'transformer',
+        'transistor',
+        ):
+    python_files = glob.glob(os.path.join(os.path.dirname(__file__), topic, '*.py'))
+    for file_name in python_files:
+        if file_name.islower():
+            print 'Run {}'.format(file_name)
+            subprocess.call(('python', file_name))
+            print 'To continue press Enter'
+            rc = sys.stdin.readline().strip()
+
+####################################################################################################
+# 
+# End
+# 
+####################################################################################################
