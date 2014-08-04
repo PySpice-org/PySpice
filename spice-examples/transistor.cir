@@ -1,0 +1,14 @@
+.title Transistor
+Vcollector collector 0 dc 0V
+* Vcollector 1 0 dc
+* Vammeter 1 collector dc 0V
+Ibase 0 base dc 100u
+Q1 collector base 0 generic
+.control
+dc vcollector 0 5 10m
+* ibase 0 100m 10m
+* range 10 mA
+plot -vcollector#branch
+* plot i(Vammeter)
+.endc
+.end

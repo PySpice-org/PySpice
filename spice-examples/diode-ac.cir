@@ -1,0 +1,11 @@
+.title Diode
+.include examples/libraries/diode/BAV21.lib
+Vinput in 0 DC 5V AC SIN(5V 0.1V 1kHz)
+R1 in out 1k
+D1 out 0 BAV21
+.save V(in) V(out)
+.control
+op
+ac dec 10 10k 1G
+.endc
+.end
