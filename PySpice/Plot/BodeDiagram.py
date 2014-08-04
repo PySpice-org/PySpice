@@ -8,31 +8,33 @@ from matplotlib import pyplot
  
 # frequency in Hz, gain in dB, phase in radians between -pi and pi.
 
-def bode_diagram(frequency, gain, phase,
-                 title=None,
-                 **kwargs):
+def bode_diagram_gain(axe, frequency, gain, **kwargs):
 
-    figure = pyplot.figure()
+    axe.semilogx(frequency, gain, basex=10, **kwargs)
+    axe.grid(True)
+    axe.grid(True, which='minor')
+    axe.set_xlabel("Frequency [Hz]")
+    axe.set_ylabel("Gain [dB]")
  
-    if title is not None:
-        pyplot.title(title)
+####################################################################################################
 
-    axes = pyplot.subplot(211)
-    axes.semilogx(frequency, gain, basex=10, **kwargs)
-    axes.grid(True)
-    axes.grid(True, which='minor')
-    axes.set_ylabel("Gain [dB]")
- 
-    axes = pyplot.subplot(212)
-    axes.semilogx(frequency, phase, basex=10, **kwargs)
-    axes.set_ylim(-math.pi, math.pi)
-    axes.grid(True)
-    axes.grid(True, which='minor')
-    axes.set_xlabel("Frequency [Hz]")
-    axes.set_ylabel("Phase [rads]")
-    # axes.set_yticks # Fixme:
+def bode_diagram_phase(axe, frequency, phase, **kwargs):
+
+    axe.semilogx(frequency, phase, basex=10, **kwargs)
+    axe.set_ylim(-math.pi, math.pi)
+    axe.grid(True)
+    axe.grid(True, which='minor')
+    axe.set_xlabel("Frequency [Hz]")
+    axe.set_ylabel("Phase [rads]")
+    # axe.set_yticks # Fixme:
     pyplot.yticks((-math.pi, -math.pi/2,0, math.pi/2, math.pi),
                   (r"$-\pi$", r"$-\frac{\pi}{2}$", "0", r"$\frac{\pi}{2}$", r"$\pi$"))
+
+####################################################################################################
+
+def bode_diagram(axes, frequency, gain, phase, **kwargs):
+    bode_diagram_gain(axes[0], frequency, gain, **kwargs)
+    bode_diagram_phase(axes[1], frequency, phase, **kwargs)
 
 ####################################################################################################
 # 
