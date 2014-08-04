@@ -93,6 +93,12 @@ class WaveForm(np.ndarray):
         else:
             return '{self.name} [{self.unit}]'.format(self=self)
 
+    ##############################################
+
+    def str_data(self):
+
+        return super(WaveForm, self).__repr__()
+
 ####################################################################################################
 
 class Analysis(object):

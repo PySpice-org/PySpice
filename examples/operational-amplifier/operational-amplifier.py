@@ -32,14 +32,17 @@ simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.ac(start_frequency=1, stop_frequency=mega(100), number_of_points=5,  variation='dec',
                         probes=('V(in)', 'V(out)'))
 
-bode_diagram(frequency=analysis.frequency,
+figure = pylab.figure()
+pylab.title("Bode Diagram of an Operational Amplifier")
+bode_diagram(axes=(pylab.subplot(211), pylab.subplot(212)),
+             frequency=analysis.frequency,
              gain=20*np.log10(np.absolute(analysis.out)),
              phase=np.angle(analysis.out, deg=False),
-             title="Bode Diagram of a Low-Pass RC Filter",
              marker='.',
              color='blue',
              linestyle='-',
             )
+pylab.tight_layout()
 pylab.show()
 
 ####################################################################################################
