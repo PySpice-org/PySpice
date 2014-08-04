@@ -3,26 +3,26 @@
 *
 *******************************************
 *
-*1N4148
-*
-*NXP Semiconductors
-*
-*High-speed diodes
-*
-*VRRM = 100V
-*IFRM = 450 mA 
-*trr  = 4ns
-*
-*Package pinning does not match Spice model pinning.
-*Package: SOD 27
-*
-*Package Pin 1 : Cathode
-*Package Pin 2 : Anode
-*
-*Simulator: PSPICE
+* 1N4148
+* 
+* NXP Semiconductors
+* 
+* High-speed diodes
+* 
+* VRRM = 100V
+* IFRM = 450 mA 
+* trr  = 4ns
+* 
+* Package pinning does not match Spice model pinning.
+* Package: SOD 27
+* 
+* Package Pin 1 : Cathode
+* Package Pin 2 : Anode
+* 
+* Simulator: PSPICE
 *
 *******************************************
-*#
+*
 .SUBCKT 1N4148 1 2 
 *
 * The resistor R1 does not reflect 
