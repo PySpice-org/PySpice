@@ -1,0 +1,18 @@
+.title Diode
+* .include examples/libraries/diode/BAV21.lib
+.MODEL BAV21 D
++ IS=21.910E-9
++ N=2.2330
++ RS=1.0000E-3
++ IKF=19.230E-3
++ CJO=1.0300E-12
++ M=.1001
++ VJ=.75
++ BV=293.10
++ IBV=1.2930E-3
++ TT=51.940E-9
+* + ISR=10.010E-21
+Vinput in 0 0.9
+R1 in out 1k
+D1 out 0 BAV21
+.end

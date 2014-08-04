@@ -1,0 +1,9 @@
+.title Transistor
+Q1 collector base 0 generic 
+Vcollector collector 0 5
+Ibase 0 base 90m
+.model generic npn ()
+.end
+.options TNOM = 25
+.options NOINIT
+.options TEMP = 25
