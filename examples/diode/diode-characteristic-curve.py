@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+#d# Foo bar
+#d# Foo bar
+#d# Foo bar
+
 ####################################################################################################
 
 import os
@@ -22,7 +26,7 @@ from PySpice.Physics.SemiConductor import ShockleyDiode
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
+libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
@@ -45,6 +49,10 @@ for temperature in temperatures:
 # Fixme: i(vinput) -> analysis.vinput
 
 ####################################################################################################
+
+#d# Foo bar lala
+#d# Foo bar lala
+#d# Foo bar lala
 
 def two_scales_tick_formatter(value, position):
     if value >= 0:
@@ -107,7 +115,7 @@ axe.set_xlabel('Voltage [V]')
 axe.set_ylabel(u'Resistance [Ω]')
 
 pylab.tight_layout()
-
+#f# save_figure(figure, 'diode-characteristic-curve.png')
 pylab.show()
 
 ####################################################################################################
