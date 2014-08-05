@@ -7,6 +7,7 @@
   :numbered:
 
   api/PySpice.rst
+  examples/index.rst
 
 =========
  Indexes
