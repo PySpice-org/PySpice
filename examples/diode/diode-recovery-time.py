@@ -26,7 +26,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-dc_offset = 5
+dc_offset = 1
 ac_amplitude = .1
 
 ####################################################################################################
@@ -46,7 +46,7 @@ for voltage in (dc_offset - ac_amplitude, dc_offset, dc_offset + ac_amplitude):
     quiescent_current = - float(analysis.vinput) # Fixme:
     quiescent_points.append(dict(voltage=voltage,
                                  quiescent_voltage=quiescent_voltage, quiescent_current=quiescent_current))
-    print "Quiescent {:.1f} mV {:.1f} mA".format(quiescent_voltage*1e3, -quiescent_current*1e3)
+    print "Quiescent {:.1f} mV {:.1f} mA".format(quiescent_voltage*1e3, quiescent_current*1e3)
 dynamic_resistance = ((quiescent_points[0]['quiescent_voltage'] - 
                        quiescent_points[-1]['quiescent_voltage'])
                       /
@@ -109,7 +109,8 @@ analysis = simulator.transient(step_time=source.period/1e3, end_time=source.peri
 axe = pylab.subplot(313)
 # Fixme: axis, x scale
 # plot(analysis['in'] - dc_offset + quiescent_points[0]['quiescent_voltage'], axis=axe)
-plot(analysis.out, axis=axe)
+# plot(analysis.out, axis=axe)
+axe.plot(analysis.out.abscissa*1e6, analysis.out)
 axe.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
 axe.grid()
 axe.set_xlabel('t [us]')
