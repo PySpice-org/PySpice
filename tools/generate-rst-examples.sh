@@ -1,27 +1,23 @@
 ####################################################################################################
 
-api=doc/sphinx/source/api
-##old_api=doc/sphinx/old-api
-
-##mkdir -p ${old_api}
-#mv --backup=numbered $api ${old_api}
+examples=doc/sphinx/source/examples
+# rm -rf ${examples}
+mkdir -p ${examples}
 
 echo
-echo Generate RST API files
-./tools/generate-rst-api
+echo Generate RST examples files
+# ./tools/generate-rst-examples --skip-circuit-figure --skip-figure
+./tools/generate-rst-examples # --force
 
 echo
 echo Run Sphinx
 pushd doc/sphinx/
-./make-html #--clean
+./make-html # --clean
 popd
-
-##echo
-##echo Old api directory moved to
-##ls -l -h ${old_api}
 
 ####################################################################################################
 #
 # End
 #
 ####################################################################################################
+

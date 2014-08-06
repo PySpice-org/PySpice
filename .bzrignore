@@ -2,3 +2,7 @@ doc/sphinx/source/api
 doc/sphinx/build
 .git
 .git-backup
+doc/sphinx/source/examples
+doc/circuit_macros/CMman.pdf
+doc/circuit_macros/dpicdoc.pdf
+doc/spice/ngspice-manual.pdf
