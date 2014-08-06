@@ -23,7 +23,32 @@
 
 ####################################################################################################
 
+import argparse
+
+####################################################################################################
+
 from ExampleRstFactory import ExampleRstFactory
+    
+####################################################################################################
+#
+# Options
+#
+
+argument_parser = argparse.ArgumentParser(description='Generate Examples RST files')
+
+argument_parser.add_argument('--skip-figure',
+                             action='store_true', default=False,
+                             help="Don't generate figures")
+
+argument_parser.add_argument('--skip-circuit-figure',
+                             action='store_true', default=False,
+                             help="Don't generate circuit figures")
+
+argument_parser.add_argument('--force',
+                             action='store_true', default=False,
+                             help="Force the figure generation")
+
+args = argument_parser.parse_args()
 
 ####################################################################################################
 
@@ -31,6 +56,9 @@ examples_path = 'examples'
 rst_directory = 'doc/sphinx/source/examples'
 
 rst_factory = ExampleRstFactory(examples_path, rst_directory)
+rst_factory.process_recursively(make_figure=not args.skip_figure,
+                                make_circuit_figure=not args.skip_circuit_figure,
+                                force=args.force)
 
 ####################################################################################################
 # 

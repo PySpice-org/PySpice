@@ -1,0 +1,8 @@
+.. -*- Mode: rst -*-
+
+This section gives an overwiew of what we can do with PySpice. These examples are inspired from
+classical circuits and can serve as learning material.
+
+The examples are classified by topics:
+
+.. End
