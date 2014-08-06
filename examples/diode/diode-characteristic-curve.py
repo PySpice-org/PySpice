@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#d# Foo bar
-#d# Foo bar
-#d# Foo bar
+#!# This example show how to simulate and plot the characteristic curve of a diode.
 
 ####################################################################################################
 
@@ -31,6 +29,12 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
+#!# For this purpose, we use the common high-speed diode 1N4148.  The diode is driven by a variable
+#!# voltage source through a limiting current resistance.  And We will simulate the circuit at these
+#!# temperatures: 0, 25 and 100 °C.
+
+#cm# diode-characteristic-curve-circuit.m4
+
 circuit = Circuit('Diode Characteristic Curve')
 
 circuit.include(spice_library['1N4148'])
@@ -50,9 +54,20 @@ for temperature in temperatures:
 
 ####################################################################################################
 
-#d# Foo bar lala
-#d# Foo bar lala
-#d# Foo bar lala
+#!# We plot the characteristic curve and compare them to the Shockley diode model:
+#!#
+#!# .. math::
+#!#
+#!#     I_d = I_s \left( e^{\frac{V_d}{n V_t}} - 1 \right)
+#!#
+#!# where :math:`V_t = \frac{k T}{q}`
+#!#
+#!# In order to scale the reverse biased region, we have to do some hack with Matplotlib.
+#!#
+
+silicon_forward_voltage_threshold = .7
+
+shockley_diode = ShockleyDiode(Is=4e-9)
 
 def two_scales_tick_formatter(value, position):
     if value >= 0:
@@ -60,8 +75,6 @@ def two_scales_tick_formatter(value, position):
     else:
         return '{} nA'.format(value/100)
 formatter = ticker.FuncFormatter(two_scales_tick_formatter)
-
-shockley_diode = ShockleyDiode(Is=4e-9)
 
 figure = pylab.figure(1, (20, 10))
 
@@ -72,8 +85,8 @@ axe.set_ylabel('Current')
 axe.grid()
 axe.set_xlim(-2, 2)
 axe.axvspan(-2, 0, facecolor='green', alpha=.2)
-axe.axvspan(0, .7, facecolor='blue', alpha=.1)
-axe.axvspan(.7, 2, facecolor='blue', alpha=.2)
+axe.axvspan(0, silicon_forward_voltage_threshold, facecolor='blue', alpha=.1)
+axe.axvspan(silicon_forward_voltage_threshold, 2, facecolor='blue', alpha=.2)
 axe.set_ylim(-500, 750) # Fixme: round
 axe.yaxis.set_major_formatter(formatter)
 Vd = analyses[25].out
@@ -90,24 +103,26 @@ axe.legend([u'@ {} °C'.format(temperature)
            loc=(.02,.8))
 axe.axvline(x=0, color='black')
 axe.axhline(y=0, color='black')
-axe.axvline(x=.7, color='red')
+axe.axvline(x=silicon_forward_voltage_threshold, color='red')
 axe.text(-1, -100, 'Reverse Biased Region', ha='center', va='center')
 axe.text( 1, -100, 'Forward Biased Region', ha='center', va='center')
+
+#!# Now we compute and plot the static and dynamic resistance.
 
 axe = pylab.subplot(122)
 axe.set_title(u'Resistance @ 25 °C')
 axe.grid()
 axe.set_xlim(-2, 3)
 axe.axvspan(-2, 0, facecolor='green', alpha=.2)
-axe.axvspan(0, .7, facecolor='blue', alpha=.1)
-axe.axvspan(.7, 3, facecolor='blue', alpha=.2)
+axe.axvspan(0, silicon_forward_voltage_threshold, facecolor='blue', alpha=.1)
+axe.axvspan(silicon_forward_voltage_threshold, 3, facecolor='blue', alpha=.2)
 analysis = analyses[25]
 static_resistance = -analysis.out / analysis.vinput
 dynamic_resistance = np.diff(-analysis.out) / np.diff(analysis.vinput)
 axe.semilogy(analysis.out, static_resistance, basey=10)
 axe.semilogy(analysis.out[10:-1], dynamic_resistance[10:], basey=10)
 axe.axvline(x=0, color='black')
-axe.axvline(x=.7, color='red')
+axe.axvline(x=silicon_forward_voltage_threshold, color='red')
 axe.axhline(y=1, color='red')
 axe.text(-1.5, 1.1, u'R limitation = 1 Ω', color='red')
 axe.legend([u'{} Resistance'.format(x) for x in 'Static', 'Dynamic'], loc=(.05,.2))
@@ -115,8 +130,12 @@ axe.set_xlabel('Voltage [V]')
 axe.set_ylabel(u'Resistance [Ω]')
 
 pylab.tight_layout()
-#f# save_figure(figure, 'diode-characteristic-curve.png')
 pylab.show()
+
+#fig# save_figure(figure, 'diode-characteristic-curve.png')
+
+#!# We observe the forward voltage threshold increase with the temperature.
+#?# #!# Indeed the thermal agitation overcome the electron flow.
 
 ####################################################################################################
 # 
