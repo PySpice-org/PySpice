@@ -28,11 +28,11 @@ if [ -e ${tmp_dir} ]; then
   cp ${source_gh_pages}/README.rst .
   if [ -e _images ]; then
     mv _images images
-    find . -name "*.html" -exec sed -e 's/_images/images/;' -i {} \;
+    find . -name "*.html" -exec sed -e 's/_images/images/g;' -i {} \;
   fi
   if [ -e _static ]; then
     mv _static static
-    find . -name "*.html" -exec sed -e 's/_static/static/;' -i {} \;
+    find . -name "*.html" -exec sed -e 's/_static/static/g;' -i {} \;
   fi
   find . -name '.#*html' -exec rm {} \;
 
