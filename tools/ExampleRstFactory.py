@@ -157,7 +157,10 @@ class CircuitMacrosImageChunk(ImageChunk):
 
     def __nonzero__(self):
 
-        return timestamp(self._m4_path) > timestamp(self._figure_real_path)
+        if os.path.exists(self._figure_real_path):
+            return timestamp(self._m4_path) > timestamp(self._figure_real_path)
+        else:
+            return True
 
     ##############################################
 
@@ -264,7 +267,7 @@ class Example(object):
         for line in self._source[line_index:]:
             if line.startswith('#fig# '):
                 tmp_file.write(line[len('#fig# '):])
-            elif not line.startswith('pylab.show'):
+            elif not line.startswith('pylab.show') or not line.startswith('plt.show'):
                 tmp_file.write(line)
             
         tmp_file.flush()
@@ -414,8 +417,8 @@ class ExampleRstFactory(object):
                         example.make_rst()
                         if make_figure:
                             example.make_figure()
-                        if make_circuit_figure:
-                            example.make_circuit_figure(force)
+                    if make_circuit_figure:
+                        example.make_circuit_figure(force)
 
         print "\nGenerate TOC files:"
         for current_path, sub_directories, files in os.walk(self._rst_directory, followlinks=True):
@@ -432,27 +435,26 @@ class ExampleRstFactory(object):
         title = os.path.basename(current_path).replace('-', ' ').title()
         title_line = '='*(len(title)+2)
 
-        if title == 'Examples':
-            text = """
-.. include:: ../example_index.txt
-"""
-        else:
-            text = ""
-
-        template = """
-{title_line}
- {title}
-{title_line}
-
-{text}
+        toc_template = """
 
 .. toctree::
   :maxdepth: 1
 
 """
 
+        if title == 'Examples':
+            template = """
+.. include:: ../examples.txt
+"""
+        else:
+            template = """
+{title_line}
+ {title}
+{title_line}
+"""
+
         with open(toc_path, 'w') as f:
-            f.write(template.format(title=title, title_line=title_line, text=text))
+            f.write((template + toc_template).format(title=title, title_line=title_line))
             for directory in sorted(sub_directories):
                 f.write('  {}/index.rst\n'.format(directory))
             for filename in sorted(files):
