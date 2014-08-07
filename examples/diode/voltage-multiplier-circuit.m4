@@ -3,7 +3,6 @@ cct_init(SIdefaults)
 linethick_(.5)
 define(`dimen_', 10)
 elen = dimen_*3/2
-epsilon = 1e-3
 define(`bigdiode',
   `resized(2., `diode', $1)')
 Ground: Here
