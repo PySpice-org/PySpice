@@ -1,0 +1,87 @@
+.. -*- Mode: rst -*-
+
+.. _examples-page:
+
+============
+  Examples
+============
+
+This section gives an overwiew of what we can do with PySpice. These examples are inspired from
+classical circuits and can serve as learning material.
+
+Usually these examples don't involve advanced Python programming. You just need to know basic Python
+programming and how to use the Numpy and Matplotlib framework. However the code to make complexe
+figures can require advanced Matplotlib topics.
+
+---------------------
+ How to Learn Python
+---------------------
+
+Some links to learn about Python programming and Scientific Framework:
+
+* `The Python Tutorial <https://docs.python.org/2.7/tutorial/index.html>`_
+* `Pyplot tutorial <http://matplotlib.org/users/pyplot_tutorial.html>`_
+* `Python Scientific Lecture Notes <https://scipy-lectures.github.io/>`_
+* `Scientific Python Lectures <http://nbviewer.ipython.org/github/jrjohansson/scientific-python-lectures/tree/master/>`_
+
+----------------------------
+ How to Run theses Examples
+----------------------------
+
+A Linux desktop is the best platform to work with PySpice. Indeed it is easier to get NgSpice
+running and install Python.
+
+There is several ways to run the examples: as a script from the console, in the Ipython interactive
+environment or in a web browser using the Ipython Notebook. Each has their advantages and drawbacks.
+A script is best when we want to work on a file using an editor. And an interactive environment is
+best when we want to play with code in live.
+
+To run an example from the console, execute this command:
+
+.. code-block:: sh
+
+  python examples/.../foo.py
+
+To start the interactive IPython environment:
+
+.. code-block:: sh
+
+  ipython --matplotlib       # enable matplotlib integration
+  ipython --matplotlib-qt    # enable matplotlib integration with qt4 backend
+  ipython qtconsole          # start the qtconsole GUI application
+
+then run an example using the magic command:
+
+.. code-block:: py
+
+ %run examples/../foo.py
+
+To start the IPython notebook in your web browser:
+
+.. code-block:: sh
+
+  ipython notebook 
+
+When we use IPython notebook it is convenient to use a matplotlib backend that outputs the graphics
+embedded in the notebook file. To activate this backend, somewhere in the beginning on the notebook,
+you must add:
+
+.. code-block:: py
+
+  %matplotlib inline
+
+Then you can copy-paste code blocks and execute them.
+
+.. warning::
+
+  Notice for security reason, web browsers don't offer a simple way to copy-paste a code block
+  (i.e. fill the clipboard using a button and some javascript behind the scene). You must select and
+  copy by hand the code.
+
+--------------------
+ Tables of Contents
+--------------------
+
+The examples are classified by topics:
+
+.. End

@@ -1,3 +1,19 @@
+.. include:: introduction.txt
+
+==============
+ Installation
+==============
+
+The procedure to install PySpice is described in the :ref:`Installation Manual <installation-page>`.
+
+===============
+ Documentation
+===============
+
+ * :ref:`Examples <examples-page>`
+ * :ref:`PySpice Reference Manual <reference-manual-page>`
+ * :ref:`Bibliography <bibliography-page>`
+
 ==========
  Overview
 ==========
@@ -6,15 +22,9 @@
   :maxdepth: 2
   :numbered:
 
-  api/PySpice.rst
+  installation.rst
   examples/index.rst
-
-=========
- Indexes
-=========
-
-  * :ref:`genindex`
-  * :ref:`modindex`
-  * :ref:`search`
+  reference-manual.rst
+  bibliography.rst
 
 .. End
