@@ -28,20 +28,26 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
+#cm# voltage-multiplier-circuit.m4
+
 circuit = Circuit('Voltage Multiplier')
 circuit.include(spice_library['1N4148'])
-source = circuit.Sinusoidal('input', 1, circuit.gnd, amplitude=10, frequency=50)
+source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10, frequency=50)
 
 multiplier = 5
 for i in xrange(multiplier):
-    # It is easier in the loop to permute the ground and the input node
-    circuit.C(i, i, i+2, milli(1))
-    circuit.X(i, '1N4148', i+2, i+1)
+    if i:
+        top_node = i - 1
+    else:
+        top_node = 'in'
+    midlle_node, bottom_node = i + 1, i
+    circuit.C(i, top_node, midlle_node, milli(1))
+    circuit.X(i, '1N4148', midlle_node, bottom_node)
 circuit.R(1, multiplier, multiplier+1, mega(1))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*20,
-                               probes=['V({})'.format(i) for i in xrange(multiplier +2)])
+                               probes=['V(in)'] + ['V({})'.format(i) for i in xrange(1, multiplier+1)])
 
 ####################################################################################################
 
@@ -53,14 +59,15 @@ axe.set_xlabel('Time [s]')
 axe.set_ylabel('Voltage [V]')
 axe.grid()
 # Fixme: axis vs axe ...
-for i in xrange(1, multiplier+2):
+plot(analysis['in'], axis=axe)
+for i in xrange(1, multiplier+1):
     y = analysis[str(i)]
-    if i != 1 and i & 1: # odd, i = 1 is source
-        y -= analysis['1']
+    if i & 1: # for odd multiplier the ground is permuted
+        y -= analysis['in']
     plot(y, axis=axe)
 # axe.axhline(-multiplier*source.amplitude)
 axe.set_ylim(-multiplier*1.1*source.amplitude, 1.1*source.amplitude)
-axe.legend(['input'] + ['*{}'.format(i-1) for i in xrange(2, multiplier +2)] ,
+axe.legend(['input'] + ['*' + str(i) for i in xrange(1, multiplier+1)] ,
            loc=(.2,.8))
 
 plt.tight_layout()
