@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#!# This example show how to simulate and plot the characteristic curve of a diode.
+#!# This example shows how to simulate and plot the characteristic curve of a diode.
 
 ####################################################################################################
 
@@ -58,9 +58,9 @@ for temperature in temperatures:
 #!#
 #!# .. math::
 #!#
-#!#     I_d = I_s \left( e^{\frac{V_d}{n V_t}} - 1 \right)
+#!#     I_d = I_s \left( e^{\frac{V_d}{n V_T}} - 1 \right)
 #!#
-#!# where :math:`V_t = \frac{k T}{q}`
+#!# where :math:`V_T = \frac{k T}{q}`
 #!#
 #!# In order to scale the reverse biased region, we have to do some hack with Matplotlib.
 #!#
@@ -94,6 +94,7 @@ Vd = analyses[25].out
 forward_region = Vd >= 0
 reverse_region = np.invert(forward_region)
 scale =  reverse_region*1e11 + forward_region*1e3
+#?# check temperature
 for temperature in temperatures:
     analysis = analyses[temperature]
     axe.plot(Vd, - analysis.vinput * scale)
@@ -108,6 +109,14 @@ axe.text(-1, -100, 'Reverse Biased Region', ha='center', va='center')
 axe.text( 1, -100, 'Forward Biased Region', ha='center', va='center')
 
 #!# Now we compute and plot the static and dynamic resistance.
+#!#
+#!# .. math::
+#!#
+#!#   \frac{d I_d}{d V_d} = \frac{1}{n V_T}(I_d + I_s)
+#!#
+#!# .. math::
+#!#
+#!#   r_d = \frac{d V_d}{d I_d} \approx \frac{n V_T}{I_d}
 
 axe = pylab.subplot(122)
 axe.set_title(u'Resistance @ 25 °C')
