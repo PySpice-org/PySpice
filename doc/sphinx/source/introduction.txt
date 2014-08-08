@@ -1,10 +1,12 @@
 .. -*- Mode: rst -*-
 
+.. include:: abbreviation.txt
+
 ==============
  Introduction
 ==============
 
-PySpice is a `Python <http://python.org>`_ library which interplay with Berkeley SPICE, the
+PySpice is a |Python|_ library which interplay with Berkeley SPICE, the
 industrial circuit simulator reference.
 
 SPICE (Simulation Program with Integrated Circuit Emphasis) was developed at the Electronics
@@ -20,8 +22,8 @@ The aim of PySpice is to address several needs:
    syntax is less fluent than SPICE for circuit description.
 
  * Ngspice provides some extension to Berkeley SPICE for data analysis, but its interactive
-   environment or TCL module are now outdated. By contrast Python has scientific framework like `Numpy
-   <http://www.numpy.org>`_ and `Matplotlib <http://matplotlib.org>`_ that compete with Matlab.
+   environment or TCL module are now outdated. By contrast Python has scientific framework like
+   |Numpy|_ and |Matplotlib|_ that compete with Matlab.
 
  * Ngspice source code is derived from Berkeley SPICE and thus has a very old basis. Moreover the
    sources are poorly documented. So it is really difficult to understand how it works and modify
@@ -33,12 +35,14 @@ element and plot the associated waveform.
 
 The main features of PySpice are:
 
- * actually PySpice only supports the `Ngspice <http://ngspice.sourceforge.net>`_ flavour
+ * actually PySpice only supports the |Ngspice|_ flavour
  * an oriented-object API to describe circuit in a way similar to SPICE
  * a library and model manager that index recursively a directory
  * an incomplete SPICE parser (mainly used for the library and model indexer)
  * a SPICE server to run the simulator and to get back the result as Numpy array
  * some data analysis add-on
+
+.. Warning:: The API is quite unstable. Some efforts is made to have a smooth API.
 
 .. Warning:: Ngspice is provided without any warranty. Thus use it with care for real design. Best
 	     is to cross check the simulation using others simulators.
