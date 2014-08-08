@@ -11,6 +11,13 @@ This `blog page
 <http://fabrice-salvaire.pagesperso-orange.fr/open-hardware/simulation/spice/index.html>`_ gives an
 introduction to SPICE and explain how to plug *ngspice* to Python.
 
+Similar Projects
+----------------
+
+ * `eispice <http://www.thedigitalmachine.net/eispice.html>`_
+ * `SPICE OPUS <http://www.spiceopus.si>`_ and `PyOPUS <http://fides.fe.uni-lj.si/pyopus>`_
+ * `A Python interface for SPICE-based simulations <http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=5595224&url=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D5595224>`_
+
 SPICE References
 ----------------
 
