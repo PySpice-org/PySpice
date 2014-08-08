@@ -267,7 +267,7 @@ class Example(object):
         for line in self._source[line_index:]:
             if line.startswith('#fig# '):
                 tmp_file.write(line[len('#fig# '):])
-            elif not line.startswith('pylab.show') or not line.startswith('plt.show'):
+            elif not line.startswith('pylab.show') and not line.startswith('plt.show'):
                 tmp_file.write(line)
             
         tmp_file.flush()
@@ -370,17 +370,28 @@ class Example(object):
 
         print "Create RST file", self._rst_path
 
-        title = self._basename.replace('-', ' ').title()
-        title_line = '='*(len(title)+2)
-        template = """
+        has_tile= False
+        for chunck in self._chuncks:
+            if isinstance(chunck, RstChunk):
+                content = str(chunck)
+                if '='*7 in content:
+                    has_tile = True
+                break
+
+        if not has_tile:
+            title = self._basename.replace('-', ' ').title()
+            title_line = '='*(len(title)+2)
+            template = """
 {title_line}
  {title}
 {title_line}
 
 """
+            header = template.format(title=title, title_line=title_line)
 
         with open(self._rst_path, 'w') as f:
-            f.write(template.format(title=title, title_line=title_line))
+            if not has_tile:
+                f.write(header)
             for chunck in self._chuncks:
                 f.write(str(chunck))
 
