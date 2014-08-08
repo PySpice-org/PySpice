@@ -1,0 +1,15 @@
+.. -*- Mode: rst -*-
+
+.. |Python| replace:: Python
+.. _Python: http://python.org
+
+.. |Numpy| replace:: Numpy
+.. _Numpy: http://www.numpy.org
+
+.. |Matplotlib| replace:: Matplotlib
+.. _Matplotlib: http://matplotlib.org
+
+.. |Ngspice| replace:: Ngspice
+.. _Ngspice: http://ngspice.sourceforge.net
+
+.. End

@@ -19,7 +19,7 @@ The procedure to install PySpice is described in the :ref:`Installation Manual <
 ==========
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 3
   :numbered:
 
   installation.rst

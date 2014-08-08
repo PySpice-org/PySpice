@@ -2,11 +2,35 @@
 
 .. _installation-page:
 
+.. include:: abbreviation.txt
+
 ==============
  Installation
 ==============
 
-The PySpice project is hosted at github http://github.com/FabriceSalvaire/PySpice
+The installation of PySpice by itself is quite simple. However it will be easier to get the
+dependencies on a Linux desktop.
+
+Dependencies
+------------
+
+PySpice requires the following dependencies:
+
+ * |Python|_
+ * |Numpy|_
+ * |Matplotlib|_
+ * |Ngspice|_
+
+Also it is recommanded to have these Python modules:
+
+ * IPython
+ * pip
+ * virtualenv
+
+For development, you will need in addition:
+
+ * sphinx
+ * circuit_macros and a LaTeX environment
 
 Ngspice Compilation
 -------------------
@@ -20,5 +44,32 @@ should not enable everything without care.
 .. warning::
 
   For the following, the compilation option **--enable-ndev** is known to broke the server mode.
+
+Installation from PyPi Repository
+---------------------------------
+
+PySpice is made available on the PyPi repository. Run this command to install the last release:
+
+.. code-block:: sh
+
+  pip install PySpice
+
+Installation from Source
+------------------------
+
+The PySpice source code is hosted at `github <http://github.com/FabriceSalvaire/PySpice>`_.
+
+To clone the Git repository, run this command in a terminal:
+
+.. code-block:: sh
+
+  git clone git@github.com:FabriceSalvaire/PySpice.git
+
+Then to build and install PySpice run these commands:
+
+.. code-block:: sh
+
+  python setup.py build
+  python setup.py install
 
 .. End
