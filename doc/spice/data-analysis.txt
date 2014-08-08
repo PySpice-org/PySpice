@@ -1,0 +1,219 @@
+
+* measure time/voltage difference
+* locate rising/falling slopes in signal: derivative
+* locate crossing points
+* locate value according slope or crossing: interpolate
+* locate the point when a signal is equal to a value or two signals are equal
+  according to a slope/cross
+* average, min, max, peak to peak, rms
+* from to
+* integration
+* derivative
+* FFT
+
+####################################################################################################
+
+15.4 Measurements after Op, Ac, and Transient Analysis
+15.4.1 .meas(ure)
+
+The .meas or .measure statement (and its equivalent meas command, see
+chapt. 17.5.36) are used to analyze the output data of a tran, ac, or dc
+simulation. The command is executed immediately after the simulation has
+finished.
+
+15.4.3 General remarks
+
+The measure type {DC|AC|TRAN|SP} depends on the data which are to be evaluated,
+either originating from a dc analysis, an ac analysis, a transient
+simulation. SP to analyse a spectrum from the spec or fft commands is only
+available when executed in a meas command, see 17.5.36.
+
+result will be a vector containing the result of the measurement. trig_variable,
+targ_variable, and out_variable are vectors stemming from the simulation, e.g. a
+voltage vector v(out).  VAL=val expects a real number val. It may be as well a
+parameter in ” or {} expanding to a real number.
+
+TD=td and AT=time expect a time value if measure type is tran. For ac and sp AT
+will be a frequency value, TD is ignored. For dc analysis AT is a voltage (or
+current), TD is ignored as well.
+
+CROSS=# requires an integer number #. CROSS=LAST is possible as well. The same
+is expected by RISE and FALL.
+
+15.4.5 Trig Targ
+
+.measure according to general form 1 measures the difference in dc voltage,
+frequency or time between two points selected from one or two output
+vectors. The current examples all are using transient simulation. Measurements
+for tran analysis start after a delay time td. If you run other examples with ac
+simulation or spectrum analysis, time may be replaced by frequency, after a dc
+simulation the independent variable may become a voltage or current.
+
+General form 1:
+. MEASURE {DC | AC | TRAN | SP} r e s u l t TRIG t r i g _ v a r i a b l e VAL= v a l <TD=
+t d > <CROSS=# | CROSS=LAST> <RISE=# | RISE=LAST> <FALL=# |
+FALL=LAST> <TRIG AT= t i m e > TARG t a r g _ v a r i a b l e VAL= v a l <TD= t d >
+<CROSS=# | CROSS=LAST> <RISE=# | RISE=LAST> <FALL=# | FALL=
+LAST> <TARG AT= t i m e >
+Measure statement example (for use in the input file given above):
+.measure tran tdiff TRIG v(1) VAL=0.5 RISE=1 TARG v(1) VAL=0.5 RISE=2
+measures the time difference between v(1) reaching 0.5 V for the first time on its first rising
+slope (TRIG) versus reaching 0.5 V again on its second rising slope (TARG). I.e. it measures
+the signal period.
+
+Output:
+tdiff = 1.000000e-003 targ= 1.083343e-003 trig= 8.334295e-005
+Measure statement example:
+.measure tran tdiff TRIG v(1) VAL=0.5 RISE=1 TARG v(1) VAL=0.5 RISE=3
+measures the time difference between v(1) reaching 0.5 V for the first time on its rising slope
+versus reaching 0.5 V on its rising slope for the third time (i.e. two periods).
+
+Measure statement:
+
+.measure tran tdiff TRIG v(1) VAL=0.5 RISE=1 TARG v(1) VAL=0.5 FALL=1
+measures the time difference between v(1) reaching 0.5V for the first time on its rising slope
+versus reaching 0.5 V on its first falling slope.
+
+Measure statement:
+.measure tran tdiff TRIG v(1) VAL=0 FALL=3 TARG v(2) VAL=0 FALL=3
+measures the time difference between v(1) reaching 0V its third falling slope versus v(2) reach-
+ing 0 V on its third falling slope.
+Measure statement:
+
+.measure tran tdiff TRIG v(1) VAL=-0.6 CROSS=1 TARG v(2) VAL=-0.8 CROSS=1
+measures the time difference between v(1) crossing -0.6 V for the first time (any slope) versus
+v(2) crossing -0.8 V for the first time (any slope).
+
+Measure statement:
+.measure tran tdiff TRIG AT=1m TARG v(2) VAL=-0.8 CROSS=3
+measures the time difference between the time point 1ms versus the time when v(2) crosses -0.8
+V for the third time (any slope).
+
+15.4.6 Find ... When
+
+The FIND and WHEN functions allow to measure any dependent or independent time, fre-
+quency, or dc parameter, when two signals cross each other or a signal crosses a given value.
+Measurements start after a delay TD and may be restricted to a range between FROM and TO.
+
+General form 2:
+. MEASURE {DC | AC | TRAN | SP} r e s u l t WHEN o u t _ v a r i a b l e = v a l <TD= t d > <
+FROM= v a l > <TO= v a l > <CROSS=# | CROSS=LAST> <RISE=# | RISE=
+LAST> <FALL=# | FALL=LAST>
+
+Measure statement:
+.measure tran teval WHEN v(2)=0.7 CROSS=LAST
+measures the time point when v(2) crosses 0.7 V for the last time (any slope).
+
+General form 3:
+. MEASURE {DC | AC | TRAN | SP} r e s u l t WHEN o u t _ v a r i a b l e = o u t _ v a r i a b l e 2
+<TD= t d > <FROM= v a l > <TO= v a l > <CROSS=# | CROSS=LAST> <RISE=#
+| RISE=LAST> <FALL=# | FALL=LAST>
+
+Measure statement:
+.measure tran teval WHEN v(2)=v(1) RISE=LAST
+measures the time point when v(2) and v(1) are equal, v(2) rising for the last time.
+
+General form 4:
+. MEASURE {DC | AC | TRAN | SP} r e s u l t FIND o u t _ v a r i a b l e WHEN
+o u t _ v a r i a b l e 2 = v a l <TD= t d > <FROM= v a l > <TO= v a l > <CROSS=# |
+CROSS=LAST> <RISE=# | RISE=LAST> <FALL=# | FALL=LAST>
+
+Measure statement:
+.measure tran yeval FIND v(2) WHEN v(1)=-0.4 FALL=LAST
+returns the dependent (y) variable drawn from v(2) at the time point when v(1) equals a value
+of -0.4, v(1) falling for the last time.
+
+General form 5:
+. MEASURE {DC | AC | TRAN | SP} r e s u l t FIND o u t _ v a r i a b l e WHEN
+o u t _ v a r i a b l e 2 = o u t _ v a r i a b l e 3 <TD= t d > <CROSS=# | CROSS=LAST>
+<RISE = # | RISE=LAST> <FALL = # | FALL=LAST>
+
+Measure statement:
+.measure tran yeval FIND v(2) WHEN v(1)=v(3) FALL=2
+returns the dependent (y) variable drawn from v(2) at the time point when v(1) crosses v(3),
+v(1) falling for the second time.
+
+General form 6:
+. MEASURE {DC | AC | TRAN | SP} r e s u l t FIND o u t _ v a r i a b l e AT= v a l
+
+Measure statement:
+.measure tran yeval FIND v(2) AT=2m
+returns the dependent (y) variable drawn from v(2) at the time point 2 ms (given by AT=time).
+
+15.4.7 AVG|MIN|MAX|PP|RMS|MIN_AT|MAX_AT
+
+General form 7:
+. MEASURE {DC | AC | TRAN | SP} r e s u l t {AVG | MIN |MAX| PP | RMS | MIN_AT |
+MAX_AT} o u t _ v a r i a b l e <TD= t d > <FROM= v a l > <TO= v a l >
+
+Measure statements:
+.measure tran ymax MAX v(2) from=2m to=3m
+returns the maximum value of v(2) inside the time interval between 2 ms and 3 ms.
+.measure tran tymax MAX_AT v(2) from=2m to=3m
+returns the time point of the maximum value of v(2) inside the time interval between 2 ms and
+3 ms.
+.measure tran ypp PP v(1) from=2m to=4m
+returns the peak to peak value of v(1) inside the time interval between 2 ms and 4 ms.
+.measure tran yrms RMS v(1) from=2m to=4m
+returns the root mean square value of v(1) inside the time interval between 2 ms and 4 ms.
+.measure tran yavg AVG v(1) from=2m to=4m
+returns the average value of v(1) inside the time interval between 2 ms and 4 ms.
+
+15.4.8 Integ
+
+General form 8:
+. MEASURE {DC | AC | TRAN | SP} r e s u l t INTEG<RAL> o u t _ v a r i a b l e<FROM= v a l > <TO= v a l >
+
+Measure statement:
+.measure tran yint INTEG v(2) from=2m to=3m
+returns the area under v(2) inside the time interval between 2 ms and 3 ms.
+<TD= t d >
+
+15.4.9 param
+
+General form 9:
+. MEASURE {DC | AC | TRAN | SP} r e s u l t
+ param = ’ e x p r e s s i o n ’
+
+Measure statement:
+.param fval=5
+.measure tran yadd param=’fval + 7’
+will evaluate the given expression fval + 7 and return the value 12.
+.param vout_diff=50k
+.meas tran bw_chk param=’(vout_diff < 100k) ? 1 : 0’
+will evaluate the given ternary function and return the value 1.
+’Expression’ is evaluated according to the rules given in chapt. 2.8.5 during start up of ngspice.
+Thus it may not contain vectors like v(10), e.g. anything resulting from a simulation.
+
+15.4.10 par(’expression’)
+
+The par(’expression’) option (15.5.6) allows to use algebraic expressions in the .measure
+lines. Every out_variable may be replaced by par(’expression’) within the general forms 1-9
+described above. Internally par(’expression’) will be substituted by a vector according to the
+rules of the B source (chapt. 5.1). A typical example of the general form is shown below:
+
+General form 10:
+. MEASURE {DC | AC | TRAN | SP} r e s u l t
+ FIND p a r ( ’ e x p r e s s i o n ’ ) AT= v a l
+Measure statement:
+.measure tran vtest find par(’(v(2)*v(1))’) AT=2.3m
+will return the product of the two voltages at time point 2.3 ms.
+
+15.4.11 Deriv
+
+General form:
+. MEASURE {DC | AC | TRAN | SP}val
+r e s u l t DERIV<ATIVE> o u t _ v a r i a b l e AT=
+. MEASURE {DC | AC | TRAN | SP} r e s u l t DERIV<ATIVE> o u t _ v a r i a b l e WHEN
+out_variable2=val
+ + <TD= t d >
++ <CROSS=# | CROSS=LAST> <RISE = # | RISE=LAST> <FALL = # | FALL=LAST>
+. MEASURE {DC | AC | TRAN | SP} r e s u l t DERIV<ATIVE> o u t _ v a r i a b l e
++ WHEN o u t _ v a r i a b l e 2 = o u t _ v a r i a b l e 3
++ <TD= t d >
++ <CROSS=# | CROSS=LAST> <RISE = # | RISE=LAST> <FALL = # | FALL=LAST>
+.MEASURE {DC|AC|TRAN|SP} result DERIV<ATIVE> ... is not yet available.
+
+####################################################################################################
+
+
