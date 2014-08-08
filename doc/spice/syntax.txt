@@ -1,0 +1,30 @@
+Element syntax:
+
+ - prefix [A-Z]
+ - name
+ - node name
+ - element name (coupled inductor)
+ - model name
+ - positional parameter (e.g. resistance)
+ - keyword parameter
+ - initial condition: on/off
+
+is keyword parameter order important? NO
+is initial condition position important? NO
+
+is syntax ambiguous ???
+
+parameter:
+ - type
+ - optional
+ - default value
+
+keyword parameter:
+ - Python spelling -> spice spelling
+
+element definition:
+ - check parameters
+
+item:
+ - check value
+ - format spice syntax
