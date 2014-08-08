@@ -1,15 +1,19 @@
 ####################################################################################################
-#
-# Three-phase electric power: Y and Delta configurations
-#
-####################################################################################################
+
+#!#
+#!# =================================================
+#!#  Three-phased Current: Y and Delta configurations
+#!# =================================================
+#!#
+#!# This examples shows the computation of the voltage for the Y and Delta configurations.
+#!#
 
 ####################################################################################################
 
 import math
 
 import numpy as np
-from matplotlib import pylab
+import matplotlib.pylab as plt
 
 ####################################################################################################
 
@@ -34,22 +38,25 @@ Ph12 = amplitude_tri * np.sin(t*w + math.pi/6) # Ph1 - Ph2
 Ph23 = amplitude_tri * np.sin(t*w + 3*math.pi/2) # Ph2 - Ph3
 Ph31 = amplitude_tri * np.sin(t*w + 5*math.pi/6) # Ph3 - Ph1
 
-pylab.plot(t, Ph1, t, Ph2, t, Ph3,
+figure = plt.figure(1, (20, 10))
+plt.plot(t, Ph1, t, Ph2, t, Ph3,
            # t, Ph12, t, Ph23, t, Ph31,
            t, Ph1-Ph2, t, Ph2-Ph3, t, Ph3-Ph1,
           )
-pylab.grid()
-pylab.title('Three-phase electric power: Y and Delta configurations (230V Mono/400V Tri 50Hz Europe)')
-pylab.legend(('Ph1-N', 'Ph2-N', 'Ph3-N',
+plt.grid()
+plt.title('Three-phase electric power: Y and Delta configurations (230V Mono/400V Tri 50Hz Europe)')
+plt.legend(('Ph1-N', 'Ph2-N', 'Ph3-N',
               'Ph1-Ph2', 'Ph2-Ph3', 'Ph3-Ph1'),
              loc=(.7,.5))
-pylab.xlabel('t [s]')
-pylab.ylabel('[V]')
-pylab.axhline(y=rms_mono, color='blue')
-pylab.axhline(y=-rms_mono, color='blue')
-pylab.axhline(y=rms_tri, color='blue')
-pylab.axhline(y=-rms_tri, color='blue')
-pylab.show()
+plt.xlabel('t [s]')
+plt.ylabel('[V]')
+plt.axhline(y=rms_mono, color='blue')
+plt.axhline(y=-rms_mono, color='blue')
+plt.axhline(y=rms_tri, color='blue')
+plt.axhline(y=-rms_tri, color='blue')
+plt.show()
+
+#fig# save_figure(figure, 'three-phase.png')
 
 ####################################################################################################
 # 
