@@ -1,7 +1,19 @@
 .. -*- Mode: rst -*-
 
+.. |ohloh| image:: https://www.ohloh.net/accounts/230426/widgets/account_tiny.gif
+   :target: https://www.openhub.net/accounts/fabricesalvaire
+   :alt: Fabrice Salvaire's Ohloh profile
+   :height: 15px
+   :width:  80px
+
+.. |Ngspice| replace:: Ngspice
+.. _Ngspice: http://ngspice.sourceforge.net
+
 .. |Python| replace:: Python
 .. _Python: http://python.org
+
+.. |PyPI| replace:: PyPI
+.. _PyPI: https://pypi.python.org/pypi
 
 .. |Numpy| replace:: Numpy
 .. _Numpy: http://www.numpy.org
@@ -9,7 +21,10 @@
 .. |Matplotlib| replace:: Matplotlib
 .. _Matplotlib: http://matplotlib.org
 
-.. |Ngspice| replace:: Ngspice
-.. _Ngspice: http://ngspice.sourceforge.net
+.. |IPython| replace:: IPython
+.. _IPython: http://ipython.org
+
+.. |Sphinx| replace:: Sphinx
+.. _Sphinx: http://sphinx-doc.org
 
 .. End

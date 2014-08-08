@@ -23,13 +23,13 @@ PySpice requires the following dependencies:
 
 Also it is recommanded to have these Python modules:
 
- * IPython
+ * |IPython|_
  * pip
  * virtualenv
 
 For development, you will need in addition:
 
- * sphinx
+ * |Sphinx|_
  * circuit_macros and a LaTeX environment
 
 Ngspice Compilation
@@ -38,8 +38,10 @@ Ngspice Compilation
 Usually Ngspice is available as a package in the major Linux distributions. But I recommend to check
 the compilation options before to use it extensively. For example the Fedora package enables too
 many experimental codes that have side effects. The recommended way to compile Ngspice is given in
-the manual and the :file:`INSTALLATION` file. Ngspice is an example of complex software where we
-should not enable everything without care.
+the manual and the ``INSTALLATION`` file. Ngspice is an example of complex software where we should
+not enable everything without care.
+
+.. :file:`INSTALLATION`
 
 .. warning::
 
@@ -48,7 +50,7 @@ should not enable everything without care.
 Installation from PyPi Repository
 ---------------------------------
 
-PySpice is made available on the PyPi repository. Run this command to install the last release:
+PySpice is made available on the |PyPi|_ repository. Run this command to install the last release:
 
 .. code-block:: sh
 
