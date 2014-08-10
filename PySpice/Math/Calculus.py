@@ -5,14 +5,15 @@
 # 
 ####################################################################################################
 
+"""This module provides algorithms to compute the derivative of a function sampled on an uniform
+grid.
+"""
+
 ####################################################################################################
 
 import fractions
 
 import numpy as np
-
-from scipy.special import gamma
-from scipy.linalg import solve
 
 ####################################################################################################
 
@@ -20,66 +21,17 @@ from PySpice.Math import odd
 
 ####################################################################################################
 
-# From Generation of Finite Difference Formulas on Arbitrary Space Grids
-#   Bengt Fornberg, Mathematics of computation, volume 51, number 184, october 1988
+def compute_exact_finite_difference_coefficients(derivative_order, grid, x0=0):
 
-centred_coefficients = {
-    # on a grid -4,...,4
-    # [order of derivative][order of accuracy] = (left coefficients, ...)
-    0: { None: [1,] },
-    1: {
-        2: [-1/2.,   0],
-        4: [1/12.,   -2/3.,   0],
-        6: [-1/60.,   3/20.,   -3/4.,   0],
-        8: [1/280.,   -4/105.,   1/5.,   -4/5.,   0],
-   },
-    2: {
-        2: [1,  -2],
-        4: [-1/12.,  4/3.,  -5/2.],
-        6: [1/90.,  -3/20.,  3/2.,  -49/18.],
-        8: [-1/560.,  8/315.,  -1/5.,  8/5.,  -205/72.],
-   },
-}
-# complete right coefficients
-for derivative_order, derivative_order_dict in centred_coefficients.iteritems():
-    for coefficients in derivative_order_dict.itervalues():
-        if len(coefficients) > 1:
-            for i in xrange(len(coefficients) -2, -1, -1):
-                coefficient = coefficients[i]
-                if odd(derivative_order):
-                    coefficient *= -1
-                coefficients.append(coefficient)
+    """This function compute the finite difference coefficients for the given derivative order and
+    grid.  The parameter *x* specifies where is computed the derivative on the grid.  The grid is
+    given as a list of integer offsets.
 
-forward_coefficients = {
-    # on a grid 0...8
-    # [order of derivative][order of accuracy] = (coefficients)
-    0: { None:(1,) },
-    1: {
-        1: (-1,  1),
-        2: (-3/2.,  2,  -1/2.),
-        3: (-11/6.,  3,  -3/2.,  1/3.),
-        4: (-25/12.,  4,  -3,  4/3.,  -1/4.),
-        5: (-137/60.,  5,  -5,  10/3.,  -5/4.,  1/5.),
-        6: (-49/20.,  6,  -15/2.,  20/3.,  -15/4.,  6/5.,  -1/6.),
-        7: (-363/140.,  7,  -21/2.,  35/3.,  -35/4.,  21/5.,  -7/6.,  1/7.),
-        8: (-761/280.,  8,  -14,  56/3.,  -35/2.,  56/5.,  -14/3.,  8/7.,  -1/8.),
-   },
-    2: {
-        1: (1,  -2,  1),
-        2: (2,  -5,  4,  -1),
-        3: (35/12.,  -26/3.,  19/2.,  -14/3.,  11/12.),
-        4: (15/4.,  -77/6.,  107/6.,  -13,  61/12.,  -5/6.),
-        5: (203/45.,  -87/5.,  117/4.,  -254/9.,  33/2.,  -27/5.,  137/180.),
-        6: (469/90.,  -223/10.,  879/20.,  -949/18.,  41,  -201/10.,  1019/180.,  -7/10.),
-        7: (29531/5040.,  -962/35.,  621/10.,  -4006/45.,   691/8.,  -282/5.,  2143/90.,  -206/35.,  363/560.),
-   },
-}
+    The algorithm is derived from the article: Generation of Finite Difference Formulas on Arbitrary Space
+    Grids, Bengt Fornberg, Mathematics of computation, volume 51, number 184, october 1988
+    """
 
-####################################################################################################
-
-def compute_exact_finite_difference_coefficients(derivative_order, grids, x0=0):
-
-    N = len(grids)
+    N = len(grid)
 
     # d[m,n,v]
     d = [[[0
@@ -92,76 +44,111 @@ def compute_exact_finite_difference_coefficients(derivative_order, grids, x0=0):
     for n in xrange(1, N):
         c2 = 1
         for v in xrange(n):
-            c3 = grids[n] - grids[v]
+            c3 = grid[n] - grid[v]
             c2 *= c3
             if n <= derivative_order:
                 d[n][n-1][v] = 0
             for m in xrange(min(n, derivative_order) +1):
-                d[m][n][v] = ( (grids[n] - x0)*d[m][n-1][v] - m*d[m-1][n-1][v] ) / c3
+                d[m][n][v] = ( (grid[n] - x0)*d[m][n-1][v] - m*d[m-1][n-1][v] ) / c3
         for m in xrange(min(n, derivative_order) +1):
-            d[m][n][n] = fractions.Fraction(c1,c2)*( m*d[m-1][n-1][n-1] - (grids[n-1] - x0)*d[m][n-1][n-1] )
+            d[m][n][n] = fractions.Fraction(c1,c2)*( m*d[m-1][n-1][n-1] - (grid[n-1] - x0)*d[m][n-1][n-1] )
         c1 = c2
 
     return d[-1][-1]
 
 ####################################################################################################
 
-def compute_finite_difference_coefficients(derivative_order, grid_size):
-
-    # from http://www.scientificpython.net/pyblog/uniform-finite-differences-all-orders
-
-    n = 2*grid_size -1
-    A = np.tile(np.arange(grid_size), (n,1)).T
-    B = np.tile(np.arange(1-grid_size,grid_size), (grid_size,1))
-    M = (B**A)/gamma(A+1)
-
-    r = np.zeros(grid_size)
-    r[derivative_order] = 1
-
-    D = np.zeros((grid_size, grid_size))
-    for k in xrange(grid_size):
-        indexes = k + np.arange(grid_size)
-        D[:,k] = solve(M[:,indexes], r)
-
-    return D
+def compute_finite_difference_coefficients(derivative_order, grid):
+    return [float(x) for x in compute_exact_finite_difference_coefficients(derivative_order, grid)]
 
 ####################################################################################################
 
-def _check_finite_difference_coefficients():
+_coefficient_cache = dict(centred={}, forward={}, backward={})
 
-    for derivative_order, derivative_order_dict in centred_coefficients.iteritems():
-        for accuracy_order, coefficients in derivative_order_dict.iteritems():
-            if accuracy_order > 1:
-                coefficients = np.array(coefficients)
-                grid_size = accuracy_order +1
-                # D = compute_finite_difference_coefficients(derivative_order, grid_size)
-                # computed_coefficients = D[:,grid_size/2]
-                computed_coefficients = compute_exact_finite_difference_coefficients(derivative_order,
-                                                                                     range(-accuracy_order/2,accuracy_order/2+1))
-                computed_coefficients = [float(x) for x in computed_coefficients]
-                # print "Derivative order {} Accuracy order {}".format(derivative_order, accuracy_order)
-                # print coefficients
-                # print computed_coefficients
-                # print np.abs(coefficients - computed_coefficients)
-                assert(np.all(np.isclose(coefficients, computed_coefficients)))
+def get_finite_difference_coefficients(derivative_order, accuracy_order, grid_type):
 
-    for derivative_order, derivative_order_dict in forward_coefficients.iteritems():
-        for accuracy_order, coefficients in derivative_order_dict.iteritems():
-            if accuracy_order > 1:
-                coefficients = np.array(coefficients)
-                grid_size = derivative_order + accuracy_order
-                # D = compute_finite_difference_coefficients(derivative_order, grid_size)
-                # computed_coefficients = D[:,-1]
-                computed_coefficients = compute_exact_finite_difference_coefficients(derivative_order, range(grid_size))
-                computed_coefficients = [float(x) for x in computed_coefficients]
-                # print "Derivative order {} Accuracy order {}".format(derivative_order, accuracy_order)
-                # print D
-                # print coefficients
-                # print computed_coefficients
-                # print np.abs(coefficients - computed_coefficients)
-                assert(np.all(np.isclose(coefficients, computed_coefficients)))
+    if derivative_order < 1:
+        raise ValueError("Wrong derivative order")
 
-_check_finite_difference_coefficients()
+    if odd(accuracy_order) or accuracy_order < 2:
+        raise ValueError("Wrong accuracy order")
+
+    if grid_type == 'centred':
+        window_size = accuracy_order / 2
+        grid = range(-window_size, window_size +1)
+    elif grid_type == 'forward':
+        grid = range(derivative_order + accuracy_order)
+    elif grid_type == 'backward':
+        grid = range(-(derivative_order + accuracy_order) +1, 1)
+        grid = list(reversed(grid)) # Fixme: why ?
+    else:
+        raise ValueError("Wrong grid type")
+
+    key = '{}-{}'.format(derivative_order, accuracy_order)
+    coefficients = _coefficient_cache[grid_type].get(key, None)
+    if coefficients is None:
+        coefficients = compute_finite_difference_coefficients(derivative_order, grid)
+        _coefficient_cache[grid_type][key] = coefficients
+
+    return grid, coefficients
+
+####################################################################################################
+
+def simple_derivative(x, values):
+    """ Compute the derivative as a simple slope. """ 
+    return x[:-1], np.diff(values)/np.diff(x)
+
+####################################################################################################
+
+def derivative(x, values, derivative_order=1, accuracy_order=4):
+
+    """Compute the derivative at the given derivative order and accuracy order. The precision of the
+    Taylor expansion is O(dx**accuracy).
+    """
+
+    dx = np.diff(x)
+    # if not np.all(dx == dx[0]):
+    #     raise ValueError("Sampling is not uniform")
+    dx = dx[0]
+
+    values_size, = values.shape
+
+    derivative = np.zeros(values_size, dtype=values.dtype)
+
+    grid, coefficients = get_finite_difference_coefficients(derivative_order, accuracy_order, 'centred')
+    window_size = grid[-1]
+    # print grid, coefficients
+    vector_size = values_size - 2*window_size
+    if not vector_size:
+        raise ValueError("The size of the value's array is not sufficient for the given accuracy order")
+    lower_index = window_size
+    upper_index = values_size - window_size
+    derivative_view = derivative[window_size:-window_size]
+    for offset, coefficient in zip(grid, coefficients):
+        if coefficient:
+            # print offset, lower_index + offset, upper_index + offset
+            derivative_view += values[lower_index + offset:upper_index + offset] * coefficient
+
+    grid, coefficients = get_finite_difference_coefficients(derivative_order, accuracy_order, 'forward')
+    # print grid, coefficients
+    grid_size = len(grid)
+    upper_index = window_size
+    derivative_view = derivative[:window_size]
+    for offset, coefficient in zip(grid, coefficients):
+        # print offset, offset, window_size+offset
+        derivative_view += values[offset:upper_index + offset] * coefficient
+
+    grid, coefficients = get_finite_difference_coefficients(derivative_order, accuracy_order, 'backward')
+    # print grid, coefficients
+    grid_size = len(grid)
+    lower_index = values_size - window_size
+    upper_index = values_size
+    derivative_view = derivative[-window_size:]
+    for offset, coefficient in zip(grid, coefficients):
+        # print offset, lower_index + offset, upper_index + offset
+        derivative_view += values[lower_index + offset:upper_index + offset] * coefficient
+
+    return derivative / dx**derivative_order
 
 ####################################################################################################
 # 
