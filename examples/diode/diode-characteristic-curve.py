@@ -67,7 +67,7 @@ for temperature in temperatures:
 
 silicon_forward_voltage_threshold = .7
 
-shockley_diode = ShockleyDiode(Is=4e-9)
+shockley_diode = ShockleyDiode(Is=4e-9, degree=25)
 
 def two_scales_tick_formatter(value, position):
     if value >= 0:
