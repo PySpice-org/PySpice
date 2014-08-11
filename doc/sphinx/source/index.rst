@@ -1,3 +1,14 @@
+.. include:: project-links.txt
+
+.. hack to move down note block
+.. raw:: html
+
+   <br/>
+
+.. note:: The official Home Page is located at |PySpiceUrl|
+
+    The latest documentation build from the git repository is available at readthedocs.org |PySpice@readthedocs-badge|
+	     
 .. include:: introduction.txt
 
 ==============

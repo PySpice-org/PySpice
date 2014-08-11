@@ -2,6 +2,7 @@
 
 .. _installation-page:
 
+.. include:: project-links.txt
 .. include:: abbreviation.txt
 
 ==============
@@ -50,7 +51,9 @@ not enable everything without care.
 Installation from PyPi Repository
 ---------------------------------
 
-PySpice is made available on the |PyPi|_ repository. Run this command to install the last release:
+PySpice is made available on the |Pypi|_ repository at |PySpice@pypi|
+
+Run this command to install the last release:
 
 .. code-block:: sh
 
@@ -59,7 +62,7 @@ PySpice is made available on the |PyPi|_ repository. Run this command to install
 Installation from Source
 ------------------------
 
-The PySpice source code is hosted at `github <http://github.com/FabriceSalvaire/PySpice>`_.
+The PySpice source code is hosted at |PySpice@github|
 
 To clone the Git repository, run this command in a terminal:
 

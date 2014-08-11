@@ -1,11 +1,5 @@
 .. -*- Mode: rst -*-
 
-.. |ohloh| image:: https://www.ohloh.net/accounts/230426/widgets/account_tiny.gif
-   :target: https://www.openhub.net/accounts/fabricesalvaire
-   :alt: Fabrice Salvaire's Ohloh profile
-   :height: 15px
-   :width:  80px
-
 .. |Ngspice| replace:: Ngspice
 .. _Ngspice: http://ngspice.sourceforge.net
 

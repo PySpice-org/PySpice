@@ -1,18 +1,17 @@
 .. -*- Mode: rst -*-
 
+.. include:: project-links.txt
 .. include:: abbreviation.txt
 
-==============
-PySpice V0.1.0
-==============
+=========
+ PySpice
+=========
 
-The user and API documentation is hosted on the project `homepage <http://fabricesalvaire.github.io/PySpice>`_.
+The official PySpice Home Page is located at |PySpiceUrl|
+
+The latest documentation build from the git repository is available at readthedocs.org |PySpice@readthedocs-badge|
 
 Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
-
-==========
- Overview
-==========
 
 .. include:: introduction.txt
 

@@ -2,11 +2,43 @@
 
 .. -*- Mode: rst -*-
 
-.. |ohloh| image:: https://www.ohloh.net/accounts/230426/widgets/account_tiny.gif
+..
+   |PySpiceUrl|
+   |PySpiceHomePage|_
+   |PySpiceDoc|_
+   |PySpice@github|_
+   |PySpice@readthedocs|_
+   |PySpice@readthedocs-badge|
+   |PySpice@pypi|_
+
+.. |ohloh| image:: https://www.openhub.net/accounts/230426/widgets/account_tiny.gif
    :target: https://www.openhub.net/accounts/fabricesalvaire
    :alt: Fabrice Salvaire's Ohloh profile
    :height: 15px
    :width:  80px
+
+.. |PySpiceUrl| replace:: http://fabricesalvaire.github.io/PySpice
+
+.. |PySpiceHomePage| replace:: PySpice Home Page
+.. _PySpiceHomePage: http://fabricesalvaire.github.io/PySpice
+
+.. |PySpiceDoc| replace:: PySpice Documentation
+.. _PySpiceDoc: http://pyspice.readthedocs.org/en/latest
+
+.. |PySpice@readthedocs-badge| image:: https://readthedocs.org/projects/pyspice/badge/?version=latest
+   :target: http://pyspice.readthedocs.org/en/latest
+
+.. |PySpice@github| replace:: https://github.com/FabriceSalvaire/PySpice
+.. .. _PySpice@github: https://github.com/FabriceSalvaire/PySpice
+
+.. |PySpice@readthedocs| replace:: http://pyspice.readthedocs.org
+.. .. _PySpice@readthedocs: http://pyspice.readthedocs.org
+
+.. |PySpice@pypi| replace:: https://pypi.python.org/pypi/PySpice
+.. .. _PySpice@pypi: https://pypi.python.org/pypi/PySpice
+
+.. End
+.. -*- Mode: rst -*-
 
 .. |Ngspice| replace:: Ngspice
 .. _Ngspice: http://ngspice.sourceforge.net
@@ -31,17 +63,15 @@
 
 .. End
 
-==============
-PySpice V0.1.0
-==============
+=========
+ PySpice
+=========
 
-The user and API documentation is hosted on the project `homepage <http://fabricesalvaire.github.io/PySpice>`_.
+The official PySpice Home Page is located at |PySpiceUrl|
+
+The latest documentation build from the git repository is available at readthedocs.org |PySpice@readthedocs-badge|
 
 Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
-
-==========
- Overview
-==========
 
 .. -*- Mode: rst -*-
 
@@ -146,7 +176,9 @@ not enable everything without care.
 Installation from PyPi Repository
 ---------------------------------
 
-PySpice is made available on the |PyPi|_ repository. Run this command to install the last release:
+PySpice is made available on the |Pypi|_ repository at |PySpice@pypi|
+
+Run this command to install the last release:
 
 .. code-block:: sh
 
@@ -155,7 +187,7 @@ PySpice is made available on the |PyPi|_ repository. Run this command to install
 Installation from Source
 ------------------------
 
-The PySpice source code is hosted at `github <http://github.com/FabriceSalvaire/PySpice>`_.
+The PySpice source code is hosted at |PySpice@github|
 
 To clone the Git repository, run this command in a terminal:
 
