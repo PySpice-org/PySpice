@@ -4,6 +4,7 @@
 
 .. toctree::
   Spice/BasicElement
+  Spice/ElementParameter
   Spice/HighLevelElement
   Spice/Library
   Spice/Netlist

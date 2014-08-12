@@ -10,16 +10,20 @@
 ####################################################################################################
 
 from ..Tools.StringTools import join_list
-from .Netlist import (Pin, 
-                      FloatPositionalParameter,
-                      ExpressionPositionalParameter,
-                      ElementNamePositionalParameter, ModelPositionalParameter,
-                      InitialStatePositionalParameter,
-                      IntKeyParameter, FloatKeyParameter, FloatPairKeyParameter,
-                      FlagKeyParameter, BoolKeyParameter,
-                      ExpressionKeyParameter,
-                      Element, TwoPinElement, TwoPortElement,
-                     )
+from .Netlist import Pin, Element, TwoPinElement, TwoPortElement
+from .ElementParameter import (
+    BoolKeyParameter,
+    ElementNamePositionalParameter,
+    ExpressionKeyParameter,
+    ExpressionPositionalParameter,
+    FlagKeyParameter,
+    FloatKeyParameter,
+    FloatPairKeyParameter,
+    FloatPositionalParameter,
+    InitialStatePositionalParameter,
+    IntKeyParameter,
+    ModelPositionalParameter,
+    )
 
 ####################################################################################################
 
