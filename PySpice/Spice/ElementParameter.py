@@ -5,6 +5,8 @@
 # 
 ####################################################################################################
 
+""" This modules implements the machinery to define element's parameters. """
+
 ####################################################################################################
 
 from ..Unit.Units import Unit
@@ -13,7 +15,17 @@ from ..Unit.Units import Unit
 
 class ParameterDescriptor(object):
 
-    """ This base class implements a descriptor for element parameters. """
+    """ This base class implements a descriptor for element parameters.
+
+    Public Attributes:
+
+      :attr:`attribute_name`
+        Name of the attribute in the element's class
+
+      :attr:`default_value`
+        The default value
+
+    """
 
     ##############################################
 
@@ -31,18 +43,26 @@ class ParameterDescriptor(object):
             return getattr(instance, '_' + self.attribute_name)
         except AttributeError:
             return self.default_value
-
-    ##############################################
-
-    def validate(self, value):
-
-        return value
-        
+       
     ##############################################
 
     def __set__(self, instance, value):
 
         setattr(instance, '_' + self.attribute_name, value)
+
+    ##############################################
+
+    def __repr__(self):
+
+        return self.__class__.__name__
+
+    ##############################################
+
+    def validate(self, value):
+
+        """ Validate the parameter's value. """
+
+        return value
 
     ##############################################
 
@@ -54,13 +74,25 @@ class ParameterDescriptor(object):
 
     def to_str(self, instance):
 
+        """ Convert the parameter's value to SPICE syntax. """
+
         raise NotImplementedError
 
 ####################################################################################################
 
 class PositionalElementParameter(ParameterDescriptor):
 
-    """ This class implements a descriptor for positional element parameters. """
+    """ This class implements a descriptor for positional element parameters.
+
+    Public Attributes:
+
+      :attr:`key_parameter`
+        Flag to specify if the parameter is passed as key parameter in Python
+
+      :attr:`position`
+        Position of the parameter in the element definition
+
+    """
 
     ##############################################
 
@@ -70,12 +102,6 @@ class PositionalElementParameter(ParameterDescriptor):
 
         self.position = position
         self.key_parameter = key_parameter
-
-    ##############################################
-
-    def __repr__(self):
-
-        return self.__class__.__name__
 
     ##############################################
 
@@ -93,7 +119,7 @@ class PositionalElementParameter(ParameterDescriptor):
 
 class ElementNamePositionalParameter(PositionalElementParameter):
 
-    """ This class implements an element name positional element parameter. """
+    """ This class implements an element name positional parameter. """
 
     ##############################################
 
@@ -105,7 +131,7 @@ class ElementNamePositionalParameter(PositionalElementParameter):
 
 class ExpressionPositionalParameter(PositionalElementParameter):
 
-    """ This class implements an expression positional element parameter. """
+    """ This class implements an expression positional parameter. """
 
     ##############################################
 
@@ -117,7 +143,7 @@ class ExpressionPositionalParameter(PositionalElementParameter):
 
 class FloatPositionalParameter(PositionalElementParameter):
 
-    """ This class implements a float positional element parameter. """
+    """ This class implements a float positional parameter. """
 
     ##############################################
 
@@ -132,7 +158,7 @@ class FloatPositionalParameter(PositionalElementParameter):
 
 class InitialStatePositionalParameter(PositionalElementParameter):
 
-    """ This class implements an initial state positional element parameter. """
+    """ This class implements an initial state (on, off) positional parameter. """
 
     ##############################################
 
@@ -153,7 +179,7 @@ class InitialStatePositionalParameter(PositionalElementParameter):
 
 class ModelPositionalParameter(PositionalElementParameter):
 
-    """ This class implements a model positional element parameter. """
+    """ This class implements a model positional parameter. """
 
     ##############################################
 
@@ -163,35 +189,24 @@ class ModelPositionalParameter(PositionalElementParameter):
 
 ####################################################################################################
 
-class ElementParameter(ParameterDescriptor):
+class FlagParameter(ParameterDescriptor):
 
-    """ This class implements a descriptor for element parameters. """
+    """ This class implements a flag parameter.
 
-    ##############################################
+    Public Attributes:
 
-    def __init__(self, spice_name, default=None):
+      :attr:`spice_name`
+        Name of the parameter
 
-        super(ElementParameter, self).__init__(default)
-
-        self.spice_name = spice_name
-
-     ##############################################
-
-    def __repr__(self):
-
-        return self.__class__.__name__
-
-####################################################################################################
-
-class FlagKeyParameter(ElementParameter):
-
-    """ This class implements a flag key value element parameter. """
+    """
 
     ##############################################
 
     def __init__(self, spice_name, default=False):
 
-        super(FlagKeyParameter, self).__init__(spice_name, default)
+        super(FlagParameter, self).__init__(default)
+
+        self.spice_name = spice_name
 
     ##############################################
 
@@ -210,9 +225,24 @@ class FlagKeyParameter(ElementParameter):
 
 ####################################################################################################
 
-class KeyValueParameter(ElementParameter):
+class KeyValueParameter(ParameterDescriptor):
 
-    """ This class implements a key value pair element parameter. """
+    """ This class implements a key value pair parameter.
+
+    Public Attributes:
+
+      :attr:`spice_name`
+        Name of the parameter
+
+    """
+
+    ##############################################
+
+    def __init__(self, spice_name, default=None):
+
+        super(KeyValueParameter, self).__init__(default)
+
+        self.spice_name = spice_name
 
     ##############################################
 
@@ -233,7 +263,7 @@ class KeyValueParameter(ElementParameter):
 
 class BoolKeyParameter(KeyValueParameter):
 
-    """ This class implements a boolean key value element parameter. """
+    """ This class implements a boolean key parameter. """
 
     ##############################################
 
@@ -254,7 +284,7 @@ class BoolKeyParameter(KeyValueParameter):
 
 class ExpressionKeyParameter(KeyValueParameter):
 
-    """ This class implements an expression key value element parameter. """
+    """ This class implements an expression key parameter. """
 
     ##############################################
 
@@ -266,7 +296,7 @@ class ExpressionKeyParameter(KeyValueParameter):
 
 class FloatKeyParameter(KeyValueParameter):
 
-    """ This class implements a float key value element parameter. """
+    """ This class implements a float key  parameter. """
 
     ##############################################
 
@@ -278,7 +308,7 @@ class FloatKeyParameter(KeyValueParameter):
 
 class FloatPairKeyParameter(KeyValueParameter):
 
-    """ This class implements a float pair key value element parameter. """
+    """ This class implements a float pair key parameter. """
 
     ##############################################
 
@@ -299,7 +329,7 @@ class FloatPairKeyParameter(KeyValueParameter):
 
 class IntKeyParameter(KeyValueParameter):
 
-    """ This class implements an integer key value element parameter. """
+    """ This class implements an integer key parameter. """
 
     ##############################################
 

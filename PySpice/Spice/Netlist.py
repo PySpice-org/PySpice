@@ -27,7 +27,7 @@ from collections import OrderedDict
 ####################################################################################################
 
 from ..Tools.StringTools import join_lines, join_list, join_dict
-from .ElementParameter import PositionalElementParameter, ElementParameter
+from .ElementParameter import PositionalElementParameter, FlagParameter, KeyValueParameter
 from .Simulation import CircuitSimulator
 
 ####################################################################################################
@@ -173,7 +173,7 @@ class ElementParameterMetaClass(type):
             if isinstance(obj, PositionalElementParameter):
                 obj.attribute_name = attribute_name
                 positional_parameters[attribute_name] = obj
-            if isinstance(obj, ElementParameter):
+            if isinstance(obj, (FlagParameter, KeyValueParameter)):
                 obj.attribute_name = attribute_name
                 parameters[attribute_name] = obj
         attributes['positional_parameters'] = positional_parameters
