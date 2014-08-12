@@ -183,33 +183,6 @@ class ElementParameter(ParameterDescriptor):
 
 ####################################################################################################
 
-class BoolKeyParameter(ElementParameter):
-
-    """ This class implements a boolean key value element parameter. """
-
-    ##############################################
-
-    def __init__(self, spice_name, default=False):
-
-        super(BoolKeyParameter, self).__init__(spice_name, default)
-
-    ##############################################
-
-    def nonzero(self, instance):
-
-        return bool(self.__get__(instance))
-
-    ##############################################
-
-    def to_str(self, instance):
-
-        if self.nonzero(instance):
-            return '0'
-        else:
-            return '1'
-
-####################################################################################################
-
 class FlagKeyParameter(ElementParameter):
 
     """ This class implements a flag key value element parameter. """
@@ -255,6 +228,27 @@ class KeyValueParameter(ElementParameter):
             return '{}={}'.format(self.spice_name, self.str_value(instance))
         else:
             return ''
+
+####################################################################################################
+
+class BoolKeyParameter(KeyValueParameter):
+
+    """ This class implements a boolean key value element parameter. """
+
+    ##############################################
+
+    def nonzero(self, instance):
+
+        return bool(self.__get__(instance))
+
+    ##############################################
+
+    def str_value(self, instance):
+
+        if self.nonzero(instance):
+            return '1'
+        else:
+            return '0'
 
 ####################################################################################################
 
