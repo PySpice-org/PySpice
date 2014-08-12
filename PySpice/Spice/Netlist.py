@@ -34,7 +34,47 @@ from .Simulation import CircuitSimulator
 
 class DeviceModel(object):
 
-    """ This class implements a device model. """
+    """ This class implements a device model.
+
+    Ngspice model types:
+
+    +------+-------------------------------+
+    | Code + Model Type                    |
+    +------+-------------------------------+
+    | R    + Semiconductor resistor model  |
+    +------+-------------------------------+
+    | C    + Semiconductor capacitor model |
+    +------+-------------------------------+
+    | L    + Inductor model                |
+    +------+-------------------------------+
+    | SW   + Voltage controlled switch     |
+    +------+-------------------------------+
+    | CSW  + Current controlled switch     |
+    +------+-------------------------------+
+    | URC  + Uniform distributed RC model  |
+    +------+-------------------------------+
+    | LTRA + Lossy transmission line model |
+    +------+-------------------------------+
+    | D    + Diode model                   |
+    +------+-------------------------------+
+    | NPN  + NPN BJT model                 |
+    +------+-------------------------------+
+    | PNP  + PNP BJT model                 |
+    +------+-------------------------------+
+    | NJF  + N-channel JFET model          |
+    +------+-------------------------------+
+    | PJF  + P-channel JFET model          |
+    +------+-------------------------------+
+    | NMOS + N-channel MOSFET model        |
+    +------+-------------------------------+
+    | PMOS + P-channel MOSFET model        |
+    +------+-------------------------------+
+    | NMF  + N-channel MESFET model        |
+    +------+-------------------------------+
+    | PMF  + P-channel MESFET model        |
+    +------+-------------------------------+
+
+    """
 
     ##############################################
 
@@ -72,35 +112,58 @@ class DeviceModel(object):
 
 class Pin(object):
 
-    """ This class implements a pin of an element. """
+    """This class implements a pin of an element. It stores a reference to the element, the name of the
+    pin and the node."""
 
     ##############################################
 
     def __init__(self, element, name, node):
 
-        self.element = element
-        self.name = name
-        self.node = node
+        self._element = element
+        self._name = name
+        self._node = node
+
+    ##############################################
+
+    @property
+    def element(self):
+        return self._element
+
+    ##############################################
+
+    @property
+    def name(self):
+        return self._name
+
+    ##############################################
+
+    @property
+    def node(self):
+        return self._node
 
     ##############################################
 
     def __repr__(self):
 
-        return "Pin {} of {} on node {}".format(self.name, self.element.name, self.node)
+        return "Pin {} of {} on node {}".format(self._name, self._element.name, self._node)
 
     ##############################################
 
     def add_current_probe(self, circuit):
 
+        """ Add a current probe between the node and the pin. """
+
         # Fixme: require a reference to circuit
 
-        node = self.node
-        self.node = '_'.join((self.element.name, self.name))
-        circuit.V(self.node, node, self.node, '0')
+        node = self._node
+        self._node = '_'.join((self._element.name, self._name))
+        circuit.V(self._node, node, self._node, '0')
 
 ####################################################################################################
 
 class ParameterDescriptor(object):
+
+    """ This base class implements a descriptor for element parameters. """
 
     ##############################################
 
@@ -147,6 +210,8 @@ class ParameterDescriptor(object):
 
 class PositionalElementParameter(ParameterDescriptor):
 
+    """ This class implements a descriptor for positional element parameters. """
+
     ##############################################
 
     def __init__(self, position, default=None, key_parameter=False):
@@ -155,6 +220,12 @@ class PositionalElementParameter(ParameterDescriptor):
 
         self.position = position
         self.key_parameter = key_parameter
+
+    ##############################################
+
+    def __repr__(self):
+
+        return self.__class__.__name__
 
     ##############################################
 
@@ -172,6 +243,8 @@ class PositionalElementParameter(ParameterDescriptor):
 
 class ElementParameter(ParameterDescriptor):
 
+    """ This class implements a descriptor for element parameters. """
+
     ##############################################
 
     def __init__(self, spice_name, default=None):
@@ -180,9 +253,17 @@ class ElementParameter(ParameterDescriptor):
 
         self.spice_name = spice_name
 
+     ##############################################
+
+    def __repr__(self):
+
+        return self.__class__.__name__
+
 ####################################################################################################
 
 class FloatPositionalParameter(PositionalElementParameter):
+
+    """ This class implements a float positional element parameter. """
 
     ##############################################
 
@@ -197,6 +278,8 @@ class FloatPositionalParameter(PositionalElementParameter):
 
 class ExpressionPositionalParameter(PositionalElementParameter):
 
+    """ This class implements an expression positional element parameter. """
+
     ##############################################
 
     def validate(self, value):
@@ -206,6 +289,8 @@ class ExpressionPositionalParameter(PositionalElementParameter):
 ####################################################################################################
 
 class ElementNamePositionalParameter(PositionalElementParameter):
+
+    """ This class implements an element name positional element parameter. """
 
     ##############################################
 
@@ -217,6 +302,8 @@ class ElementNamePositionalParameter(PositionalElementParameter):
 
 class ModelPositionalParameter(PositionalElementParameter):
 
+    """ This class implements a model positional element parameter. """
+
     ##############################################
 
     def validate(self, value):
@@ -226,6 +313,8 @@ class ModelPositionalParameter(PositionalElementParameter):
 ####################################################################################################
 
 class InitialStatePositionalParameter(PositionalElementParameter):
+
+    """ This class implements an initial state positional element parameter. """
 
     ##############################################
 
@@ -246,6 +335,8 @@ class InitialStatePositionalParameter(PositionalElementParameter):
 
 class KeyValueParameter(ElementParameter):
 
+    """ This class implements a key value pair element parameter. """
+
     ##############################################
 
     def str_value(self, instance):
@@ -265,6 +356,8 @@ class KeyValueParameter(ElementParameter):
 
 class IntKeyParameter(KeyValueParameter):
 
+    """ This class implements an integer key value element parameter. """
+
     ##############################################
 
     def validate(self, value):
@@ -275,6 +368,8 @@ class IntKeyParameter(KeyValueParameter):
 
 class FloatKeyParameter(KeyValueParameter):
 
+    """ This class implements a float key value element parameter. """
+
     ##############################################
 
     def validate(self, value):
@@ -284,6 +379,8 @@ class FloatKeyParameter(KeyValueParameter):
 ####################################################################################################
 
 class FloatPairKeyParameter(KeyValueParameter):
+
+    """ This class implements a float pair key value element parameter. """
 
     ##############################################
 
@@ -303,6 +400,8 @@ class FloatPairKeyParameter(KeyValueParameter):
 ####################################################################################################
 
 class FlagKeyParameter(ElementParameter):
+
+    """ This class implements a flag key value element parameter. """
 
     ##############################################
 
@@ -329,6 +428,10 @@ class FlagKeyParameter(ElementParameter):
 
 class BoolKeyParameter(ElementParameter):
 
+    """ This class implements a boolean key value element parameter. """
+
+    ##############################################
+
     def __init__(self, spice_name, default=False):
 
         super(BoolKeyParameter, self).__init__(spice_name, default)
@@ -351,6 +454,8 @@ class BoolKeyParameter(ElementParameter):
 ####################################################################################################
 
 class ExpressionKeyParameter(KeyValueParameter):
+
+    """ This class implements an expression key value element parameter. """
 
     ##############################################
 
@@ -499,7 +604,7 @@ class TwoPortElement(Element):
 
     """ This class implements a base class for a two-port element.
 
-    Input nodes comes before to output nodes contrary to Spice.
+    .. warning:: As opposite to Spice, the input nodes are specified before the output nodes.
     """
 
     ##############################################
@@ -544,7 +649,10 @@ class TwoPortElement(Element):
 
 class Node(object):
 
-    """ This class implements a node in the circuit. """
+    """This class implements a node in the circuit. It stores a reference to the elements connected to
+    the node."""
+
+    # Fixme: but not directly to the pins!
 
     ##############################################
 
