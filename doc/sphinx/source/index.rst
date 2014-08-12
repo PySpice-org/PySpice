@@ -1,13 +1,20 @@
 .. include:: project-links.txt
 
-.. hack to move down note block
+.. hack to move down the next note block
 .. raw:: html
 
    <br/>
 
-.. note:: The official Home Page is located at |PySpiceUrl|
+Welcome to the PySpice documentation!
 
-    The latest documentation build from the git repository is available at readthedocs.org |PySpice@readthedocs-badge|
+.. note:: The official Home Page of PySpice is located at |PySpiceUrl|
+
+    If you are at http://readthedocs.org then you are reading the so called *latest documentation*.
+
+    The *latest documentation* |PySpice@readthedocs-badge| is automatically built from the
+    git repository after each commit.
+
+    As opposite the |PySpiceHomePage|_ is built manually and is thus less prone to errors.
 	     
 .. include:: introduction.txt
 

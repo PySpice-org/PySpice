@@ -12,11 +12,14 @@ industrial circuit simulator reference.
 SPICE (Simulation Program with Integrated Circuit Emphasis) was developed at the Electronics
 Research Laboratory of the University of California, Berkeley in 1973 by Laurence Nagel with
 direction from his research advisor, Prof. Donald Pederson. Then Spice emerged as an industrial
-standard through its descendant and is still the reference 40 years later.
+standard through its descendants and is still the reference 40 years later.
+
+PySpice is born as a personal project to relearn electronics where circuit simulation is a part of
+this goal. Since I use the Python language every day, I quickly feel the need to plug SPICE and Python.
 
 The aim of PySpice is to address several needs:
 
- * SPICE language is fine to describe a circuit, but it lacks a real language for circuit
+ * SPICE language is fine to describe circuits, but it lacks a real language for circuit
    steering. By contrast Python is a powerful high level, oriented object and dynamic language which
    is perfectly suited for steering and reusing circuit. But it comes at the price its more general
    syntax is less fluent than SPICE for circuit description.
@@ -31,7 +34,13 @@ The aim of PySpice is to address several needs:
 
 As opposite to other SPICE derivatives, PySpice focus on programming and not on graphical user
 interface. Thus it doesn't feature a schematic capture editor and we cannot pickup a node or an
-element and plot the associated waveform.
+element and plot the associated waveform.  Moreover we can notice the Modelica language treats
+diagrams as annotations.  A choice which I consider judicious.  Thus we can imagine to follow the
+same principle and extend PySpice later.
+
+==========
+ Features
+==========
 
 The main features of PySpice are:
 
@@ -42,11 +51,21 @@ The main features of PySpice are:
  * a SPICE server to run the simulator and to get back the result as Numpy array
  * some data analysis add-on
 
-.. Warning:: The API is quite unstable. Some efforts is made to have a smooth API.
+Since PySpice is born with a learning goal, many examples are provided with the sources.  These
+examples could serve as a learning material. A tool to generate an HTML and PDF documentation is
+included in the *tools* directory. This tool could be extended to generate IPython Notebook as well.
 
-.. Warning:: Ngspice is provided without any warranty. Thus use it with care for real design. Best
-	     is to cross check the simulation using others simulators.
+================
+ Advertisements
+================
 
-.. Warning:: Simultation is a tool and not a perfect view of the real world.
+Users should be aware of these advertisements.
+
+.. Warning:: The API is quite unstable until now. Some efforts is made to have a smooth API.
+
+.. Warning:: Ngspice and PySpice are provided without any warranty. Thus use it with care for real
+	     design. Best is to cross check the simulation using an industrial grade simulator.
+
+.. Warning:: Simulation is a tool and not a perfect representation of the real world.
 
 .. End
