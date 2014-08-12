@@ -29,7 +29,9 @@ class SpiceServer(object):
     Example of usage::
 
       spice_server = SpiceServer(spice_command='/path/to/ngspice')
-      XXX = spice_server(spice_input)
+      raw_file = spice_server(spice_input)
+
+    It returns a :obj:`PySpice.Spice.RawFile` instance.
 
     """
 

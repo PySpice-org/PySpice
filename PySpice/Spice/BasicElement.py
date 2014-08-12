@@ -25,7 +25,17 @@ from .Netlist import (Pin,
 
 class SubCircuitElement(Element):
 
-    """ This class implements a sub-circuit. """
+    """ This class implements a sub-circuit.
+
+    Spice syntax::
+
+        XYYYYYY node1 node2 ... subcircuit_name
+
+    Attributes:
+
+      :attr:`subcircuit_name`
+    
+    """
 
     alias = 'X'
     prefix = 'X'
@@ -49,7 +59,22 @@ class Resistor(TwoPinElement):
     Spice syntax::
 
         RXXXXXXX n+ n- value <ac=val> <m=val> <scale=val> <temp=val> <dtemp=val> <noisy=0|1>
-    
+
+    Attributes:
+
+      :attr:`resistance`
+
+      :attr:`ac`
+
+      :attr:`multiplier`
+
+      :attr:`scale`
+
+      :attr:`temperature`
+
+      :attr:`device_temperature`
+
+      :attr:`noisy`
 
     """
 
@@ -73,6 +98,28 @@ class SemiconductorResistor(TwoPinElement):
     Spice syntax::
 
         RXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <temp=val> <dtemp=val> m=<val> <ac=val> <scale=val> <noisy=0|1>
+
+    Attributes:
+
+      :attr:`resistance`
+
+      :attr:`model`
+
+      :attr:`length`
+
+      :attr:`width`
+
+      :attr:`temperature`
+
+      :attr:`device_temperature`
+
+      :attr:`multiplier`
+
+      :attr:`ac`
+
+      :attr:`scale`
+
+      :attr:`noisy`
 
     """
 
@@ -101,6 +148,14 @@ class BehavorialResistor(TwoPinElement):
         RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
         Rxxxxxxx n+ n- R='expression' <tc1=value> <tc2=value>
 
+    Attributes:
+
+      :attr:`resistance_expression`
+
+      :attr:`tc1`
+
+      :attr:`tc2`
+
     """
 
     alias = 'BehavorialResistor'
@@ -119,6 +174,22 @@ class Capacitor(TwoPinElement):
     Spice syntax::
 
         CXXXXXXX n+ n- <value> <mname> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
+
+    Attributes:
+
+      :attr:`capacitance`
+
+      :attr:`model`
+
+      :attr:`multiplier`
+
+      :attr:`scale`
+
+      :attr:`temperature`
+
+      :attr:`device_temperature`
+
+      :attr:`initial_condition`
 
     """
 
@@ -142,6 +213,26 @@ class SemiconductorCapacitor(TwoPinElement):
     Spice syntax::
 
         CXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
+
+    Attributes:
+
+      :attr:`capacitance`
+
+      :attr:`model`
+
+      :attr:`length`
+
+      :attr:`width`
+
+      :attr:`multiplier`
+
+      :attr:`scale`
+
+      :attr:`temperature`
+
+      :attr:`device_temperature`
+
+      :attr:`initial_condition`
 
     """
 
@@ -169,6 +260,14 @@ class BehavorialCapacitor(TwoPinElement):
         CXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
         CXXXXXXX n+ n- C='expression' <tc1=value> <tc2=value>
 
+    Attributes:
+
+      :attr:`capacitance_expression`
+
+      :attr:`tc1`
+
+      :attr:`tc2`
+
     """
 
     alias = 'BehavorialCapacitor'
@@ -187,6 +286,24 @@ class Inductor(TwoPinElement):
     Spice syntax::
 
         LYYYYYYY n+ n- <value> <mname> <nt=val> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
+
+    Attributes:
+
+      :attr:`inductance`
+
+      :attr:`model`
+
+      :attr:`nt`
+
+      :attr:`multiplier`
+
+      :attr:`scale`
+
+      :attr:`temperature`
+
+      :attr:`device_temperature`
+
+      :attr:`initial_condition`
 
     """
 
@@ -213,6 +330,14 @@ class BehavorialInductor(TwoPinElement):
         LXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
         LXXXXXXX n+ n- L='expression' <tc1=value> <tc2=value>
 
+    Attributes:
+
+      :attr:`inductance_expression`
+
+      :attr:`tc1`
+
+      :attr:`tc2`
+
     """
 
     alias = 'BehavorialInductor'
@@ -231,6 +356,14 @@ class CoupledInductor(Element):
     Spice syntax::
 
         KXXXXXXX LYYYYYYY LZZZZZZZ value
+
+    Attributes:
+
+      :attr:`inductor1`
+
+      :attr:`inductor2`
+
+      :attr:`coupling_factor`
 
     """
 
@@ -260,6 +393,12 @@ class VoltageControlledSwitch(TwoPortElement):
 
         SXXXXXXX n+ n- nc+ nc- model <on> <off>
 
+    Attributes:
+
+      :attr:`model`
+
+      :attr:`initial_state`
+
     """
 
     alias = 'VCS'
@@ -277,6 +416,14 @@ class CurrentControlledSwitch(TwoPinElement):
     Spice syntax::
 
         WYYYYYYY n+ n- vname model <on> <off>
+
+    Attributes:
+
+      :attr:`source`
+
+      :attr:`model`
+
+      :attr:`initial_state`
 
     """
 
@@ -297,6 +444,10 @@ class VoltageSource(TwoPinElement):
 
         VXXXXXXX n+ n- <<dc> dc/tran value> <ac <acmag <acphase>>> <distof1 <f1mag <f1phase>>> <distof2 <f2mag <f2phase>>>
 
+    Attributes:
+
+      :attr:`dc_value`
+
     """
 
     alias = 'V'
@@ -314,6 +465,10 @@ class CurrentSource(TwoPinElement):
     Spice syntax::
 
        IYYYYYYY n+ n- <<dc> dc/tran value> <ac <acmag <acphase>>> <distof1 <f1mag <f1phase>>> <distof2 <f2mag <f2phase>>>
+
+    Attributes:
+
+      :attr:`dc_value`
 
     """
 
@@ -333,6 +488,10 @@ class VoltageControlledVoltageSource(TwoPortElement):
 
         EXXXXXXX n+ n- nc+ nc- value
 
+    Attributes:
+
+      :attr:`voltage_gain`
+
     """
 
     alias = 'VCVS'
@@ -350,6 +509,12 @@ class CurrentControlledCurrentSource(TwoPortElement):
 
        FXXXXXXX n+ n- vname value
 
+    Attributes:
+
+      :attr:`source`
+
+      :attr:`current_gain`
+    
     """
 
     alias = 'CCCS'
@@ -368,6 +533,10 @@ class VoltageControlledCurrentSource(TwoPortElement):
 
         GXXXXXXX n+ n- nc+ nc- value
 
+    Attributes:
+
+      :attr:`transconductance`
+
     """
 
     alias = 'VCCS'
@@ -384,6 +553,12 @@ class CurrentControlledVoltageSource(TwoPortElement):
     Spice syntax::
 
         HXXXXXXX n+ n- vname value
+
+    Attributes:
+
+      :attr:`source`
+
+      :attr:`transresistance`
 
     """
 
@@ -402,6 +577,20 @@ class BehavorialSource(TwoPinElement):
     Spice syntax::
 
         BXXXXXXX n+ n- <i=expr> <v=expr> <tc1=value> <tc2=value> <temp=value> <dtemp=value>
+
+    Attributes:
+
+      :attr:`current_expression`
+
+      :attr:`voltage_expression`
+
+      :attr:`tc1`
+
+      :attr:`tc2`
+
+      :attr:`temperature`
+
+      :attr:`device_temperature`
 
     """
 
@@ -428,6 +617,8 @@ class NonLinearVoltageSource(TwoPinElement):
         Exxx n1 n2 TABLE {expression}=(x0,y0) (x1,y1) (x2,y2)
         EXXXX n+ n- ( POLY (nd) ) nc1+ nc1- ( nc2+ nc2- ... ) p0 ( p1 ... )
         Laplace
+
+    Attributes:
 
     """
 
@@ -467,6 +658,24 @@ class Diode(TwoPinElement):
 
         DXXXXXXX n+ n- mname <area=val> <m=val> <pj=val> <off> <ic=vd> <temp=val> <dtemp=val>
 
+    Attributes:
+
+      :attr:`model`
+
+      :attr:`area`
+
+      :attr:`multiplier`
+
+      :attr:`pj`
+
+      :attr:`off`
+
+      :attr:`ic`
+
+      :attr:`temperature`
+
+      :attr:`device_temperature`
+
     """
 
     alias = 'D'
@@ -490,6 +699,26 @@ class BipolarJunctionTransistor(Element):
     Spice syntax::
 
          QXXXXXXX nc nb ne <ns> mname <area=val> <areac=val> <areab=val> <m=val> <off> <ic=vbe,vce> <temp=val> <dtemp=val>
+
+    Attributes:
+
+      :attr:`model`
+
+      :attr:`area`
+
+      :attr:`areac`
+
+      :attr:`areab`
+
+      :attr:`multiplier`
+
+      :attr:`off`
+
+      :attr:`ic`
+
+      :attr:`temperature`
+
+      :attr:`device_temperature`
 
     """
 
