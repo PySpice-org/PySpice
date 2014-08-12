@@ -16,7 +16,7 @@ from .ElementParameter import (
     ElementNamePositionalParameter,
     ExpressionKeyParameter,
     ExpressionPositionalParameter,
-    FlagKeyParameter,
+    FlagParameter,
     FloatKeyParameter,
     FloatPairKeyParameter,
     FloatPositionalParameter,
@@ -689,7 +689,7 @@ class Diode(TwoPinElement):
     area = FloatKeyParameter('area')
     multiplier = IntKeyParameter('m')
     pj = FloatKeyParameter('pj')
-    off = FlagKeyParameter('off')
+    off = FlagParameter('off')
     ic = FloatPairKeyParameter('ic')
     temperature = FloatKeyParameter('temp')
     device_temperature = FloatKeyParameter('dtemp')
@@ -736,7 +736,7 @@ class BipolarJunctionTransistor(Element):
     areac = FloatKeyParameter('areac')
     areab = FloatKeyParameter('areab')
     multiplier = IntKeyParameter('m')
-    off = FlagKeyParameter('off')
+    off = FlagParameter('off')
     ic = FloatPairKeyParameter('ic')
     temperature = FloatKeyParameter('temp')
     device_temperature = FloatKeyParameter('dtemp')
