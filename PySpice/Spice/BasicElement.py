@@ -5,11 +5,13 @@
 # 
 ####################################################################################################
 
-""" This module implements SPICE circuit elements.
+"""This module implements SPICE circuit elements.
 
 See Ngspice documentation for details.
 
 .. warning:: Some elements are partially implemented.
+
+.. note:: It would be nice to have an use-full and working documentation in the interactive environment.
 
 """
 
