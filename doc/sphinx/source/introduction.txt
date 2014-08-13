@@ -34,7 +34,7 @@ The aim of PySpice is to address several needs:
 
 As opposite to other SPICE derivatives, PySpice focus on programming and not on graphical user
 interface. Thus it doesn't feature a schematic capture editor and we cannot pickup a node or an
-element and plot the associated waveform.  Moreover we can notice the Modelica language treats
+element and plot the associated waveform.  Moreover we can notice the |Modelica|_ language treats
 diagrams as annotations.  A choice which I consider judicious.  Thus we can imagine to follow the
 same principle and extend PySpice later.
 
@@ -52,8 +52,20 @@ The main features of PySpice are:
  * some data analysis add-on
 
 Since PySpice is born with a learning goal, many examples are provided with the sources.  These
-examples could serve as a learning material. A tool to generate an HTML and PDF documentation is
+examples could serve as learning materials. A tool to generate an HTML and PDF documentation is
 included in the *tools* directory. This tool could be extended to generate IPython Notebook as well.
+
+==================
+ Planned Features
+==================
+
+These features are planned in the future:
+
+ * implement a SPICE to Python converted using the parser. It could be used for the following
+   workflow: quick circuit sketching using |Kicad|_ > SPICE netlist > spice2python > PySpice which
+   could help for complex circuit.
+ * implement a basic simulator featuring passive element like resistor, capacitor and inductor.
+ * implement a Modelica backend. |Modelica|_ is a very interesting solution for transient analysis.
 
 ================
  Advertisements
