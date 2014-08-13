@@ -21,4 +21,13 @@
 .. |Sphinx| replace:: Sphinx
 .. _Sphinx: http://sphinx-doc.org
 
+.. |Modelica| replace:: Modelica
+.. _Modelica: http://www.modelica.org
+
+.. |Kicad| replace:: Kicad
+.. _Kicad: http://www.kicad-pcb.org
+
+.. |Circuit_macros| replace:: Circuit_macros
+.. _Circuit_macros: http://ece.uwaterloo.ca/~aplevich/Circuit_macros
+
 .. End
