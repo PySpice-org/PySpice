@@ -33,11 +33,11 @@ or as a class definition:
 
           def __init__(self, **kwargs):
 
-              super(MyCircuit, self).__init__(title='Voltage Divider', **kwargs)
+              super(VoltageDivider, self).__init__(title='Voltage Divider', **kwargs)
 
-              self.V('input', 'in', circuit.gnd, '10V')
+              self.V('input', 'in', self.gnd, '10V')
               self.R(1, 'in', 'out', kilo(9))
-              self.R(2, 'out', circuit.gnd, kilo(1))
+              self.R(2, 'out', self.gnd, kilo(1))
 
 The circuit attribute :attr:`gnd` represents the ground of the circuit or subcircuit, usually set to
 0.
@@ -48,7 +48,13 @@ We can get an element or a model using its name using these two possibilities::
     circuit.R1    # attribute style
 
 The dictionnary style always works, but the attribute only works if it complies with the Python
-syntax, i.e. the element or model name is a valide attribute name starting by a letter.
+syntax, i.e. the element or model name is a valide attribute name (identifier), i.e. starting by a
+letter and not a keyword like 'in', cf. `Python Language Reference
+<https://docs.python.org/2/reference/lexical_analysis.html>`_.
+
+We can update an element parameter like this::
+
+    circuit.R1.resistance = kilo(1)
 
 """
 
@@ -74,7 +80,9 @@ from collections import OrderedDict
 ####################################################################################################
 
 from ..Tools.StringTools import join_lines, join_list, join_dict
-from .ElementParameter import PositionalElementParameter, FlagParameter, KeyValueParameter
+from .ElementParameter import (ParameterDescriptor,
+                               PositionalElementParameter,
+                               FlagParameter, KeyValueParameter)
 from .Simulation import CircuitSimulator
 
 ####################################################################################################
@@ -217,15 +225,18 @@ class ElementParameterMetaClass(type):
 
     def __new__(cls, name, bases, attributes):
 
+        sorted_attributes = OrderedDict(sorted(attributes.items(), key=lambda t: t[0]))
+
         positional_parameters = OrderedDict()
-        parameters = OrderedDict() # not required
-        for attribute_name, obj in attributes.iteritems():
-            if isinstance(obj, PositionalElementParameter):
+        parameters = OrderedDict() # not required for SPICE, but for unit test
+        for attribute_name, obj in sorted_attributes.iteritems():
+            if isinstance(obj, ParameterDescriptor):
                 obj.attribute_name = attribute_name
-                positional_parameters[attribute_name] = obj
-            if isinstance(obj, (FlagParameter, KeyValueParameter)):
-                obj.attribute_name = attribute_name
-                parameters[attribute_name] = obj
+                if isinstance(obj, PositionalElementParameter):
+                    d = positional_parameters
+                elif isinstance(obj, (FlagParameter, KeyValueParameter)):
+                    d = parameters
+                d[attribute_name] = obj
         attributes['positional_parameters'] = positional_parameters
         attributes['optional_parameters'] = parameters
         attributes['parameters_from_args'] = [parameter

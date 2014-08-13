@@ -78,6 +78,12 @@ class ParameterDescriptor(object):
 
         raise NotImplementedError
 
+    ##############################################
+
+    def __cmp__(self, other):
+
+        return cmp(self.attribute_name, other.attribute_name)
+
 ####################################################################################################
 
 class PositionalElementParameter(ParameterDescriptor):
@@ -113,7 +119,7 @@ class PositionalElementParameter(ParameterDescriptor):
 
     def __cmp__(self, other):
 
-        return cmp(self.key_parameter, other.key_parameter)
+        return cmp(self.position, other.position)
 
 ####################################################################################################
 
