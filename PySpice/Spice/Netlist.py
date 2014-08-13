@@ -5,6 +5,53 @@
 # 
 ####################################################################################################
 
+"""This modules implements circuit and subcircuit.
+
+The definition of a netlist follows the same conventions as SPICE. For example this SPICE netlist
+is translated to Python like this:
+
+.. code-block:: spice
+
+    .title Voltage Divider
+    Vinput in 0 10V
+    R1 in out 9k
+    R2 out 0 1k
+    .end
+
+.. code-block:: py
+
+    circuit = Circuit('Voltage Divider')
+    circuit.V('input', 'in', circuit.gnd, 10)
+    circuit.R(1, 'in', 'out', kilo(9))
+    circuit.R(2, 'out', circuit.gnd, kilo(1))
+
+or as a class definition:
+
+.. code-block:: py
+
+      class VoltageDivider(Circuit):
+
+          def __init__(self, **kwargs):
+
+              super(MyCircuit, self).__init__(title='Voltage Divider', **kwargs)
+
+              self.V('input', 'in', circuit.gnd, '10V')
+              self.R(1, 'in', 'out', kilo(9))
+              self.R(2, 'out', circuit.gnd, kilo(1))
+
+The circuit attribute :attr:`gnd` represents the ground of the circuit or subcircuit, usually set to
+0.
+
+We can get an element or a model using its name using these two possibilities::
+
+    circuit['R1'] # dictionnary style
+    circuit.R1    # attribute style
+
+The dictionnary style always works, but the attribute only works if it complies with the Python
+syntax, i.e. the element or model name is a valide attribute name starting by a letter.
+
+"""
+
 ####################################################################################################
 #
 # Graph:
@@ -113,7 +160,8 @@ class DeviceModel(object):
 class Pin(object):
 
     """This class implements a pin of an element. It stores a reference to the element, the name of the
-    pin and the node."""
+    pin and the node.
+    """
 
     ##############################################
 
@@ -163,6 +211,8 @@ class Pin(object):
 
 class ElementParameterMetaClass(type):
 
+    """ Metaclass to implements the element parameter machinery. """
+
     ##############################################
 
     def __new__(cls, name, bases, attributes):
@@ -178,7 +228,6 @@ class ElementParameterMetaClass(type):
                 parameters[attribute_name] = obj
         attributes['positional_parameters'] = positional_parameters
         attributes['optional_parameters'] = parameters
-
         attributes['parameters_from_args'] = [parameter
                                               for parameter in sorted(positional_parameters.itervalues())
                                               if not parameter.key_parameter]
@@ -189,10 +238,14 @@ class ElementParameterMetaClass(type):
 
 class Element(object):
 
-    """ This class implements a base class for an element. """
+    """ This class implements a base class for an element.
+
+    It use a metaclass machinery for the declaration of the parameters.
+    """
 
     __metaclass__ = ElementParameterMetaClass
 
+    #: SPICE element prefix
     prefix = None
 
     ##############################################
@@ -206,7 +259,6 @@ class Element(object):
 
         for parameter, value in zip(self.parameters_from_args, args):
             setattr(self, parameter.attribute_name, value)
-
         for key, value in kwargs.iteritems():
             if key in self.positional_parameters or self.optional_parameters:
                 setattr(self, key, value)
@@ -238,13 +290,13 @@ class Element(object):
     ##############################################
 
     def format_node_names(self):
-
+        """ Return the formatted list of nodes. """
         return join_list((self.name, join_list(self.nodes)))
 
     ##############################################
 
     def parameter_iterator(self):
-
+        """ This iterator returns the parameter in the right order. """
         for parameter_dict in self.positional_parameters, self.optional_parameters:
             for parameter in parameter_dict.itervalues():
                 if parameter.nonzero(self):
@@ -259,13 +311,13 @@ class Element(object):
     ##############################################
 
     def format_spice_parameters(self):
-
+        """ Return the formatted list of parameters. """
         return join_list([parameter.to_str(self) for parameter in self.parameter_iterator()])
 
     ##############################################
 
     def __str__(self):
-
+        """ Return the SPICE element definition. """
         return join_list((self.format_node_names(), self.format_spice_parameters()))
 
 ####################################################################################################
@@ -381,14 +433,17 @@ class Node(object):
 
 class Netlist(object):
 
-    """ This class implements a base class for a netlist. """
+    """ This class implements a base class for a netlist.
+
+    .. note:: This class is completed at running time with elements.
+    """
 
     ##############################################
 
     def __init__(self):
 
         self._ground = None
-        self._elements = {}
+        self._elements = OrderedDict() # to keep the declaration order
         self._models = {}
         self._dirty = True
         # self._nodes = set()
@@ -412,6 +467,8 @@ class Netlist(object):
 
     def __str__(self):
 
+        """ Return the formatted list of element and model definitions. """
+
         netlist = join_lines(self.element_iterator()) + '\n'
         if self._models:
             netlist += join_lines(self.model_iterator()) + '\n'
@@ -420,6 +477,8 @@ class Netlist(object):
     ##############################################
 
     def _add_element(self, element):
+
+        """ Add an element. """
 
         if element.name not in self._elements:
             self._elements[element.name] = element
@@ -431,14 +490,20 @@ class Netlist(object):
 
     def model(self, name, modele_type, **parameters):
 
+        """ Add a model. """
+
         model = DeviceModel(name, modele_type, **parameters)
         if model.name not in self._models:
             self._models[model.name] = model
+        else:
+            raise NameError("Model name {} is already defined".format(name))
 
     ##############################################
 
     @property
     def nodes(self):
+
+        """ Return the nodes. """
 
         if self._dirty:
             # nodes = set()
@@ -507,6 +572,8 @@ class SubCircuit(Netlist):
 
     def check_nodes(self):
 
+        """ Check for dangling nodes in the subcircuit. """
+
         nodes = set(self._external_nodes)
         connected_nodes = set()
         for element in self.element_iterator():
@@ -518,6 +585,8 @@ class SubCircuit(Netlist):
     ##############################################
 
     def __str__(self):
+
+        """ Return the formatted subcircuit definition. """
 
         netlist = '.subckt {} {}\n'.format(self.name, join_list(self._external_nodes))
         netlist += super(SubCircuit, self).__str__()
@@ -545,7 +614,7 @@ class Circuit(Netlist):
 
     """ This class implements a cicuit netlist.
 
-    To get the corresponding Spice source use::
+    To get the corresponding Spice netlist use::
 
        circuit = Circuit()
        ...
@@ -615,6 +684,8 @@ class Circuit(Netlist):
 
     def __str__(self):
 
+        """ Return the formatted desk. """
+
         netlist = '.title {}\n'.format(self.title)
         if self._includes:
             netlist += join_lines(self._includes, prefix='.include ')  + '\n'
@@ -631,6 +702,7 @@ class Circuit(Netlist):
     ##############################################
 
     def simulator(self, *args, **kwargs):
+        """ Return a :obj:`PySpice.Simulation.CircuitSimulator` instance. """
         return CircuitSimulator(self, *args, **kwargs)
 
 ####################################################################################################

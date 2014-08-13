@@ -5,7 +5,13 @@
 # 
 ####################################################################################################
 
-""" This module implements Spice elements. """
+""" This module implements SPICE circuit elements.
+
+See Ngspice documentation for details.
+
+.. warning:: Some elements are partially implemented.
+
+"""
 
 ####################################################################################################
 
