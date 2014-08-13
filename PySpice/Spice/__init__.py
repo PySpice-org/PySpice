@@ -23,6 +23,9 @@ def _get_elements(module):
     return element_classes
 
 ####################################################################################################
+#
+# Add a method to create elements to the Netlist class
+#
 
 spice_elements = _get_elements(BasicElement)
 high_level_elements = _get_elements(HighLevelElement)

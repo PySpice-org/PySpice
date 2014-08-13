@@ -7,7 +7,11 @@
 
 ####################################################################################################
 
-""" This module implements a partial Spice netlist parser. """
+"""This module implements a partial SPICE netlist parser.
+
+It would be difficult to implement a full parser for Ngspice since the syntax is mainly contextual.
+
+"""
 
 ####################################################################################################
 
