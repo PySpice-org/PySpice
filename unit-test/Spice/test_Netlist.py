@@ -100,6 +100,8 @@ R2 out 0 1k
         circuit.R1.resistance = kilo(10)
         self._test_spice_declaration(circuit, spice_declaration.replace('9k', '10k'))
 
+        # .global .param .include .model
+
 ####################################################################################################
 
 if __name__ == '__main__':
