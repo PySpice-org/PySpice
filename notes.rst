@@ -1,6 +1,7 @@
+* fix copyright and license
+
 * plot scale mA
 * units
-* circuit class
 * Fixme: i(vinput) -> analysis.vinput
 * element ddp, node voltage, current : cf. Modelica
     (analysis['in'] - analysis.out) / float(circuit['R1'].resistance
