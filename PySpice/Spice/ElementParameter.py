@@ -333,6 +333,21 @@ class FloatPairKeyParameter(KeyValueParameter):
 
 ####################################################################################################
 
+class FloatThreeUpletKeyParameter(FloatPairKeyParameter):
+
+    """ This class implements a 3-uplet key parameter. """
+
+    ##############################################
+
+    def validate(self, uplet):
+
+        if len(uplet) == 3:
+            return (float(uplet[0]), float(uplet[1]), float(uplet[2]))
+        else:
+            raise ValueError()
+
+####################################################################################################
+
 class IntKeyParameter(KeyValueParameter):
 
     """ This class implements an integer key parameter. """
