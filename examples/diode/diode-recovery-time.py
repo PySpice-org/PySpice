@@ -66,8 +66,7 @@ R = circuit.R(1, 'in', 'out', kilo(1))
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.ac(start_frequency=kilo(10), stop_frequency=giga(1), number_of_points=10,  variation='dec',
-                        probes=('V(in)', 'V(out)'))
+analysis = simulator.ac(start_frequency=kilo(10), stop_frequency=giga(1), number_of_points=10,  variation='dec')
 
 figure = pylab.figure(1, (20, 10))
 
@@ -103,8 +102,7 @@ circuit.R(1, 'in', 'out', kilo(1))
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=source.period/1e3, end_time=source.period*4,
-                               probes=('V(in)', 'V(out)'))
+analysis = simulator.transient(step_time=source.period/1e3, end_time=source.period*4)
 
 axe = pylab.subplot(313)
 # Fixme: axis, x scale

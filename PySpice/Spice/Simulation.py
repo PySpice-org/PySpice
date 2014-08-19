@@ -88,6 +88,23 @@ class CircuitSimulation(object):
 
     def save(self, *args):
 
+        # Fixme: pass Node for voltage node, Element for source branch current, ...
+
+        """Set the list of saved vectors.
+
+        If no *.save* line is given, then the default set of vectors is saved (node voltages and
+        voltage source branch currents). If *.save* lines are given, only those vectors specified
+        are saved.
+
+        Node voltages may be saved by giving the node_name or *v(node_name)*. Currents through an
+        independent voltage source (including inductor) are given by *i(source_name)* or
+        *source_name#branch*. Internal device data are accepted as *@dev[param]*.
+
+        If you want to save internal data in addition to the default vector set, add the parameter
+        *all* to the additional vectors to be saved.
+
+        """
+
         self._saved_nodes = list(args)
 
     ##############################################
@@ -206,11 +223,8 @@ class CircuitSimulator(CircuitSimulation):
     def _run(self, analysis_method, *args, **kwargs):
 
         self.reset_analysis()
-        if analysis_method in ('ac', 'transient'):
-            try:
-                self.save(* kwargs.pop('probes'))
-            except KeyError:
-                raise NameError("A list of probes is required")
+        if 'probes' in kwargs:
+            self.save(* kwargs.pop('probes'))
 
         method = getattr(CircuitSimulation, analysis_method)
         method(self, *args, **kwargs)

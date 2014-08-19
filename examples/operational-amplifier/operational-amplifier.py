@@ -29,8 +29,7 @@ circuit.X('op', 'BasicOperationalAmplifier', 'in', circuit.gnd, 'out')
 circuit.R('load', 'out', circuit.gnd, 470)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.ac(start_frequency=1, stop_frequency=mega(100), number_of_points=5,  variation='dec',
-                        probes=('V(in)', 'V(out)'))
+analysis = simulator.ac(start_frequency=1, stop_frequency=mega(100), number_of_points=5,  variation='dec')
 
 figure = pylab.figure()
 pylab.title("Bode Diagram of an Operational Amplifier")

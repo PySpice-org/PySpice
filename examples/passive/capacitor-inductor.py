@@ -43,8 +43,7 @@ for element_type in 'capacitor', 'inductor':
         print 'tau = ', float(circuit['L1'].inductance) / float(circuit['R1'].resistance)
 
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.transient(step_time=micro(1), end_time=source.period*3,
-                                   probes=('V(in)', 'V(out)'))
+    analysis = simulator.transient(step_time=micro(1), end_time=source.period*3)
 
     figure = pylab.figure()
     axe = pylab.subplot(111)

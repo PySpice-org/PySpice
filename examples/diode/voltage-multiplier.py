@@ -46,8 +46,7 @@ for i in xrange(multiplier):
 circuit.R(1, multiplier, multiplier+1, mega(1))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=source.period/200, end_time=source.period*20,
-                               probes=['V(in)'] + ['V({})'.format(i) for i in xrange(1, multiplier+1)])
+analysis = simulator.transient(step_time=source.period/200, end_time=source.period*20)
 
 ####################################################################################################
 

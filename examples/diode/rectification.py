@@ -38,8 +38,7 @@ circuit.X('D1', '1N4148', 'in', 'output')
 circuit.R('load', 'output', circuit.gnd, 100)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2,
-                               probes=('V(in)', 'V(output)'))
+analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
 
 axe = plt.subplot(221)
 plt.title('Half-Wave Rectification')
@@ -58,8 +57,7 @@ plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
 circuit.C('1', 'output', circuit.gnd, milli(1))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2,
-                               probes=('V(in)', 'V(output)'))
+analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
 
 axe = plt.subplot(222)
 plt.title('Half-Wave Rectification with filtering')
@@ -83,8 +81,7 @@ circuit.X('D3', '1N4148', circuit.gnd, 'output_plus')
 circuit.X('D4', '1N4148', 'output_minus', 'in')
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2,
-                               probes=('V(in)', 'V(output_minus)', 'V(output_plus)'))
+analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
 
 axe = plt.subplot(223)
 plt.title('Full-Wave Rectification')
@@ -103,8 +100,7 @@ plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
 circuit.C('1', 'output_plus', 'output_minus', milli(1))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2,
-                               probes=('V(in)', 'V(output_minus)', 'V(output_plus)'))
+analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
 
 axe = plt.subplot(224)
 plt.title('Full-Wave Rectification with filtering')

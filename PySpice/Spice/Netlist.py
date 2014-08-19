@@ -177,7 +177,7 @@ class Pin(object):
 
         self._element = element
         self._name = name
-        self._node = node
+        self._node = node # Fixme: name, not a Node instance, cf. Netlist.nodes
 
     ##############################################
 
@@ -207,9 +207,13 @@ class Pin(object):
 
     def add_current_probe(self, circuit):
 
-        """ Add a current probe between the node and the pin. """
+        """ Add a current probe between the node and the pin.
+
+        The ammeter is named *ElementName_PinName*.
+        """
 
         # Fixme: require a reference to circuit
+        # Fixme: add it to a list
 
         node = self._node
         self._node = '_'.join((self._element.name, self._name))
