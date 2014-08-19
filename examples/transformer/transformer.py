@@ -32,8 +32,7 @@ circuit.R('load', 'output', circuit.gnd, kilo(1))
 print str(circuit)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*3,
-                               probes=('V(input)', 'V(output)'))
+analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*3)
 
 plot(analysis.input)
 plot(analysis.output)

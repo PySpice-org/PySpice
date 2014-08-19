@@ -107,6 +107,8 @@ class Analysis(object):
 
     def __init__(self, nodes=(), branches=(), elements=()):
 
+        # Fixme: branches are elements in fact, and elements is not yet supported ...
+
         # Fixme: to func?
         self.nodes = {waveform.name:waveform for waveform in nodes}
         self.branches = {waveform.name:waveform for waveform in branches}

@@ -100,6 +100,9 @@ R2 out 0 1k
         circuit.R1.resistance = kilo(10)
         self._test_spice_declaration(circuit, spice_declaration.replace('9k', '10k'))
 
+        self.assertEqual(circuit.R1.plus.node, 'in')
+        self.assertEqual(circuit.R1.minus.node, 'out')
+
         # .global .param .include .model
 
 ####################################################################################################

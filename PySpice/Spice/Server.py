@@ -23,7 +23,7 @@ _module_logger = logging.getLogger(__name__)
 
 class SpiceServer(object):
 
-    """ This class wraps the execution of Spice in server mode and convert the output in Python data
+    """ This class wraps the execution of SPICE in server mode and convert the output in Python data
     structure.
 
     Example of usage::
@@ -98,9 +98,12 @@ class SpiceServer(object):
 
     def __call__(self, spice_input):
 
-        """ Run spice in server mode for the given input and return XXX. """
+        """Run SPICE as a subprocess in server mode for the given input and return a
+        :obj:`PySpice.RawFile.RawFile` instance.
 
-        self._logger.info("Start server")
+        """
+
+        self._logger.info("Start the spice subprocess")
 
         process = subprocess.Popen((self._spice_command, '-s'),
                                    stdin=subprocess.PIPE,
@@ -111,7 +114,7 @@ class SpiceServer(object):
         self._parse_stdout(stdout)
         number_of_points = self._parse_stderr(stderr)
         if number_of_points is None:
-            raise NameError("Number of points was not found")
+            raise NameError("The number of points was not found in the standard error buffer")
 
         return RawFile(stdout, number_of_points)
 

@@ -1,4 +1,3 @@
-
 ####################################################################################################
 # 
 # PySpice - A Spice package for Python
@@ -25,8 +24,8 @@ _module_logger = logging.getLogger(__name__)
 
 class Variable(object):
 
-    """ This class implements a variable or probe in a Spice simulation output.
-
+    """ This class implements a variable or probe in a SPICE simulation output.
+    
     Public Attributes:
 
       :attr:`index`
@@ -44,7 +43,7 @@ class Variable(object):
 
         self.index = int(index)
         self.name = str(name)
-        self.unit = str(unit)
+        self.unit = str(unit) # could be guessed from name also for voltage node and branch current
         self.data = None
 
     ##############################################
@@ -55,13 +54,15 @@ class Variable(object):
 
     ##############################################
 
-    def is_node_voltage(self):
+    def is_voltage_node(self):
 
         return self.name.startswith('v(')
 
     ##############################################
 
     def is_branch_current(self):
+
+        # source branch current
 
         return self.name.startswith('i(')
 
@@ -70,7 +71,7 @@ class Variable(object):
     @property
     def simplified_name(self):
 
-        if self.is_node_voltage() or self.is_branch_current():
+        if self.is_voltage_node() or self.is_branch_current():
             return self.name[2:-1]
         else:
             return self.name
@@ -78,6 +79,8 @@ class Variable(object):
     ##############################################
 
     def to_waveform(self, abscissa=None, to_real=False, to_float=False):
+
+        """ Return a :obj:`PySpice.Probe.WaveForm` instance. """
 
         data = self.data
         if to_real:
@@ -244,7 +247,7 @@ class RawFile(object):
 
         return [variable.to_waveform(abscissa, to_float=to_float) 
                 for variable in self.variables.itervalues()
-                if variable.is_node_voltage()]
+                if variable.is_voltage_node()]
 
     ##############################################
 

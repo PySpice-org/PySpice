@@ -23,8 +23,7 @@ circuit.R('f', 'in', 'out', kilo(1))
 circuit.C('f', 'out', circuit.gnd, micro(1))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.ac(start_frequency=1, stop_frequency=mega(1), number_of_points=10,  variation='dec',
-                        probes=('V(in)', 'V(out)'))
+analysis = simulator.ac(start_frequency=1, stop_frequency=mega(1), number_of_points=10,  variation='dec')
 
 print analysis.out
 

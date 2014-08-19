@@ -2,7 +2,7 @@
 
 import os
 
-from matplotlib import pylab
+import matplotlib.pyplot as plt
 
 ####################################################################################################
 
@@ -42,21 +42,24 @@ circuit.R('ac', 2, 'in', 470)
 
 # Simulator(circuit, ...).transient(...)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*10,
-                               probes=('V(in)', 'V(out)', 'V(1)', 'V(2)'))
+analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*10)
 
-plot(analysis['in'] / 100)
-plot(analysis.out)
-plot((analysis.out - analysis['in']) / 100)
-plot(analysis.out - analysis['1'])
-plot((analysis['1'] - analysis['2']) / 100)
+axe = plt.subplot(111)
+
+plot(analysis['in'] / 100, axis=axe)
+plot(analysis.out, axis=axe)
+plot((analysis.out - analysis['in']) / 100, axis=axe)
+plot(analysis.out - analysis['1'], axis=axe)
+plot((analysis['1'] - analysis['2']) / 100, axis=axe)
 # or:
 #   pylab.plot(analysis.out.abscissa, analysis.out)
-pylab.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
-pylab.grid()
-pylab.xlabel('t [s]')
-pylab.ylabel('[V]')
-pylab.show()
+plt.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
+plt.grid()
+plt.xlabel('t [s]')
+plt.ylabel('[V]')
+
+plt.tight_layout()
+plt.show()
 
 ####################################################################################################
 # 

@@ -38,8 +38,7 @@ circuit.L(4, 8, 9, milli(10))
 circuit.C(4, 9, circuit.gnd, micro(1))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.ac(start_frequency=100, stop_frequency=kilo(10), number_of_points=100,  variation='dec',
-                        probes=('V(in)', 'V(1)', 'V(2)', 'V(3)', 'V(4)'))
+analysis = simulator.ac(start_frequency=100, stop_frequency=kilo(10), number_of_points=100,  variation='dec')
 
 figure = pylab.figure()
 pylab.title("Bode Diagram of a Low-Pass RLC Filter")

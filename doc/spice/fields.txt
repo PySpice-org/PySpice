@@ -1,50 +1,60 @@
-op
-variable[0]: v(3) [voltage]
-variable[1]: v(2) [voltage]
-variable[2]: v(1) [voltage]
-variable[3]: i(vinput) [current]
+####################################################################################################
 
 op
-variable[0]: v(in) [voltage]
-variable[1]: v(out) [voltage]
-variable[2]: i(vinput) [current]
+
+node voltages and source branch current:
+  v(1) [voltage]
+  i(vinput) [current]
+
+####################################################################################################
 
 tran
-variable[0]: time [time]
-variable[1]: v(in) [voltage]
-variable[2]: v(out) [voltage]
 
-tran
-variable[0]: time [time]
-variable[1]: v(in) [voltage]
-variable[2]: v(out) [voltage]
-variable[3]: v(1) [voltage]
-variable[4]: v(2) [voltage]
+time, node voltages and source branch current:
+  -> time [time]
+  V(1) -> v(1) [voltage]
+  Vinput#branch -> i(vinput)
+
+####################################################################################################
+
+ac
+
+frequency, node voltages and source branch current:
+  -> frequency [frequency]
+  cf. transient
+
+####################################################################################################
 
 dc
-variable[0]: v(v-sweep) [voltage]
-variable[1]: v(in) [voltage]
-variable[2]: v(out) [voltage]
-variable[3]: v(xdz1.3) [voltage]
-variable[4]: v(xdz1.4) [voltage]
-variable[5]: v(xdz1.5) [voltage]
-variable[6]: v(xdz1.6) [voltage]
-variable[7]: i(e.xdz1.ev1) [current]
-variable[8]: i(vinput) [current]
+
+voltage/current source, resistor, temperature sweep
+sweep, node voltages and source branch current:
+
+  current sweep -> v(i-sweep) [voltage] # bug: reported as voltage !
+  voltage sweep -> v(v-sweep) [voltage] # duplicated
+  v(in) [voltage]
+  v(out) [voltage]
+  i(vinput) [current]
+  
+  i(e.xdz1.ev1) [current]
+  v(xdz1.3) [voltage]
+  v(xdz1.4) [voltage]
+  v(xdz1.5) [voltage]
+  v(xdz1.6) [voltage]
+
+####################################################################################################
 
 dc sens
-variable[0]: v(r2) [voltage] [ 0.0009]
-variable[1]: v(r2_m) [voltage] [-0.9]
-variable[2]: v(r2_scale) [voltage] [ 0.8999991]
-variable[3]: v(r1) [voltage] [ -9.99999000e-05]
-variable[4]: v(r1_m) [voltage] [ 0.9]
-variable[5]: v(r1_scale) [voltage] [-0.8999991]
-variable[6]: v(vinput) [voltage] [ 0.1]
 
-ac complex
-variable[0]: frequency [frequency]
-variable[1]: v(in) [voltage]
-variable[2]: v(out) [voltage]
+v(r2) [voltage] [ 0.0009]
+v(r2_m) [voltage] [-0.9]
+v(r2_scale) [voltage] [ 0.8999991]
+v(r1) [voltage] [ -9.99999000e-05]
+v(r1_m) [voltage] [ 0.9]
+v(r1_scale) [voltage] [-0.8999991]
+v(vinput) [voltage] [ 0.1]
+
+####################################################################################################
 
 nodes -> voltage
 source -> current
@@ -55,3 +65,5 @@ op: value
 dc: v-sweep
 
 sens: element parameters
+
+####################################################################################################
