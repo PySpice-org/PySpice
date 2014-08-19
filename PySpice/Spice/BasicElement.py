@@ -27,6 +27,7 @@ from .ElementParameter import (
     FlagParameter,
     FloatKeyParameter,
     FloatPairKeyParameter,
+    FloatThreeUpletKeyParameter,
     FloatPositionalParameter,
     InitialStatePositionalParameter,
     IntKeyParameter,
@@ -791,6 +792,234 @@ class BipolarJunctionTransistor(Element):
             return self.pins[3]
         except IndexError:
             return None
+
+####################################################################################################
+
+class JunctionFieldEffectTransistor(Element):
+
+    """ This class implements a bipolar junction transistor.
+
+    Spice syntax::
+
+         JXXXXXXX nd ng ns mname <area> <off> <ic=vds,vgs> <temp=t>
+
+    Attributes:
+
+      :attr:`model`
+
+      :attr:`area`
+
+      :attr:`off`
+
+      :attr:`ic`
+
+      :attr:`temperature`
+
+    """
+
+    # Fixme: off doesn't fit in kwargs !
+
+    alias = 'JFET'
+    prefix = 'J'
+
+    model = ModelPositionalParameter(position=0, key_parameter=True)
+    area = FloatKeyParameter('area')
+    multiplier = IntKeyParameter('m')
+    off = FlagParameter('off')
+    ic = FloatPairKeyParameter('ic')
+    temperature = FloatKeyParameter('temp')
+
+    ##############################################
+
+    def __init__(self, name,
+                 drain_node, gate_node, source_node,
+                 **kwargs):
+
+        pins = [Pin(self, 'drain', drain_node),
+                Pin(self, 'gate', gate_node),
+                Pin(self, 'source', source_node),]
+
+        super(JunctionFieldEffectTransistor, self).__init__(name, pins, **kwargs)
+
+    ##############################################
+
+    @property
+    def drain(self):
+        return self.pins[0]
+
+    ##############################################
+
+    @property
+    def gate(self):
+        return self.pins[1]
+
+    ##############################################
+
+    @property
+    def source(self):
+        return self.pins[2]
+
+####################################################################################################
+
+class Mesfet(Element):
+
+    """ This class implements a MESFET device.
+
+    Spice syntax::
+
+         ZXXXXXXX nd ng ns mname <area> <off> <ic=vds,vgs>
+
+    Attributes:
+
+      :attr:`model`
+
+      :attr:`area`
+
+      :attr:`off`
+
+      :attr:`ic`
+
+    """
+
+    # Fixme: off doesn't fit in kwargs !
+
+    alias = 'MESFET'
+    prefix = 'Z'
+
+    model = ModelPositionalParameter(position=0, key_parameter=True)
+    area = FloatKeyParameter('area')
+    multiplier = IntKeyParameter('m')
+    off = FlagParameter('off')
+    ic = FloatPairKeyParameter('ic')
+
+    ##############################################
+
+    def __init__(self, name,
+                 drain_node, gate_node, source_node,
+                 **kwargs):
+
+        pins = [Pin(self, 'drain', drain_node),
+                Pin(self, 'gate', gate_node),
+                Pin(self, 'source', source_node),]
+
+        super(Mesfet, self).__init__(name, pins, **kwargs)
+
+    ##############################################
+
+    @property
+    def drain(self):
+        return self.pins[0]
+
+    ##############################################
+
+    @property
+    def gate(self):
+        return self.pins[1]
+
+    ##############################################
+
+    @property
+    def source(self):
+        return self.pins[2]
+
+####################################################################################################
+
+class Mosfet(Element):
+
+    """ This class implements a MOSFET device.
+
+    Spice syntax::
+
+         MXXXXXXX nd ng ns nb mname <m=val> <l=val> <w=val> 
+         + <ad=val> <as=val> <pd=val> <ps=val> <nrd=val> 
+         + <nrs=val> <off> <ic=vds,vgs,vbs> <temp=t>
+
+    Attributes:
+
+      :attr:`model`
+
+      :attr:`multiplier`
+
+      :attr:`length`
+
+      :attr:`width`
+
+      :attr:`drain_area`
+
+      :attr:`source_area`
+
+      :attr:`drain_perimeter`
+
+      :attr:`source_perimeter`
+
+      :attr:`drain_number_square`
+
+      :attr:`source_number_square`
+
+      :attr:`off`
+
+      :attr:`ic`
+
+      :attr:`temperature`
+
+    """
+
+    # Fixme: off doesn't fit in kwargs !
+
+    alias = 'MOSFET'
+    prefix = 'M'
+
+    model = ModelPositionalParameter(position=0, key_parameter=True)
+    multiplier = IntKeyParameter('m')
+    length = FloatKeyParameter('l')
+    width = FloatKeyParameter('w')
+    drain_area = FloatKeyParameter('ad')
+    source_area = FloatKeyParameter('as')
+    drain_perimeter = FloatKeyParameter('pd')
+    source_perimeter = FloatKeyParameter('ps')
+    drain_number_square = FloatKeyParameter('nrd')
+    source_number_square = FloatKeyParameter('nrs')
+    off = FlagParameter('off')
+    ic = FloatThreeUpletKeyParameter('ic')
+    temperature = FloatKeyParameter('temp')
+
+    ##############################################
+
+    def __init__(self, name,
+                 drain_node, gate_node, source_node, substrate_node,
+                 **kwargs):
+
+        pins = [Pin(self, 'drain', drain_node),
+                Pin(self, 'gate', gate_node),
+                Pin(self, 'source', source_node),
+                Pin(self, 'substrate', substrate_node), # bulk
+        ]
+
+        super(Mosfet, self).__init__(name, pins, **kwargs)
+
+    ##############################################
+
+    @property
+    def drain(self):
+        return self.pins[0]
+
+    ##############################################
+
+    @property
+    def gate(self):
+        return self.pins[1]
+
+    ##############################################
+
+    @property
+    def source(self):
+        return self.pins[2]
+
+    ##############################################
+
+    @property
+    def substrate(self):
+        return self.pins[3]
 
 ####################################################################################################
 # 
