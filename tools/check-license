@@ -5,6 +5,19 @@
 # 
 # PySpice - A Spice Package for Python
 # Copyright (C) 2014 Fabrice Salvaire
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 # 
 ####################################################################################################
 
@@ -71,8 +84,11 @@ class LicenseChecker(object):
     def check(self):
 
         for path in self.iter_file():
-            if self._check_file(path) is None:
-                print path
+            try:
+                if self._check_file(path) is None:
+                    print path
+            except IOError:
+                pass
 
     ##############################################
 
@@ -80,15 +96,19 @@ class LicenseChecker(object):
 
         root_path = os.path.dirname(os.path.realpath(__file__))
         replace_slice = os.path.join(root_path, 'replace-slice')
-        license_model_py = os.path.join(root_path, 'license-model.py')
+        license_model_py = os.path.join(root_path, 'license-model-gpl.py')
 
         for path in self.iter_file():
-            line_slice = self._check_file(path)
-            if path != license_model_py and line_slice is not None:
-                # input_path = path + '~'
-                # os.rename(path, input_path)
-                print 'Set', path
-                subprocess.call((replace_slice, path, license_model_py, str(line_slice.start), str(line_slice.stop +1)))
+            try:
+                line_slice = self._check_file(path)
+                if path != license_model_py and line_slice is not None:
+                    # input_path = path + '~'
+                    # os.rename(path, input_path)
+                    print 'Set', path
+                    subprocess.call((replace_slice, path, license_model_py,
+                                     str(line_slice.start), str(line_slice.stop +1)))
+            except IOError:
+                pass
 
     ##############################################
 
