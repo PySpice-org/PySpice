@@ -17,6 +17,8 @@ Netlist
 
 * Fixme: i(vinput) -> analysis.vinput
 
+  FIX casse : find node/element having name.lower() ...
+
   v comes from V + input
 
   analysis.nodes.foo

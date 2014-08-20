@@ -14,10 +14,11 @@ from .Server import SpiceServer
 
 class CircuitSimulation(object):
 
-    """ Define and generate the spice instruction to perform a circuit simulation.
+    """Define and generate the spice instruction to perform a circuit simulation.
 
-    In some cases NgSpice can perform several analyses one after the other. This case is partially
-    supported.
+    .. warning:: In some cases NgSpice can perform several analyses one after the other. This case
+    is partially supported.
+
     """
 
     ##############################################
@@ -37,7 +38,7 @@ class CircuitSimulation(object):
 
         self.temperature = temperature
         self.nominal_temperature = nominal_temperature
-
+        
         if pipe:
             self.options('NOINIT')
             self.options(filetype='binary')
@@ -79,10 +80,17 @@ class CircuitSimulation(object):
 
     ##############################################
 
-    def initial_condition(self, kwargs):
+    def initial_condition(self, **kwargs):
+
+        """ Set initial condition for voltage nodes.
+
+        Usage: initial_condition(node_name1=value, ...)
+        """
 
         for key, value in kwargs.iteritems():
-            self._initial_condition[str(key)] = str(value)
+            self._initial_condition['V({})'.format(str(key))] = str(value)
+
+        # Fixme: .nodeset
 
     ##############################################
 
@@ -106,6 +114,20 @@ class CircuitSimulation(object):
         """
 
         self._saved_nodes = list(args)
+
+    ##############################################
+
+    @property
+    def save_currents(self):
+        """ Save all currents. """
+        return self._options.get('SAVECURRENTS', False)
+
+    @save_currents.setter
+    def save_currents(self, value):
+        if value:
+            self._options['SAVECURRENTS'] = True
+        else:
+            del self._options['SAVECURRENTS']
 
     ##############################################
 
