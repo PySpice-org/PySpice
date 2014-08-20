@@ -18,7 +18,7 @@ def join_list(items):
 ####################################################################################################
 
 def join_dict(d):
-    return ' '.join(["{}={}".format(key, value) for key, value in d.iteritems()])
+    return ' '.join(["{}={}".format(key, value) for key, value in d.iteritems() if value is not None])
 
 ####################################################################################################
 # 
