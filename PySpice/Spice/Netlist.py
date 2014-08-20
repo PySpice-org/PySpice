@@ -657,6 +657,11 @@ class Circuit(Netlist):
         self._parameters = {} # .param
         self._subcircuits = {}
 
+        # Fixme: not implemented
+        #  .func
+        #  .csparam
+        #  .if
+
     ##############################################
 
     @property

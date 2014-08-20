@@ -13,7 +13,65 @@ See Ngspice documentation for details.
 
 .. note:: It would be nice to have an use-full and working documentation in the interactive environment.
 
++--------------+------------------------------------------------------+
+| First letter + Element description                                  |
++--------------+------------------------------------------------------+
+| A            + XSPICE code model                                    |
++--------------+------------------------------------------------------+
+| B            + Behavioral (arbitrary) source                        |
++--------------+------------------------------------------------------+
+| C            + Capacitor                                            |
++--------------+------------------------------------------------------+
+| D            + Diode                                                |
++--------------+------------------------------------------------------+
+| E            + Voltage-controlled voltage source (VCVS)             |
++--------------+------------------------------------------------------+
+| F            + Current-controlled current source (CCCs)             |
++--------------+------------------------------------------------------+
+| G            + Voltage-controlled current source (VCCS)             |
++--------------+------------------------------------------------------+
+| H            + Current-controlled voltage source (CCVS)             |
++--------------+------------------------------------------------------+
+| I            + Current source                                       |
++--------------+------------------------------------------------------+
+| J            + Junction field effect transistor (JFET)              |
++--------------+------------------------------------------------------+
+| K            + Coupled (Mutual) Inductors                           |
++--------------+------------------------------------------------------+
+| L            + Inductor                                             |
++--------------+------------------------------------------------------+
+| M            + Metal oxide field effect transistor (MOSFET)         |
++--------------+------------------------------------------------------+
+| N            + Numerical device for GSS                             |
++--------------+------------------------------------------------------+
+| O            + Lossy transmission line                              |
++--------------+------------------------------------------------------+
+| P            + Coupled multiconductor line (CPL)                    |
++--------------+------------------------------------------------------+
+| Q            + Bipolar junction transistor (BJT)                    |
++--------------+------------------------------------------------------+
+| R            + Resistor                                             |
++--------------+------------------------------------------------------+
+| S            + Switch (voltage-controlled)                          |
++--------------+------------------------------------------------------+
+| T            + Lossless transmission line                           |
++--------------+------------------------------------------------------+
+| U            + Uniformly distributed RC line                        |
++--------------+------------------------------------------------------+
+| V            + Voltage source                                       |
++--------------+------------------------------------------------------+
+| W            + Switch (current-controlled)                          |
++--------------+------------------------------------------------------+
+| X            + Subcircuit                                           |
++--------------+------------------------------------------------------+
+| Y            + Single lossy transmission line (TXL)                 |
++--------------+------------------------------------------------------+
+| Z            + Metal semiconductor field effect transistor (MESFET) |
++--------------+------------------------------------------------------+
+
 """
+
+# Fixme: add transmission lines
 
 ####################################################################################################
 
@@ -542,9 +600,15 @@ class VoltageControlledCurrentSource(TwoPortElement):
 
     """ This class implements a linear voltage-controlled current sources (VCCS).
 
+    .. warning:: partially implemented
+
     Spice syntax::
 
-        GXXXXXXX n+ n- nc+ nc- value
+        Gxxx n+ n- nc+ nc- value
+        Gxxx n+ n- value={expr}
+        Gxxx n1 n2 TABLE {expression}=(x0,y0) (x1,y1) (x2,y2)
+        Gxxx n+ n- ( POLY (nd) ) nc1+ nc1- ( nc2+ nc2- ... ) p0 ( p1 ... )
+        Laplace
 
     Attributes:
 
@@ -623,12 +687,14 @@ class NonLinearVoltageSource(TwoPinElement):
 
     """ This class implements a non linear voltage source.
 
+    .. warning:: partially implemented
+
     Spice syntax::
 
-        EXXXXXXX n+ n- vol='expr'
-        EXXXXXXX n+ n- value={expr}
+        Exxx n+ n- vol='expr'
+        Exxx n+ n- value={expr}
         Exxx n1 n2 TABLE {expression}=(x0,y0) (x1,y1) (x2,y2)
-        EXXXX n+ n- ( POLY (nd) ) nc1+ nc1- ( nc2+ nc2- ... ) p0 ( p1 ... )
+        Exxx n+ n- ( POLY (nd) ) nc1+ nc1- ( nc2+ nc2- ... ) p0 ( p1 ... )
         Laplace
 
     Attributes:
@@ -655,6 +721,7 @@ class NonLinearVoltageSource(TwoPinElement):
     def __str__(self):
 
         spice_element = self.format_node_names()
+        # Fixme: expression
         if self.table is not None:
             # TABLE {expression} = (x0, y0) (x1, y1) ...
             table = ['({}, {})'.format(x, y) for x, y in self.table]
@@ -863,7 +930,7 @@ class JunctionFieldEffectTransistor(Element):
 
 class Mesfet(Element):
 
-    """ This class implements a MESFET device.
+    """ This class implements a Metal Semiconductor Field Effect Transistor.
 
     Spice syntax::
 
@@ -926,7 +993,7 @@ class Mesfet(Element):
 
 class Mosfet(Element):
 
-    """ This class implements a MOSFET device.
+    """ This class implements a Metal Oxide Field Effect Transistor.
 
     Spice syntax::
 
