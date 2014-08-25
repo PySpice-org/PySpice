@@ -1,3 +1,10 @@
+* check examples
+* implement shared 
+* implement units
+* OpAmp / Transformer  ???
+* implement waveform tools : cf. numpy, slice etc.
+* implement basic simulator
+
 ----------------------------------------------------------------------------------------------------
 
 Netlist
@@ -60,27 +67,5 @@ ax.xaxis.set_major_formatter(ticks)
   simulated_R1.v = analysis[self._element.plus] - analysis[self._element.minus]
   simulated_R1.i = self.v / float(self._element.resistance)
   simulated_R1.plus = analysis[self._element.plus]
-
-----------------------------------------------------------------------------------------------------
-
-* fix copyright and license
-
-* units
-* OpAmp / Transformer 
-* waveform slice : cf. numpy
-
-----------------------------------------------------------------------------------------------------
-
-Old
-
-* define netlist
-* expand variables
-* current probes? voltage source Vxxx#branch  *--Vxxx--...--*
-* flatten spice desk using netlist and libraries
-* add simulation instructions
-* expand variables ?
-* run ngspice
-* read output
-* analyse or save data
 
 ----------------------------------------------------------------------------------------------------
