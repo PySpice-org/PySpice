@@ -25,6 +25,9 @@
 #
 ####################################################################################################
 
+""" This module implements units.
+"""
+
 ####################################################################################################
 
 import numbers
@@ -476,32 +479,40 @@ __power_to_unit__ = {unit.__power__:unit for unit in __units__}
 
 class Frequency(Unit):
 
+    """ This class implements a frequency unit. """
+
     ##############################################
 
     @property
     def period(self):
+        r""" Return the period :math:`T = \frac{1}{f}`. """
         return self.inverse(Period)
 
     ##############################################
 
     @property
     def pulsation(self):
+        r""" Return the pulsation :math:`\omega = 2\pi f`. """
         return self * 2 * math.pi
 
 ####################################################################################################
 
 class Period(Unit):
 
+    """ This class implements a period unit. """
+
     ##############################################
 
     @property
     def frequency(self):
+        r""" Return the period :math:`f = \frac{1}{T}`. """
         return self.inverse(Frequency)
 
     ##############################################
 
     @property
     def pulsation(self):
+        r""" Return the pulsation :math:`\omega = \frac{2\pi}{T}`. """
         return self.frequency.pulsation
 
 ####################################################################################################
