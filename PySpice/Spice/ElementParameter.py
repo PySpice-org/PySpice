@@ -346,9 +346,9 @@ class FloatPairKeyParameter(KeyValueParameter):
 
 ####################################################################################################
 
-class FloatThreeUpletKeyParameter(FloatPairKeyParameter):
+class FloatTripletKeyParameter(FloatPairKeyParameter):
 
-    """ This class implements a 3-uplet key parameter. """
+    """ This class implements a triplet key parameter. """
 
     ##############################################
 

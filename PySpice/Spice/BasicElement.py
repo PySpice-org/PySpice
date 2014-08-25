@@ -98,7 +98,7 @@ from .ElementParameter import (
     FlagParameter,
     FloatKeyParameter,
     FloatPairKeyParameter,
-    FloatThreeUpletKeyParameter,
+    FloatTripletKeyParameter,
     FloatPositionalParameter,
     InitialStatePositionalParameter,
     IntKeyParameter,
@@ -1060,7 +1060,7 @@ class Mosfet(Element):
     drain_number_square = FloatKeyParameter('nrd')
     source_number_square = FloatKeyParameter('nrs')
     off = FlagParameter('off')
-    ic = FloatThreeUpletKeyParameter('ic')
+    ic = FloatTripletKeyParameter('ic')
     temperature = FloatKeyParameter('temp')
 
     ##############################################
