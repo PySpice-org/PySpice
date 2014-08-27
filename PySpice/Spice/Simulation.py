@@ -20,8 +20,17 @@
 
 ####################################################################################################
 
+import logging
+
+####################################################################################################
+
 from ..Tools.StringTools import join_list, join_dict
+from .NgSpice.Shared import NgSpiceShared
 from .Server import SpiceServer
+
+####################################################################################################
+
+_module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
@@ -33,6 +42,8 @@ class CircuitSimulation(object):
     is partially supported.
 
     """
+
+    _logger = _module_logger.getChild('CircuitSimulation')
 
     ##############################################
 
@@ -228,6 +239,7 @@ class CircuitSimulation(object):
             netlist += '.save ' + join_list(self._saved_nodes) + '\n'
         for analysis, analysis_parameters in self._analysis_parameters.iteritems():
             netlist += '.' + analysis + ' ' + join_list(analysis_parameters) + '\n'
+        netlist += '.end\n'
         return netlist
 
 ####################################################################################################
@@ -241,17 +253,7 @@ class CircuitSimulator(CircuitSimulation):
     argument.
     """
 
-    ##############################################
-
-    def __init__(self, circuit,
-                 temperature=27,
-                 nominal_temperature=27,
-                 spice_command='ngspice',
-                ):
-
-        super(CircuitSimulator, self).__init__(circuit, temperature, nominal_temperature, pipe=True)
-
-        self._spice_server = SpiceServer()
+    _logger = _module_logger.getChild('CircuitSimulator')
         
     ##############################################
 
@@ -264,14 +266,7 @@ class CircuitSimulator(CircuitSimulation):
         method = getattr(CircuitSimulation, analysis_method)
         method(self, *args, **kwargs)
 
-        print str(self)
-        raw_file = self._spice_server(str(self))
-        self.reset_analysis()
-
-        # for field in raw_file.variables:
-        #     print field
-
-        return raw_file.to_analysis()
+        self._logger.debug('desk\n' + str(self))
 
     ##############################################
 
@@ -302,6 +297,85 @@ class CircuitSimulator(CircuitSimulation):
     def transient(self, *args, **kwargs):
 
         return self._run('transient', *args, **kwargs)
+
+####################################################################################################
+
+class SubprocessCircuitSimulator(CircuitSimulator):
+
+    _logger = _module_logger.getChild('SubprocessCircuitSimulator')
+
+    ##############################################
+
+    def __init__(self, circuit,
+                 temperature=27,
+                 nominal_temperature=27,
+                 spice_command='ngspice',
+                ):
+
+        # Fixme: kwargs
+
+        super(SubprocessCircuitSimulator, self).__init__(circuit, temperature, nominal_temperature, pipe=True)
+
+        self._spice_server = SpiceServer()
+
+    ##############################################
+
+    def _run(self, analysis_method, *args, **kwargs):
+
+        super(SubprocessCircuitSimulator, self)._run(analysis_method, *args, **kwargs)
+
+        raw_file = self._spice_server(str(self))
+        self.reset_analysis()
+
+        # for field in raw_file.variables:
+        #     print field
+
+        return raw_file.to_analysis()
+
+####################################################################################################
+
+class NgSpiceSharedCircuitSimulator(CircuitSimulator):
+
+    _logger = _module_logger.getChild('NgSpiceSharedCircuitSimulator')
+
+    __ngspice_shared__ = None
+
+    ##############################################
+
+    def __init__(self, circuit,
+                 temperature=27,
+                 nominal_temperature=27,
+                ):
+
+        # Fixme: kwargs
+
+        super(NgSpiceSharedCircuitSimulator, self).__init__(circuit, temperature, nominal_temperature, pipe=False)
+
+        if self.__ngspice_shared__ is None:
+            self.__ngspice_shared__ = NgSpiceShared(send_data=False)
+        self._ngspice_shared = self.__ngspice_shared__
+
+    ##############################################
+
+    def _run(self, analysis_method, *args, **kwargs):
+
+        super(NgSpiceSharedCircuitSimulator, self)._run(analysis_method, *args, **kwargs)
+        
+        self._ngspice_shared.load_circuit(str(self))
+        self._ngspice_shared.run()
+        self._logger.debug(str(self._ngspice_shared.plot_names))
+        self.reset_analysis()
+
+        if analysis_method == 'dc':
+            plot_name = 'dc1'
+        elif analysis_method == 'ac':
+            plot_name = 'ac1'
+        elif analysis_method == 'tran':
+            plot_name = 'tran1'
+        else:
+            raise NotImplementedError
+
+        return self._ngspice_shared.plot(plot_name).to_analysis()
 
 ####################################################################################################
 # 
