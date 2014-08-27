@@ -96,7 +96,7 @@ from ..Tools.StringTools import join_lines, join_list, join_dict
 from .ElementParameter import (ParameterDescriptor,
                                PositionalElementParameter,
                                FlagParameter, KeyValueParameter)
-from .Simulation import CircuitSimulator
+from .Simulation import SubprocessCircuitSimulator, NgSpiceSharedCircuitSimulator
 
 ####################################################################################################
 
@@ -729,14 +729,32 @@ class Circuit(Netlist):
         if self._subcircuits:
             netlist += join_lines(self.subcircuit_iterator())
         netlist += super(Circuit, self).__str__()
-        netlist += '.end\n'
         return netlist
 
     ##############################################
 
+    def str_end(self):
+
+        return str(self) + '.end\n'
+
+    ##############################################
+
     def simulator(self, *args, **kwargs):
+
         """ Return a :obj:`PySpice.Simulation.CircuitSimulator` instance. """
-        return CircuitSimulator(self, *args, **kwargs)
+
+        simulator = kwargs.get('simulator', 'subprocess')
+        if 'simulator' in kwargs:
+            simulator = kwargs['simulator']
+            del kwargs['simulator']
+        else:
+            simulator = 'subprocess'
+        if simulator == 'subprocess':
+            return SubprocessCircuitSimulator(self, *args, **kwargs)
+        elif simulator == 'shared':
+            return NgSpiceSharedCircuitSimulator(self, *args, **kwargs)
+        else:
+            return ValueError('Unknown simulator type')
 
 ####################################################################################################
 # 
