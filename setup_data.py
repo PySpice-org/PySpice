@@ -73,8 +73,20 @@ setup_dict = dict(
     keywords="spice, berkeley, ngspice, circuit, simulation, electronic",
     url='https://github.com/FabriceSalvaire/PySpice',
     scripts=[],
-    packages=['PySpice'],
-    data_files = [],
+    packages=['PySpice', # Fixme: 
+              'PySpice.Config',
+              'PySpice.Logging',
+              'PySpice.Math',
+              'PySpice.Physics',
+              'PySpice.Plot',
+              'PySpice.Probe',
+              'PySpice.Spice',
+              'PySpice.Spice.NgSpice',
+              'PySpice.Tools',
+              'PySpice.Unit',
+          ],
+    # package_dir = {'PySpice': 'PySpice'},
+    data_files=[],
     long_description=read('README.txt'),
     # cf. http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
