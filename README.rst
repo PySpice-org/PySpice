@@ -37,6 +37,10 @@
 .. |PySpice@pypi| replace:: https://pypi.python.org/pypi/PySpice
 .. .. _PySpice@pypi: https://pypi.python.org/pypi/PySpice
 
+.. |Build Status| image:: https://travis-ci.org/FabriceSalvaire/PySpice.svg?branch=master
+   :target: https://travis-ci.org/FabriceSalvaire/PySpice
+   :alt: PySpice build status @travis-ci.org
+
 .. End
 .. -*- Mode: rst -*-
 
@@ -61,6 +65,15 @@
 .. |Sphinx| replace:: Sphinx
 .. _Sphinx: http://sphinx-doc.org
 
+.. |Modelica| replace:: Modelica
+.. _Modelica: http://www.modelica.org
+
+.. |Kicad| replace:: Kicad
+.. _Kicad: http://www.kicad-pcb.org
+
+.. |Circuit_macros| replace:: Circuit_macros
+.. _Circuit_macros: http://ece.uwaterloo.ca/~aplevich/Circuit_macros
+
 .. End
 
 =========
@@ -72,6 +85,10 @@ The official PySpice Home Page is located at |PySpiceUrl|
 The latest documentation build from the git repository is available at readthedocs.org |PySpice@readthedocs-badge|
 
 Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
+
+|Build Status|
+
+-----
 
 .. -*- Mode: rst -*-
 
@@ -86,11 +103,14 @@ industrial circuit simulator reference.
 SPICE (Simulation Program with Integrated Circuit Emphasis) was developed at the Electronics
 Research Laboratory of the University of California, Berkeley in 1973 by Laurence Nagel with
 direction from his research advisor, Prof. Donald Pederson. Then Spice emerged as an industrial
-standard through its descendant and is still the reference 40 years later.
+standard through its descendants and is still the reference 40 years later.
+
+PySpice is born as a personal project to relearn electronics where circuit simulation is a part of
+this goal. Since I use the Python language every day, I quickly feel the need to plug SPICE and Python.
 
 The aim of PySpice is to address several needs:
 
- * SPICE language is fine to describe a circuit, but it lacks a real language for circuit
+ * SPICE language is fine to describe circuits, but it lacks a real language for circuit
    steering. By contrast Python is a powerful high level, oriented object and dynamic language which
    is perfectly suited for steering and reusing circuit. But it comes at the price its more general
    syntax is less fluent than SPICE for circuit description.
@@ -105,23 +125,35 @@ The aim of PySpice is to address several needs:
 
 As opposite to other SPICE derivatives, PySpice focus on programming and not on graphical user
 interface. Thus it doesn't feature a schematic capture editor and we cannot pickup a node or an
-element and plot the associated waveform.
+element and plot the associated waveform.  Moreover we can notice the |Modelica|_ language treats
+diagrams as annotations.  A choice which I consider judicious.  Thus we can imagine to follow the
+same principle and extend PySpice later.
 
-The main features of PySpice are:
 
- * actually PySpice only supports the |Ngspice|_ flavour
- * an oriented-object API to describe circuit in a way similar to SPICE
- * a library and model manager that index recursively a directory
- * an incomplete SPICE parser (mainly used for the library and model indexer)
- * a SPICE server to run the simulator and to get back the result as Numpy array
- * some data analysis add-on
+==================
+ Planned Features
+==================
 
-.. Warning:: The API is quite unstable. Some efforts is made to have a smooth API.
+These features are planned in the future:
 
-.. Warning:: Ngspice is provided without any warranty. Thus use it with care for real design. Best
-	     is to cross check the simulation using others simulators.
+ * implement a SPICE to Python converted using the parser. It could be used for the following
+   workflow: quick circuit sketching using |Kicad|_ > SPICE netlist > spice2python > PySpice which
+   could help for complex circuit.
+ * implement a basic simulator featuring passive element like resistor, capacitor and inductor.
+ * implement a Modelica backend. |Modelica|_ is a very interesting solution for transient analysis.
 
-.. Warning:: Simultation is a tool and not a perfect view of the real world.
+================
+ Advertisements
+================
+
+Users should be aware of these advertisements.
+
+.. Warning:: The API is quite unstable until now. Some efforts is made to have a smooth API.
+
+.. Warning:: Ngspice and PySpice are provided without any warranty. Thus use it with care for real
+	     design. Best is to cross check the simulation using an industrial grade simulator.
+
+.. Warning:: Simulation is a tool and not a perfect representation of the real world.
 
 .. End
 
