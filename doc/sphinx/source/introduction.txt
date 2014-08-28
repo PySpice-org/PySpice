@@ -38,22 +38,7 @@ element and plot the associated waveform.  Moreover we can notice the |Modelica|
 diagrams as annotations.  A choice which I consider judicious.  Thus we can imagine to follow the
 same principle and extend PySpice later.
 
-==========
- Features
-==========
-
-The main features of PySpice are:
-
- * actually PySpice only supports the |Ngspice|_ flavour
- * an oriented-object API to describe circuit in a way similar to SPICE
- * a library and model manager that index recursively a directory
- * an incomplete SPICE parser (mainly used for the library and model indexer)
- * a SPICE server to run the simulator and to get back the result as Numpy array
- * some data analysis add-on
-
-Since PySpice is born with a learning goal, many examples are provided with the sources.  These
-examples could serve as learning materials. A tool to generate an HTML and PDF documentation is
-included in the *tools* directory. This tool could be extended to generate IPython Notebook as well.
+.. include:: features.txt
 
 ==================
  Planned Features
