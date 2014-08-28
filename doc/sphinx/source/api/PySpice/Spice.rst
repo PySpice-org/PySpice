@@ -8,6 +8,7 @@
   Spice/HighLevelElement
   Spice/Library
   Spice/Netlist
+  Spice/NgSpice
   Spice/Parser
   Spice/RawFile
   Spice/Server

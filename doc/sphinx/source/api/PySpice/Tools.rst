@@ -3,6 +3,7 @@
 **************
 
 .. toctree::
+  Tools/EnumFactory
   Tools/File
   Tools/Path
   Tools/StringTools
