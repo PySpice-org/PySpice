@@ -9,7 +9,8 @@ env:
 before_script:
 
 install:
-    - pip install -q -r requirements.txt --use-mirrors
+    - pip install -q -r requirements.txt
+    - pip install .
 
 script:
     # fixme:
