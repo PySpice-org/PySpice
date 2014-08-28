@@ -35,4 +35,8 @@
 .. |PySpice@pypi| replace:: https://pypi.python.org/pypi/PySpice
 .. .. _PySpice@pypi: https://pypi.python.org/pypi/PySpice
 
+.. |Build Status| image:: https://travis-ci.org/FabriceSalvaire/PySpice.svg?branch=master
+   :target: https://travis-ci.org/FabriceSalvaire/PySpice
+   :alt: PySpice build status @travis-ci.org
+
 .. End
