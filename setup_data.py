@@ -24,20 +24,21 @@ import os
 
 ####################################################################################################
 
-def merge_include(lines, doc_path):
-    for line_index, line in enumerate(lines):
+def merge_include(src_lines, doc_path, included_rst_files=None):
+    if included_rst_files is None:
+        included_rst_files = {}
+    text = ''
+    for line in src_lines:
         if line.startswith('.. include::'):
             include_file_name = line.split('::')[-1].strip()
-            with open(os.path.join(doc_path, include_file_name)) as f:
-                include_lines = f.readlines()
-            lines[line_index] = remove_include(include_lines)
-    return ''.join(lines)
-
-def remove_include(lines):
-    for line_index, line in enumerate(lines):
-        if line.startswith('.. include::'):
-            lines[line_index] = ''
-    return ''.join(lines)
+            if include_file_name not in included_rst_files:
+                # print "include", include_file_name
+                with open(os.path.join(doc_path, include_file_name)) as f:
+                    included_rst_files[include_file_name] = True
+                    text += merge_include(f.readlines(), doc_path, included_rst_files)
+        else:
+            text += line
+    return text
 
 ####################################################################################################
 
@@ -59,6 +60,10 @@ def read(file_name):
     text = merge_include(lines, doc_path)
 
     return text
+
+####################################################################################################
+
+long_description = read('README.txt')
 
 ####################################################################################################
 
@@ -87,7 +92,7 @@ setup_dict = dict(
           ],
     # package_dir = {'PySpice': 'PySpice'},
     data_files=[],
-    long_description=read('README.txt'),
+    long_description=long_description,
     # cf. http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         "Topic :: Scientific/Engineering",
