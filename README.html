@@ -395,6 +395,28 @@ interface. Thus it doesn't feature a schematic capture editor and we cannot pick
 element and plot the associated waveform.  Moreover we can notice the <a class="reference external" href="http://www.modelica.org">Modelica</a> language treats
 diagrams as annotations.  A choice which I consider judicious.  Thus we can imagine to follow the
 same principle and extend PySpice later.</p>
+<!-- -*- Mode: rst -*- -->
+</div>
+<div class="section" id="features">
+<h1>Features</h1>
+<p>The main features of PySpice are:</p>
+<blockquote>
+<ul class="simple">
+<li>actually PySpice only supports <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a></li>
+<li>an oriented-object API to describe circuit in a way similar to SPICE</li>
+<li>a library and model manager that index recursively a directory</li>
+<li>an incomplete SPICE parser (mainly used for the library and model indexer)</li>
+<li>a circuit can be simulated using a subprocess (aka server mode) or using the NgSpice shared library,
+NgSpice vectors are converted to Numpy array</li>
+<li>the NgSpice shared library permits to interact with the simulator and provides Python callback
+for external voltage and current source</li>
+<li>some data analysis add-ons</li>
+</ul>
+</blockquote>
+<p>Since PySpice is born with a learning goal, many examples are provided with the sources.  These
+examples could serve as learning materials. A tool to generate an HTML and PDF documentation is
+included in the <em>tools</em> directory. This tool could be extended to generate IPython Notebook as well.</p>
+<!-- end -->
 </div>
 <div class="section" id="planned-features">
 <h1>Planned Features</h1>
