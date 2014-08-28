@@ -361,6 +361,8 @@ ul.auto-toc {
 <p>The official PySpice Home Page is located at <a class="reference external" href="http://fabricesalvaire.github.io/PySpice">http://fabricesalvaire.github.io/PySpice</a></p>
 <p>The latest documentation build from the git repository is available at readthedocs.org <a class="reference external" href="http://pyspice.readthedocs.org/en/latest"><img alt="PySpice&#64;readthedocs-badge" src="https://readthedocs.org/projects/pyspice/badge/?version=latest" /></a></p>
 <p>Written by <a class="reference external" href="http://fabrice-salvaire.pagesperso-orange.fr">Fabrice Salvaire</a>.</p>
+<p><a class="reference external" href="https://travis-ci.org/FabriceSalvaire/PySpice"><img alt="PySpice build status &#64;travis-ci.org" src="https://travis-ci.org/FabriceSalvaire/PySpice.svg?branch=master" /></a></p>
+<hr class="docutils" />
 <!-- -*- Mode: rst -*- -->
 </div>
 <div class="section" id="introduction">
@@ -370,11 +372,13 @@ industrial circuit simulator reference.</p>
 <p>SPICE (Simulation Program with Integrated Circuit Emphasis) was developed at the Electronics
 Research Laboratory of the University of California, Berkeley in 1973 by Laurence Nagel with
 direction from his research advisor, Prof. Donald Pederson. Then Spice emerged as an industrial
-standard through its descendant and is still the reference 40 years later.</p>
+standard through its descendants and is still the reference 40 years later.</p>
+<p>PySpice is born as a personal project to relearn electronics where circuit simulation is a part of
+this goal. Since I use the Python language every day, I quickly feel the need to plug SPICE and Python.</p>
 <p>The aim of PySpice is to address several needs:</p>
 <blockquote>
 <ul class="simple">
-<li>SPICE language is fine to describe a circuit, but it lacks a real language for circuit
+<li>SPICE language is fine to describe circuits, but it lacks a real language for circuit
 steering. By contrast Python is a powerful high level, oriented object and dynamic language which
 is perfectly suited for steering and reusing circuit. But it comes at the price its more general
 syntax is less fluent than SPICE for circuit description.</li>
@@ -388,30 +392,38 @@ it. PySpice could serve to easily experiment extension.</li>
 </blockquote>
 <p>As opposite to other SPICE derivatives, PySpice focus on programming and not on graphical user
 interface. Thus it doesn't feature a schematic capture editor and we cannot pickup a node or an
-element and plot the associated waveform.</p>
-<p>The main features of PySpice are:</p>
+element and plot the associated waveform.  Moreover we can notice the <a class="reference external" href="http://www.modelica.org">Modelica</a> language treats
+diagrams as annotations.  A choice which I consider judicious.  Thus we can imagine to follow the
+same principle and extend PySpice later.</p>
+</div>
+<div class="section" id="planned-features">
+<h1>Planned Features</h1>
+<p>These features are planned in the future:</p>
 <blockquote>
 <ul class="simple">
-<li>actually PySpice only supports the <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a> flavour</li>
-<li>an oriented-object API to describe circuit in a way similar to SPICE</li>
-<li>a library and model manager that index recursively a directory</li>
-<li>an incomplete SPICE parser (mainly used for the library and model indexer)</li>
-<li>a SPICE server to run the simulator and to get back the result as Numpy array</li>
-<li>some data analysis add-on</li>
+<li>implement a SPICE to Python converted using the parser. It could be used for the following
+workflow: quick circuit sketching using <a class="reference external" href="http://www.kicad-pcb.org">Kicad</a> &gt; SPICE netlist &gt; spice2python &gt; PySpice which
+could help for complex circuit.</li>
+<li>implement a basic simulator featuring passive element like resistor, capacitor and inductor.</li>
+<li>implement a Modelica backend. <a class="reference external" href="http://www.modelica.org">Modelica</a> is a very interesting solution for transient analysis.</li>
 </ul>
 </blockquote>
+</div>
+<div class="section" id="advertisements">
+<h1>Advertisements</h1>
+<p>Users should be aware of these advertisements.</p>
 <div class="warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">The API is quite unstable. Some efforts is made to have a smooth API.</p>
+<p class="last">The API is quite unstable until now. Some efforts is made to have a smooth API.</p>
 </div>
 <div class="warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Ngspice is provided without any warranty. Thus use it with care for real design. Best
-is to cross check the simulation using others simulators.</p>
+<p class="last">Ngspice and PySpice are provided without any warranty. Thus use it with care for real
+design. Best is to cross check the simulation using an industrial grade simulator.</p>
 </div>
 <div class="warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Simultation is a tool and not a perfect view of the real world.</p>
+<p class="last">Simulation is a tool and not a perfect representation of the real world.</p>
 </div>
 <!-- End -->
 <!-- -*- Mode: rst -*- -->
