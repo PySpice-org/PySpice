@@ -493,7 +493,7 @@ class Frequency(Unit):
     @property
     def pulsation(self):
         r""" Return the pulsation :math:`\omega = 2\pi f`. """
-        return self * 2 * math.pi
+        return float(self * 2 * math.pi)
 
 ####################################################################################################
 

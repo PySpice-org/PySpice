@@ -1,3 +1,10 @@
+include text
+
+am détecteur enveloppe
+mixeur
+electricity power
+correction cos phi
+
 http://fr.wikipedia.org/wiki/Circuit_d%C3%A9tecteur_d%27enveloppe
 http://www.auldies.euweb.cz/me/Amf1.html
 
