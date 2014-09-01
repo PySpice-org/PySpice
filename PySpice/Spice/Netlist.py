@@ -69,6 +69,10 @@ We can update an element parameter like this::
 
     circuit.R1.resistance = kilo(1)
 
+To simulate the circuit, we must create a simulator instance using the :meth:`Circuit.simulator`::
+
+    simulator = circuit.simulator()
+
 """
 
 ####################################################################################################
@@ -741,7 +745,12 @@ class Circuit(Netlist):
 
     def simulator(self, *args, **kwargs):
 
-        """ Return a :obj:`PySpice.Simulation.CircuitSimulator` instance. """
+        """Return a :obj:`PySpice.Spice.Simulation.SubprocessCircuitSimulator` or
+        :obj:`PySpice.Spice.Simulation.NgSpiceSharedCircuitSimulator` instance depending of the
+        value of the *simulator* parameter: ``subprocess`` or ``shared``, respectively. If this
+        parameter is not specified then a subprocess simulator is returned.
+
+        """
 
         simulator = kwargs.get('simulator', 'subprocess')
         if 'simulator' in kwargs:

@@ -1,5 +1,5 @@
 * check examples
-* implement shared 
+* add shared example
 * implement units
 * OpAmp / Transformer  ???
 * implement waveform tools : cf. numpy, slice etc.
