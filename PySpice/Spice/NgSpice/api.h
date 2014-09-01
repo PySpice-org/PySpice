@@ -1,3 +1,5 @@
+/* Simplified Ngspice API for CFFI parser */
+
 typedef struct ngcomplex
 {
   double cx_real;
@@ -70,3 +72,5 @@ char **ngSpice_AllPlots (void);
 char **ngSpice_AllVecs (char *);
 bool ngSpice_running (void);
 bool ngSpice_SetBkpt (double);
+
+/* End */
