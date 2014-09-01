@@ -18,6 +18,32 @@
 # 
 ####################################################################################################
 
+"""This module provides a Python interface to the Ngspice shared library described in the *ngspice
+as shared library or dynamic link library* section of the Ngspice user manual.
+
+In comparison to the subprocess interface, it provides an interaction with the simulator through
+commands and callbacks and it enables the usage of external voltage and current source in the
+circuit.
+
+.. This approach corresponds to the *standard way* to make an interface to a simulator code.
+
+.. warning:: Since we don't simulate a circuit in a fresh environment on demand, this approach is
+ less safe than the subprocess approach. In case of bugs within Ngspice, we can expect some side
+ effects like memory leaks or worse unexpected things.
+
+This interface use the CFFI module to interface with the shared library. It is thus suited to run
+within the Pypy interpreter which implements JIT optimisation for Python.
+
+It can also be used to experiment parallel simulation as explained in the Ngspice user manual. But
+it seems the Ngspice source code was designed with global variables which imply to use one copy of
+the shared library by worker as explained in the manual.
+
+.. warning:: This interface can strongly slow down the simulation if the input or output callbacks
+  is used.  If the simulation time goes wrong for you then you need to implement the callbacks at a
+  lower level than Python. You can have look to Pypy, Cython or a C extension module.
+
+"""
+
 ####################################################################################################
 
 import logging
@@ -46,9 +72,15 @@ from PySpice.Tools.EnumFactory import EnumFactory
 
 class Vector(object):
 
-    """ This class implements a Vector in a SPICE simulation output.
+    """ This class implements a vector in a simulation output.
     
     Public Attributes:
+
+      :attr:`data`
+
+      :attr:`name`
+
+      :attr:`simulation_type`
 
     """
 
@@ -78,7 +110,7 @@ class Vector(object):
 
         return self.simulation_type == NgSpiceShared.simulation_type.current
 
-    # ##############################################
+    ##############################################
 
     @property
     def simplified_name(self):
@@ -122,6 +154,14 @@ class Vector(object):
 ####################################################################################################
 
 class Plot(dict):
+
+    """ This class implements a plot in a simulation output.
+    
+    Public Attributes:
+
+      :attr:`plot_name`
+
+    """
 
     ##############################################
 
@@ -243,6 +283,11 @@ class NgSpiceShared(object):
     ##############################################
 
     def __init__(self, ngspice_id=0, send_data=False):
+
+        """ Set the *send_data* flag if you want to enable the output callback.
+
+        Set the *ngspice_id* to an integer value if you want to run NgSpice in parallel.
+        """
 
         self._ngspice_id = ngspice_id
 
@@ -371,40 +416,48 @@ class NgSpiceShared(object):
     ##############################################
 
     def send_char(self, message, ngspice_id):
+        """ Reimplement this callback in a subclass to process logging messages from the simulator. """
         self._logger.debug('ngspice-{} send_char {}'.format(ngspice_id, message))
         return 0
 
     ##############################################
 
     def send_stat(self, message, ngspice_id):
+        """ Reimplement this callback in a subclass to process statistic messages from the simulator. """
         self._logger.debug('ngspice-{} send_stat {}'.format(ngspice_id, message))
         return 0
 
     ##############################################
 
     def send_data(self, actual_vector_values, number_of_vectors, ngspice_id):
+        """ Reimplement this callback in a subclass to process the vector actual values. """
         return 0
 
     ##############################################
 
     def send_init_data(self, data,  ngspice_id):
+        """ Reimplement this callback in a subclass to process the initial data. """
         return 0
 
     ##############################################
 
     def get_vsrc_data(self, voltage, time, node, ngspice_id):
+        """ Reimplement this callback in a subclass to provide external voltage source. """
         self._logger.debug('ngspice_id-{} get_vsrc_data @{} node {}'.format(ngspice_id, time, node))
         return 0
 
     ##############################################
 
     def get_isrc_data(self, current, time, node, ngspice_id):
+        """ Reimplement this callback in a subclass to provide external current source. """
         self._logger.debug('ngspice_id-{} get_isrc_data @{} node {}'.format(ngspice_id, time, node))
         return 0
 
     ##############################################
 
     def load_circuit(self, circuit):
+
+        """ Load the given circuit string. """
 
         circuit_lines = [line for line in str(circuit).split('\n') if line]
         circuit_lines_keepalive = [ffi.new("char[]", line) for line in circuit_lines] + [ffi.NULL]
@@ -421,6 +474,8 @@ class NgSpiceShared(object):
     ##############################################
 
     def run(self):
+
+        """ Run the simulation in the background thread and wait until the simulation is done. """
 
         rc = self._ngspice_shared.ngSpice_Command('bg_run')
         if rc:
@@ -450,11 +505,15 @@ class NgSpiceShared(object):
     @property
     def plot_names(self):
 
+        """ Return the list of plot names. """
+
         return self._convert_string_array(self._ngspice_shared.ngSpice_AllPlots())
 
     ##############################################
 
     def plot(self, plot_name):
+
+        """ Return the corresponding plot. """
 
         plot = Plot(plot_name)
         all_vectors_c = self._ngspice_shared.ngSpice_AllVecs(plot_name)
