@@ -81,6 +81,18 @@ class Variable(object):
 
     ##############################################
 
+    @staticmethod
+    def to_voltage_name(node):
+        return 'v({})'.format(node)
+
+    ##############################################
+
+    @staticmethod
+    def to_branch_name(element):
+        return 'i({})'.format(element)
+
+    ##############################################
+
     @property
     def simplified_name(self):
 
@@ -88,6 +100,19 @@ class Variable(object):
             return self.name[2:-1]
         else:
             return self.name
+
+    ##############################################
+
+    def fix_case(self, element_translation, node_translation):
+
+        """ Update the name to the right case. """
+
+        if self.is_branch_current:
+            if self.simplified_name in element_translation:
+                self.name = self.to_branch_name(element_translation[self.simplified_name])
+        elif self.is_voltage_node:
+            if self.simplified_name in node_translation:
+                self.name = self.to_voltage_name(node_translation[self.simplified_name])
 
     ##############################################
 
@@ -256,6 +281,17 @@ class RawFile(object):
 
     ##############################################
 
+    def fix_case(self, circuit):
+
+        """ Ngspice return lower case names. This method fixes the case of the variable names. """
+
+        element_translation = {element.lower():element for element in circuit.element_names()}
+        node_translation = {node.lower():node for node in circuit.node_names()}
+        for variable in self.variables.itervalues():
+            variable.fix_case(element_translation, node_translation)
+
+    ##############################################
+
     def nodes(self, to_float=False, abscissa=None):
 
         return [variable.to_waveform(abscissa, to_float=to_float) 
@@ -279,7 +315,9 @@ class RawFile(object):
 
     ##############################################
 
-    def to_analysis(self):
+    def to_analysis(self, circuit):
+
+        self.fix_case(circuit)
 
         if self.plot_name == 'Operating Point':
             return self._to_operating_point_analysis()
