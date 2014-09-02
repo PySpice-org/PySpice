@@ -90,7 +90,11 @@ To simulate the circuit, we must create a simulator instance using the :meth:`Ci
 
 ####################################################################################################
 
+####################################################################################################
+
 from collections import OrderedDict
+import keyword
+import logging
 
 # import networkx
 
@@ -101,6 +105,10 @@ from .ElementParameter import (ParameterDescriptor,
                                PositionalElementParameter,
                                FlagParameter, KeyValueParameter)
 from .Simulation import SubprocessCircuitSimulator, NgSpiceSharedCircuitSimulator
+
+####################################################################################################
+
+_module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
@@ -188,9 +196,14 @@ class Pin(object):
     pin and the node.
     """
 
+    _logger = _module_logger.getChild('Pin')
+
     ##############################################
 
     def __init__(self, element, name, node):
+
+        if keyword.iskeyword(node):
+            self._logger.warning("Node {} is a Python keyword".format(node))
 
         self._element = element
         self._name = name
@@ -438,7 +451,7 @@ class Node(object):
 
     def __init__(self, name):
 
-        self._name = name
+        self._name = str(name)
         self._elements = set()
 
     ##############################################
@@ -488,6 +501,12 @@ class Netlist(object):
     def element_iterator(self):
 
         return self._elements.itervalues()
+
+    ##############################################
+
+    def element_names(self):
+
+        return [element.name for element in self.element_iterator()]
 
     ##############################################
 
@@ -554,6 +573,12 @@ class Netlist(object):
                         node = self._nodes[node_name]
                     node.add_element(element)
         return self._nodes.values()
+
+    ##############################################
+
+    def node_names(self):
+
+        return [node.name for node in self.nodes]
 
     ##############################################
 

@@ -37,8 +37,6 @@ circuit.X('DZ1', 'd1n5919brl', 'out', circuit.gnd)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vinput=slice(-10, 2, .05)) # 10mV
 
-# Fixme: i(vinput) -> analysis.vinput
-
 figure = pylab.figure()
 
 zener_part = analysis.out <= -5.4
@@ -48,7 +46,7 @@ zener_part = analysis.out <= -5.4
 axe = pylab.subplot(121)
 axe.grid()
 # Fixme: scale
-axe.plot(analysis.out, -analysis.vinput*1000)
+axe.plot(analysis.out, -analysis.Vinput*1000)
 axe.axvline(x=0, color='black')
 axe.axvline(x=-5.6, color='red')
 axe.axvline(x=1, color='red')
@@ -60,7 +58,7 @@ axe = pylab.subplot(122)
 axe.grid()
 # Fixme:
 # U = RI   R = U/I
-dynamic_resistance = np.diff(-analysis.out) / np.diff(analysis.vinput)
+dynamic_resistance = np.diff(-analysis.out) / np.diff(analysis.Vinput)
 # axe.plot(analysis.out[:-1], dynamic_resistance/1000)
 axe.semilogy(analysis.out[10:-1], dynamic_resistance[10:], basey=10)
 axe.axvline(x=0, color='black')

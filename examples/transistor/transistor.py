@@ -45,7 +45,6 @@ simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vbase=slice(0, 3, .01))
 
 axe1 = pylab.subplot(221)
-# Fixme: i(vinput) -> analysis.vinput
 axe1.plot(analysis.base, -analysis.vbase*1000)
 axe1.axvline(x=.65, color='red')
 axe1.legend(('Base-Emitter Diode curve',), loc=(.1,.8))

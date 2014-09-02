@@ -330,7 +330,7 @@ class SubprocessCircuitSimulator(CircuitSimulator):
         # for field in raw_file.variables:
         #     print field
 
-        return raw_file.to_analysis()
+        return raw_file.to_analysis(self._circuit)
 
 ####################################################################################################
 
