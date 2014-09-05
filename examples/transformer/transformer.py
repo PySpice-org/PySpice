@@ -1,8 +1,6 @@
 ####################################################################################################
 
-import os
-
-from matplotlib import pylab
+import matplotlib.pyplot as plt
 
 ####################################################################################################
 
@@ -29,18 +27,17 @@ circuit.subcircuit(Transformer(turn_ratio=10))
 circuit.X('transformer', 'Transformer', 'input', circuit.gnd, 'output', circuit.gnd)
 circuit.R('load', 'output', circuit.gnd, kilo(1))
 
-print str(circuit)
-
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*3)
 
 plot(analysis.input)
 plot(analysis.output)
-pylab.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
-pylab.grid()
-pylab.xlabel('t [s]')
-pylab.ylabel('[V]')
-pylab.show()
+plt.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
+plt.grid()
+plt.xlabel('t [s]')
+plt.ylabel('[V]')
+
+plt.show()
 
 ####################################################################################################
 # 
