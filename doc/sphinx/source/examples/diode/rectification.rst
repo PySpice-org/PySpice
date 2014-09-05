@@ -31,7 +31,7 @@ This example depicts half and full wave rectification.
     spice_library = SpiceLibrary(libraries_path)
     
     
-    figure = plt.figure(1, (20, 10))
+    figure1 = plt.figure(1, (20, 10))
     
     
     circuit = Circuit('half-wave rectification')
@@ -41,8 +41,7 @@ This example depicts half and full wave rectification.
     circuit.R('load', 'output', circuit.gnd, 100)
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2,
-                                   probes=('V(in)', 'V(output)'))
+    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
     
     axe = plt.subplot(221)
     plt.title('Half-Wave Rectification')
@@ -66,8 +65,7 @@ This example depicts half and full wave rectification.
     circuit.C('1', 'output', circuit.gnd, milli(1))
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2,
-                                   probes=('V(in)', 'V(output)'))
+    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
     
     axe = plt.subplot(222)
     plt.title('Half-Wave Rectification with filtering')
@@ -90,8 +88,7 @@ This example depicts half and full wave rectification.
     circuit.X('D4', '1N4148', 'output_minus', 'in')
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2,
-                                   probes=('V(in)', 'V(output_minus)', 'V(output_plus)'))
+    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
     
     axe = plt.subplot(223)
     plt.title('Full-Wave Rectification')
@@ -115,8 +112,7 @@ This example depicts half and full wave rectification.
     circuit.C('1', 'output_plus', 'output_minus', milli(1))
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2,
-                                   probes=('V(in)', 'V(output_minus)', 'V(output_plus)'))
+    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
     
     axe = plt.subplot(224)
     plt.title('Full-Wave Rectification with filtering')
@@ -128,11 +124,61 @@ This example depicts half and full wave rectification.
     plt.legend(('input', 'output'), loc=(.05,.1))
     plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
     
-    
     plt.tight_layout()
-    plt.show()
-    
 
 
 .. image:: rectification.png
+
+
+.. code-block:: python
+
+    
+    
+    circuit = Circuit('115/230V Rectifier')
+    circuit.include(spice_library['1N4148'])
+    on_115 = True # switch to select 115 or 230V
+    if on_115:
+        node_230 = circuit.gnd
+        node_115 = 'node_115'
+        amplitude = 115
+    else:
+        node_230 = 'node_230'
+        node_115 = circuit.gnd
+        amplitude = 230
+    source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=amplitude, frequency=50) # Fixme: rms
+    circuit.X('D1', '1N4148', 'in', 'output_plus')
+    circuit.X('D3', '1N4148', node_230, 'output_plus')
+    circuit.X('D2', '1N4148', 'output_minus', node_230)
+    circuit.X('D4', '1N4148', 'output_minus', 'in')
+    circuit.C('1', 'output_plus', node_115, milli(1))
+    circuit.C('2', node_115, 'output_minus', milli(1))
+    circuit.R('load', 'output_plus', 'output_minus', 10)
+    
+    simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+    if on_115:
+        simulator.initial_condition(node_115=0)
+    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
+    
+    figure2 = plt.figure(1, (20, 10))
+    axe = plt.subplot(111)
+    plt.title('115/230V Rectifier')
+    plt.xlabel('Time [s]')
+    plt.ylabel('Voltage [V]')
+    plt.grid()
+    plot(analysis['in'], axis=axe)
+    plot(analysis.output_plus - analysis.output_minus, axis=axe)
+    plt.legend(('input', 'output'), loc=(.05,.1))
+    # plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
+    
+    plt.tight_layout()
+
+
+.. image:: universal-rectifier.png
+
+
+.. code-block:: python
+
+    
+    
+    plt.show()
 

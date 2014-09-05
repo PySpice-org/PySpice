@@ -60,8 +60,6 @@ temperatures: 0, 25 and 100 °C.
         analysis = simulator.dc(Vinput=slice(-2, 5, .01))
         analyses[temperature] = analysis
     
-    # Fixme: i(vinput) -> analysis.vinput
-    
     
 
 We plot the characteristic curve and compare them to the Shockley diode model:
@@ -109,7 +107,7 @@ In order to scale the reverse biased region, we have to do some hack with Matplo
     scale =  reverse_region*1e11 + forward_region*1e3
     for temperature in temperatures:
         analysis = analyses[temperature]
-        axe.plot(Vd, - analysis.vinput * scale)
+        axe.plot(Vd, - analysis.Vinput * scale)
     axe.plot(Vd, shockley_diode.I(Vd) * scale, 'black')
     axe.legend([u'@ {} °C'.format(temperature)
                 for temperature in temperatures] + ['Shockley Diode Model Is = 4 nA'],
@@ -142,8 +140,8 @@ Now we compute and plot the static and dynamic resistance.
     axe.axvspan(0, silicon_forward_voltage_threshold, facecolor='blue', alpha=.1)
     axe.axvspan(silicon_forward_voltage_threshold, 3, facecolor='blue', alpha=.2)
     analysis = analyses[25]
-    static_resistance = -analysis.out / analysis.vinput
-    dynamic_resistance = np.diff(-analysis.out) / np.diff(analysis.vinput)
+    static_resistance = -analysis.out / analysis.Vinput
+    dynamic_resistance = np.diff(-analysis.out) / np.diff(analysis.Vinput)
     axe.semilogy(analysis.out, static_resistance, basey=10)
     axe.semilogy(analysis.out[10:-1], dynamic_resistance[10:], basey=10)
     axe.axvline(x=0, color='black')

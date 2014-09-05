@@ -46,7 +46,7 @@
         simulator = circuit.simulator(temperature=25, nominal_temperature=25)
         analysis = simulator.operating_point()
         quiescent_voltage = float(analysis.out)
-        quiescent_current = - float(analysis.vinput) # Fixme:
+        quiescent_current = - float(analysis.Vinput)
         quiescent_points.append(dict(voltage=voltage,
                                      quiescent_voltage=quiescent_voltage, quiescent_current=quiescent_current))
         print "Quiescent {:.1f} mV {:.1f} mA".format(quiescent_voltage*1e3, quiescent_current*1e3)
@@ -68,8 +68,7 @@
     circuit.D('1', 'out', circuit.gnd, model='BAV21')
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.ac(start_frequency=kilo(10), stop_frequency=giga(1), number_of_points=10,  variation='dec',
-                            probes=('V(in)', 'V(out)'))
+    analysis = simulator.ac(start_frequency=kilo(10), stop_frequency=giga(1), number_of_points=10,  variation='dec')
     
     figure = pylab.figure(1, (20, 10))
     
@@ -104,8 +103,7 @@
     circuit.D('1', 'out', circuit.gnd, model='BAV21')
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.transient(step_time=source.period/1e3, end_time=source.period*4,
-                                   probes=('V(in)', 'V(out)'))
+    analysis = simulator.transient(step_time=source.period/1e3, end_time=source.period*4)
     
     axe = pylab.subplot(313)
     # Fixme: axis, x scale
