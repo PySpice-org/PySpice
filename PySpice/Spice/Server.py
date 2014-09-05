@@ -77,15 +77,11 @@ class SpiceServer(object):
         # self._logger.debug('\n' + stdout)
 
         error_found = False
-        location = stdout.find('Doing analysis')
-        if location == -1:
-            raise NameError("Wrong simulation output")
-        else:
-            lines = stdout[:location].splitlines()
-            for line_index, line in enumerate(lines):
-                if line.startswith('Error '):
-                    error_found = True
-                    self._logger.error('\n' + line + '\n' + lines[line_index+1])
+        lines = stdout.splitlines()
+        for line_index, line in enumerate(lines):
+            if line.startswith('Error '):
+                error_found = True
+                self._logger.error('\n' + line + '\n' + lines[line_index+1])
         if error_found:
             raise NameError("Errors was found by Spice")
 
@@ -101,7 +97,7 @@ class SpiceServer(object):
             if line.startswith('Warning:'):
                 self._logger.warning(line[len('Warning :'):])
             elif line == 'run simulation(s) aborted':
-                raise NameError("Simulation aborted")
+                raise NameError("Simulation aborted\n" + stderr)
             elif line.startswith('@@@'):
                 number_of_points = self._decode_number_of_points(line)
 

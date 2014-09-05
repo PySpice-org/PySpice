@@ -259,11 +259,9 @@ class ElementParameterMetaClass(type):
 
     def __new__(cls, name, bases, attributes):
 
-        sorted_attributes = OrderedDict(sorted(attributes.items(), key=lambda t: t[0]))
-
-        positional_parameters = OrderedDict()
-        parameters = OrderedDict() # not required for SPICE, but for unit test
-        for attribute_name, obj in sorted_attributes.iteritems():
+        positional_parameters = {}
+        parameters = {}
+        for attribute_name, obj in attributes.iteritems():
             if isinstance(obj, ParameterDescriptor):
                 obj.attribute_name = attribute_name
                 if isinstance(obj, PositionalElementParameter):
@@ -271,8 +269,10 @@ class ElementParameterMetaClass(type):
                 elif isinstance(obj, (FlagParameter, KeyValueParameter)):
                     d = parameters
                 d[attribute_name] = obj
-        attributes['positional_parameters'] = positional_parameters
-        attributes['optional_parameters'] = parameters
+        attributes['positional_parameters'] = OrderedDict(sorted(positional_parameters.items(),
+                                                                 key=lambda t: t[1].position))
+        # optional parameter order is not required for SPICE, but for unit test
+        attributes['optional_parameters'] = OrderedDict(sorted(parameters.items(), key=lambda t: t[0]))
         attributes['parameters_from_args'] = [parameter
                                               for parameter in sorted(positional_parameters.itervalues())
                                               if not parameter.key_parameter]

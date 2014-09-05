@@ -20,14 +20,15 @@
 
 ####################################################################################################
 
-from matplotlib import pylab
+import matplotlib.pyplot as plt
 
 ####################################################################################################
 
 def plot(waveform, *args, **kwargs):
 
-    axis = kwargs.get('axis', pylab)
-    del kwargs['axis']
+    axis = kwargs.get('axis', plt.gca())
+    if 'axis' in kwargs:
+        del kwargs['axis']
     axis.plot(waveform.abscissa, waveform, *args, **kwargs)
 
 ####################################################################################################
