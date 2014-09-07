@@ -53,9 +53,10 @@ args = argument_parser.parse_args()
 ####################################################################################################
 
 examples_path = 'examples'
-rst_directory = 'doc/sphinx/source/examples'
+rst_source_directory = 'doc/sphinx/source'
+rst_examples_directory = 'examples'
 
-rst_factory = ExampleRstFactory(examples_path, rst_directory)
+rst_factory = ExampleRstFactory(examples_path, rst_source_directory, rst_examples_directory)
 rst_factory.process_recursively(make_figure=not args.skip_figure,
                                 make_circuit_figure=not args.skip_circuit_figure,
                                 force=args.force)
