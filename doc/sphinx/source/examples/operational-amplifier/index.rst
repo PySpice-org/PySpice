@@ -2,6 +2,7 @@
 =======================
  Operational Amplifier
 =======================
+This section has 2 examples.
 
 
 .. toctree::

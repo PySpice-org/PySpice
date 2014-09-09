@@ -4,6 +4,8 @@
 
 #!# This example depicts a ring modulator
 
+#i# RingModulator.py
+
 ####################################################################################################
 
 import os

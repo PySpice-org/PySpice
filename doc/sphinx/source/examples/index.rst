@@ -1,5 +1,6 @@
 
 .. include:: ../examples.txt
+This section has 10 sub-topics and 18 examples.
 
 
 .. toctree::

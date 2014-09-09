@@ -2,6 +2,7 @@
 =============
  Electricity
 =============
+This section has 1 examples.
 
 
 .. toctree::

@@ -39,7 +39,7 @@ class CircuitSimulation(object):
     """Define and generate the spice instruction to perform a circuit simulation.
 
     .. warning:: In some cases NgSpice can perform several analyses one after the other. This case
-    is partially supported.
+      is partially supported.
 
     """
 

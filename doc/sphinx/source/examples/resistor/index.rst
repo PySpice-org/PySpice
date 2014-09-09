@@ -2,6 +2,7 @@
 ==========
  Resistor
 ==========
+This section has 2 examples.
 
 
 .. toctree::
