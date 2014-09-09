@@ -21,6 +21,47 @@ dl.class, dl.function {
 
 /* ----------------------------------------------------------------------------------------------- *
  *
+ * GetTheCode
+ *
+ */
+
+div.getthecode {
+  border-radius: 3px;
+}
+
+div.getthecode-header {
+  padding: 5px;
+  margin-bottom: 0px;
+  border-bottom: 1px solid rgb(216, 216, 216);
+  background-repeat: repeat-x;
+  background-color: rgb(234, 234, 234);
+  background-image: linear-gradient(rgb(250, 250, 250), rgb(234, 234, 234));
+}
+
+div.getthecode-header span {
+}
+
+div.getthecode-header a {
+  margin-left: .5em;
+  display: inline-block;
+  background-image: url("file-text-small.png");
+  background-repeat: no-repeat;
+  width: 16px;
+  height: 16px;
+  /* text-indent :-9999px; */ /* hide text */
+}
+
+div.getthecode-header a span {
+  display: none;
+}
+
+div.getthecode pre {
+  margin-top: 0px;
+  padding: 3px;
+}
+
+/* ----------------------------------------------------------------------------------------------- *
+ *
  * End
  *
  *----------------------------------------------------------------------------------------------- */
