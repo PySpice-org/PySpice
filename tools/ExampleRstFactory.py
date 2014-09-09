@@ -23,6 +23,7 @@
 
 ####################################################################################################
 
+import glob
 import logging
 import os
 import subprocess
@@ -126,6 +127,30 @@ class CodeChunk(Chunk):
 
 ####################################################################################################
 
+class IncludeChunk(Chunk):
+
+    """ This class represents a litteral include block. """
+
+    ##############################################
+
+    def __init__(self, example, line):
+
+        self._include_path = line.replace('#i# ', '').strip()
+        source = os.path.relpath(example.topic.join_path(self._include_path), example.topic.rst_path)
+        os.symlink(source, example.topic.join_rst_path(self._include_path))
+
+    ##############################################
+
+    def __str__(self):
+
+            return '''
+.. getthecode:: {}
+  :language: python
+
+'''.format(self._include_path) 
+
+####################################################################################################
+
 class ImageChunk(Chunk):
 
     """ This class represents an image block for a figure. """
@@ -200,17 +225,39 @@ class Example(object):
 
     ##############################################
 
-    def __init__(self, example_path, rst_example_directory):
+    def __init__(self, topic, filename):
 
-        self._is_link = os.path.islink(example_path)
-        self._source_path = os.path.realpath(example_path)
-        self._source_directory = os.path.dirname(self._source_path)
+        self._topic = topic
+        self._basename = os.path.splitext(filename)[0]
 
-        self._basename = os.path.splitext(os.path.basename(example_path))[0]
+        path = topic.join_path(filename)
+        self._is_link = os.path.islink(path)
+        self._path = os.path.realpath(path)
 
-        self._rst_example_directory = rst_example_directory
-        self._rst_directory = self._make_hierarchy(rst_example_directory)
-        self._rst_path = os.path.join(self._rst_directory, self._basename + '.rst')
+        if self._is_link:
+            factory = self._topic.factory
+            path = factory.join_rst_example_path(os.path.relpath(self._path, factory.examples_path))
+            self._rst_path = os.path.splitext(path)[0] + '.rst'
+        else:
+            self._rst_path = self._topic.join_rst_path(self.rst_filename)
+
+    ##############################################
+
+    @property
+    def topic(self):
+        return self._topic
+
+    @property
+    def basename(self):
+        return self._basename
+
+    @property
+    def rst_filename(self):
+        return self._basename + '.rst'
+
+    @property
+    def rst_inner_path(self):
+        return os.path.sep + os.path.relpath(self._rst_path, self._topic.factory.rst_source_directory)
 
     ##############################################
 
@@ -220,46 +267,18 @@ class Example(object):
 
     ##############################################
 
-    def rst_inner_path(self, rst_source_directory):
-        return os.path.join(os.sep, os.path.relpath(self._rst_path, rst_source_directory))
-
-    ##############################################
-
     def read(self):
 
-        with open(self._source_path) as f:
+        with open(self._path) as f:
             self._source = f.readlines()
         self._parse_source()
-
-    ##############################################
-
-    def _example_hierarchy(self, path):
-
-        """ Return a list of directory corresponding to the file hierarchy after ``.../examples/`` """
-
-        file_path_as_list = os.path.dirname(path).split(os.path.sep)
-        i = file_path_as_list.index('examples') # Fixme: cf. ExampleRstFactory._examples_path
-        return file_path_as_list[i+1:]
-
-    ##############################################
-
-    def _make_hierarchy(self, path):
-
-        """ Create the file hierarchy. """
-
-        example_hierarchy = self._example_hierarchy(self._source_path)
-        for i in xrange(len(example_hierarchy) +1):
-            directory = os.path.join(path, *example_hierarchy[:i])
-            if not os.path.exists(directory):
-                os.mkdir(directory)
-        return directory
 
     ##############################################
 
     @property
     def source_timestamp(self):
 
-        return timestamp(self._source_path)
+        return timestamp(self._path)
 
     ##############################################
 
@@ -292,7 +311,7 @@ class Example(object):
             line_index += 1
         tmp_file.write('import ExampleRstFactory\n')
         tmp_file.write('from ExampleRstFactory import save_figure\n')
-        tmp_file.write('ExampleRstFactory.FIGURE_DIRECTORY = "{}"\n'.format(self._rst_directory))
+        tmp_file.write('ExampleRstFactory.FIGURE_DIRECTORY = "{}"\n'.format(self._topic.rst_path))
         tmp_file.write('\n')
         for line in self._source[line_index:]:
             if line.startswith('#fig# '):
@@ -303,12 +322,12 @@ class Example(object):
         tmp_file.flush()
         dev_null = open(os.devnull, 'w')
         try:
-            print "Run example", self._source_path
-            # if 'diode-characteristic-curve' in self._source_path:
+            print "Run example", self._path
+            # if 'diode-characteristic-curve' in self._path:
             #     subprocess.check_call(('/bin/cat', tmp_file.name))
             subprocess.check_call((sys.executable, tmp_file.name), stdout=dev_null, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError:
-            print "Failed to run example", self._source_path
+            print "Failed to run example", self._path
 
     ##############################################
 
@@ -359,6 +378,8 @@ class Example(object):
         for line in self._source[line_index:footer_index]:
             if line.startswith('#?#'):
                 continue
+            elif line.startswith('#i# '):
+                self._chuncks.append(IncludeChunk(self, line))
             elif line.startswith('#fig# ') or line.startswith('#cm# '):
                 if self._rst_chunck:
                     self._append_rst_chunck()
@@ -367,7 +388,7 @@ class Example(object):
                 if line.startswith('#fig# '):
                     self._chuncks.append(ImageChunk(line))
                 else:
-                    self._chuncks.append(CircuitMacrosImageChunk(line, self._source_directory, self._rst_directory))
+                    self._chuncks.append(CircuitMacrosImageChunk(line, self._topic.path, self._topic.rst_path))
             elif line.startswith('#!#'):
                 if self._code_chunck:
                     self._append_code_chunck()
@@ -427,103 +448,159 @@ class Example(object):
 
 ####################################################################################################
 
-class ExampleRstFactory(object):
-
-    """This class processes recursively the examples directory and generate figures and RST files."""
+class Topic(object):
 
     ##############################################
 
-    def __init__(self, examples_path, rst_source_directory, rst_example_directory):
+    def __init__(self, factory, relative_path):
 
-        self._rst_source_directory = os.path.realpath(rst_source_directory)
-        self._rst_example_directory = os.path.join(self._rst_source_directory, rst_example_directory)
-        self._examples_path = os.path.realpath(examples_path)
+        self._factory = factory
+        self._relative_path = relative_path
+        self._basename = os.path.basename(relative_path)
 
-        print "Examples Path:", self._examples_path
-        print "RST API Path:", self._rst_example_directory
-        print
+        self._path = self._factory.join_examples_path(relative_path)
+        self._rst_path = self._factory.join_rst_example_path(relative_path)
 
-        if not os.path.exists(self._rst_example_directory):
-            os.mkdir(self._rst_example_directory)
-
-    ##############################################
-
-    def process_recursively(self, make_figure, make_circuit_figure, force):
-
-        """ Process recursively the examples directory. """
-
-        # Fixme: try to improve the code
-
-        links = {}
-        for current_path, sub_directories, files in os.walk(self._examples_path, followlinks=True):
-            print "Process directory {}".format(current_path)
-            for filename in files:
-                if filename[0].islower() and filename.endswith('.py') and 'flymake' not in filename:
-                    example_path = os.path.join(current_path, filename)
-                    example = Example(example_path, self._rst_example_directory)
-                    if example.is_link:
-                        print '  found link {}'.format(filename)
-                        self._register_link(links, current_path, filename, example)
-                    else:
-                        print '  found {}'.format(filename)
-                        self._process_example(example, force, make_figure, make_circuit_figure)
-
-        print "\nGenerate TOC files:"
-        for current_path, sub_directories, files in os.walk(self._rst_example_directory, followlinks=True):
-            if sub_directories or files:
-                link_files = links.get(current_path, [])
-                self._process_directory(current_path, sub_directories, files, link_files)
+        self._examples = []
+        self._links = []
+        python_files = [filename for filename in self._python_files_iterator()
+                        if self._filter_python_files(filename)]
+        if python_files:
+            print 'Process Topic: {}'.format(relative_path)
+            self._make_hierarchy()
+            for filename in python_files:
+                example = Example(self, filename)
+                if example.is_link:
+                    print '  found link: {}'.format(filename)
+                    self._links.append(example)
+                else:
+                    print '  found: {}'.format(filename)
+                    self._examples.append(example)
 
     ##############################################
 
-    def _register_link(self, links, current_path, filename, example):
-
-        # /.../examples/topic
-        rst_directory = os.path.join(self._rst_example_directory,
-                                     os.path.relpath(current_path, self._examples_path))
-        # /examples/topic/my_example.rst
-        rst_inner_path = example.rst_inner_path(self._rst_source_directory)
-
-        if rst_directory not in links:
-            links[rst_directory] = [rst_inner_path]
-        else:
-            links[rst_directory].append([rst_inner_path])
+    def __nonzero__(self):
+        return os.path.exists(self._rst_path)
+        # return bool(self._examples) or bool(self._links)
 
     ##############################################
 
-    def _process_example(self, example, force, make_figure, make_circuit_figure):
+    @property
+    def factory(self):
+        return self._factory
 
-        example.read()
-        if force or example:
-            print
-            example.make_rst()
-            if make_figure:
-                example.make_figure()
-        if make_circuit_figure:
-            example.make_circuit_figure(force)
+    @property
+    def basename(self):
+        return self._basename
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def rst_path(self):
+        return self._rst_path
 
     ##############################################
 
-    def _process_directory(self, current_path, sub_directories, files, link_files):
+    def join_path(self, filename):
+        return os.path.join(self._path, filename)
+
+    def join_rst_path(self, filename):
+        return os.path.join(self._rst_path, filename)
+
+    ##############################################
+
+    def _python_files_iterator(self):
+
+        pattern = os.path.join(self._path, '*.py')
+        for file_path in glob.glob(pattern):
+            yield os.path.basename(file_path)
+
+    ##############################################
+
+    @staticmethod
+    def _filter_python_files(filename):
+        return filename[0].islower() and filename.endswith('.py') and 'flymake' not in filename
+
+    ##############################################
+
+    def _readme_path(self):
+        return self.join_path('readme.rst')
+
+    ##############################################
+
+    def _has_readme(self):
+        return os.path.exists(self._readme_path())
+
+    ##############################################
+
+    def _example_hierarchy(self):
+
+        """ Return a list of directory corresponding to the file hierarchy after ``.../examples/`` """
+
+        return self._relative_path.split(os.path.sep)
+
+    ##############################################
+
+    def _make_hierarchy(self):
+
+        """ Create the file hierarchy. """
+
+        example_hierarchy = self._example_hierarchy()
+        for i in xrange(len(example_hierarchy) +1):
+            directory = self._factory.join_rst_example_path(*example_hierarchy[:i])
+            if not os.path.exists(directory):
+                os.mkdir(directory)
+        return directory
+
+    ##############################################
+
+    def process_examples(self, make_figure, make_circuit_figure, force):
+
+        for example in self._examples:
+            example.read()
+            if force or example:
+                print
+                example.make_rst()
+                if make_figure:
+                    example.make_figure()
+            if make_circuit_figure:
+                example.make_circuit_figure(force)
+
+    ##############################################
+
+    def _retrieve_subtopics(self):
+
+        if not self:
+            return None
+
+        subtopics = []
+        for filename in os.listdir(self._rst_path):
+            path = self.join_rst_path(filename)
+            if os.path.isdir(path):
+                if os.path.exists(os.path.join(path, 'index.rst')):
+                    relative_path = os.path.relpath(path, self._factory.rst_example_directory)
+                    topic = self._factory.topics[relative_path]
+                    subtopics.append(topic)
+        self._subtopics = subtopics
+
+    ##############################################
+
+    def make_toc(self):
 
         """ Create the TOC. """
 
-        toc_path = os.path.join(current_path, 'index.rst')
-        print 'Create TOC', toc_path
-        if link_files:
-            print '  links:', link_files
+        if not self:
+            return
 
-        title = os.path.basename(current_path).replace('-', ' ').title()
+        toc_path = self.join_rst_path('index.rst')
+        print 'Create TOC', toc_path
+
+        title = self._basename.replace('-', ' ').title()
         title_line = '='*(len(title)+2)
 
-        toc_template = """
-
-.. toctree::
-  :maxdepth: 1
-
-"""
-
-        if title == 'Examples':
+        if not title:
             template = """
 .. include:: ../examples.txt
 """
@@ -534,19 +611,135 @@ class ExampleRstFactory(object):
 {title_line}
 """
 
+        if self._has_readme():
+            with open(self._readme_path(), 'r') as f:
+                template += f.read()
+
         # Sort the TOC
-        file_dict = {x:x for x in files}
-        file_dict.update({os.path.basename(x):x for x in link_files})
+        file_dict = {x.basename:x.rst_filename for x in self._examples}
+        file_dict.update({x.basename:x.rst_inner_path for x in self._links})
         keys = sorted(file_dict.iterkeys())
+
+        self._retrieve_subtopics()
+        subtopics = [topic.basename for topic in self._subtopics]
+
+        self._number_of_examples = len(self._examples) # don't count links twice
+        number_of_links = len(self._links)
+        number_of_examples = self._number_of_examples + sum([topic._number_of_examples
+                                                             for topic in self._subtopics])
+        counter_strings = []
+        if self._subtopics:
+            counter_strings.append('{} sub-topics'.format(len(self._subtopics)))
+        if number_of_examples:
+            counter_strings.append('{} examples'.format(number_of_examples))
+        if number_of_links:
+            counter_strings.append('{} related examples'.format(number_of_links))
+
+        template += 'This section has '
+        if len(counter_strings) == 1:
+            template += counter_strings[0]
+        elif len(counter_strings) == 2:
+            template += counter_strings[0] + ' and ' + counter_strings[1]
+        else:
+            template += counter_strings[0] + ', ' + counter_strings[1] + ' and ' + counter_strings[2]
+        template += '.\n'
+
+        toc_template = """
+
+.. toctree::
+  :maxdepth: 1
+
+"""
 
         with open(toc_path, 'w') as f:
             f.write((template + toc_template).format(title=title, title_line=title_line))
-            for directory in sorted(sub_directories):
-                f.write('  {}/index.rst\n'.format(directory))
+            for subtopic in sorted(subtopics):
+                f.write('  {}/index.rst\n'.format(subtopic))
             for key in keys:
                 filename = file_dict[key]
-                if filename.endswith('.rst') and filename != 'index.rst':
-                    f.write('  {}\n'.format(filename))
+                f.write('  {}\n'.format(filename))
+
+####################################################################################################
+
+class ExampleRstFactory(object):
+
+    """This class processes recursively the examples directory and generate figures and RST files."""
+
+    ##############################################
+
+    def __init__(self, examples_path, rst_source_directory, rst_example_directory):
+
+        """
+        Parameters:
+        -----------
+
+        examples_path: string
+            path of the examples
+
+        rst_source_directory: string
+            path of the RST source directory
+
+        rst_example_directory: string
+            relative path of the examples in the RST sources
+        """
+
+        self._examples_path = os.path.realpath(examples_path)
+
+        self._rst_source_directory = os.path.realpath(rst_source_directory)
+        self._rst_example_directory = os.path.join(self._rst_source_directory, rst_example_directory)
+        if not os.path.exists(self._rst_example_directory):
+            os.mkdir(self._rst_example_directory)
+
+        self._topics = {}
+
+        print "Examples Path:", self._examples_path
+        print "RST Path:", self._rst_example_directory
+        print
+
+    ##############################################
+
+    @property
+    def examples_path(self):
+        return self._examples_path
+
+    @property
+    def rst_source_directory(self):
+        return self._rst_source_directory
+
+    @property
+    def rst_example_directory(self):
+        return self._rst_example_directory
+
+    @property
+    def topics(self):
+        return self._topics
+
+    ##############################################
+
+    def join_examples_path(self, *args):
+        return os.path.join(self._examples_path, *args)
+
+    def join_rst_example_path(self, *args):
+        return os.path.join(self._rst_example_directory, *args)
+    
+    ##############################################
+
+    def process_recursively(self, make_figure=True, make_circuit_figure=True, force=False):
+
+        """ Process recursively the examples directory. """
+
+        # walk top down so as to generate the subtopics first
+        self._topics.clear()
+        for current_path, sub_directories, files in os.walk(self._examples_path,
+                                                            topdown=False,
+                                                            followlinks=True):
+            relative_current_path = os.path.relpath(current_path, self._examples_path)
+            if relative_current_path == '.':
+                relative_current_path = ''
+            topic = Topic(self, relative_current_path)
+            self._topics[relative_current_path] = topic # collect the topics
+            topic.process_examples(make_figure, make_circuit_figure, force)
+            topic.make_toc()
 
 ####################################################################################################
 # 
