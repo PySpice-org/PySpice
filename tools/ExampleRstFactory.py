@@ -137,7 +137,9 @@ class IncludeChunk(Chunk):
 
         self._include_path = line.replace('#i# ', '').strip()
         source = os.path.relpath(example.topic.join_path(self._include_path), example.topic.rst_path)
-        os.symlink(source, example.topic.join_rst_path(self._include_path))
+        target = example.topic.join_rst_path(self._include_path)
+        if not os.path.exists(target):
+            os.symlink(source, target)
 
     ##############################################
 
@@ -443,6 +445,17 @@ class Example(object):
         with open(self._rst_path, 'w') as f:
             if not has_tile:
                 f.write(header)
+            template = """
+.. raw:: html
+
+  <div class="getthecode">
+    <div class="getthecode-header">
+      <span class="getthecode-filename">RingModulator.py</span>
+      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
+    </div>
+  </div>
+"""
+            f.write(template)
             for chunck in self._chuncks:
                 f.write(str(chunck))
 
