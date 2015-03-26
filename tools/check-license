@@ -2,7 +2,7 @@
 # -*- Python -*-
 
 ####################################################################################################
-# 
+#
 # PySpice - A Spice Package for Python
 # Copyright (C) 2014 Fabrice Salvaire
 #
@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 ####################################################################################################
 
@@ -53,10 +53,8 @@ args = argument_parser.parse_args()
 
 class LicenseChecker(object):
 
-    __excluded_extension__ = (
-        '.o',
-        '.png',
-        '.ui',
+    __extension__ = (
+        '.py',
         )
 
     ##############################################
@@ -76,7 +74,7 @@ class LicenseChecker(object):
                     directories.remove(directory)
             for filename in files:
                 extension = os.path.splitext(filename)[-1]
-                if not filename.endswith('~') and extension not in self.__excluded_extension__:
+                if extension in self.__extension__:
                     yield os.path.join(root, filename)
 
     ##############################################
@@ -128,7 +126,7 @@ class LicenseChecker(object):
                     if line.startswith('#'*10):
                         line_slice_stop = line_index
                         break
-                    elif line.startswith('# '):
+                    elif line.startswith('#'):
                         if 'Copyright' in line:
                             copyright_found = True
                     else:
