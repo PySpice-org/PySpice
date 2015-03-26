@@ -1,9 +1,10 @@
-doc/sphinx/source/api
-doc/sphinx/build
+__pycache__
 .git
 .git-backup
-doc/sphinx/source/examples
+MANIFEST
 doc/circuit_macros/CMman.pdf
 doc/circuit_macros/dpicdoc.pdf
+doc/sphinx/build
+doc/sphinx/source/api
+doc/sphinx/source/examples
 doc/spice/ngspice-manual.pdf
-MANIFEST

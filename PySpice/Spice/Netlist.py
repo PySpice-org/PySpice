@@ -261,7 +261,7 @@ class ElementParameterMetaClass(type):
 
         positional_parameters = {}
         parameters = {}
-        for attribute_name, obj in attributes.iteritems():
+        for attribute_name, obj in attributes.items():
             if isinstance(obj, ParameterDescriptor):
                 obj.attribute_name = attribute_name
                 if isinstance(obj, PositionalElementParameter):
@@ -269,26 +269,24 @@ class ElementParameterMetaClass(type):
                 elif isinstance(obj, (FlagParameter, KeyValueParameter)):
                     d = parameters
                 d[attribute_name] = obj
-        attributes['positional_parameters'] = OrderedDict(sorted(positional_parameters.items(),
+        attributes['positional_parameters'] = OrderedDict(sorted(list(positional_parameters.items()),
                                                                  key=lambda t: t[1].position))
         # optional parameter order is not required for SPICE, but for unit test
-        attributes['optional_parameters'] = OrderedDict(sorted(parameters.items(), key=lambda t: t[0]))
+        attributes['optional_parameters'] = OrderedDict(sorted(list(parameters.items()), key=lambda t: t[0]))
         attributes['parameters_from_args'] = [parameter
-                                              for parameter in sorted(positional_parameters.itervalues())
+                                              for parameter in sorted(positional_parameters.values())
                                               if not parameter.key_parameter]
 
         return super(ElementParameterMetaClass, cls).__new__(cls, name, bases, attributes)
 
 ####################################################################################################
 
-class Element(object):
+class Element(object, metaclass=ElementParameterMetaClass):
 
     """ This class implements a base class for an element.
 
     It use a metaclass machinery for the declaration of the parameters.
     """
-
-    __metaclass__ = ElementParameterMetaClass
 
     #: SPICE element prefix
     prefix = None
@@ -304,7 +302,7 @@ class Element(object):
 
         for parameter, value in zip(self.parameters_from_args, args):
             setattr(self, parameter.attribute_name, value)
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             if key in self.positional_parameters or self.optional_parameters:
                 setattr(self, key, value)
 
@@ -343,7 +341,7 @@ class Element(object):
     def parameter_iterator(self):
         """ This iterator returns the parameter in the right order. """
         for parameter_dict in self.positional_parameters, self.optional_parameters:
-            for parameter in parameter_dict.itervalues():
+            for parameter in parameter_dict.values():
                 if parameter.nonzero(self):
                     yield parameter
 
@@ -500,7 +498,7 @@ class Netlist(object):
 
     def element_iterator(self):
 
-        return self._elements.itervalues()
+        return iter(self._elements.values())
 
     ##############################################
 
@@ -512,7 +510,7 @@ class Netlist(object):
 
     def model_iterator(self):
 
-        return self._models.itervalues()
+        return iter(self._models.values())
 
     ##############################################
 
@@ -572,7 +570,7 @@ class Netlist(object):
                     else:
                         node = self._nodes[node_name]
                     node.add_element(element)
-        return self._nodes.values()
+        return list(self._nodes.values())
 
     ##############################################
 
@@ -740,7 +738,7 @@ class Circuit(Netlist):
 
         """ Return a sub-circuit iterator. """
 
-        return self._subcircuits.itervalues()
+        return iter(self._subcircuits.values())
 
     ##############################################
 

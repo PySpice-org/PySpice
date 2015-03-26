@@ -46,10 +46,10 @@ class RstFactory(object):
         self._excluded_directory = [os.path.join(self._root_module_path, x) for x in excluded_directory]
         self._root_module_name = os.path.basename(self._root_module_path)
 
-        print "RST API Path:    ", self._rst_directory
-        print "Root Module Path:", self._root_module_path
-        print "Root Module Name:", self._root_module_name
-        print 'Exclude:', '\n  '.join(self._excluded_directory)
+        print("RST API Path:    ", self._rst_directory)
+        print("Root Module Path:", self._root_module_path)
+        print("Root Module Name:", self._root_module_name)
+        print('Exclude:', '\n  '.join(self._excluded_directory))
 
         if not os.path.exists(self._rst_directory):
             os.mkdir(self._rst_directory)
@@ -83,10 +83,10 @@ class RstFactory(object):
         directory_module_name = os.path.basename(module_path)
         directory_module_python_path = self.module_path_to_python_path(module_path)
         dst_directory = self.join_rst_path(self.python_path_to_path(directory_module_python_path))
-        print
-        print "Directory Module Name:", directory_module_name
-        print "Directory Module Python Path:", directory_module_python_path
-        print "Dest Path:", dst_directory
+        print()
+        print("Directory Module Name:", directory_module_name)
+        print("Directory Module Python Path:", directory_module_python_path)
+        print("Dest Path:", dst_directory)
 
         if not os.path.exists(dst_directory):
             os.mkdir(dst_directory)
@@ -96,7 +96,7 @@ class RstFactory(object):
         for file_name in python_files:
             module_name = self.filename_to_module(file_name)
             module_names.append(module_name)
-            print "  Module:", module_name
+            print("  Module:", module_name)
             rst = self._generate_rst_module(directory_module_python_path, module_name)
             rst_file_name = os.path.join(dst_directory, module_name + '.rst')
             with open(rst_file_name, 'w') as f:

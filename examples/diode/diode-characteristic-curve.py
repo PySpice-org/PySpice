@@ -97,7 +97,7 @@ for temperature in temperatures:
     analysis = analyses[temperature]
     axe.plot(Vd, - analysis.Vinput * scale)
 axe.plot(Vd, shockley_diode.I(Vd) * scale, 'black')
-axe.legend([u'@ {} °C'.format(temperature)
+axe.legend(['@ {} °C'.format(temperature)
             for temperature in temperatures] + ['Shockley Diode Model Is = 4 nA'],
            loc=(.02,.8))
 axe.axvline(x=0, color='black')
@@ -117,7 +117,7 @@ axe.text( 1, -100, 'Forward Biased Region', ha='center', va='center')
 #!#   r_d = \frac{d V_d}{d I_d} \approx \frac{n V_T}{I_d}
 
 axe = pylab.subplot(122)
-axe.set_title(u'Resistance @ 25 °C')
+axe.set_title('Resistance @ 25 °C')
 axe.grid()
 axe.set_xlim(-2, 3)
 axe.axvspan(-2, 0, facecolor='green', alpha=.2)
@@ -131,10 +131,10 @@ axe.semilogy(analysis.out[10:-1], dynamic_resistance[10:], basey=10)
 axe.axvline(x=0, color='black')
 axe.axvline(x=silicon_forward_voltage_threshold, color='red')
 axe.axhline(y=1, color='red')
-axe.text(-1.5, 1.1, u'R limitation = 1 Ω', color='red')
-axe.legend([u'{} Resistance'.format(x) for x in 'Static', 'Dynamic'], loc=(.05,.2))
+axe.text(-1.5, 1.1, 'R limitation = 1 Ω', color='red')
+axe.legend(['{} Resistance'.format(x) for x in ('Static', 'Dynamic')], loc=(.05,.2))
 axe.set_xlabel('Voltage [V]')
-axe.set_ylabel(u'Resistance [Ω]')
+axe.set_ylabel('Resistance [Ω]')
 
 pylab.tight_layout()
 pylab.show()

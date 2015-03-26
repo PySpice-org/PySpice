@@ -73,7 +73,7 @@ class Path(object):
 
     ##############################################
         
-    def __nonzero__(self):
+    def __bool__(self):
 
         return os.path.exists(self._path)
 
@@ -188,7 +188,7 @@ class Directory(Path):
 
     ##############################################
         
-    def __nonzero__(self):
+    def __bool__(self):
 
         return super(Directory, self).__nonzero__() and self.is_directory()
 
@@ -241,7 +241,7 @@ class File(Path):
  
     ##############################################
         
-    def __nonzero__(self):
+    def __bool__(self):
 
         return super(File, self).__nonzero__() and os.path.isfile(self._path)
 

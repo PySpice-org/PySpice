@@ -79,7 +79,7 @@ class SpiceServer(object):
         error_found = False
         lines = stdout.splitlines()
         for line_index, line in enumerate(lines):
-            if line.startswith('Error '):
+            if line.startswith(b'Error '):
                 error_found = True
                 self._logger.error('\n' + line + '\n' + lines[line_index+1])
         if error_found:
@@ -118,8 +118,11 @@ class SpiceServer(object):
                                    stdin=subprocess.PIPE,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate(str(spice_input))
-
+        input_ = str(spice_input).encode('utf-8')
+        stdout, stderr = process.communicate(input_)
+        # stdout = stdout.decode('utf-8')
+        stderr = stderr.decode('utf-8')
+        
         self._parse_stdout(stdout)
         number_of_points = self._parse_stderr(stderr)
         if number_of_points is None:

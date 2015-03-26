@@ -45,7 +45,7 @@ def save_figure(figure,
 
     figure_format = os.path.splitext(figure_filename)[1][1:] # foo.png -> png
     figure_path = os.path.join(FIGURE_DIRECTORY, figure_filename)
-    print "Save figure", figure_path
+    print("Save figure", figure_path)
     figure.savefig(figure_path,
                    format=figure_format,
                    dpi=150,
@@ -84,7 +84,7 @@ class RstChunk(Chunk):
 
     ##############################################
 
-    def __nonzero__(self):
+    def __bool__(self):
 
         return bool(self._lines)
 
@@ -108,7 +108,7 @@ class CodeChunk(Chunk):
 
     ##############################################
 
-    def __nonzero__(self):
+    def __bool__(self):
 
         for line in self._lines:
             if line.strip():
@@ -195,7 +195,7 @@ class CircuitMacrosImageChunk(ImageChunk):
 
     ##############################################
 
-    def __nonzero__(self):
+    def __bool__(self):
 
         if os.path.exists(self._figure_real_path):
             return timestamp(self._m4_path) > timestamp(self._figure_real_path)
@@ -206,13 +206,13 @@ class CircuitMacrosImageChunk(ImageChunk):
 
     def make_figure(self):
 
-        print "Make circuit figure", self._m4_path
+        print("Make circuit figure", self._m4_path)
         dev_null = open(os.devnull, 'w')
         try:
             subprocess.check_call((self._generator, self._m4_path, self._rst_directory),
                                   stdout=dev_null, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError:
-            print "Failed to make circuit figure example", self._m4_path
+            print("Failed to make circuit figure example", self._m4_path)
 
 ####################################################################################################
 
@@ -294,7 +294,7 @@ class Example(object):
 
     ##############################################
 
-    def __nonzero__(self):
+    def __bool__(self):
 
         return self.source_timestamp > self.rst_timestamp
 
@@ -324,12 +324,12 @@ class Example(object):
         tmp_file.flush()
         dev_null = open(os.devnull, 'w')
         try:
-            print "Run example", self._path
+            print("Run example", self._path)
             # if 'diode-characteristic-curve' in self._path:
             #     subprocess.check_call(('/bin/cat', tmp_file.name))
             subprocess.check_call((sys.executable, tmp_file.name), stdout=dev_null, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError:
-            print "Failed to run example", self._path
+            print("Failed to run example", self._path)
 
     ##############################################
 
@@ -421,7 +421,7 @@ class Example(object):
 
         """ Generate the example RST file. """
 
-        print "Create RST file", self._rst_path
+        print("Create RST file", self._rst_path)
 
         has_tile= False
         for chunck in self._chuncks:
@@ -479,20 +479,20 @@ class Topic(object):
         python_files = [filename for filename in self._python_files_iterator()
                         if self._filter_python_files(filename)]
         if python_files:
-            print 'Process Topic: {}'.format(relative_path)
+            print('Process Topic: {}'.format(relative_path))
             self._make_hierarchy()
             for filename in python_files:
                 example = Example(self, filename)
                 if example.is_link:
-                    print '  found link: {}'.format(filename)
+                    print('  found link: {}'.format(filename))
                     self._links.append(example)
                 else:
-                    print '  found: {}'.format(filename)
+                    print('  found: {}'.format(filename))
                     self._examples.append(example)
 
     ##############################################
 
-    def __nonzero__(self):
+    def __bool__(self):
         return os.path.exists(self._rst_path)
         # return bool(self._examples) or bool(self._links)
 
@@ -561,7 +561,7 @@ class Topic(object):
         """ Create the file hierarchy. """
 
         example_hierarchy = self._example_hierarchy()
-        for i in xrange(len(example_hierarchy) +1):
+        for i in range(len(example_hierarchy) +1):
             directory = self._factory.join_rst_example_path(*example_hierarchy[:i])
             if not os.path.exists(directory):
                 os.mkdir(directory)
@@ -574,7 +574,7 @@ class Topic(object):
         for example in self._examples:
             example.read()
             if force or example:
-                print
+                print()
                 example.make_rst()
                 if make_figure:
                     example.make_figure()
@@ -608,7 +608,7 @@ class Topic(object):
             return
 
         toc_path = self.join_rst_path('index.rst')
-        print 'Create TOC', toc_path
+        print('Create TOC', toc_path)
 
         title = self._basename.replace('-', ' ').title()
         title_line = '='*(len(title)+2)
@@ -631,7 +631,7 @@ class Topic(object):
         # Sort the TOC
         file_dict = {x.basename:x.rst_filename for x in self._examples}
         file_dict.update({x.basename:x.rst_inner_path for x in self._links})
-        keys = sorted(file_dict.iterkeys())
+        keys = sorted(file_dict.keys())
 
         self._retrieve_subtopics()
         subtopics = [topic.basename for topic in self._subtopics]
@@ -705,9 +705,9 @@ class ExampleRstFactory(object):
 
         self._topics = {}
 
-        print "Examples Path:", self._examples_path
-        print "RST Path:", self._rst_example_directory
-        print
+        print("Examples Path:", self._examples_path)
+        print("RST Path:", self._rst_example_directory)
+        print()
 
     ##############################################
 

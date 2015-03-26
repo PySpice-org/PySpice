@@ -93,9 +93,9 @@ class ParameterDescriptor(object):
 
     ##############################################
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
 
-        return cmp(self.attribute_name, other.attribute_name)
+        return self.attribute_name < other.attribute_name
 
 ####################################################################################################
 
@@ -130,9 +130,9 @@ class PositionalElementParameter(ParameterDescriptor):
 
     ##############################################
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
 
-        return cmp(self.position, other.position)
+        return self.position < other.position
 
 ####################################################################################################
 

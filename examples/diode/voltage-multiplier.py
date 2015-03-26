@@ -35,7 +35,7 @@ circuit.include(spice_library['1N4148'])
 source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10, frequency=50)
 
 multiplier = 5
-for i in xrange(multiplier):
+for i in range(multiplier):
     if i:
         top_node = i - 1
     else:
@@ -59,14 +59,14 @@ axe.set_ylabel('Voltage [V]')
 axe.grid()
 # Fixme: axis vs axe ...
 plot(analysis['in'], axis=axe)
-for i in xrange(1, multiplier+1):
+for i in range(1, multiplier+1):
     y = analysis[str(i)]
     if i & 1: # for odd multiplier the ground is permuted
         y -= analysis['in']
     plot(y, axis=axe)
 # axe.axhline(-multiplier*source.amplitude)
 axe.set_ylim(-multiplier*1.1*source.amplitude, 1.1*source.amplitude)
-axe.legend(['input'] + ['*' + str(i) for i in xrange(1, multiplier+1)] ,
+axe.legend(['input'] + ['*' + str(i) for i in range(1, multiplier+1)] ,
            loc=(.2,.8))
 
 plt.tight_layout()

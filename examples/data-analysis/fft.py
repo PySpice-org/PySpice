@@ -41,9 +41,9 @@ plt.plot(tf, spectrum, 'o-')
 plt.grid()
 for frequency in frequency1, frequency2:
     plt.axvline(x=frequency, color='red')
-plt.title(u'Spectrum')
+plt.title('Spectrum')
 plt.xlabel('Frequency [Hz]')
-plt.ylabel(u'Amplitude')
+plt.ylabel('Amplitude')
 
 #fig# save_figure(figure1, 'fft-sum-of-sin.png')
 
@@ -72,7 +72,7 @@ figure2 = plt.figure(2, (20, 10))
 plt.subplot(211)
 plt.plot(t, y)
 y_sum = None
-for n in xrange(1, 20, 2):
+for n in range(1, 20, 2):
     yn = 4/(np.pi*n)*np.sin((2*np.pi*n*frequency*t))
     if y_sum is None:
         y_sum = yn
@@ -93,9 +93,9 @@ plt.plot(tf, spectrum)
 n = np.arange(1, 20, 2)
 plt.plot(n*frequency, 4/(np.pi*n), 'o', color='red')
 plt.grid()
-plt.title(u'Spectrum')
+plt.title('Spectrum')
 plt.xlabel('Frequency [Hz]')
-plt.ylabel(u'Amplitude')
+plt.ylabel('Amplitude')
 
 #fig# save_figure(figure2, 'fft-square-waveform.png')
 

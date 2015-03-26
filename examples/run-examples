@@ -44,9 +44,9 @@ for topic in (
     python_files = glob.glob(os.path.join(os.path.dirname(__file__), topic, '*.py'))
     for file_name in python_files:
         if file_name.islower():
-            print 'Run {}'.format(file_name)
+            print('Run {}'.format(file_name))
             subprocess.call(('python', file_name))
-            print 'To continue press Enter'
+            print('To continue press Enter')
             rc = sys.stdin.readline().strip()
 
 ####################################################################################################

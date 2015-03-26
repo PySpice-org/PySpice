@@ -25,7 +25,7 @@ circuit.C('f', 'out', circuit.gnd, micro(1))
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.ac(start_frequency=1, stop_frequency=mega(1), number_of_points=10,  variation='dec')
 
-print analysis.out
+print(analysis.out)
 
 figure = pylab.figure()
 pylab.title("Bode Diagram of a Low-Pass RC Filter")

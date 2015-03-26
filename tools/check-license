@@ -86,7 +86,7 @@ class LicenseChecker(object):
         for path in self.iter_file():
             try:
                 if self._check_file(path) is None:
-                    print path
+                    print(path)
             except IOError:
                 pass
 
@@ -104,7 +104,7 @@ class LicenseChecker(object):
                 if path != license_model_py and line_slice is not None:
                     # input_path = path + '~'
                     # os.rename(path, input_path)
-                    print 'Set', path
+                    print('Set', path)
                     subprocess.call((replace_slice, path, license_model_py,
                                      str(line_slice.start), str(line_slice.stop +1)))
             except IOError:

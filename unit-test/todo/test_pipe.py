@@ -35,5 +35,5 @@ ngspice_input = ngspice_input_template.format(line_peak_voltage=10,
 
 raw_file = spice_server(ngspice_input)
 
-print raw_file.data.dtype.fields
-print raw_file.data
+print(raw_file.data.dtype.fields)
+print(raw_file.data)
