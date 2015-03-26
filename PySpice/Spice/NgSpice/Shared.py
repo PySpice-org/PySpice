@@ -176,7 +176,7 @@ class Plot(dict):
     def nodes(self, to_float=False, abscissa=None):
 
         return [variable.to_waveform(abscissa, to_float=to_float) 
-                for variable in self.itervalues()
+                for variable in self.values()
                 if variable.is_voltage_node()]
 
     ##############################################
@@ -184,7 +184,7 @@ class Plot(dict):
     def branches(self, to_float=False, abscissa=None):
 
         return [variable.to_waveform(abscissa, to_float=to_float)
-                for variable in self.itervalues()
+                for variable in self.values()
                 if variable.is_branch_current()]
 
     ##############################################
@@ -192,7 +192,7 @@ class Plot(dict):
     def elements(self, abscissa=None):
 
         return [variable.to_waveform(abscissa, to_float=True) 
-                for variable in self.itervalues()]
+                for variable in self.values()]
 
     ##############################################
 
@@ -379,7 +379,7 @@ class NgSpiceShared(object):
         self = ffi.from_handle(user_data)
         self._logger.debug('ngspice_id-{} send_data [{}]'.format(ngspice_id, data.vecindex))
         actual_vector_values = {}
-        for i in xrange(int(number_of_vectors)):
+        for i in range(int(number_of_vectors)):
             actual_vector_value = data.vecsa[i]
             vector_name = ffi.string(actual_vector_value.name)
             value = complex(actual_vector_value.creal, actual_vector_value.cimag)
@@ -395,7 +395,7 @@ class NgSpiceShared(object):
         if self._logger.isEnabledFor(logging.DEBUG):
             self._logger.debug('ngspice_id-{} send_init_data'.format(ngspice_id))
             number_of_vectors = data.veccount
-            for i in xrange(number_of_vectors):
+            for i in range(number_of_vectors):
                 self._logger.debug('  Vector: ' + ffi.string(data.vecs[i].vecname))
         return self.send_init_data(data, ngspice_id) # Fixme: should be a Python object
 

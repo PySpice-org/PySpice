@@ -79,7 +79,7 @@ class CircuitSimulation(object):
 
         for item in args:
             self._options[str(item)] = None
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             self._options[str(key)] = str(value)
 
     ##############################################
@@ -111,7 +111,7 @@ class CircuitSimulation(object):
         Usage: initial_condition(node_name1=value, ...)
         """
 
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             self._initial_condition['V({})'.format(str(key))] = str(value)
 
         # Fixme: .nodeset
@@ -186,7 +186,7 @@ class CircuitSimulation(object):
         """ .dc srcnam vstart vstop vincr [ src2 start2 stop2 incr2 ] """
 
         parameters = []
-        for source_name, voltage_slice in kwargs.iteritems():
+        for source_name, voltage_slice in kwargs.items():
             parameters += [source_name, voltage_slice.start, voltage_slice.stop, voltage_slice.step]
         self._analysis_parameters['dc'] = parameters
 
@@ -228,7 +228,7 @@ class CircuitSimulation(object):
 
         netlist = str(self._circuit)
         if self.options:
-            for key, value in self._options.iteritems():
+            for key, value in self._options.items():
                 if value is not None:
                     netlist += '.options {} = {}\n'.format(key, value)
                 else:
@@ -237,7 +237,7 @@ class CircuitSimulation(object):
             netlist += '.ic ' + join_dict(self._initial_condition) + '\n'
         if self._saved_nodes:
             netlist += '.save ' + join_list(self._saved_nodes) + '\n'
-        for analysis, analysis_parameters in self._analysis_parameters.iteritems():
+        for analysis, analysis_parameters in self._analysis_parameters.items():
             netlist += '.' + analysis + ' ' + join_list(analysis_parameters) + '\n'
         netlist += '.end\n'
         return netlist

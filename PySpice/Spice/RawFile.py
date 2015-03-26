@@ -179,9 +179,9 @@ class RawFile(object):
 
         """ Parse the header """
 
-        binary_line = 'Binary:\n'
+        binary_line = b'Binary:\n'
         binary_location = stdout.find(binary_line)
-        if binary_line < 0:
+        if binary_location < 0:
             raise NameError('Cannot locate binary data')
         header_lines = stdout[:binary_location].splitlines()
         raw_data = stdout[binary_location + len(binary_line):]
@@ -198,8 +198,8 @@ class RawFile(object):
         self._read_header_field_line(header_line_iterator, 'Variables', has_value=False)
         self._read_header_field_line(header_line_iterator, 'No. of Data Columns ')
         self.variables = {}
-        for i in xrange(self.number_of_variables):
-            line = header_line_iterator.next()
+        for i in range(self.number_of_variables):
+            line = (next(header_line_iterator)).decode('utf-8')
             self._logger.debug(line)
             items = [x.strip() for x in line.split('\t') if x]
             # 0 frequency frequency grid=3
@@ -219,8 +219,8 @@ class RawFile(object):
 
         line = None
         while not line:
-            line = header_line_iterator.next()
-        return line
+            line = next(header_line_iterator)
+        return line.decode('utf-8')
 
     ##############################################
         
@@ -276,7 +276,7 @@ class RawFile(object):
             raw_data = input_data
             input_data = np.array(raw_data[0::2], dtype='complex64')
             input_data.imag = raw_data[1::2]
-        for variable in self.variables.itervalues():
+        for variable in self.variables.values():
             variable.data = input_data[variable.index]
 
     ##############################################
@@ -287,7 +287,7 @@ class RawFile(object):
 
         element_translation = {element.lower():element for element in circuit.element_names()}
         node_translation = {node.lower():node for node in circuit.node_names()}
-        for variable in self.variables.itervalues():
+        for variable in self.variables.values():
             variable.fix_case(element_translation, node_translation)
 
     ##############################################
@@ -295,7 +295,7 @@ class RawFile(object):
     def nodes(self, to_float=False, abscissa=None):
 
         return [variable.to_waveform(abscissa, to_float=to_float) 
-                for variable in self.variables.itervalues()
+                for variable in self.variables.values()
                 if variable.is_voltage_node()]
 
     ##############################################
@@ -303,7 +303,7 @@ class RawFile(object):
     def branches(self, to_float=False, abscissa=None):
 
         return [variable.to_waveform(abscissa, to_float=to_float)
-                for variable in self.variables.itervalues()
+                for variable in self.variables.values()
                 if variable.is_branch_current()]
 
     ##############################################
@@ -311,7 +311,7 @@ class RawFile(object):
     def elements(self, abscissa=None):
 
         return [variable.to_waveform(abscissa, to_float=True) 
-                for variable in self.variables.itervalues()]
+                for variable in self.variables.values()]
 
     ##############################################
 

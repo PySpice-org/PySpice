@@ -109,7 +109,7 @@ def process_file(absolut_file_name):
 
     return_code = subprocess.call([perl_grep, opt.pattern, absolut_file_name])
     if return_code == 0:
-        print absolut_file_name
+        print(absolut_file_name)
         
         if opt.new_pattern is not None:
             subprocess.call(['sed',

@@ -50,20 +50,20 @@ def compute_exact_finite_difference_coefficients(derivative_order, grid, x0=0):
     d = [[[0
            for v in range(N)]
           for n in range(N)]
-         for m in xrange(derivative_order +1)]
+         for m in range(derivative_order +1)]
 
     d[0][0][0] = fractions.Fraction(1,1)
     c1 = 1
-    for n in xrange(1, N):
+    for n in range(1, N):
         c2 = 1
-        for v in xrange(n):
+        for v in range(n):
             c3 = grid[n] - grid[v]
             c2 *= c3
             if n <= derivative_order:
                 d[n][n-1][v] = 0
-            for m in xrange(min(n, derivative_order) +1):
+            for m in range(min(n, derivative_order) +1):
                 d[m][n][v] = ( (grid[n] - x0)*d[m][n-1][v] - m*d[m-1][n-1][v] ) / c3
-        for m in xrange(min(n, derivative_order) +1):
+        for m in range(min(n, derivative_order) +1):
             d[m][n][n] = fractions.Fraction(c1,c2)*( m*d[m-1][n-1][n-1] - (grid[n-1] - x0)*d[m][n-1][n-1] )
         c1 = c2
 
@@ -88,11 +88,11 @@ def get_finite_difference_coefficients(derivative_order, accuracy_order, grid_ty
 
     if grid_type == 'centred':
         window_size = accuracy_order / 2
-        grid = range(-window_size, window_size +1)
+        grid = list(range(-window_size, window_size +1))
     elif grid_type == 'forward':
-        grid = range(derivative_order + accuracy_order)
+        grid = list(range(derivative_order + accuracy_order))
     elif grid_type == 'backward':
-        grid = range(-(derivative_order + accuracy_order) +1, 1)
+        grid = list(range(-(derivative_order + accuracy_order) +1, 1))
         grid = list(reversed(grid)) # Fixme: why ?
     else:
         raise ValueError("Wrong grid type")

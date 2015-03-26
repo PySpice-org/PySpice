@@ -27,7 +27,7 @@ from distutils.core import setup
 
 ####################################################################################################
 
-execfile('setup_data.py')
+exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
 
 setup(**setup_dict)
 

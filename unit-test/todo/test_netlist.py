@@ -30,17 +30,17 @@ simulation.options(filetype='binary')
 simulation.save('V(in)', 'V(out)')
 simulation.tran(step_time, end_time)
 
-print circuit.nodes
+print(circuit.nodes)
 for node in circuit.nodes:
-    print repr(node), ':', ' '.join(element.name for element in node.elements)
-print circuit.Cload.plus
+    print(repr(node), ':', ' '.join(element.name for element in node.elements))
+print(circuit.Cload.plus)
 # print repr(circuit.Cload)
 # # print circuit.1N4148
 # print subcircuit_1N4148['1N4148']
 # print circuit.out
-print '\n\n'
+print('\n\n')
 
-print str(simulation)
+print(str(simulation))
 # python PySpice/test_netlist.py | ngspice -s > data
 
 ####################################################################################################

@@ -22,8 +22,8 @@ circuit.R(5, 3, 2, kilo(2))
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.operating_point()
 
-for node in analysis.nodes.itervalues():
-    print 'Node {}: {} V'.format(str(node), float(node)) # Fixme: format value + unit
+for node in analysis.nodes.values():
+    print('Node {}: {} V'.format(str(node), float(node))) # Fixme: format value + unit
 
 ####################################################################################################
 # 

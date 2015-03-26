@@ -51,7 +51,7 @@ class Unit(numbers.Real):
             else:
                 self._value =  float(value) / self.scale
         elif isinstance(value, int):
-            self._value =  value # to keep as int
+            self._value = value # to keep as int
         else:
             self._value = float(value)
 
@@ -119,7 +119,7 @@ class Unit(numbers.Real):
 
     ##############################################
 
-    def __nonzero__(self):
+    def __bool__(self):
 
         """True if self != 0. Called for bool(self)."""
 
@@ -133,9 +133,17 @@ class Unit(numbers.Real):
 
         new_obj = self.clone()
         new_obj._value += self.convert_value(other)
-
         return new_obj
 
+    ##############################################
+
+    def __iadd__(self, other):
+
+        """self += other"""
+
+        self._value += self.convert_value(other)
+        return self
+        
     ##############################################
 
     def __radd__(self, other):
@@ -159,7 +167,6 @@ class Unit(numbers.Real):
         """+self"""
         return self.clone()
 
-
     ##############################################
 
     def __sub__(self, other):
@@ -168,9 +175,17 @@ class Unit(numbers.Real):
 
         new_obj = self.clone()
         new_obj._value -= self.convert_value(other)
-
         return new_obj
 
+    ##############################################
+
+    def __isub__(self, other):
+
+        """self -= other"""
+
+        self._value -= self.convert_value(other)
+        return self
+    
     ##############################################
 
     def __rsub__(self, other):
@@ -187,9 +202,17 @@ class Unit(numbers.Real):
 
         new_obj = self.clone()
         new_obj._value *= float(other)
-
         return new_obj
 
+    ##############################################
+
+    def __imul__(self, other):
+
+        """self *= other"""
+
+        self._value *= self.convert_value(other)
+        return self
+    
     ##############################################
 
     def __rmul__(self, other):
@@ -200,12 +223,36 @@ class Unit(numbers.Real):
 
     ##############################################
 
-    def __div__(self, other):
+    def __floordiv__(self, other):
 
-        """self / other without __future__ division
+        """self // other """
 
-        May promote to float.
-        """
+        new_obj = self.clone()
+        new_obj._value //= float(other)
+        return new_obj
+
+    ##############################################
+
+    def __ifloordiv__(self, other):
+
+        """self //= other """
+
+        self._value //= float(other)
+        return self
+    
+    ##############################################
+
+    def __rfloordiv__(self, other):
+
+        """other // self"""
+
+        return other.__floordiv__(self)
+
+    ##############################################
+
+    def __truediv__(self, other):
+
+        """self / other"""
 
         new_obj = self.clone()
         new_obj._value /= float(other)
@@ -214,30 +261,20 @@ class Unit(numbers.Real):
 
     ##############################################
 
-    def __rdiv__(self, other):
+    def __itruediv__(self, other):
 
-        """other / self without __future__ division"""
+        """self /= other"""
 
-        return other.__div__(self)
-
-    ##############################################
-
-    def __truediv__(self, other):
-
-        """self / other with __future__ division.
-
-        Should promote to float when necessary.
-        """
-
-        raise NotImplementedError
-
+        self._value /= float(other)
+        return self
+    
     ##############################################
 
     def __rtruediv__(self, other):
 
-        """other / self with __future__ division"""
+        """other / self"""
 
-        raise NotImplementedError
+        return other.__div__(self)
 
     ##############################################
 
@@ -247,9 +284,15 @@ class Unit(numbers.Real):
 
         new_obj = self.clone()
         new_obj._value **= float(exponent)
-
         return new_obj
 
+    ##############################################
+
+    def __ipow__(self, exponent):
+
+        self._value **= float(exponent)
+        return self
+    
     ##############################################
 
     def __rpow__(self, base):
@@ -326,22 +369,6 @@ class Unit(numbers.Real):
 
     ##############################################
 
-    def __floordiv__(self, other):
-
-        """self // other: The floor() of self/other."""
-
-        raise NotImplementedError
-
-    ##############################################
-
-    def __rfloordiv__(self, other):
-
-        """other // self: The floor() of other/self."""
-
-        raise NotImplementedError
-
-    ##############################################
-
     def __mod__(self, other):
 
         """self % other"""
@@ -374,6 +401,24 @@ class Unit(numbers.Real):
 
         return float(self) <= float(other)
 
+    ##############################################
+
+    def __ceil__(self):
+
+        return math.ceil(float(self))
+        
+    ##############################################
+        
+    def __floor__(self):
+
+        return math.floor(float(self))
+        
+    ##############################################
+        
+    def __round__(self):
+
+        return round(float(self))
+        
     ##############################################
 
     def inverse(self, the_class=None):

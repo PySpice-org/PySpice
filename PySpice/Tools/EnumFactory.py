@@ -163,8 +163,8 @@ def ExplicitEnumFactory(enum_name, enum_dict):
     """
 
     obj_dict = {}
-    obj_dict['constants'] = enum_dict.values()
-    for name, value in enum_dict.items():
+    obj_dict['constants'] = list(enum_dict.values())
+    for name, value in list(enum_dict.items()):
         obj_dict[name] = EnumConstant(name, value)
 
     return ExplicitEnumMetaClass(enum_name, (), obj_dict)

@@ -36,7 +36,7 @@ def to_absolute_path(path):
 def parent_directory_of(file_name, step=1):
     
     directory = file_name
-    for i in xrange(step):
+    for i in range(step):
         directory = os.path.dirname(directory)
     return directory
 
@@ -44,7 +44,7 @@ def parent_directory_of(file_name, step=1):
 
 def find(file_name, directories):
     
-    if isinstance(directories, types.StringType):
+    if isinstance(directories, bytes):
         directories = (directories,)
     for directory in directories:
         for directory_path, sub_directories, file_names in os.walk(directory):

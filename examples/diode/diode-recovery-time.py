@@ -46,14 +46,14 @@ for voltage in (dc_offset - ac_amplitude, dc_offset, dc_offset + ac_amplitude):
     quiescent_current = - float(analysis.Vinput)
     quiescent_points.append(dict(voltage=voltage,
                                  quiescent_voltage=quiescent_voltage, quiescent_current=quiescent_current))
-    print "Quiescent {:.1f} mV {:.1f} mA".format(quiescent_voltage*1e3, quiescent_current*1e3)
+    print("Quiescent {:.1f} mV {:.1f} mA".format(quiescent_voltage*1e3, quiescent_current*1e3))
 dynamic_resistance = ((quiescent_points[0]['quiescent_voltage'] - 
                        quiescent_points[-1]['quiescent_voltage'])
                       /
                       (quiescent_points[0]['quiescent_current'] -
                        quiescent_points[-1]['quiescent_current']))
 
-print "Dynamic Resistance", dynamic_resistance
+print("Dynamic Resistance", dynamic_resistance)
 
 ####################################################################################################
 
@@ -83,7 +83,7 @@ axe.semilogx(analysis.frequency, np.absolute(analysis.out/current))
 axe.grid(True)
 axe.grid(True, which='minor')
 axe.set_xlabel("Frequency [Hz]")
-axe.set_ylabel(u'Rd [Ω]')
+axe.set_ylabel('Rd [Ω]')
 
 ####################################################################################################
 

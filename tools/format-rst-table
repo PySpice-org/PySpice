@@ -79,11 +79,11 @@ for line in sys.stdin:
 hline = '+' + '+'.join(['-'*(width+2) for width in column_widths]) + '+'
 line_format = '|' + '+'.join([' {:<' + str(width) + '} ' for width in column_widths]) + '|'
 for line in lines:
-    print hline
+    print(hline)
     if len(line) < len(column_widths):
         line.extend(['']*(len(column_widths) - len(line)))
-    print line_format.format(*line)
-print hline
+    print(line_format.format(*line))
+print(hline)
 
 ####################################################################################################
 # 
