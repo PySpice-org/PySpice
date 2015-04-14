@@ -72,7 +72,7 @@ setup_dict = dict(
     version='0.1.0',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
-    description='PySpice is a Python Package to generate and steer Berkeley Spice circuit, '
+    description='PySpice is a Python 3 Package to generate and steer Berkeley Spice circuit, '
     ' to simulate them and finally analyse the output using Python.',
     license="GPLv3",
     keywords="spice, berkeley, ngspice, circuit, simulation, electronic",
