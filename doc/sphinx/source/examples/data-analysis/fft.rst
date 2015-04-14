@@ -1,4 +1,13 @@
 
+.. raw:: html
+
+  <div class="getthecode">
+    <div class="getthecode-header">
+      <span class="getthecode-filename">RingModulator.py</span>
+      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
+    </div>
+  </div>
+
 ========================
  Fast Fourier Transform
 ========================
@@ -45,9 +54,9 @@ We will first compute the spectrum of the sum of two sinusoidal waveforms.
     plt.grid()
     for frequency in frequency1, frequency2:
         plt.axvline(x=frequency, color='red')
-    plt.title(u'Spectrum')
+    plt.title('Spectrum')
     plt.xlabel('Frequency [Hz]')
-    plt.ylabel(u'Amplitude')
+    plt.ylabel('Amplitude')
     
 
 
@@ -81,7 +90,7 @@ The Fourier series is given by:
     plt.subplot(211)
     plt.plot(t, y)
     y_sum = None
-    for n in xrange(1, 20, 2):
+    for n in range(1, 20, 2):
         yn = 4/(np.pi*n)*np.sin((2*np.pi*n*frequency*t))
         if y_sum is None:
             y_sum = yn
@@ -102,9 +111,9 @@ The Fourier series is given by:
     n = np.arange(1, 20, 2)
     plt.plot(n*frequency, 4/(np.pi*n), 'o', color='red')
     plt.grid()
-    plt.title(u'Spectrum')
+    plt.title('Spectrum')
     plt.xlabel('Frequency [Hz]')
-    plt.ylabel(u'Amplitude')
+    plt.ylabel('Amplitude')
     
 
 

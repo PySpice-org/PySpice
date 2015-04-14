@@ -4,6 +4,15 @@
 =========
 
 
+.. raw:: html
+
+  <div class="getthecode">
+    <div class="getthecode-header">
+      <span class="getthecode-filename">RingModulator.py</span>
+      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
+    </div>
+  </div>
+
 .. code-block:: python
 
     
@@ -45,8 +54,7 @@
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     simulator.initial_condition({'V(comparator)':0}) # Fixme: simulator.nodes.comparator == 0
-    analysis = simulator.transient(step_time=micro(1), end_time=micro(500),
-                                   probes=('V(output)', 'V(comparator)', 'V(reference)'))
+    analysis = simulator.transient(step_time=micro(1), end_time=micro(500))
     
     plot(analysis.reference)
     plot(analysis.comparator)

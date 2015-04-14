@@ -4,6 +4,15 @@
 =================
 
 
+.. raw:: html
+
+  <div class="getthecode">
+    <div class="getthecode-header">
+      <span class="getthecode-filename">RingModulator.py</span>
+      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
+    </div>
+  </div>
+
 .. code-block:: python
 
     
@@ -26,9 +35,9 @@
     
     analysis = simulator.operating_point()
     for node in (analysis['in'], analysis.out): # .in is invalid !
-        print 'Node {}: {} V'.format(str(node), float(node))
+        print('Node {}: {} V'.format(str(node), float(node)))
     
     analysis = simulator.dc_sensitivity('v(out)')
-    for element in analysis.elements.itervalues():
-        print element, float(element)
+    for element in analysis.elements.values():
+        print(element, float(element))
 

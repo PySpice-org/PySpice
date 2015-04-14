@@ -4,6 +4,15 @@
 =====================
 
 
+.. raw:: html
+
+  <div class="getthecode">
+    <div class="getthecode-header">
+      <span class="getthecode-filename">RingModulator.py</span>
+      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
+    </div>
+  </div>
+
 .. code-block:: python
 
     
@@ -49,14 +58,14 @@
         quiescent_current = - float(analysis.Vinput)
         quiescent_points.append(dict(voltage=voltage,
                                      quiescent_voltage=quiescent_voltage, quiescent_current=quiescent_current))
-        print "Quiescent {:.1f} mV {:.1f} mA".format(quiescent_voltage*1e3, quiescent_current*1e3)
+        print("Quiescent {:.1f} mV {:.1f} mA".format(quiescent_voltage*1e3, quiescent_current*1e3))
     dynamic_resistance = ((quiescent_points[0]['quiescent_voltage'] - 
                            quiescent_points[-1]['quiescent_voltage'])
                           /
                           (quiescent_points[0]['quiescent_current'] -
                            quiescent_points[-1]['quiescent_current']))
     
-    print "Dynamic Resistance", dynamic_resistance
+    print("Dynamic Resistance", dynamic_resistance)
     
     
     circuit = Circuit('Diode')
@@ -85,7 +94,7 @@
     axe.grid(True)
     axe.grid(True, which='minor')
     axe.set_xlabel("Frequency [Hz]")
-    axe.set_ylabel(u'Rd [Ω]')
+    axe.set_ylabel('Rd [Ω]')
     
     
     frequency = Frequency(mega(1))

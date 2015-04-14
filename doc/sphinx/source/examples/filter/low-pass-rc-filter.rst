@@ -4,6 +4,15 @@
 ====================
 
 
+.. raw:: html
+
+  <div class="getthecode">
+    <div class="getthecode-header">
+      <span class="getthecode-filename">RingModulator.py</span>
+      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
+    </div>
+  </div>
+
 .. code-block:: python
 
     
@@ -29,7 +38,7 @@
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.ac(start_frequency=1, stop_frequency=mega(1), number_of_points=10,  variation='dec')
     
-    print analysis.out
+    print(analysis.out)
     
     figure = pylab.figure()
     pylab.title("Bode Diagram of a Low-Pass RC Filter")

@@ -3,6 +3,15 @@
  Voltage Multiplier
 ====================
 
+
+.. raw:: html
+
+  <div class="getthecode">
+    <div class="getthecode-header">
+      <span class="getthecode-filename">RingModulator.py</span>
+      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
+    </div>
+  </div>
 This example shows a voltage multiplier using diodes and capacitors.
 See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
 
@@ -45,7 +54,7 @@ See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
     source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10, frequency=50)
     
     multiplier = 5
-    for i in xrange(multiplier):
+    for i in range(multiplier):
         if i:
             top_node = i - 1
         else:
@@ -56,8 +65,7 @@ See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
     circuit.R(1, multiplier, multiplier+1, mega(1))
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*20,
-                                   probes=['V(in)'] + ['V({})'.format(i) for i in xrange(1, multiplier+1)])
+    analysis = simulator.transient(step_time=source.period/200, end_time=source.period*20)
     
     
     figure = plt.figure(1, (20, 10))
@@ -69,14 +77,14 @@ See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
     axe.grid()
     # Fixme: axis vs axe ...
     plot(analysis['in'], axis=axe)
-    for i in xrange(1, multiplier+1):
+    for i in range(1, multiplier+1):
         y = analysis[str(i)]
         if i & 1: # for odd multiplier the ground is permuted
             y -= analysis['in']
         plot(y, axis=axe)
     # axe.axhline(-multiplier*source.amplitude)
     axe.set_ylim(-multiplier*1.1*source.amplitude, 1.1*source.amplitude)
-    axe.legend(['input'] + ['*' + str(i) for i in xrange(1, multiplier+1)] ,
+    axe.legend(['input'] + ['*' + str(i) for i in range(1, multiplier+1)] ,
                loc=(.2,.8))
     
     plt.tight_layout()

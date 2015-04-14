@@ -4,6 +4,15 @@
 =================
 
 
+.. raw:: html
+
+  <div class="getthecode">
+    <div class="getthecode-header">
+      <span class="getthecode-filename">RingModulator.py</span>
+      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
+    </div>
+  </div>
+
 .. code-block:: python
 
     
@@ -27,6 +36,6 @@
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.operating_point()
     
-    for node in analysis.nodes.itervalues():
-        print 'Node {}: {} V'.format(str(node), float(node)) # Fixme: format value + unit
+    for node in analysis.nodes.values():
+        print('Node {}: {} V'.format(str(node), float(node))) # Fixme: format value + unit
 
