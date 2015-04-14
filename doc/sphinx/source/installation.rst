@@ -17,7 +17,7 @@ Dependencies
 
 PySpice requires the following dependencies:
 
- * |Python|_
+ * |Python|_ 3
  * |Numpy|_
  * |Matplotlib|_
  * |Ngspice|_
