@@ -305,7 +305,7 @@ class Example(object):
         """This function make a temporary copy of the example with calls to *save_figure* and run it.
         """
 
-        tmp_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir(), prefix='PySpice-', suffix='.py')
+        tmp_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir(), prefix='PySpice-', suffix='.py', mode='w')
         line_index = 0
         if self._source[0].startswith('# -*- coding: utf-8 -*-'):
             tmp_file.write(self._source[0])

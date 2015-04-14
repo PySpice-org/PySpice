@@ -97,8 +97,8 @@ Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
  Introduction
 ==============
 
-PySpice is a |Python|_ library which interplay with Berkeley SPICE, the
-industrial circuit simulator reference.
+PySpice is a |Python|_ 3 library which interplay with Berkeley SPICE, the industrial circuit
+simulator reference.
 
 SPICE (Simulation Program with Integrated Circuit Emphasis) was developed at the Electronics
 Research Laboratory of the University of California, Berkeley in 1973 by Laurence Nagel with
@@ -197,7 +197,7 @@ Dependencies
 
 PySpice requires the following dependencies:
 
- * |Python|_
+ * |Python|_ 3
  * |Numpy|_
  * |Matplotlib|_
  * |Ngspice|_

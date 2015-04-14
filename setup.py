@@ -22,11 +22,19 @@
 
 ####################################################################################################
 
+import sys
+
 from distutils.core import setup
 # from setuptools import setup
 
 ####################################################################################################
 
+if sys.version_info < (3,):
+    print('PySpice requires Python 3', file=sys.stderr)
+    sys.exit(1)
+if sys.version_info < (3,4):
+    print('WARNING: PySpice could require Python 3.4 ...', file=sys.stderr)
+    
 exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
 
 setup(**setup_dict)
