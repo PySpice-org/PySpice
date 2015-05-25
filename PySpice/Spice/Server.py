@@ -126,12 +126,14 @@ class SpiceServer(object):
         self._parse_stdout(stdout)
         number_of_points = self._parse_stderr(stderr)
         if number_of_points is None:
-            raise NameError("The number of points was not found in the standard error buffer")
+            raise NameError("The number of points was not found in the standard error buffer,"
+                            " ngspice returned:\n" +
+                            stderr)
 
         return RawFile(stdout, number_of_points)
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################
