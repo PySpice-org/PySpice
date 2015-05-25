@@ -95,6 +95,7 @@ To simulate the circuit, we must create a simulator instance using the :meth:`Ci
 from collections import OrderedDict
 import keyword
 import logging
+import os
 
 # import networkx
 
@@ -748,7 +749,9 @@ class Circuit(Netlist):
 
         netlist = '.title {}\n'.format(self.title)
         if self._includes:
-            netlist += join_lines(self._includes, prefix='.include ')  + '\n'
+            # ngspice don't like // in path, thus ensure we write real paths
+            real_paths = [os.path.realpath(str(path)) for path in self._includes]
+            netlist += join_lines(real_paths, prefix='.include ')  + '\n'
         if self._global_nodes:
             netlist += '.global ' + join_list(self._global_nodes) + '\n'
         if self._parameters:
