@@ -1,5 +1,5 @@
 ####################################################################################################
-# 
+#
 # PySpice - A Spice package for Python
 # Copyright (C) 2014 Salvaire Fabrice
 #
@@ -7,20 +7,23 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-# 
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 ####################################################################################################
 
 ####################################################################################################
 
 import os
+
+from distutils.sysconfig import get_python_lib
+site_packages_path = get_python_lib()
 
 ####################################################################################################
 
@@ -67,9 +70,11 @@ long_description = read('README.txt')
 
 ####################################################################################################
 
+PySpice_path = os.path.join(site_packages_path, 'PySpice')
+
 setup_dict = dict(
     name='PySpice',
-    version='0.1.0',
+    version='0.2.0',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='PySpice is a Python 3 Package to generate and steer Berkeley Spice circuit, '
@@ -78,7 +83,7 @@ setup_dict = dict(
     keywords="spice, berkeley, ngspice, circuit, simulation, electronic",
     url='https://github.com/FabriceSalvaire/PySpice',
     scripts=[],
-    packages=['PySpice', # Fixme: 
+    packages=['PySpice', # Fixme:
               'PySpice.Config',
               'PySpice.Logging',
               'PySpice.Math',
@@ -91,7 +96,12 @@ setup_dict = dict(
               'PySpice.Unit',
           ],
     # package_dir = {'PySpice': 'PySpice'},
-    data_files=[],
+    data_files=[
+        (os.path.join(PySpice_path, 'Config'),
+         [os.path.join('PySpice', 'Config', 'logging.yml')]),
+        (os.path.join(PySpice_path, 'Spice', 'NgSpice'),
+         [os.path.join('PySpice', 'Spice', 'NgSpice', 'api.h')]),
+    ],
     long_description=long_description,
     # cf. http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
