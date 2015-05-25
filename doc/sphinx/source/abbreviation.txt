@@ -15,6 +15,9 @@
 .. |Matplotlib| replace:: Matplotlib
 .. _Matplotlib: http://matplotlib.org
 
+.. |CFFI| replace:: CFFI
+.. _CFFI: http://cffi.readthedocs.org/en/latest/
+
 .. |IPython| replace:: IPython
 .. _IPython: http://ipython.org
 

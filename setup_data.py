@@ -112,10 +112,12 @@ setup_dict = dict(
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.4",
         ],
-    # install_requires=[
-    #     # 'numpy',
-    #     # 'matplotlib',
-    #     ],
+    requires=[
+        'matplotlib',
+        'numpy',
+        'PyYAML'
+        'cffi',
+    ],
     )
 
 ####################################################################################################
