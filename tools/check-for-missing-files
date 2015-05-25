@@ -74,6 +74,7 @@ file_names_in_tar = [absolut_to_relative_path(x, root_prefix)
 # print file_names_in_tar
 
 excluded_directories = (
+    '__pycache__',
     '.bzr',
     '.git',
     '.git-backup',
@@ -85,6 +86,10 @@ excluded_directories = (
     'notes',
     'test',
     'notebook',
+)
+
+excluded_files = (
+    'MANIFEST',
 )
 
 print('\nFiles not included in tar archive:\n')
@@ -99,7 +104,9 @@ for path, directories, file_names in os.walk(project_path):
     for file_name in file_names:
         if directory != '.':
             file_name = os.path.join(directory, file_name)
-        if file_name not in file_names_in_tar and file_name[-1] != '~':
+        if (file_name not in file_names_in_tar
+            and not file_name.endswith('~')
+            and file_name not in excluded_files):
             print(file_name)
 
 ####################################################################################################
