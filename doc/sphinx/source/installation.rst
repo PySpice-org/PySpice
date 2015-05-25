@@ -21,6 +21,7 @@ PySpice requires the following dependencies:
  * |Numpy|_
  * |Matplotlib|_
  * |Ngspice|_
+ * |CFFI|_ (only required for Ngspice shared)
 
 Also it is recommanded to have these Python modules:
 
