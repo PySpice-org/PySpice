@@ -13,6 +13,8 @@ include make-release.sh
 include pylintrc.ini
 include setenv.sh start.sh
 include setup_data.py
+include requirements.txt
+include .travis.yml
 recursive-include PySpice *.py *.yml *.h
 recursive-include doc *
 recursive-include doc/sphinx/source/_static *
