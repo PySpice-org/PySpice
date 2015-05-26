@@ -4,14 +4,9 @@
 ================
 
 
-.. raw:: html
+.. getthecode:: ring-modulator.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 
 .. code-block:: python
 
@@ -29,30 +24,22 @@ This example depicts a ring modulator
 
 .. code-block:: python
 
-    
-    
-    
     import os
     
     import matplotlib.pyplot as plt
     
-    
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
-    
     
     from PySpice.Probe.Plot import plot
     from PySpice.Spice.Library import SpiceLibrary
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Unit.Units import *
     
-    
     libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
     spice_library = SpiceLibrary(libraries_path)
     
-    
     from RingModulator import RingModulator
-    
     
     circuit = Circuit('Ring Modulator')
     
@@ -107,7 +94,6 @@ This example depicts a ring modulator
     plot(analysis['Vcarrier'])
     # plot(analysis['output'])
     plt.legend(('modulator', 'carrier', 'output'), loc=(.05,.1))
-    
     
     plt.show()
 

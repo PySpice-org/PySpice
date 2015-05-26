@@ -5,6 +5,7 @@
 This section contains examples based on diodes.
 
 .. end
+
 This section has 6 examples.
 
 

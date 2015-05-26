@@ -4,14 +4,9 @@
 ===============
 
 
-.. raw:: html
+.. getthecode:: rectification.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 This example depicts half and full wave rectification.
 
 .. code-block:: python
@@ -19,29 +14,22 @@ This example depicts half and full wave rectification.
     
     # -*- coding: utf-8 -*-
 
-    
-    
     import os
     
     import matplotlib.pyplot as plt
     
-    
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
-    
     
     from PySpice.Probe.Plot import plot
     from PySpice.Spice.Library import SpiceLibrary
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Unit.Units import *
     
-    
     libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
     spice_library = SpiceLibrary(libraries_path)
     
-    
     figure1 = plt.figure(1, (20, 10))
-    
     
     circuit = Circuit('half-wave rectification')
     circuit.include(spice_library['1N4148'])
@@ -62,7 +50,6 @@ This example depicts half and full wave rectification.
     plt.legend(('input', 'output'), loc=(.05,.1))
     plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
     
-    
 
 
 .. image:: half-wave-rectification.png
@@ -70,7 +57,6 @@ This example depicts half and full wave rectification.
 
 .. code-block:: python
 
-    
     circuit.C('1', 'output', circuit.gnd, milli(1))
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
@@ -85,7 +71,6 @@ This example depicts half and full wave rectification.
     plot(analysis.output, axis=axe)
     plt.legend(('input', 'output'), loc=(.05,.1))
     plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
-    
     
     circuit = Circuit('half-wave rectification')
     circuit.include(spice_library['1N4148'])
@@ -109,7 +94,6 @@ This example depicts half and full wave rectification.
     plt.legend(('input', 'output'), loc=(.05,.1))
     plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
     
-    
 
 
 .. image:: full-wave-rectification.png
@@ -117,7 +101,6 @@ This example depicts half and full wave rectification.
 
 .. code-block:: python
 
-    
     circuit.C('1', 'output_plus', 'output_minus', milli(1))
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
@@ -141,8 +124,6 @@ This example depicts half and full wave rectification.
 
 .. code-block:: python
 
-    
-    
     circuit = Circuit('115/230V Rectifier')
     circuit.include(spice_library['1N4148'])
     on_115 = True # switch to select 115 or 230V
@@ -187,7 +168,5 @@ This example depicts half and full wave rectification.
 
 .. code-block:: python
 
-    
-    
     plt.show()
 

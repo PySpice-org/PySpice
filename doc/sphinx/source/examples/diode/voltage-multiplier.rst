@@ -4,14 +4,9 @@
 ====================
 
 
-.. raw:: html
+.. getthecode:: voltage-multiplier.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 This example shows a voltage multiplier using diodes and capacitors.
 See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
 
@@ -20,26 +15,20 @@ See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
     
     # -*- coding: utf-8 -*-
 
-    
-    
     import os
     
     import matplotlib.pyplot as plt
     
-    
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
-    
     
     from PySpice.Probe.Plot import plot
     from PySpice.Spice.Library import SpiceLibrary
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Unit.Units import *
     
-    
     libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
     spice_library = SpiceLibrary(libraries_path)
-    
     
 
 
@@ -48,7 +37,6 @@ See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
 
 .. code-block:: python
 
-    
     circuit = Circuit('Voltage Multiplier')
     circuit.include(spice_library['1N4148'])
     source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10, frequency=50)
@@ -66,7 +54,6 @@ See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.transient(step_time=source.period/200, end_time=source.period*20)
-    
     
     figure = plt.figure(1, (20, 10))
     

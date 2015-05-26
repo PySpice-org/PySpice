@@ -4,26 +4,18 @@
 =======================
 
 
-.. raw:: html
+.. getthecode:: operational-amplifier.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 
 .. code-block:: python
 
-    
     import numpy as np
     
     from matplotlib import pylab
     
-    
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
-    
     
     from PySpice.Plot.BodeDiagram import bode_diagram
     from PySpice.Probe.Plot import plot
@@ -31,7 +23,6 @@
     from PySpice.Unit.Units import *
     
     from OperationalAmplifier import BasicOperationalAmplifier
-    
     
     circuit = Circuit('Operational Amplifier')
     

@@ -4,36 +4,26 @@
 ============================
 
 
-.. raw:: html
+.. getthecode:: zener-characteristic-curve.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 
 .. code-block:: python
 
-    
     import os
     
     import numpy as np
     from matplotlib import pylab
     
-    
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
-    
     
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Spice.Library import SpiceLibrary
     from PySpice.Unit.Units import *
     
-    
     libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
     spice_library = SpiceLibrary(libraries_path)
-    
     
     circuit = Circuit('Diode DC Curve')
     

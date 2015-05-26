@@ -4,29 +4,20 @@
 ====================
 
 
-.. raw:: html
+.. getthecode:: capacitor-inductor.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 
 .. code-block:: python
 
-    
     from matplotlib import pylab
-    
     
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
     
-    
     from PySpice.Probe.Plot import plot
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Unit.Units import *
-    
     
     # Warning: the capacitor/inductor return current in the generator
     #  could use switches instead

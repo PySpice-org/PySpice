@@ -4,32 +4,23 @@
 =================
 
 
-.. raw:: html
+.. getthecode:: voltage-divider.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 
 .. code-block:: python
 
-    
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
     
-    
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Unit.Units import *
-    
     
     circuit = Circuit('Voltage Divider')
     
     circuit.V('input', 'in', circuit.gnd, '10V')
     circuit.R(1, 'in', 'out', kilo(9))
     circuit.R(2, 'out', circuit.gnd, kilo(1))
-    
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     

@@ -4,14 +4,9 @@
 ============================
 
 
-.. raw:: html
+.. getthecode:: diode-characteristic-curve.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 This example shows how to simulate and plot the characteristic curve of a diode.
 
 .. code-block:: python
@@ -19,28 +14,22 @@ This example shows how to simulate and plot the characteristic curve of a diode.
     
     # -*- coding: utf-8 -*-
 
-    
-    
     import os
     
     import numpy as np
     from matplotlib import pylab
     import matplotlib.ticker as ticker
     
-    
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
-    
     
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Spice.Library import SpiceLibrary
     from PySpice.Unit.Units import *
     from PySpice.Physics.SemiConductor import ShockleyDiode
     
-    
     libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
     spice_library = SpiceLibrary(libraries_path)
-    
     
 
 For this purpose, we use the common high-speed diode 1N4148.  The diode is driven by a variable
@@ -52,8 +41,6 @@ temperatures: 0, 25 and 100 °C.
 
 .. code-block:: python
 
-    
-    
     circuit = Circuit('Diode Characteristic Curve')
     
     circuit.include(spice_library['1N4148'])
@@ -69,7 +56,6 @@ temperatures: 0, 25 and 100 °C.
         analysis = simulator.dc(Vinput=slice(-2, 5, .01))
         analyses[temperature] = analysis
     
-    
 
 We plot the characteristic curve and compare them to the Shockley diode model:
 
@@ -84,7 +70,6 @@ In order to scale the reverse biased region, we have to do some hack with Matplo
 
 .. code-block:: python
 
-    
     silicon_forward_voltage_threshold = .7
     
     shockley_diode = ShockleyDiode(Is=4e-9, degree=25)
@@ -140,7 +125,6 @@ Now we compute and plot the static and dynamic resistance.
 
 .. code-block:: python
 
-    
     axe = pylab.subplot(122)
     axe.set_title('Resistance @ 25 °C')
     axe.grid()

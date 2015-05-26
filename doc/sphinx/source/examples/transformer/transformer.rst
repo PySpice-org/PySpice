@@ -4,33 +4,23 @@
 =============
 
 
-.. raw:: html
+.. getthecode:: transformer.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 
 .. code-block:: python
 
-    
     import matplotlib.pyplot as plt
-    
     
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
-    
     
     from PySpice.Probe.Plot import plot
     from PySpice.Spice.Library import SpiceLibrary
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Unit.Units import *
     
-    
     from Transformer import Transformer
-    
     
     circuit = Circuit('Transformer')
     

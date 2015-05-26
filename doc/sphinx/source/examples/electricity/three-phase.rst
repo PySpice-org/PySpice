@@ -1,12 +1,7 @@
 
-.. raw:: html
+.. getthecode:: three-phase.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 
 =================================================
  Three-phased Current: Y and Delta configurations
@@ -17,24 +12,18 @@ This examples shows the computation of the voltage for the Y and Delta configura
 
 .. code-block:: python
 
-    
-    
-    
     import math
     
     import numpy as np
     import matplotlib.pylab as plt
     
-    
     from PySpice.Unit.Units import *
-    
     
 
 Let use an European 230 V / 50 Hz electric network.
 
 .. code-block:: python
 
-    
     frequency = Frequency(50)
     w = frequency.pulsation
     period = frequency.period
@@ -59,7 +48,6 @@ We rewrite them in complex notation:
 
 .. code-block:: python
 
-    
     t = np.linspace(0, 3*float(period), 1000)
     L1 = amplitude_mono * np.cos(t*w)
     L2 = amplitude_mono * np.cos(t*w - 2*math.pi/3)
@@ -85,7 +73,6 @@ Finally we rewrite them in temporal notation:
 
 .. code-block:: python
 
-    
     rms_tri = math.sqrt(3) * rms_mono
     amplitude_tri = rms_tri * math.sqrt(2)
     

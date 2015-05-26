@@ -4,44 +4,33 @@
 =====================
 
 
-.. raw:: html
+.. getthecode:: diode-recovery-time.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 
 .. code-block:: python
 
     
     # -*- coding: utf-8 -*-
 
-    
     import os
     
     import numpy as np
     from matplotlib import pylab
     
-    
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
-    
     
     from PySpice.Probe.Plot import plot
     from PySpice.Spice.Library import SpiceLibrary
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Unit.Units import *
     
-    
     libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
     spice_library = SpiceLibrary(libraries_path)
     
-    
     dc_offset = 1
     ac_amplitude = .1
-    
     
     circuit = Circuit('Diode')
     circuit.include(spice_library['BAV21'])
@@ -66,7 +55,6 @@
                            quiescent_points[-1]['quiescent_current']))
     
     print("Dynamic Resistance", dynamic_resistance)
-    
     
     circuit = Circuit('Diode')
     circuit.include(spice_library['BAV21'])
@@ -96,7 +84,6 @@
     axe.set_xlabel("Frequency [Hz]")
     axe.set_ylabel('Rd [Ω]')
     
-    
     frequency = Frequency(mega(1))
     
     circuit = Circuit('Diode')
@@ -124,7 +111,6 @@
     axe.set_xlabel('t [us]')
     axe.set_ylabel('[V]')
     # axe.set_ylim(.5, 1 + ac_amplitude + .1)
-    
     
     pylab.tight_layout()
     pylab.show()

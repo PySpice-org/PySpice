@@ -4,37 +4,27 @@
 ============
 
 
-.. raw:: html
+.. getthecode:: transistor.py
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 
 .. code-block:: python
 
-    
     import os
     
     import numpy as np
     from matplotlib import pylab
     
-    
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
-    
     
     from PySpice.Probe.Plot import plot
     from PySpice.Spice.Library import SpiceLibrary
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Unit.Units import *
     
-    
     libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
     spice_library = SpiceLibrary(libraries_path)
-    
     
     circuit = Circuit('Transistor')
     
@@ -47,9 +37,7 @@
     circuit.include(spice_library['2n2222a'])
     circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
     
-    
     figure = pylab.figure()
-    
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.dc(Vbase=slice(0, 3, .01))
@@ -61,7 +49,6 @@
     axe1.grid()
     axe1.set_xlabel('Vbe [V]')
     axe1.set_ylabel('Ib [mA]')
-    
     
     circuit = Circuit('Transistor')
     Ibase = circuit.I('base', circuit.gnd, 'base', micro(10)) # take care to the orientation
@@ -134,7 +121,6 @@
     # Fixme: v_sweep
     axe4.plot(analysis.v_sweep*1e6, -analysis.vcollector*1000, 'o-')
     axe4.legend(('Ic(Ib)',), loc=(.1,.8))
-    
     
     pylab.show()
 

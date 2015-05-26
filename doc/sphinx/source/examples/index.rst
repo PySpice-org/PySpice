@@ -1,6 +1,6 @@
 
 .. include:: ../examples.txt
-This section has 10 sub-topics and 19 examples.
+This section has 11 sub-topics and 20 examples.
 
 
 .. toctree::
@@ -10,6 +10,7 @@ This section has 10 sub-topics and 19 examples.
   diode/index.rst
   electricity/index.rst
   filter/index.rst
+  laws/index.rst
   operational-amplifier/index.rst
   passive/index.rst
   power-supply/index.rst
