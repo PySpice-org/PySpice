@@ -1,55 +1,30 @@
-#! /bin/bash
+#! /usr/bin/env python3
+
+####################################################################################################
+#
+# Generate a PDF and PNG image for a circuit macros input
+#
+####################################################################################################
+
+import argparse
+import os
+
+import CircuitMacrosGenerator as CircuitMacrosGenerator
 
 ####################################################################################################
 
-input=$(realpath $1)
-dst=$(realpath $2)
+argument_parser = argparse.ArgumentParser(description='Generate a PDF and PNG image for a circuit macros input.')
 
-basename=${input%.m4}
-basename=${basename##*/}
+argument_parser.add_argument('m4_path', metavar='M4_PATH',
+                   help='m4 path')
 
-####################################################################################################
+argument_parser.add_argument('dst_path', metavar='DST_PATH',
+                   help='destination path')
 
-m4_path=$HOME/texmf/Circuit_macros
-density=300
-transparent=white
+args = argument_parser.parse_args()
 
-####################################################################################################
-
-tmp_dir=$(mktemp -d)
-echo $tmp_dir
-
-cat > ${tmp_dir}/picture.tex <<EOF
-\documentclass[11pt]{article}
-\usepackage{tikz}
-\usetikzlibrary{external}
-\tikzexternalize
-\pagestyle{empty}
-\begin{document}
-EOF
-
-m4 -I${m4_path} pgf.m4 libcct.m4 ${input} | dpic -g >> ${tmp_dir}/picture.tex
-if [ $? -gt 0 ]; then
-  echo Error
-  pushd ${tmp_dir}
-  rm picture*
-  rmdir ${tmp_dir}
-  exit 1
-fi
-
-cat >> ${tmp_dir}/picture.tex <<EOF
-\end{document}
-EOF
-
-pushd ${tmp_dir}
-# cat picture.tex
-pdflatex -shell-escape picture.tex
-cp picture-figure0.pdf ${dst}/${basename}.pdf
-rm picture*
-popd
-rmdir ${tmp_dir} # more safe than a rm -rf
-
-convert -density ${density} -transparent ${transparent} ${dst}/${basename}.pdf ${dst}/${basename}.png
+CircuitMacrosGenerator.generate(os.path.realpath(args.m4_path),
+                               os.path.realpath(args.dst_path))
 
 ####################################################################################################
 #
