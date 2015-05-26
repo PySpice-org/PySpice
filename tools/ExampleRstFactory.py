@@ -18,7 +18,7 @@
 #
 ####################################################################################################
 
-""" This module implements a generator of RST files for examples.
+""" This module implements a RST files generator for examples.
 """
 
 ####################################################################################################
@@ -32,20 +32,42 @@ import tempfile
 
 ####################################################################################################
 
-PYSPICE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+import CircuitMacrosGenerator
+
+####################################################################################################
+
+_module_logger = logging.getLogger(__name__)
+
+####################################################################################################
+
 FIGURE_DIRECTORY = None
 
 ####################################################################################################
 
-def save_figure(figure, 
+def remove_extension(filename):
+    return os.path.splitext(filename)[0]
+
+def file_extension(filename):
+    return os.path.splitext(filename)[1]
+
+####################################################################################################
+
+def sublist_accumulator_iterator(iterable):
+    """ From a list (1, 2, 3, ...) this generator yields (), (1,), (1, 2), (1, 2, 3), ... """
+    for i in range(len(iterable) +1):
+        yield iterable[:i]
+
+####################################################################################################
+
+def save_figure(figure,
                 figure_filename,
             ):
 
     """ This function is called from example to save a figure. """
 
-    figure_format = os.path.splitext(figure_filename)[1][1:] # foo.png -> png
+    figure_format = file_extension(figure_filename)[1:] # foo.png -> png
     figure_path = os.path.join(FIGURE_DIRECTORY, figure_filename)
-    print("Save figure", figure_path)
+    _module_logger.info("\nSave figure " + figure_path)
     figure.savefig(figure_path,
                    format=figure_format,
                    dpi=150,
@@ -75,7 +97,7 @@ class Chunk(object):
     def append(self, line):
 
         self._lines.append(line)
- 
+
 ####################################################################################################
 
 class RstChunk(Chunk):
@@ -145,11 +167,11 @@ class IncludeChunk(Chunk):
 
     def __str__(self):
 
-            return '''
+        return '''
 .. getthecode:: {}
   :language: python
 
-'''.format(self._include_path) 
+'''.format(self._include_path)
 
 ####################################################################################################
 
@@ -169,29 +191,28 @@ class ImageChunk(Chunk):
 
     def __str__(self):
 
-            return '''
+        return '''
 .. image:: {}
 
-'''.format(self._figure_path) 
+'''.format(self._figure_path)
 
 ####################################################################################################
 
-class CircuitMacrosImageChunk(ImageChunk):
+class CircuitMacrosImage(object):
 
-    """ This class represents an image block for a circuit macros figure. """
+    """ This class represents a circuit macros figure. """
+
+    _logger = _module_logger.getChild('Example')
 
     ##############################################
 
-    def __init__(self, line, source_directory, rst_directory):
+    def __init__(self, m4_filename, source_directory, rst_directory):
 
-        m4_filename = line[len('#cm# '):].strip()
         png_filename = m4_filename.replace('.m4', '.png')
         self._m4_path = os.path.join(source_directory, m4_filename)
         self._rst_directory = rst_directory
         self._figure_path = png_filename
         self._figure_real_path = os.path.join(rst_directory, png_filename)
-
-        self._generator = os.path.join(PYSPICE_PATH, 'tools', 'circuit-macros-generator')
 
     ##############################################
 
@@ -206,13 +227,56 @@ class CircuitMacrosImageChunk(ImageChunk):
 
     def make_figure(self):
 
-        print("Make circuit figure", self._m4_path)
-        dev_null = open(os.devnull, 'w')
+        self._logger.info("\nMake circuit figure " + self._m4_path)
         try:
-            subprocess.check_call((self._generator, self._m4_path, self._rst_directory),
-                                  stdout=dev_null, stderr=subprocess.STDOUT)
+            CircuitMacrosGenerator.generate(self._m4_path, self._rst_directory)
         except subprocess.CalledProcessError:
-            print("Failed to make circuit figure example", self._m4_path)
+            self._logger.error("Failed to make circuit figure example", self._m4_path)
+
+####################################################################################################
+
+class CircuitMacrosImageChunk(CircuitMacrosImage, ImageChunk):
+
+    """ This class represents an image block for a circuit macros figure. """
+
+    ##############################################
+
+    def __init__(self, line, source_directory, rst_directory):
+
+        m4_filename = line[len('#cm# '):].strip()
+        CircuitMacrosImage.__init__(self, m4_filename, source_directory, rst_directory)
+
+####################################################################################################
+
+class OutputChunk(Chunk):
+
+    """ This class represents an output block. """
+
+    ##############################################
+
+    def __init__(self, example, line, output_marker_index):
+
+        self._example = example
+        self._line = line
+        self._output_marker_index = output_marker_index
+
+    ##############################################
+
+    @property
+    def output_marker_index(self):
+        return self._output_marker_index
+
+    ##############################################
+
+    def __str__(self):
+
+        lower, upper = self._example.stdout_chunk(self._output_marker_index)
+        
+        return '''
+.. literalinclude:: {}
+    :lines: {}-{}
+
+'''.format(os.path.basename(self._example.stdout_path), lower+1, upper+1)
 
 ####################################################################################################
 
@@ -225,12 +289,14 @@ class Example(object):
 
     """ This class is responsible to process an example. """
 
+    _logger = _module_logger.getChild('Example')
+
     ##############################################
 
     def __init__(self, topic, filename):
 
         self._topic = topic
-        self._basename = os.path.splitext(filename)[0]
+        self._basename = remove_extension(filename)
 
         path = topic.join_path(filename)
         self._is_link = os.path.islink(path)
@@ -239,15 +305,21 @@ class Example(object):
         if self._is_link:
             factory = self._topic.factory
             path = factory.join_rst_example_path(os.path.relpath(self._path, factory.examples_path))
-            self._rst_path = os.path.splitext(path)[0] + '.rst'
+            self._rst_path = remove_extension(path) + '.rst'
         else:
             self._rst_path = self._topic.join_rst_path(self.rst_filename)
+
+        self._stdout = None
 
     ##############################################
 
     @property
     def topic(self):
         return self._topic
+
+    @property
+    def path(self):
+        return self._path
 
     @property
     def basename(self):
@@ -260,6 +332,21 @@ class Example(object):
     @property
     def rst_inner_path(self):
         return os.path.sep + os.path.relpath(self._rst_path, self._topic.factory.rst_source_directory)
+
+    @property
+    def stdout_path(self):
+        # return remove_extension(self._rst_path) + '.stdout'
+        return self._topic.join_rst_path(self._basename + '.stdout')
+
+    @property
+    def stderr_path(self):
+        # return remove_extension(self._rst_path) + '.stdout'
+        return self._topic.join_rst_path(self._basename + '.stderr')
+
+    ##############################################
+
+    def stdout_chunk(self, output_marker_index):
+        return self._stdout_chunks[output_marker_index]
 
     ##############################################
 
@@ -305,7 +392,11 @@ class Example(object):
         """This function make a temporary copy of the example with calls to *save_figure* and run it.
         """
 
-        tmp_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir(), prefix='PySpice-', suffix='.py', mode='w')
+        working_directory = os.path.dirname(self._path)
+        
+        # tmp_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir(), prefix='PySpice-', suffix='.py', mode='w')
+        tmp_file = tempfile.NamedTemporaryFile(dir=working_directory,
+                                               prefix='__example_rst_factory__', suffix='.py', mode='w')
         line_index = 0
         if self._source[0].startswith('# -*- coding: utf-8 -*-'):
             tmp_file.write(self._source[0])
@@ -315,21 +406,31 @@ class Example(object):
         tmp_file.write('from ExampleRstFactory import save_figure\n')
         tmp_file.write('ExampleRstFactory.FIGURE_DIRECTORY = "{}"\n'.format(self._topic.rst_path))
         tmp_file.write('\n')
+        output_marker_index = 0
         for line in self._source[line_index:]:
             if line.startswith('#fig# '):
                 tmp_file.write(line[len('#fig# '):])
+            elif line.startswith('#o#'):
+                tmp_file.write('print("\foutput_marker_index={}")'.format(output_marker_index))
+                output_marker_index += 1
             elif not line.startswith('pylab.show') and not line.startswith('plt.show'):
                 tmp_file.write(line)
-            
         tmp_file.flush()
-        dev_null = open(os.devnull, 'w')
-        try:
-            print("Run example", self._path)
-            # if 'diode-characteristic-curve' in self._path:
-            #     subprocess.check_call(('/bin/cat', tmp_file.name))
-            subprocess.check_call((sys.executable, tmp_file.name), stdout=dev_null, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError:
-            print("Failed to run example", self._path)
+        
+        self._logger.info("\nRun example " + self._path)
+        with open(self.stdout_path, 'w') as stdout:
+            with open(self.stderr_path, 'w') as stderr:
+                env = dict(os.environ)
+                env['PySpiceLogLevel'] = 'WARNING'
+                process = subprocess.Popen((sys.executable, tmp_file.name),
+                                           stdout=stdout,
+                                           stderr=stderr,
+                                           cwd=working_directory,
+                                           env=env)
+                rc = process.wait()
+                if rc:
+                    self._logger.error("Failed to run example " + self._path)
+                    self._topic.factory.register_failure(self)
 
     ##############################################
 
@@ -357,11 +458,15 @@ class Example(object):
     ##############################################
 
     def _parse_source(self):
-        
-        """Parse the source and extract chunks of codes, RST contents, figures and circuit macros figures.
-        RST content lines start with *#!#*, figures with *#fig#*, circuit macros figures with *#cm#*.
 
-        Comment that must be skipped start with *#?#*.
+        """Parse the Python source code and extract chunks of codes, RST contents, plot and circuit macros
+        figures.  The source code is annoted using comment lines starting with special directives of
+        the form *#directive name#*.  RST content lines start with *#!#*.  We can include the
+        content of a matplotlib figure using the directive *#fig#*, circuit macros figures using
+        *#cm#* and the content of a file using *#i#*.  Comment that must be skipped start with
+        *#?#*.  The directive *#o#* is used to split the output and to instruct to include the
+        previous chunck.
+
         """
 
         self._chuncks = Chunks()
@@ -377,32 +482,47 @@ class Example(object):
 
         footer_index = -6
 
-        for line in self._source[line_index:footer_index]:
-            if line.startswith('#?#'):
-                continue
-            elif line.startswith('#i# '):
-                self._chuncks.append(IncludeChunk(self, line))
-            elif line.startswith('#fig# ') or line.startswith('#cm# '):
+        lines = self._source[line_index:footer_index]
+        # Use a while loop trick to remove consecutive blank lines
+        number_of_lines = len(lines)
+        i = 0
+        output_marker_index = 0
+        while i < number_of_lines:
+            line = lines[i]
+            i += 1
+            remove_next_blanck_line = True
+            if line.startswith('#?#') or line.startswith('#'*100):
+                pass # these comments
+            elif (line.startswith('#fig# ')
+                  or line.startswith('#cm# ')
+                  or line.startswith('#i# ')
+                  or line.startswith('#o#')):
                 if self._rst_chunck:
                     self._append_rst_chunck()
                 elif self._code_chunck:
                     self._append_code_chunck()
                 if line.startswith('#fig# '):
                     self._chuncks.append(ImageChunk(line))
-                else:
+                elif line.startswith('#cm# '):
                     self._chuncks.append(CircuitMacrosImageChunk(line, self._topic.path, self._topic.rst_path))
-            elif line.startswith('#!#'):
+                elif line.startswith('#i# '):
+                    self._chuncks.append(IncludeChunk(self, line))
+                elif line.startswith('#o#'):
+                    self._chuncks.append(OutputChunk(self, line, output_marker_index))
+                    output_marker_index += 1
+            elif line.startswith('#!#'): # RST content
                 if self._code_chunck:
                     self._append_code_chunck()
                 self._rst_chunck.append(line.strip()[4:] + '\n') # hack to get blank line
-            else:
+            else: # Python code
                 # if line.startswith('pylab.show()'):
                 #     continue
-                if line.startswith('#'*100):
-                    continue
+                remove_next_blanck_line = False
                 if self._rst_chunck:
                     self._append_rst_chunck()
                 self._code_chunck.append(line)
+            if remove_next_blanck_line and i < number_of_lines and not lines[i].strip():
+                i += 1
         if self._rst_chunck:
             self._append_rst_chunck()
         elif self._code_chunck:
@@ -421,8 +541,22 @@ class Example(object):
 
         """ Generate the example RST file. """
 
-        print("Create RST file", self._rst_path)
+        self._logger.info("\nCreate RST file " + self._rst_path)
 
+        # Read the stdout and split in chunck
+        with open(self.stdout_path) as f:
+            self._stdout = f.read()
+        self._stdout_chunks = []
+        start = 0
+        last_i = -1
+        for i, line in enumerate(self._stdout.split('\n')): # Fixme: portability
+            if line.startswith('\f'):
+                self._stdout_chunks.append((start, i - 1))
+                start = i + 1
+            last_i = i
+        if start <= last_i:
+            self._stdout_chunks.append((start, i))
+        
         has_tile= False
         for chunck in self._chuncks:
             if isinstance(chunck, RstChunk):
@@ -442,26 +576,31 @@ class Example(object):
 """
             header = template.format(title=title, title_line=title_line)
 
+        # place the Python file in the rst path
+        python_file_name = self._basename + '.py'
+        link_file_name = self._topic.join_rst_path(python_file_name)
+        if not os.path.exists(link_file_name):
+            os.symlink(self._path, )
+        
         with open(self._rst_path, 'w') as f:
             if not has_tile:
                 f.write(header)
             template = """
-.. raw:: html
+.. getthecode:: {filename}
+    :language: python
 
-  <div class="getthecode">
-    <div class="getthecode-header">
-      <span class="getthecode-filename">RingModulator.py</span>
-      <a href="../../_downloads/RingModulator.py"><span>RingModulator.py</span></a>
-    </div>
-  </div>
 """
-            f.write(template)
+            f.write(template.format(filename=python_file_name))
             for chunck in self._chuncks:
                 f.write(str(chunck))
+
+            # f.write(self._output)
 
 ####################################################################################################
 
 class Topic(object):
+
+    _logger = _module_logger.getChild('Example')
 
     ##############################################
 
@@ -474,20 +613,21 @@ class Topic(object):
         self._path = self._factory.join_examples_path(relative_path)
         self._rst_path = self._factory.join_rst_example_path(relative_path)
 
+        self._subtopics = [] # self._retrieve_subtopics()
         self._examples = []
         self._links = []
         python_files = [filename for filename in self._python_files_iterator()
                         if self._filter_python_files(filename)]
         if python_files:
-            print('Process Topic: {}'.format(relative_path))
+            self._logger.info("\nProcess Topic: " + relative_path)
             self._make_hierarchy()
             for filename in python_files:
                 example = Example(self, filename)
                 if example.is_link:
-                    print('  found link: {}'.format(filename))
+                    self._logger.info("\n  found link: " + filename)
                     self._links.append(example)
                 else:
-                    print('  found: {}'.format(filename))
+                    self._logger.info("\n  found: " + filename)
                     self._examples.append(example)
 
     ##############################################
@@ -524,11 +664,23 @@ class Topic(object):
 
     ##############################################
 
-    def _python_files_iterator(self):
+    def _files_iterator(self, extension):
 
-        pattern = os.path.join(self._path, '*.py')
+        pattern = os.path.join(self._path, '*.' + extension)
         for file_path in glob.glob(pattern):
             yield os.path.basename(file_path)
+
+    ##############################################
+
+    def _python_files_iterator(self):
+
+        return self._files_iterator('py')
+
+    ##############################################
+
+    def _m4_files_iterator(self):
+
+        return self._files_iterator('m4')
 
     ##############################################
 
@@ -548,6 +700,29 @@ class Topic(object):
 
     ##############################################
 
+    def _read_readme(self, make_circuit_figure):
+
+        figures = []
+        image_directive = '.. image:: '
+        image_directive_length = len(image_directive)
+        with open(self._readme_path()) as f:
+            content = f.read()
+            for line in content.split('\n'):
+                if line.startswith(image_directive):
+                    figure = line[image_directive_length:]
+                    figures.append(figure)
+
+        if make_circuit_figure:
+            m4_files = list(self._m4_files_iterator())
+            for figure in figures:
+                m4_file = figure.replace('.png', '.m4')
+                if m4_file  in m4_files:
+                    CircuitMacrosImage(m4_file, self._path, self._rst_path).make_figure()
+
+        return content
+
+    ##############################################
+
     def _example_hierarchy(self):
 
         """ Return a list of directory corresponding to the file hierarchy after ``.../examples/`` """
@@ -561,11 +736,10 @@ class Topic(object):
         """ Create the file hierarchy. """
 
         example_hierarchy = self._example_hierarchy()
-        for i in range(len(example_hierarchy) +1):
-            directory = self._factory.join_rst_example_path(*example_hierarchy[:i])
+        for directory_list in sublist_accumulator_iterator(example_hierarchy):
+            directory = self._factory.join_rst_example_path(*directory_list)
             if not os.path.exists(directory):
                 os.mkdir(directory)
-        return directory
 
     ##############################################
 
@@ -574,10 +748,9 @@ class Topic(object):
         for example in self._examples:
             example.read()
             if force or example:
-                print()
-                example.make_rst()
                 if make_figure:
                     example.make_figure()
+                example.make_rst()
             if make_circuit_figure:
                 example.make_circuit_figure(force)
 
@@ -600,7 +773,7 @@ class Topic(object):
 
     ##############################################
 
-    def make_toc(self):
+    def make_toc(self, make_circuit_figure):
 
         """ Create the TOC. """
 
@@ -608,7 +781,7 @@ class Topic(object):
             return
 
         toc_path = self.join_rst_path('index.rst')
-        print('Create TOC', toc_path)
+        self._logger.info("\nCreate TOC " + toc_path)
 
         title = self._basename.replace('-', ' ').title()
         title_line = '='*(len(title)+2)
@@ -625,8 +798,8 @@ class Topic(object):
 """
 
         if self._has_readme():
-            with open(self._readme_path(), 'r') as f:
-                template += f.read()
+            content = self._read_readme(make_circuit_figure)
+            template += content + '\n' # insert a new line for '.. End'
 
         # Sort the TOC
         file_dict = {x.basename:x.rst_filename for x in self._examples}
@@ -647,15 +820,15 @@ class Topic(object):
             counter_strings.append('{} examples'.format(number_of_examples))
         if number_of_links:
             counter_strings.append('{} related examples'.format(number_of_links))
-
-        template += 'This section has '
-        if len(counter_strings) == 1:
-            template += counter_strings[0]
-        elif len(counter_strings) == 2:
-            template += counter_strings[0] + ' and ' + counter_strings[1]
-        else:
-            template += counter_strings[0] + ', ' + counter_strings[1] + ' and ' + counter_strings[2]
-        template += '.\n'
+        if counter_strings:
+            template += 'This section has '
+            if len(counter_strings) == 1:
+                template += counter_strings[0]
+            elif len(counter_strings) == 2:
+                template += counter_strings[0] + ' and ' + counter_strings[1]
+            elif len(counter_strings) == 3:
+                template += counter_strings[0] + ', ' + counter_strings[1] + ' and ' + counter_strings[2]
+            template += '.\n'
 
         toc_template = """
 
@@ -677,6 +850,8 @@ class Topic(object):
 class ExampleRstFactory(object):
 
     """This class processes recursively the examples directory and generate figures and RST files."""
+
+    _logger = _module_logger.getChild('Example')
 
     ##############################################
 
@@ -705,9 +880,10 @@ class ExampleRstFactory(object):
 
         self._topics = {}
 
-        print("Examples Path:", self._examples_path)
-        print("RST Path:", self._rst_example_directory)
-        print()
+        self._logger.info("\nExamples Path: " + self._examples_path)
+        self._logger.info("\nRST Path: " + self._rst_example_directory)
+
+        self._example_failures = []
 
     ##############################################
 
@@ -734,7 +910,7 @@ class ExampleRstFactory(object):
 
     def join_rst_example_path(self, *args):
         return os.path.join(self._rst_example_directory, *args)
-    
+
     ##############################################
 
     def process_recursively(self, make_figure=True, make_circuit_figure=True, force=False):
@@ -752,10 +928,20 @@ class ExampleRstFactory(object):
             topic = Topic(self, relative_current_path)
             self._topics[relative_current_path] = topic # collect the topics
             topic.process_examples(make_figure, make_circuit_figure, force)
-            topic.make_toc()
+            topic.make_toc(make_circuit_figure)
+
+        if self._example_failures:
+            self._logger.warning("These examples failed:\n" +
+                                 '\n'.join([example.path for example in self._example_failures]))
+
+    ##############################################
+
+    def register_failure(self, example):
+
+        self._example_failures.append(example)
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################
