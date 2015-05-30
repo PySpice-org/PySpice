@@ -12,8 +12,6 @@
 
     import os
     
-    print(os.environ)
-    
     import matplotlib.pyplot as plt
     
     import PySpice.Logging.Logging as Logging

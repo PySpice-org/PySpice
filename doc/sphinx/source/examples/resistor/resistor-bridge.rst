@@ -29,7 +29,7 @@
     analysis = simulator.operating_point()
     
     for node in analysis.nodes.values():
-        print('Node {}: {:.1} V'.format(str(node), float(node))) # Fixme: format value + unit
+        print('Node {}: {:4.1f} V'.format(str(node), float(node))) # Fixme: format value + unit
 
 
 .. literalinclude:: resistor-bridge.stdout
