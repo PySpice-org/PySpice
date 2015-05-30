@@ -1,10 +1,10 @@
-__pycache__
+*.stderr
+*.stdout
 .git
 .git-backup
 MANIFEST
+__pycache__
 doc/circuit_macros/CMman.pdf
 doc/circuit_macros/dpicdoc.pdf
 doc/sphinx/build
-doc/sphinx/source/api
-doc/sphinx/source/examples
 doc/spice/ngspice-manual.pdf
