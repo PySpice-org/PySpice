@@ -49,7 +49,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.intersphinx',
               'sphinx.ext.todo',
               'sphinx.ext.coverage',
-              'sphinx.ext.pngmath',
+              # 'sphinx.ext.pngmath',
+              'sphinx.ext.mathjax',
               'sphinx.ext.ifconfig',
               'sphinx.ext.viewcode',
               'sphinxcontrib.getthecode',
@@ -265,6 +266,14 @@ man_pages = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
+
+####################################################################################################
+#
+# MathJax
+#
+
+# Don't work
+# mathjax_path = 'MathJax/MathJax.js'
 
 ####################################################################################################
 #
