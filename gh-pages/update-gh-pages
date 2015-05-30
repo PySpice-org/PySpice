@@ -34,6 +34,10 @@ if [ -e ${tmp_dir} ]; then
     mv _static static
     find . -name "*.html" -exec sed -e 's/_static/static/g;' -i {} \;
   fi
+  if [ -e _downloads ]; then
+    mv _downloads downloads
+    find . -name "*.html" -exec sed -e 's/_downloads/downloads/g;' -i {} \;
+  fi
   find . -name '.#*html' -exec rm {} \;
 
   git add --all *
