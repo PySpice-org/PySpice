@@ -193,6 +193,7 @@ class ImageChunk(Chunk):
 
         return '''
 .. image:: {}
+  :align: center
 
 '''.format(self._figure_path)
 
@@ -271,6 +272,10 @@ class OutputChunk(Chunk):
     def __str__(self):
 
         lower, upper = self._example.stdout_chunk(self._output_marker_index)
+        # Sphynx count \f as newline
+        if self._output_marker_index:
+            lower += self._output_marker_index
+            upper += self._output_marker_index
         
         return '''
 .. literalinclude:: {}
@@ -554,19 +559,20 @@ class Example(object):
                 self._stdout_chunks.append((start, i - 1))
                 start = i + 1
             last_i = i
+        # Fixme: add last empty line ?
         if start <= last_i:
-            self._stdout_chunks.append((start, i))
+            self._stdout_chunks.append((start, last_i))
         
-        has_tile= False
+        has_title= False
         for chunck in self._chuncks:
             if isinstance(chunck, RstChunk):
                 content = str(chunck)
                 if '='*7 in content:
-                    has_tile = True
+                    has_title = True
                 break
 
-        if not has_tile:
-            title = self._basename.replace('-', ' ').title()
+        if not has_title:
+            title = self._basename.replace('-', ' ').title() # Fixme: Capitalize of
             title_line = '='*(len(title)+2)
             template = """
 {title_line}
@@ -578,12 +584,12 @@ class Example(object):
 
         # place the Python file in the rst path
         python_file_name = self._basename + '.py'
-        link_file_name = self._topic.join_rst_path(python_file_name)
-        if not os.path.exists(link_file_name):
-            os.symlink(self._path, )
+        link_path = self._topic.join_rst_path(python_file_name)
+        if not os.path.exists(link_path):
+            os.symlink(self._path, link_path)
         
         with open(self._rst_path, 'w') as f:
-            if not has_tile:
+            if not has_title:
                 f.write(header)
             template = """
 .. getthecode:: {filename}
@@ -783,7 +789,7 @@ class Topic(object):
         toc_path = self.join_rst_path('index.rst')
         self._logger.info("\nCreate TOC " + toc_path)
 
-        title = self._basename.replace('-', ' ').title()
+        title = self._basename.replace('-', ' ').title() # Fixme: Capitalize of
         title_line = '='*(len(title)+2)
 
         if not title:
@@ -799,6 +805,8 @@ class Topic(object):
 
         if self._has_readme():
             content = self._read_readme(make_circuit_figure)
+            # protect for .format()
+            content = content.replace('{', '{{').replace('}', '}}')
             template += content + '\n' # insert a new line for '.. End'
 
         # Sort the TOC
