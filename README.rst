@@ -59,6 +59,9 @@
 .. |Matplotlib| replace:: Matplotlib
 .. _Matplotlib: http://matplotlib.org
 
+.. |CFFI| replace:: CFFI
+.. _CFFI: http://cffi.readthedocs.org/en/latest/
+
 .. |IPython| replace:: IPython
 .. _IPython: http://ipython.org
 
@@ -201,6 +204,7 @@ PySpice requires the following dependencies:
  * |Numpy|_
  * |Matplotlib|_
  * |Ngspice|_
+ * |CFFI|_ (only required for Ngspice shared)
 
 Also it is recommanded to have these Python modules:
 
