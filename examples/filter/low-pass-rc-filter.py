@@ -27,7 +27,7 @@ analysis = simulator.ac(start_frequency=1, stop_frequency=mega(1), number_of_poi
 
 print(analysis.out)
 
-figure = plt.figure()
+figure = plt.figure(1, (20, 10))
 plt.title("Bode Diagram of a Low-Pass RC Filter")
 bode_diagram(axes=(plt.subplot(211), plt.subplot(212)),
              frequency=analysis.frequency,

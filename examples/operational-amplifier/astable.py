@@ -41,7 +41,7 @@ simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 simulator.initial_condition(comparator=0) # Fixme: simulator.nodes.comparator == 0
 analysis = simulator.transient(step_time=micro(1), end_time=micro(500))
 
-figure = plt.figure()
+figure = plt.figure(1, (20, 10))
 plot(analysis.reference)
 plot(analysis.comparator)
 plot(analysis.output)
