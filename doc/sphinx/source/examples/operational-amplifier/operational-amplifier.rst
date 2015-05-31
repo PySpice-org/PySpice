@@ -35,7 +35,7 @@
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.ac(start_frequency=1, stop_frequency=mega(100), number_of_points=5,  variation='dec')
     
-    figure = plt.figure()
+    figure = plt.figure(1, (20, 10))
     plt.title("Bode Diagram of an Operational Amplifier")
     bode_diagram(axes=(plt.subplot(211), plt.subplot(212)),
                  frequency=analysis.frequency,

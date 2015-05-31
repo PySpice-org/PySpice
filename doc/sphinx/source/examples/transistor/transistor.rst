@@ -37,7 +37,7 @@
     circuit.include(spice_library['2n2222a'])
     circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
     
-    figure = plt.figure()
+    figure = plt.figure(1, (20, 10))
     
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.dc(Vbase=slice(0, 3, .01))
@@ -122,5 +122,11 @@
     axe4.plot(analysis.v_sweep*1e6, -analysis.Vcollector*1000, 'o-')
     axe4.legend(('Ic(Ib)',), loc=(.1,.8))
     
+    plt.tight_layout()
     plt.show()
+    
+
+
+.. image:: transistor.png
+  :align: center
 

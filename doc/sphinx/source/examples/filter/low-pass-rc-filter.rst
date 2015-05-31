@@ -31,7 +31,7 @@
     
     print(analysis.out)
     
-    figure = plt.figure()
+    figure = plt.figure(1, (20, 10))
     plt.title("Bode Diagram of a Low-Pass RC Filter")
     bode_diagram(axes=(plt.subplot(211), plt.subplot(212)),
                  frequency=analysis.frequency,
