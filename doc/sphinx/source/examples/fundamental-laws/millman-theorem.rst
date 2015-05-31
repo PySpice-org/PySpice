@@ -49,7 +49,7 @@ Note voltage sources can be null and resistances in current's branches don't cha
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.operating_point()
     
-    node_A = analysis.nodes['a'] # Fixme: lower
+    node_A = analysis.a # Fixme: lower
     print('Node {}: {:5.2f} V'.format(str(node_A), float(node_A)))
 
 
@@ -81,7 +81,7 @@ Note voltage sources can be null and resistances in current's branches don't cha
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.operating_point()
     
-    node_A = analysis.nodes['a'] # Fixme: lower
+    node_A = analysis.a # Fixme: lower
     print('Node {}: {:5.2f} V'.format(str(node_A), float(node_A)))
 
 

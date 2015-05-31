@@ -66,7 +66,7 @@ For AC circuits these theorems can be applied to reactive impedances as well as 
     simulator = thevenin_circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.operating_point()
     
-    load_node = analysis.nodes['load']
+    load_node = analysis.load
     print('Node {}: {:5.2f} V'.format(str(load_node), float(load_node)))
 
 
@@ -86,7 +86,7 @@ For AC circuits these theorems can be applied to reactive impedances as well as 
     simulator = norton_circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.operating_point()
     
-    load_node = analysis.nodes['load']
+    load_node = analysis.load
     print('Node {}: {:5.2f} V'.format(str(load_node), float(load_node)))
 
 
