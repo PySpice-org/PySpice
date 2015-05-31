@@ -7,7 +7,7 @@ mkdir -p ${examples}
 echo
 echo Generate RST examples files
 # ./tools/generate-rst-examples --skip-circuit-figure --skip-figure
-./tools/generate-rst-examples --force
+./tools/generate-rst-examples # --force
 
 echo
 echo Run Sphinx
