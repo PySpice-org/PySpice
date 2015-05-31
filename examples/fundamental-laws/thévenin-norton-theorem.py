@@ -71,7 +71,7 @@ thevenin_circuit.R('load', 'load', thevenin_circuit.gnd, kilo(1))
 simulator = thevenin_circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.operating_point()
 
-load_node = analysis.nodes['load']
+load_node = analysis.load
 print('Node {}: {:5.2f} V'.format(str(load_node), float(load_node)))
 #o#
 
@@ -85,7 +85,7 @@ norton_circuit.R('load', 'load', norton_circuit.gnd, thevenin_circuit.Rload.resi
 simulator = norton_circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.operating_point()
 
-load_node = analysis.nodes['load']
+load_node = analysis.load
 print('Node {}: {:5.2f} V'.format(str(load_node), float(load_node)))
 #o#
 
