@@ -40,7 +40,7 @@ circuit.C(4, 9, circuit.gnd, micro(1))
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.ac(start_frequency=100, stop_frequency=kilo(10), number_of_points=100,  variation='dec')
 
-figure = plt.figure()
+figure = plt.figure(1, (20, 10))
 plt.title("Bode Diagram of a Low-Pass RLC Filter")
 bode_diagram(axes=(plt.subplot(211), plt.subplot(212)),
              frequency=analysis.frequency,
