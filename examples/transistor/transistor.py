@@ -3,7 +3,7 @@
 import os
 
 import numpy as np
-from matplotlib import pylab
+import matplotlib.pyplot as plt
 
 ####################################################################################################
 
@@ -37,14 +37,14 @@ circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
 
 ####################################################################################################
 
-figure = pylab.figure()
+figure = plt.figure()
 
 ####################################################################################################
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vbase=slice(0, 3, .01))
 
-axe1 = pylab.subplot(221)
+axe1 = plt.subplot(221)
 axe1.plot(analysis.base, -analysis.Vbase*1000)
 axe1.axvline(x=.65, color='red')
 axe1.legend(('Base-Emitter Diode curve',), loc=(.1,.8))
@@ -87,14 +87,14 @@ circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
  # 2 v(base) voltage
 # 3 i(vcollector)   current
 
-axe2 = pylab.subplot(222)
+axe2 = plt.subplot(222)
 axe2.grid()
 # axe2.legend(('Ic(Vce, Ib)',), loc=(.5,.5))
 axe2.set_xlabel('Vce [V]')
 axe2.set_ylabel('Ic [mA]')
 axe2.axvline(x=.2, color='red')
 
-axe3 = pylab.subplot(223)
+axe3 = plt.subplot(223)
 axe3.grid()
 # axe3.legend(('beta(Vce)',), loc=(.5,.5))
 axe3.set_xlabel('Vce [V]')
@@ -115,7 +115,7 @@ for base_current in np.arange(0, 100, 10):
     # # axe3.plot(analysis.collector, analysis.v_sweep/(float(base_current)-analysis.Vcollector))
     # # Fixme: v_sweep is not so explicit
 
-axe4 = pylab.subplot(224)
+axe4 = plt.subplot(224)
 axe4.grid()
 axe4.set_xlabel('Ib [uA]')
 axe4.set_ylabel('Ic [mA]')
@@ -128,7 +128,7 @@ axe4.legend(('Ic(Ib)',), loc=(.1,.8))
 
 ####################################################################################################
 
-pylab.show()
+plt.show()
 
 ####################################################################################################
 # 

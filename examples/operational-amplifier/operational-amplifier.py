@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from matplotlib import pylab
+import matplotlib.pyplot as plt
 
 ####################################################################################################
 
@@ -31,9 +31,9 @@ circuit.R('load', 'out', circuit.gnd, 470)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.ac(start_frequency=1, stop_frequency=mega(100), number_of_points=5,  variation='dec')
 
-figure = pylab.figure()
-pylab.title("Bode Diagram of an Operational Amplifier")
-bode_diagram(axes=(pylab.subplot(211), pylab.subplot(212)),
+figure = plt.figure()
+plt.title("Bode Diagram of an Operational Amplifier")
+bode_diagram(axes=(plt.subplot(211), plt.subplot(212)),
              frequency=analysis.frequency,
              gain=20*np.log10(np.absolute(analysis.out)),
              phase=np.angle(analysis.out, deg=False),
@@ -41,8 +41,8 @@ bode_diagram(axes=(pylab.subplot(211), pylab.subplot(212)),
              color='blue',
              linestyle='-',
             )
-pylab.tight_layout()
-pylab.show()
+plt.tight_layout()
+plt.show()
 #fig# save_figure(figure, 'operational-amplifier.png')
 
 ####################################################################################################

@@ -13,7 +13,7 @@
 import math
 
 import numpy as np
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 
 ####################################################################################################
 
