@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
-#!# This example shows a voltage multiplier using diodes and capacitors.
-#!# See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
+#!# This example depicts a voltage multiplier using diodes and capacitors.
+#!# See `link <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
 
 ####################################################################################################
 
@@ -75,7 +73,7 @@ plt.show()
 #fig# save_figure(figure, 'voltage-multiplier.png')
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################

@@ -1,7 +1,5 @@
 ####################################################################################################
 
-import numpy as np
-
 from matplotlib import pylab
 
 ####################################################################################################
@@ -40,16 +38,19 @@ circuit.NonLinearVoltageSource(1, 'output', circuit.gnd,
                                )
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-simulator.initial_condition({'V(comparator)':0}) # Fixme: simulator.nodes.comparator == 0
+simulator.initial_condition(comparator=0) # Fixme: simulator.nodes.comparator == 0
 analysis = simulator.transient(step_time=micro(1), end_time=micro(500))
 
+figure = pylab.figure()
 plot(analysis.reference)
 plot(analysis.comparator)
 plot(analysis.output)
+pylab.tight_layout()
 pylab.show()
+#fig# save_figure(figure, 'astable.png')
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################

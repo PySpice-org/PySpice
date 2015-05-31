@@ -37,7 +37,7 @@ circuit.X('DZ1', 'd1n5919brl', 'out', circuit.gnd)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vinput=slice(-10, 2, .05)) # 10mV
 
-figure = pylab.figure()
+figure = pylab.figure(1, (20, 10))
 
 zener_part = analysis.out <= -5.4
 # compute derivate
@@ -72,10 +72,13 @@ axe.set_ylabel('Dynamic Resistance [Ohm]')
 # y = coefficients[0]*x + coefficients[1]
 # axe.semilogy(x, y, 'red')
 
+pylab.tight_layout()
 pylab.show()
 
+#fig# save_figure(figure, 'zener-characteristic-curve.png')
+
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################
