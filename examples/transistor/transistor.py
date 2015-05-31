@@ -45,7 +45,7 @@ simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vbase=slice(0, 3, .01))
 
 axe1 = pylab.subplot(221)
-axe1.plot(analysis.base, -analysis.vbase*1000)
+axe1.plot(analysis.base, -analysis.Vbase*1000)
 axe1.axvline(x=.65, color='red')
 axe1.legend(('Base-Emitter Diode curve',), loc=(.1,.8))
 axe1.grid()
@@ -108,11 +108,11 @@ for base_current in np.arange(0, 100, 10):
     analysis = simulator.dc(Vcollector=slice(0, 5, .01))
     # Fixme: lower case 
     # add ib as text, linear and saturate region
-    axe2.plot(analysis.collector, -analysis.vcollector*1000)
+    axe2.plot(analysis.collector, -analysis.Vcollector*1000)
     # Plot beta
-    axe3.plot(analysis.collector, -analysis.vcollector/float(base_current))
+    axe3.plot(analysis.collector, -analysis.Vcollector/float(base_current))
     # # trans-resistance U = RI   R = U / I = Vce / Ie
-    # # axe3.plot(analysis.collector, analysis.v_sweep/(float(base_current)-analysis.vcollector))
+    # # axe3.plot(analysis.collector, analysis.v_sweep/(float(base_current)-analysis.Vcollector))
     # # Fixme: v_sweep is not so explicit
 
 axe4 = pylab.subplot(224)
@@ -123,7 +123,7 @@ axe4.set_ylabel('Ic [mA]')
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Ibase=slice(0, 100e-6, 10e-6))
 # Fixme: v_sweep
-axe4.plot(analysis.v_sweep*1e6, -analysis.vcollector*1000, 'o-')
+axe4.plot(analysis.v_sweep*1e6, -analysis.Vcollector*1000, 'o-')
 axe4.legend(('Ic(Ib)',), loc=(.1,.8))
 
 ####################################################################################################
