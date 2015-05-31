@@ -11,9 +11,6 @@ This example shows how to simulate and plot the characteristic curve of a diode.
 
 .. code-block:: python
 
-    
-    # -*- coding: utf-8 -*-
-
     import os
     
     import numpy as np
@@ -37,6 +34,7 @@ voltage source through a limiting current resistance.  And We will simulate the 
 temperatures: 0, 25 and 100 °C.
 
 .. image:: diode-characteristic-curve-circuit.png
+  :align: center
 
 
 .. code-block:: python
@@ -151,5 +149,6 @@ Now we compute and plot the static and dynamic resistance.
 
 
 .. image:: diode-characteristic-curve.png
+  :align: center
 
 We observe the forward voltage threshold increase with the temperature.

@@ -44,3 +44,7 @@
     pylab.tight_layout()
     pylab.show()
 
+
+.. image:: low-pass-rc-filter.png
+  :align: center
+

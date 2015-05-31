@@ -32,6 +32,7 @@
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*3)
     
+    figure = plt.figure(1, (20, 10))
     plot(analysis.input)
     plot(analysis.output)
     plt.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
@@ -39,5 +40,10 @@
     plt.xlabel('t [s]')
     plt.ylabel('[V]')
     
+    plt.tight_layout()
     plt.show()
+
+
+.. image:: transformer.png
+  :align: center
 

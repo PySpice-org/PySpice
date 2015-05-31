@@ -48,3 +48,7 @@
     pylab.tight_layout()
     pylab.show()
 
+
+.. image:: operational-amplifier.png
+  :align: center
+

@@ -10,9 +10,6 @@
 
 .. code-block:: python
 
-    
-    # -*- coding: utf-8 -*-
-
     import os
     
     import numpy as np
@@ -114,4 +111,9 @@
     
     pylab.tight_layout()
     pylab.show()
+    
+
+
+.. image:: diode-recovery-time.png
+  :align: center
 

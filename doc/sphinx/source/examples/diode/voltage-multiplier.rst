@@ -7,13 +7,10 @@
 .. getthecode:: voltage-multiplier.py
     :language: python
 
-This example shows a voltage multiplier using diodes and capacitors.
-See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
+This example depicts a voltage multiplier using diodes and capacitors.
+See `link <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
 
 .. code-block:: python
-
-    
-    # -*- coding: utf-8 -*-
 
     import os
     
@@ -33,6 +30,7 @@ See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
 
 
 .. image:: voltage-multiplier-circuit.png
+  :align: center
 
 
 .. code-block:: python
@@ -80,4 +78,5 @@ See ` <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
 
 
 .. image:: voltage-multiplier.png
+  :align: center
 

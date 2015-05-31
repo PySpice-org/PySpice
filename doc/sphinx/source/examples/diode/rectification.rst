@@ -11,9 +11,6 @@ This example depicts half and full wave rectification.
 
 .. code-block:: python
 
-    
-    # -*- coding: utf-8 -*-
-
     import os
     
     import matplotlib.pyplot as plt
@@ -53,6 +50,7 @@ This example depicts half and full wave rectification.
 
 
 .. image:: half-wave-rectification.png
+  :align: center
 
 
 .. code-block:: python
@@ -97,6 +95,7 @@ This example depicts half and full wave rectification.
 
 
 .. image:: full-wave-rectification.png
+  :align: center
 
 
 .. code-block:: python
@@ -120,6 +119,7 @@ This example depicts half and full wave rectification.
 
 
 .. image:: rectification.png
+  :align: center
 
 
 .. code-block:: python
@@ -164,6 +164,7 @@ This example depicts half and full wave rectification.
 
 
 .. image:: universal-rectifier.png
+  :align: center
 
 
 .. code-block:: python

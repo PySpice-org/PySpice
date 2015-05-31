@@ -46,6 +46,7 @@
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*10)
     
+    figure = plt.figure(1, (20, 10))
     axe = plt.subplot(111)
     
     plot(analysis['in'] / 100, axis=axe)
@@ -62,4 +63,8 @@
     
     plt.tight_layout()
     plt.show()
+
+
+.. image:: transform-less-power-supply.png
+  :align: center
 
