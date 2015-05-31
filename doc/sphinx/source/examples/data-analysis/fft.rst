@@ -51,6 +51,7 @@ We will first compute the spectrum of the sum of two sinusoidal waveforms.
 
 
 .. image:: fft-sum-of-sin.png
+  :align: center
 
 
 Now we will compute the spectrum of a square waveform.
@@ -105,6 +106,7 @@ The Fourier series is given by:
 
 
 .. image:: fft-square-waveform.png
+  :align: center
 
 
 .. code-block:: python

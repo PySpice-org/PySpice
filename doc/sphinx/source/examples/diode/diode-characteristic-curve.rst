@@ -14,7 +14,7 @@ This example shows how to simulate and plot the characteristic curve of a diode.
     import os
     
     import numpy as np
-    from matplotlib import pylab
+    import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
     
     import PySpice.Logging.Logging as Logging
@@ -79,9 +79,9 @@ In order to scale the reverse biased region, we have to do some hack with Matplo
             return '{} nA'.format(value/100)
     formatter = ticker.FuncFormatter(two_scales_tick_formatter)
     
-    figure = pylab.figure(1, (20, 10))
+    figure = plt.figure(1, (20, 10))
     
-    axe = pylab.subplot(121)
+    axe = plt.subplot(121)
     axe.set_title('1N4148 Characteristic Curve ')
     axe.set_xlabel('Voltage [V]')
     axe.set_ylabel('Current')
@@ -123,7 +123,7 @@ Now we compute and plot the static and dynamic resistance.
 
 .. code-block:: python
 
-    axe = pylab.subplot(122)
+    axe = plt.subplot(122)
     axe.set_title('Resistance @ 25 °C')
     axe.grid()
     axe.set_xlim(-2, 3)
@@ -143,8 +143,8 @@ Now we compute and plot the static and dynamic resistance.
     axe.set_xlabel('Voltage [V]')
     axe.set_ylabel('Resistance [Ω]')
     
-    pylab.tight_layout()
-    pylab.show()
+    plt.tight_layout()
+    plt.show()
     
 
 

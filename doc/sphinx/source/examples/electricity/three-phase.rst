@@ -15,7 +15,7 @@ This examples shows the computation of the voltage for the Y and Delta configura
     import math
     
     import numpy as np
-    import matplotlib.pylab as plt
+    import matplotlib.pyplot as plt
     
     from PySpice.Unit.Units import *
     
@@ -106,4 +106,5 @@ Now we plot the waveforms:
 
 
 .. image:: three-phase.png
+  :align: center
 

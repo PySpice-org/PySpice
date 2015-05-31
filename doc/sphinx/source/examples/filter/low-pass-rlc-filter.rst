@@ -11,7 +11,7 @@
 .. code-block:: python
 
     import numpy as np
-    from matplotlib import pylab
+    import matplotlib.pyplot as plt
     
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
@@ -44,9 +44,9 @@
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.ac(start_frequency=100, stop_frequency=kilo(10), number_of_points=100,  variation='dec')
     
-    figure = pylab.figure()
-    pylab.title("Bode Diagram of a Low-Pass RLC Filter")
-    bode_diagram(axes=(pylab.subplot(211), pylab.subplot(212)),
+    figure = plt.figure()
+    plt.title("Bode Diagram of a Low-Pass RLC Filter")
+    bode_diagram(axes=(plt.subplot(211), plt.subplot(212)),
                  frequency=analysis.frequency,
                  gain=20*np.log10(np.absolute(analysis['4'])),
                  phase=np.angle(analysis['4'], deg=False),
@@ -54,8 +54,8 @@
                  color='blue',
                  linestyle='-',
                 )
-    pylab.tight_layout()
-    pylab.show()
+    plt.tight_layout()
+    plt.show()
 
 
 .. image:: low-pass-rlc-filter.png

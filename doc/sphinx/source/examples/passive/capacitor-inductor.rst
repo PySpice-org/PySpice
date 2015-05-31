@@ -10,7 +10,7 @@
 
 .. code-block:: python
 
-    from matplotlib import pylab
+    import matplotlib.pyplot as plt
     
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
@@ -22,7 +22,7 @@
     # Warning: the capacitor/inductor return current in the generator
     #  could use switches instead
     
-    figure = pylab.figure(1, (20, 10))
+    figure = plt.figure(1, (20, 10))
     
     for element_type in 'capacitor', 'inductor':
     
@@ -52,10 +52,10 @@
         analysis = simulator.transient(step_time=micro(1), end_time=source.period*3)
     
         if element_type == 'capacitor':
-            axe = pylab.subplot(121)
+            axe = plt.subplot(121)
             title = "Capacitor: voltage is constant"
         else:
-            axe = pylab.subplot(122)
+            axe = plt.subplot(122)
             title = "Inductor: current is constant"
         axe.set_title(title)
         axe.grid()
@@ -69,8 +69,8 @@
         axe.set_ylabel('[V]')
         axe.legend(('Vin [V]', 'Vout [V]', 'I'), loc=(.8,.8))
     
-    pylab.tight_layout()
-    pylab.show()
+    plt.tight_layout()
+    plt.show()
 
 
 .. image:: capacitor-inductor.png

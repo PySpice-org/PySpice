@@ -10,7 +10,7 @@
 
 .. code-block:: python
 
-    from matplotlib import pylab
+    import matplotlib.pyplot as plt
     
     import PySpice.Logging.Logging as Logging
     logger = Logging.setup_logging()
@@ -45,12 +45,12 @@
     simulator.initial_condition(comparator=0) # Fixme: simulator.nodes.comparator == 0
     analysis = simulator.transient(step_time=micro(1), end_time=micro(500))
     
-    figure = pylab.figure()
+    figure = plt.figure()
     plot(analysis.reference)
     plot(analysis.comparator)
     plot(analysis.output)
-    pylab.tight_layout()
-    pylab.show()
+    plt.tight_layout()
+    plt.show()
 
 
 .. image:: astable.png
