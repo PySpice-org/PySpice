@@ -81,7 +81,7 @@ class SpiceServer(object):
         for line_index, line in enumerate(lines):
             if line.startswith(b'Error '):
                 error_found = True
-                self._logger.error('\n' + line + '\n' + lines[line_index+1])
+                self._logger.error('\n' + line + '\n' + lines[line_index+1].decode('utf-8'))
         if error_found:
             raise NameError("Errors was found by Spice")
 
