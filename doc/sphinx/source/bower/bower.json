@@ -1,0 +1,25 @@
+{
+  "name": "PySpice",
+  "version": "0.1.0",
+  "homepage": "https://github.com/FabriceSalvaire/PySpice",
+  "authors": [
+    "Fabrice Salvaire <fabrice.salvaire@orange.fr>"
+  ],
+  "description": "A Spice Package for Python",
+  "main": "",
+  "keywords": [
+    ""
+  ],
+  "license": "GPLv3",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "MathJax": "~2.5.3",
+    "jquery": "~2.1.4"
+  }
+}
