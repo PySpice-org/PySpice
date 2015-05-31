@@ -1,7 +1,7 @@
 ####################################################################################################
 
 import numpy as np
-from matplotlib import pylab
+import matplotlib.pyplot as plt
 
 ####################################################################################################
 
@@ -40,9 +40,9 @@ circuit.C(4, 9, circuit.gnd, micro(1))
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.ac(start_frequency=100, stop_frequency=kilo(10), number_of_points=100,  variation='dec')
 
-figure = pylab.figure()
-pylab.title("Bode Diagram of a Low-Pass RLC Filter")
-bode_diagram(axes=(pylab.subplot(211), pylab.subplot(212)),
+figure = plt.figure()
+plt.title("Bode Diagram of a Low-Pass RLC Filter")
+bode_diagram(axes=(plt.subplot(211), plt.subplot(212)),
              frequency=analysis.frequency,
              gain=20*np.log10(np.absolute(analysis['4'])),
              phase=np.angle(analysis['4'], deg=False),
@@ -50,8 +50,8 @@ bode_diagram(axes=(pylab.subplot(211), pylab.subplot(212)),
              color='blue',
              linestyle='-',
             )
-pylab.tight_layout()
-pylab.show()
+plt.tight_layout()
+plt.show()
 #fig# save_figure(figure, 'low-pass-rlc-filter.png')
 
 ####################################################################################################

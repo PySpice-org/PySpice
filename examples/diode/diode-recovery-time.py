@@ -3,7 +3,7 @@
 import os
 
 import numpy as np
-from matplotlib import pylab
+import matplotlib.pyplot as plt
 
 ####################################################################################################
 
@@ -66,16 +66,16 @@ circuit.D('1', 'out', circuit.gnd, model='BAV21')
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.ac(start_frequency=kilo(10), stop_frequency=giga(1), number_of_points=10,  variation='dec')
 
-figure = pylab.figure(1, (20, 10))
+figure = plt.figure(1, (20, 10))
 
-axe = pylab.subplot(311)
+axe = plt.subplot(311)
 axe.semilogx(analysis.frequency, np.absolute(analysis.out)*1e3)
 axe.grid(True)
 axe.grid(True, which='minor')
 axe.set_xlabel("Frequency [Hz]")
 axe.set_ylabel("Vd [mV]")
 
-axe = pylab.subplot(312)
+axe = plt.subplot(312)
 current = (analysis['in'] - analysis.out) / float(R.resistance)
 axe.semilogx(analysis.frequency, np.absolute(analysis.out/current))
 axe.grid(True)
@@ -102,7 +102,7 @@ circuit.D('1', 'out', circuit.gnd, model='BAV21')
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/1e3, end_time=source.period*4)
 
-axe = pylab.subplot(313)
+axe = plt.subplot(313)
 # Fixme: axis, x scale
 # plot(analysis['in'] - dc_offset + quiescent_points[0]['quiescent_voltage'], axis=axe)
 # plot(analysis.out, axis=axe)
@@ -113,8 +113,8 @@ axe.set_xlabel('t [us]')
 axe.set_ylabel('[V]')
 # axe.set_ylim(.5, 1 + ac_amplitude + .1)
 
-pylab.tight_layout()
-pylab.show()
+plt.tight_layout()
+plt.show()
 
 #fig# save_figure(figure, 'diode-recovery-time.png')
 

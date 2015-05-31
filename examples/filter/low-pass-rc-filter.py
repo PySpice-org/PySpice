@@ -1,7 +1,7 @@
 ####################################################################################################
 
 import numpy as np
-from matplotlib import pylab
+import matplotlib.pyplot as plt
 
 ####################################################################################################
 
@@ -27,9 +27,9 @@ analysis = simulator.ac(start_frequency=1, stop_frequency=mega(1), number_of_poi
 
 print(analysis.out)
 
-figure = pylab.figure()
-pylab.title("Bode Diagram of a Low-Pass RC Filter")
-bode_diagram(axes=(pylab.subplot(211), pylab.subplot(212)),
+figure = plt.figure()
+plt.title("Bode Diagram of a Low-Pass RC Filter")
+bode_diagram(axes=(plt.subplot(211), plt.subplot(212)),
              frequency=analysis.frequency,
              gain=20*np.log10(np.absolute(analysis.out)),
              phase=np.angle(analysis.out, deg=False),
@@ -37,8 +37,8 @@ bode_diagram(axes=(pylab.subplot(211), pylab.subplot(212)),
              color='blue',
              linestyle='-',
          )
-pylab.tight_layout()
-pylab.show()
+plt.tight_layout()
+plt.show()
 #fig# save_figure(figure, 'low-pass-rc-filter.png')
 
 ####################################################################################################

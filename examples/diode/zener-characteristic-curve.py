@@ -3,7 +3,7 @@
 import os
 
 import numpy as np
-from matplotlib import pylab
+import matplotlib.pyplot as plt
 
 ####################################################################################################
 
@@ -37,13 +37,13 @@ circuit.X('DZ1', 'd1n5919brl', 'out', circuit.gnd)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vinput=slice(-10, 2, .05)) # 10mV
 
-figure = pylab.figure(1, (20, 10))
+figure = plt.figure(1, (20, 10))
 
 zener_part = analysis.out <= -5.4
 # compute derivate
 # fit linear part
 
-axe = pylab.subplot(121)
+axe = plt.subplot(121)
 axe.grid()
 # Fixme: scale
 axe.plot(analysis.out, -analysis.Vinput*1000)
@@ -54,7 +54,7 @@ axe.legend(('Diode curve',), loc=(.1,.8))
 axe.set_xlabel('Voltage [V]')
 axe.set_ylabel('Current [mA]')
 
-axe = pylab.subplot(122)
+axe = plt.subplot(122)
 axe.grid()
 # Fixme:
 # U = RI   R = U/I
@@ -72,8 +72,8 @@ axe.set_ylabel('Dynamic Resistance [Ohm]')
 # y = coefficients[0]*x + coefficients[1]
 # axe.semilogy(x, y, 'red')
 
-pylab.tight_layout()
-pylab.show()
+plt.tight_layout()
+plt.show()
 
 #fig# save_figure(figure, 'zener-characteristic-curve.png')
 

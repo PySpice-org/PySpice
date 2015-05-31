@@ -5,7 +5,7 @@
 import os
 
 import numpy as np
-from matplotlib import pylab
+import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 ####################################################################################################
@@ -72,9 +72,9 @@ def two_scales_tick_formatter(value, position):
         return '{} nA'.format(value/100)
 formatter = ticker.FuncFormatter(two_scales_tick_formatter)
 
-figure = pylab.figure(1, (20, 10))
+figure = plt.figure(1, (20, 10))
 
-axe = pylab.subplot(121)
+axe = plt.subplot(121)
 axe.set_title('1N4148 Characteristic Curve ')
 axe.set_xlabel('Voltage [V]')
 axe.set_ylabel('Current')
@@ -114,7 +114,7 @@ axe.text( 1, -100, 'Forward Biased Region', ha='center', va='center')
 #!#
 #!#   r_d = \frac{d V_d}{d I_d} \approx \frac{n V_T}{I_d}
 
-axe = pylab.subplot(122)
+axe = plt.subplot(122)
 axe.set_title('Resistance @ 25 °C')
 axe.grid()
 axe.set_xlim(-2, 3)
@@ -134,8 +134,8 @@ axe.legend(['{} Resistance'.format(x) for x in ('Static', 'Dynamic')], loc=(.05,
 axe.set_xlabel('Voltage [V]')
 axe.set_ylabel('Resistance [Ω]')
 
-pylab.tight_layout()
-pylab.show()
+plt.tight_layout()
+plt.show()
 
 #fig# save_figure(figure, 'diode-characteristic-curve.png')
 
