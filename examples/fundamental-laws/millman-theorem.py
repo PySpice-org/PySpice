@@ -50,7 +50,7 @@ for i in range(1, number_of_branches +1):
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.operating_point()
 
-node_A = analysis.nodes['a'] # Fixme: lower
+node_A = analysis.A
 print('Node {}: {:5.2f} V'.format(str(node_A), float(node_A)))
 #o#
 
@@ -70,7 +70,7 @@ for i in range(1, number_of_branches +1):
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.operating_point()
 
-node_A = analysis.nodes['a'] # Fixme: lower
+node_A = analysis.A
 print('Node {}: {:5.2f} V'.format(str(node_A), float(node_A)))
 #o#
 

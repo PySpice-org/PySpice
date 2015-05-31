@@ -38,7 +38,7 @@ _module_logger = logging.getLogger(__name__)
 class Variable(object):
 
     """ This class implements a variable or probe in a SPICE simulation output.
-    
+
     Public Attributes:
 
       :attr:`index`
@@ -107,10 +107,10 @@ class Variable(object):
 
         """ Update the name to the right case. """
 
-        if self.is_branch_current:
+        if self.is_branch_current():
             if self.simplified_name in element_translation:
                 self.name = self.to_branch_name(element_translation[self.simplified_name])
-        elif self.is_voltage_node:
+        elif self.is_voltage_node():
             if self.simplified_name in node_translation:
                 self.name = self.to_voltage_name(node_translation[self.simplified_name])
 
@@ -125,7 +125,7 @@ class Variable(object):
             data = data.real
         if to_float:
             data = float(data[0])
-
+        
         return WaveForm(self.simplified_name, self.unit, data, abscissa=abscissa)
 
 ####################################################################################################
@@ -168,7 +168,7 @@ class RawFile(object):
     def __init__(self, stdout, number_of_points):
 
         self.number_of_points = number_of_points
-
+        
         raw_data = self._read_header(stdout)
         self._read_variable_data(raw_data)
         # self._to_analysis()
@@ -186,7 +186,7 @@ class RawFile(object):
         header_lines = stdout[:binary_location].splitlines()
         raw_data = stdout[binary_location + len(binary_line):]
         header_line_iterator = iter(header_lines)
-
+        
         self.circuit = self._read_header_field_line(header_line_iterator, 'Circuit')
         self.temperature = self._read_header_line(header_line_iterator, 'Doing analysis at TEMP')
         self.title = self._read_header_field_line(header_line_iterator, 'Title')
@@ -206,11 +206,11 @@ class RawFile(object):
             index, name, unit = items[:3]
             self.variables[name] = Variable(index, name, unit)
         # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
-
+        
         return raw_data
 
     ##############################################
-        
+
     def _read_line(self, header_line_iterator):
 
         """ Return the next line """
@@ -223,7 +223,7 @@ class RawFile(object):
         return line.decode('utf-8')
 
     ##############################################
-        
+
     def _read_header_line(self, header_line_iterator, head_line):
 
         """ Read an header line and check it starts with *head_line*. """
@@ -234,7 +234,7 @@ class RawFile(object):
             raise NameError("Unexpected line: %s" % (line))
 
     ##############################################
-        
+
     def _read_header_field_line(self, header_line_iterator, expected_label, has_value=True):
 
         """ Read an header line and check it starts with *expected_label*.
@@ -267,7 +267,7 @@ class RawFile(object):
             number_of_columns = 2*self.number_of_variables
         else:
             raise NotImplementedError
-
+        
         input_data = np.fromstring(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
         input_data = input_data.reshape((self.number_of_points, number_of_columns))
         input_data = input_data.transpose()
@@ -294,7 +294,7 @@ class RawFile(object):
 
     def nodes(self, to_float=False, abscissa=None):
 
-        return [variable.to_waveform(abscissa, to_float=to_float) 
+        return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.variables.values()
                 if variable.is_voltage_node()]
 
@@ -310,7 +310,7 @@ class RawFile(object):
 
     def elements(self, abscissa=None):
 
-        return [variable.to_waveform(abscissa, to_float=True) 
+        return [variable.to_waveform(abscissa, to_float=True)
                 for variable in self.variables.values()]
 
     ##############################################
@@ -318,7 +318,7 @@ class RawFile(object):
     def to_analysis(self, circuit):
 
         self.fix_case(circuit)
-
+        
         if self.plot_name == 'Operating Point':
             return self._to_operating_point_analysis()
         elif self.plot_name == 'Sensitivity Analysis':
@@ -357,14 +357,14 @@ class RawFile(object):
             raise NotImplementedError
         sweep = sweep_variable.to_waveform()
         return DcAnalysis(sweep, nodes=self.nodes(), branches=self.branches())
-        
+
     ##############################################
 
     def _to_ac_analysis(self):
 
         frequency = self.variables['frequency'].to_waveform(to_real=True)
         return AcAnalysis(frequency, nodes=self.nodes(), branches=self.branches())
-        
+
     ##############################################
 
     def _to_transient_analysis(self):
@@ -373,7 +373,7 @@ class RawFile(object):
         return TransientAnalysis(time, nodes=self.nodes(abscissa=time), branches=self.branches(abscissa=time))
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################
