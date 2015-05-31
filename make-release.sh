@@ -5,10 +5,10 @@
 ####################################################################################################
 
 # Set the environment
-. setenv.sh 
+. setenv.sh
 
 # Cleanup the repository
-./tools/clean 
+./tools/clean
 
 # Check licence
 ./tools/check-license
