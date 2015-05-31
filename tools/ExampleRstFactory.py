@@ -210,7 +210,7 @@ class CircuitMacrosImage(object):
     def __init__(self, m4_filename, source_directory, rst_directory):
 
         png_filename = m4_filename.replace('.m4', '.png')
-        self._m4_path = os.path.join(source_directory, m4_filename)
+        self._m4_path = os.path.join(source_directory, 'm4', m4_filename)
         self._rst_directory = rst_directory
         self._figure_path = png_filename
         self._figure_real_path = os.path.join(rst_directory, png_filename)
