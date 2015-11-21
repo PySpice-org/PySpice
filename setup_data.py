@@ -21,6 +21,8 @@
 ####################################################################################################
 
 import os
+import sys
+import subprocess
 
 from distutils.sysconfig import get_python_lib
 site_packages_path = get_python_lib()
@@ -70,11 +72,17 @@ long_description = read('README.txt')
 
 ####################################################################################################
 
+# check NgSpice is installed
+try:
+    rc = subprocess.check_call(('ngspice', '--version'), stdout=sys.stderr)
+except FileNotFoundError:
+    raise NameError('Warning: You must install ngspice')
+
 PySpice_path = os.path.join(site_packages_path, 'PySpice')
 
 setup_dict = dict(
     name='PySpice',
-    version='0.2.1',
+    version='0.2.2',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='PySpice is a Python 3 Package to generate and steer Berkeley Spice circuit, '
@@ -113,12 +121,13 @@ setup_dict = dict(
         "Programming Language :: Python :: 3.4",
         ],
     requires=[
-        'matplotlib',
-        'numpy',
         'PyYAML'
         'cffi',
+        'matplotlib',
+        'numpy',
+        'scipy',
     ],
-    )
+)
 
 ####################################################################################################
 #
