@@ -24,6 +24,12 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
+figure = plt.figure(1, (20, 10))
+
+####################################################################################################
+
+#!# Plot base-emitter diode curve Ib = f(Vbe)
+
 circuit = Circuit('Transistor')
 
 Vbase = circuit.V('base', '1', circuit.gnd, 1)
@@ -35,17 +41,11 @@ circuit.R('collector', 2, 'collector', kilo(1))
 circuit.include(spice_library['2n2222a'])
 circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
 
-####################################################################################################
-
-figure = plt.figure(1, (20, 10))
-
-####################################################################################################
-
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vbase=slice(0, 3, .01))
 
 axe1 = plt.subplot(221)
-axe1.plot(analysis.base, -analysis.Vbase*1000)
+axe1.plot(analysis.base, -analysis.Vbase*1000) # Fixme: I_Vbase, unit scale
 axe1.axvline(x=.65, color='red')
 axe1.legend(('Base-Emitter Diode curve',), loc=(.1,.8))
 axe1.grid()
@@ -64,6 +64,7 @@ circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
 
 # Fixme: ngspice doesn't support multi-sweep ???
 #   it works in interactive mode
+
 # simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 # analysis = simulator.dc(Vcollector=slice(0, 5, .1), Ibase=slice(micro(10), micro(100), micro(10)))
 # 0 v(i-sweep)    voltage # Vcollector in fact
@@ -78,13 +79,13 @@ circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
 # analysis = simulator.dc(Vcollector=slice(0, 10, .1))
 # 0 v(v-sweep)      voltage
 # 1 v(collector)    voltage
-# 2 v(base) voltage
+# 2 v(base)         voltage
 # 3 i(vcollector)   current
 
 # analysis = simulator.dc(Ibase=slice(micro(10), micro(100), micro(10)))
 # 0 v(i-sweep)      voltage
 # 1 v(collector)    voltage
- # 2 v(base) voltage
+# 2 v(base)         voltage
 # 3 i(vcollector)   current
 
 axe2 = plt.subplot(222)
@@ -106,14 +107,16 @@ for base_current in np.arange(0, 100, 10):
     Ibase.dc_value = base_current
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.dc(Vcollector=slice(0, 5, .01))
-    # Fixme: lower case 
     # add ib as text, linear and saturate region
+    # Plot Ic = f(Vce)
     axe2.plot(analysis.collector, -analysis.Vcollector*1000)
-    # Plot beta
+    # Plot β = Ic / Ib = f(Vce)
     axe3.plot(analysis.collector, -analysis.Vcollector/float(base_current))
-    # # trans-resistance U = RI   R = U / I = Vce / Ie
-    # # axe3.plot(analysis.collector, analysis.v_sweep/(float(base_current)-analysis.Vcollector))
-    # # Fixme: v_sweep is not so explicit
+    # trans-resistance U = RI   R = U / I = Vce / Ie
+    # axe3.plot(analysis.collector, analysis.v_sweep/(float(base_current)-analysis.Vcollector))
+    # Fixme: v_sweep is not so explicit
+
+# Plot Ic = f(Ib)
 
 axe4 = plt.subplot(224)
 axe4.grid()
@@ -125,6 +128,8 @@ analysis = simulator.dc(Ibase=slice(0, 100e-6, 10e-6))
 # Fixme: v_sweep
 axe4.plot(analysis.v_sweep*1e6, -analysis.Vcollector*1000, 'o-')
 axe4.legend(('Ic(Ib)',), loc=(.1,.8))
+
+####################################################################################################
 
 plt.tight_layout()
 plt.show()
