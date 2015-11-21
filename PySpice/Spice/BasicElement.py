@@ -91,6 +91,7 @@ See Ngspice documentation for details.
 from ..Tools.StringTools import join_list
 from .Netlist import Pin, Element, TwoPinElement, TwoPortElement
 from .ElementParameter import (
+    # KeyValueParameter,
     BoolKeyParameter,
     ElementNamePositionalParameter,
     ExpressionKeyParameter,
@@ -113,7 +114,7 @@ class SubCircuitElement(Element):
 
     Spice syntax::
 
-        XYYYYYY node1 node2 ... subcircuit_name
+        XYYYYYY node1 node2 ... subcircuit_name parameter1=value1 ...
 
     Attributes:
 
@@ -128,11 +129,32 @@ class SubCircuitElement(Element):
 
     ##############################################
 
-    def __init__(self, name, subcircuit_name, *nodes):
+    def __init__(self, name, subcircuit_name, *nodes, **parameters):
 
         pins = [Pin(self, None, node) for node in nodes]
 
         super(SubCircuitElement, self).__init__(name, pins, subcircuit_name)
+
+        self.parameters = parameters
+
+        # Fixme: investigate
+        # for key, value in parameters.items():
+        #     parameter = KeyValueParameter(key)
+        #     parameter.__set__(self, value)
+        #     self.optional_parameters[key] = parameter
+        #     setattr(self, key, parameter)
+
+    ##############################################
+
+    def format_spice_parameters(self):
+        """ Return the formatted list of parameters. """
+
+        spice_parameters = super().format_spice_parameters()
+        if self.parameters:
+            spice_parameters += ' ' + join_list(['{}={}'.format(key, value)
+                                                 for key, value in self.parameters.items()])
+
+        return spice_parameters
 
 ####################################################################################################
 

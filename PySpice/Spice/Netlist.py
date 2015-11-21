@@ -401,6 +401,8 @@ class TwoPortElement(Element):
 
     ##############################################
 
+    # Fixme: Why the order the inverted ?
+
     def __init__(self, name,
                  input_node_plus, input_node_minus,
                  output_node_plus, output_node_minus,
@@ -615,7 +617,11 @@ class SubCircuit(Netlist):
 
         self.name = str(name)
         self._external_nodes = list(nodes)
+        # Fixme: ok ?
         self._ground = kwargs.get('ground', 0)
+        if 'ground' in kwargs:
+            del kwargs['ground']
+        self._parameters = kwargs
 
     ##############################################
 
@@ -623,6 +629,13 @@ class SubCircuit(Netlist):
     def gnd(self):
         """ Local ground """
         return self._ground
+
+    ##############################################
+
+    @property
+    def parameters(self):
+        """ Parameters """
+        return self._parameters
 
     ##############################################
 
@@ -644,7 +657,10 @@ class SubCircuit(Netlist):
 
         """ Return the formatted subcircuit definition. """
 
-        netlist = '.subckt {} {}\n'.format(self.name, join_list(self._external_nodes))
+        nodes = join_list(self._external_nodes)
+        parameters = join_list(['{}={}'.format(key, value)
+                                for key, value in self._parameters.items()])
+        netlist = '.subckt ' + join_list((self.name, nodes, parameters)) + '\n'
         netlist += super(SubCircuit, self).__str__()
         netlist += '.ends\n'
         return netlist
