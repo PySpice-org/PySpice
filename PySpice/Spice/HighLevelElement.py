@@ -116,7 +116,7 @@ class Sinusoidal(VoltageSource):
                           'AC SIN({}V {}V {}Hz {}s {})'.format(self.offset, self.amplitude,
                                                                self.frequency, self.delay,
                                                                self.damping_factor)))
-        
+
 ####################################################################################################
 
 class AcLine(Sinusoidal):
@@ -156,11 +156,11 @@ class Pulse(VoltageSource):
     +--------+---------------+---------------+-------+
 
     Spice Syntax::
-    
+
         PULSE ( V1 V2 Td Tr Tf Pw Period )
-    
+
     A single pulse so specified is described by the following table:
-    
+
     +-------------+-------+
     | Time        | Value |
     +-------------+-------+
@@ -176,7 +176,7 @@ class Pulse(VoltageSource):
     +-------------+-------+
     | Tstop       | V1    |
     +-------------+-------+
-    
+
     Note: default value in Spice for rise and fall time is the simulation transient step, pulse
     width and period is the simulation stop time.
 
@@ -271,15 +271,15 @@ class Exponential(VoltageSource):
     +------+--------------------+---------------+-------+
 
     Spice Syntax::
-    
+
         EXP ( V1 V2 TD1 TAU1 TD2 TAU2 )
-    
+
     The shape of the waveform is described by the following formula:
 
     Let V21 = V2 - V1 and V12 = V1 - V2.
-   
+
     .. math::
-   
+
         V(t) = \begin{cases}
           V_1 & \text{if}\ 0 \leq t < T_{d1}, \\
           V_1 + V_{21} ( 1 − e^{-\frac{t-T_{d1}}{\tau_1}} )
@@ -308,7 +308,7 @@ class Exponential(VoltageSource):
         self.rise_time_constant = rise_time_constant
         self.fall_delay_time = fall_delay_time
         self.fall_time_constant = fall_time_constant
- 
+
     ##############################################
 
     def format_spice_parameters(self):
@@ -357,7 +357,7 @@ class PieceWiseLinear(VoltageSource):
         self.values = values
         self.repeate_time = repeate_time
         self.delay_time = delay_time
- 
+
     ##############################################
 
     def format_spice_parameters(self):
@@ -442,15 +442,15 @@ class AmplitudeModulated(VoltageSource):
     +------+----------------------+---------------+-------+
     | Td   + signal delay         +               + s     |
     +------+----------------------+---------------+-------+
-    
+
     Spice Syntax::
-    
+
         AM(VA VO MF FC TD)
-    
+
     The shape of the waveform is described by the following equation:
 
     .. math::
-  
+
         V(t) = V_a (V_o + \sin (2\pi M_f\,t)) \sin (2\pi F_c\,t)
 
     """
@@ -469,7 +469,7 @@ class AmplitudeModulated(VoltageSource):
         self.carrier_frequency = Frequency(carrier_frequency)
         self.modulating_frequency = Frequency(modulating_frequency)
         self.signal_delay = signal_delay
- 
+
     ##############################################
 
     def format_spice_parameters(self):
@@ -492,11 +492,11 @@ class RandomVoltage(VoltageSource):
     control of behavioral sources (B, E, G sources, voltage controllable A sources, capacitors,
     inductors, or resistors) to simulate the circuit dependence on statistically varying device
     parameters. A Monte-Carlo simulation may thus be handled in a single simulation run.
-    
+
     Spice Syntax::
-    
+
         TRRANDOM( TYPE TS <TD <PARAM1 <PARAM2> > >)
-    
+
     TYPE determines the random variates generated: 1 is uniformly distributed, 2 Gaussian, 3
     exponential, 4 Poisson. TS is the duration of an individual voltage value. TD is a time delay
     with 0 V output before the random voltage values start up. PARAM1 and PARAM2 depend on the type
@@ -524,7 +524,7 @@ class RandomVoltage(VoltageSource):
         # Fixme: random_type and parameters
 
         super(RandomVoltage, self).__init__(name, node_plus, node_minus)
- 
+
         self.random_type = random_type
         self.duration = duration
         self.time_delay = time_delay
@@ -553,7 +553,7 @@ class RandomVoltage(VoltageSource):
                 ')')
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################

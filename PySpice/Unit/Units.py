@@ -96,7 +96,7 @@ class Unit(numbers.Real):
     ##############################################
 
     def convert(self, other):
-        
+
         return self.__class__(self.convert_value(other))
 
     ##############################################
@@ -143,7 +143,7 @@ class Unit(numbers.Real):
 
         self._value += self.convert_value(other)
         return self
-        
+
     ##############################################
 
     def __radd__(self, other):
@@ -185,7 +185,7 @@ class Unit(numbers.Real):
 
         self._value -= self.convert_value(other)
         return self
-    
+
     ##############################################
 
     def __rsub__(self, other):
@@ -212,7 +212,7 @@ class Unit(numbers.Real):
 
         self._value *= self.convert_value(other)
         return self
-    
+
     ##############################################
 
     def __rmul__(self, other):
@@ -239,7 +239,7 @@ class Unit(numbers.Real):
 
         self._value //= float(other)
         return self
-    
+
     ##############################################
 
     def __rfloordiv__(self, other):
@@ -267,7 +267,7 @@ class Unit(numbers.Real):
 
         self._value /= float(other)
         return self
-    
+
     ##############################################
 
     def __rtruediv__(self, other):
@@ -292,7 +292,7 @@ class Unit(numbers.Real):
 
         self._value **= float(exponent)
         return self
-    
+
     ##############################################
 
     def __rpow__(self, base):
@@ -406,19 +406,19 @@ class Unit(numbers.Real):
     def __ceil__(self):
 
         return math.ceil(float(self))
-        
+
     ##############################################
-        
+
     def __floor__(self):
 
         return math.floor(float(self))
-        
+
     ##############################################
-        
+
     def __round__(self):
 
         return round(float(self))
-        
+
     ##############################################
 
     def inverse(self, the_class=None):
@@ -561,7 +561,7 @@ class Period(Unit):
         return self.frequency.pulsation
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################

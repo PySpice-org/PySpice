@@ -56,7 +56,7 @@ class ParameterDescriptor(object):
             return getattr(instance, '_' + self.attribute_name)
         except AttributeError:
             return self.default_value
-       
+
     ##############################################
 
     def __set__(self, instance, value):
@@ -372,7 +372,7 @@ class IntKeyParameter(KeyValueParameter):
         return int(value)
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################

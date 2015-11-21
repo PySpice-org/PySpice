@@ -102,13 +102,13 @@ class SubCircuit(Token):
         text = "SubCircuit {} {}\n".format(self._name, self._nodes)
         text += '\n'.join(['  ' + repr(token) for token in self._tokens])
         return text
-        
+
     ##############################################
 
     def __iter__(self):
 
         """ Return an iterator on the tokens. """
-        
+
         return iter(self._tokens)
 
     ##############################################
@@ -245,7 +245,7 @@ class SpiceParser(object):
 
         with open(str(path), 'r') as f:
             raw_lines = f.readlines()
-            
+
         lines = self._merge_lines(raw_lines)
         self._tokens = self._parse(lines)
         self._find_sections()
@@ -337,17 +337,17 @@ class SpiceParser(object):
     ##############################################
 
     def is_only_subcircuit(self):
-        
+
         return bool(not self.circuit and self.subcircuits)
 
     ##############################################
 
     def is_only_model(self):
-        
+
         return bool(not self.circuit and not self.subcircuits and self.models)
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################

@@ -23,7 +23,7 @@
 # op: value
 # transient: time
 # dc: v-sweep
-# ac: frequency 
+# ac: frequency
 # sens: element parameters
 #
 # Probes
@@ -47,7 +47,7 @@
 #   analysis.Vinput.i
 #
 # Vinput -> lower case
-
+#
 # axe.plot(x, y, *args, **kwargs)
 #
 ###################################################################################################
@@ -143,7 +143,7 @@ class Analysis(object):
     ##############################################
 
     def __getattr__(self, name):
-        
+
         try:
             return self.__getitem__(name)
         except IndexError:
@@ -174,7 +174,7 @@ class DcAnalysis(Analysis):
 
     The loop scheme is::
 
-        for  v1 in vsource1: 
+        for v1 in vsource1:
              for v2 in vsource2:
                  ...
 
@@ -233,7 +233,7 @@ class TransientAnalysis(Analysis):
         return self._time
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################
