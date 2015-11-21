@@ -18,6 +18,28 @@
 #
 ####################################################################################################
 
+"""This module provides an interface to run ngspice in server mode and get back the simulation
+output.
+
+When ngspice runs in server mode, it writes on the standard output an header and then the simulation
+output in binary format.  At the end of the simulation, it writes on the standard error a line of
+the form:
+
+    .. code::
+
+        @@@ \d+ \d+
+
+where the second number is the number of points of the simulation.  Due to the iterative and
+adaptive nature of a transient simulation, the number of points is only known at the end.
+
+Any line starting with "Error" in the standard output indicates an error in the simulation process.
+The line "run simulation(s) aborted" in the standard error indicates the simulation aborted.
+
+Any line starting with *Warning* in the standard error indicates non critical error in the
+simulation process.
+
+"""
+
 ####################################################################################################
 
 import logging
@@ -36,7 +58,7 @@ _module_logger = logging.getLogger(__name__)
 
 class SpiceServer(object):
 
-    """ This class wraps the execution of SPICE in server mode and convert the output in Python data
+    """This class wraps the execution of ngspice in server mode and convert the output to a Python data
     structure.
 
     Example of usage::
@@ -60,7 +82,7 @@ class SpiceServer(object):
 
     def _decode_number_of_points(self, line):
 
-        """ Decode the number of points in stderr line. """
+        """Decode the number of points in the given line."""
 
         match = re.match(r'@@@ (\d+) (\d+)', line)
         if match is not None:
@@ -72,10 +94,10 @@ class SpiceServer(object):
 
     def _parse_stdout(self, stdout):
 
-        """ Parse stdout for errors. """
+        """Parse stdout for errors."""
 
         # self._logger.debug('\n' + stdout)
-
+        
         error_found = False
         lines = stdout.splitlines()
         for line_index, line in enumerate(lines):
@@ -89,8 +111,10 @@ class SpiceServer(object):
 
     def _parse_stderr(self, stderr):
 
-        """ Parse stderr for warnings and return the number of points. """
+        """Parse stderr for warnings and return the number of points."""
 
+        self._logger.debug('\n' + stderr)
+        
         stderr_lines = stderr.splitlines()
         number_of_points = None
         for line in stderr_lines:
@@ -100,20 +124,20 @@ class SpiceServer(object):
                 raise NameError("Simulation aborted\n" + stderr)
             elif line.startswith('@@@'):
                 number_of_points = self._decode_number_of_points(line)
-
+        
         return number_of_points
 
     ##############################################
 
     def __call__(self, spice_input):
 
-        """Run SPICE as a subprocess in server mode for the given input and return a
+        """Run SPICE in server mode as a subprocess for the given input and return a
         :obj:`PySpice.RawFile.RawFile` instance.
 
         """
 
         self._logger.info("Start the spice subprocess")
-
+        
         process = subprocess.Popen((self._spice_command, '-s'),
                                    stdin=subprocess.PIPE,
                                    stdout=subprocess.PIPE,
@@ -129,7 +153,7 @@ class SpiceServer(object):
             raise NameError("The number of points was not found in the standard error buffer,"
                             " ngspice returned:\n" +
                             stderr)
-
+        
         return RawFile(stdout, number_of_points)
 
 ####################################################################################################

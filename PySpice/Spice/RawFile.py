@@ -18,6 +18,67 @@
 #
 ####################################################################################################
 
+"""
+
+Header
+
+    .. code::
+
+        Circuit: 230V Rectifier
+
+        Doing analysis at TEMP = 25.000000 and TNOM = 25.000000
+
+        Title: 230V Rectifier
+        Date: Thu Jun  4 23:40:58  2015
+        Plotname: Transient Analysis
+        Flags: real
+        No. Variables: 6
+        No. Points: 0
+        Variables:
+        No. of Data Columns : 6
+                0       time    time
+                1       v(in)   voltage
+                ...
+                5       i(vinput)       current
+        Binary:
+
+Operating Point
+Node voltages and source branch currents:
+
+ * v(node_name)
+ * i(vname)
+
+Sensitivity Analysis
+
+ * v({element})
+ * v({element}_{parameter})
+ * v(v{source})
+
+DC
+
+ * v(v-sweep)
+ * v({node})
+ * i(v{source})
+
+AC
+Frequency, node voltages and source branch currents:
+
+ * frequency
+ * v({node})
+ * i(v{name})
+
+Transient Analysis
+Time, node voltages and source branch currents:
+
+ * time
+ * v({node})
+ * i(v{source})
+
+"""
+
+# * v({element}:bv_max)
+# * i(e.xdz1.ev1)
+
 ####################################################################################################
 
 import logging
@@ -178,13 +239,15 @@ class RawFile(object):
     def _read_header(self, stdout):
 
         """ Parse the header """
-
+        
         binary_line = b'Binary:\n'
         binary_location = stdout.find(binary_line)
         if binary_location < 0:
             raise NameError('Cannot locate binary data')
+        raw_data_start = binary_location + len(binary_line)
+        # self._logger.debug('\n' + stdout[:raw_data_start].decode('utf-8'))
         header_lines = stdout[:binary_location].splitlines()
-        raw_data = stdout[binary_location + len(binary_line):]
+        raw_data = stdout[raw_data_start:]
         header_line_iterator = iter(header_lines)
         
         self.circuit = self._read_header_field_line(header_line_iterator, 'Circuit')
@@ -342,6 +405,7 @@ class RawFile(object):
 
     def _to_sensitivity_analysis(self):
 
+        # Fixme: test .SENS I (VTEST)
         # Fixme: separate v(vinput), analysis.R2.m
         return SensitivityAnalysis(elements=self.elements())
 
@@ -354,6 +418,7 @@ class RawFile(object):
         elif 'v(i-sweep)' in self.variables:
             sweep_variable = self.variables['v(i-sweep)']
         else:
+            # 
             raise NotImplementedError
         sweep = sweep_variable.to_waveform()
         return DcAnalysis(sweep, nodes=self.nodes(), branches=self.branches())
