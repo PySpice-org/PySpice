@@ -24,6 +24,10 @@ recursive-include spec *.spec *.desktop
 recursive-include tools *
 recursive-include unit-test *.py
 recursive-include spice-examples *
+global-exclude *~
+global-exclude *__pycache__*
+global-exclude *.pyc
 prune build
 prune doc/sphinx/build
-prune *~ *.pyc
+prune doc/sphinx/source/bower
+prune doc/sphinx/source/_static/MathJax
