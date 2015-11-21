@@ -249,13 +249,12 @@ class RawFile(object):
         header_lines = stdout[:binary_location].splitlines()
         raw_data = stdout[raw_data_start:]
         header_line_iterator = iter(header_lines)
-        number_of_warnings=stdout.count(b'Warning')
-
+        
         self.circuit = self._read_header_field_line(header_line_iterator, 'Circuit')
         self.temperature = self._read_header_line(header_line_iterator, 'Doing analysis at TEMP')
-        self.warnings=[]
-        for i in range(number_of_warnings):
-            self.warnings.append(self._read_header_field_line(header_line_iterator, 'Warning'))
+        # Fixme: need an example to check warning handling
+        self.warnings = [self._read_header_field_line(header_line_iterator, 'Warning')
+                         for i in range(stdout.count(b'Warning'))]
         self.title = self._read_header_field_line(header_line_iterator, 'Title')
         self.date = self._read_header_field_line(header_line_iterator, 'Date')
         self.plot_name = self._read_header_field_line(header_line_iterator, 'Plotname')
