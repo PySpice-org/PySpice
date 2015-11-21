@@ -3,7 +3,7 @@
 ****************
 
 .. toctree::
-  Physics/ElementProperties
+  Physics/MaterialProperties
   Physics/PhysicalConstants
   Physics/Resistor
   Physics/SemiConductor
