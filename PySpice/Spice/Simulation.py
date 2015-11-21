@@ -1,4 +1,4 @@
-####################################################################################################
+###################################################################################################
 #
 # PySpice - A Spice Package for Python
 # Copyright (C) 2014 Fabrice Salvaire
@@ -54,12 +54,12 @@ class CircuitSimulation(object):
                 ):
 
         self._circuit = circuit
-
+        
         self._options = {} # .options
         self._initial_condition = {} # .ic
         self._saved_nodes = ()
         self._analysis_parameters = {}
-
+        
         self.temperature = temperature
         self.nominal_temperature = nominal_temperature
         
@@ -163,31 +163,103 @@ class CircuitSimulation(object):
 
     def operating_point(self):
 
+        """Compute the operating point of the circuit with capacitors open and inductors shorted."""
+
         self._analysis_parameters['op'] = ''
 
     ##############################################
 
     def dc_sensitivity(self, output_variable):
 
-        """
-        .sens outvar
+        """Compute the sensitivity of the DC operating point of a node voltage or voltage-source branch
+        current to all non-zero device parameters.
 
-        .sens outvar ac dec nd fstart fstop
-        .sens outvar ac oct no fstart fstop
-        .sens outvar ac lin np fstart fstop
+        General form:
+
+        .. code::
+
+            .sens outvar
+
+        Examples:
+
+        .. code::
+
+            .SENS V(1, OUT)
+            .SENS I(VTEST)
+
         """
 
         self._analysis_parameters['sens'] = (output_variable,)
 
     ##############################################
 
+    def ac_sensitivity(self, output_variable,
+                       start_frequency, stop_frequency, number_of_points, variation):
+
+        """Compute the sensitivity of the AC values of a node voltage or voltage-source branch
+        current to all non-zero device parameters.
+
+        General form:
+
+        .. code::
+
+            .sens outvar ac dec nd fstart fstop
+            .sens outvar ac oct no fstart fstop
+            .sens outvar ac lin np fstart fstop
+
+        Examples:
+
+        .. code::
+
+            .SENS V(OUT) AC DEC 10 100 100 k
+
+        """
+
+        if variation not in ('dec', 'oct', 'lin'):
+            raise ValueError("Incorrect variation type")
+        
+        self._analysis_parameters['sens'] = (output_variable,
+                                             variation, number_of_points, start_frequency, stop_frequency)
+
+    ##############################################
+
     def dc(self, **kwargs):
 
-        """ .dc srcnam vstart vstop vincr [ src2 start2 stop2 incr2 ] """
+        """Compute the DC transfer fonction of the circuit with capacitors open and inductors shorted.
+
+        General form:
+
+        .. code::
+
+            .dc srcnam vstart vstop vincr [ src2 start2 stop2 incr2 ]
+
+        *srcnam* is the name of an independent voltage or current source, a resistor or the circuit
+        temperature. *vstart*, *vstop*, and *vincr* are the starting, final, and incrementing values
+        respectively.
+
+        A second source (*src2*) may optionally be specified with associated sweep parameters. In
+        this case, the first source is swept over its range for each value of the second source.
+
+        Examples:
+
+        .. code::
+
+            .dc VIN 0 .2 5 5.0 0.25
+            .dc VDS 0 10 .5 VGS 0 5 1
+            .dc VCE 0 10 .2 5 IB 0 10U 1U
+            .dc RLoad 1k 2k 100
+            .dc TEMP -15 75 5
+
+        """
 
         parameters = []
-        for source_name, voltage_slice in kwargs.items():
-            parameters += [source_name, voltage_slice.start, voltage_slice.stop, voltage_slice.step]
+        for variable, value_slice in kwargs.items():
+            variable_lower = variable.lower()
+            if variable_lower[0] in ('v', 'i', 'r') or variable_lower == 'temp':
+                parameters += [variable, value_slice.start, value_slice.stop, value_slice.step]
+            else:
+                raise NameError('Sweep variable must be a voltage/current source, '
+                                'a resistor or the circuit temperature')
         self._analysis_parameters['dc'] = parameters
 
     ##############################################
@@ -196,10 +268,24 @@ class CircuitSimulation(object):
 
         # fixme: concise keyword ?
 
-        """
-        .ac dec nd fstart fstop
-        .ac oct no fstart fstop
-        .ac lin np fstart fstop
+        """Perform a small-signal AC analysis of the circuit where all non-linear devices are linearized
+        around their actual DC operating point.
+
+        Note that in order for this analysis to be meaningful, at least one independent source must
+        have been specified with an AC value. Typically it does not make much sense to specify more
+        than one AC source. If you do, the result will be a superposition of all sources, thus
+        difficult to interpret.
+
+        Examples:
+
+        .. code::
+
+            .ac dec nd fstart fstop
+            .ac oct no fstart fstop
+            .ac lin np fstart fstop
+
+        The parameter *variation* must be either `dec`, `oct` or `lin`.
+
         """
 
         if variation not in ('dec', 'oct', 'lin'):
@@ -212,8 +298,14 @@ class CircuitSimulation(object):
     def transient(self, step_time, end_time, start_time=None, max_time=None,
                   use_initial_condition=False):
 
-        """
-        .tran tstep tstop <tstart <tmax>> <uic>
+        """Perform a transient analysis of the circuit.
+
+        General Form:
+
+        .. code::
+
+            .tran tstep tstop <tstart <tmax>> <uic>
+
         """
 
         if use_initial_condition:
@@ -254,7 +346,7 @@ class CircuitSimulator(CircuitSimulation):
     """
 
     _logger = _module_logger.getChild('CircuitSimulator')
-        
+
     ##############################################
 
     def _run(self, analysis_method, *args, **kwargs):
@@ -315,7 +407,7 @@ class SubprocessCircuitSimulator(CircuitSimulator):
         # Fixme: kwargs
 
         super(SubprocessCircuitSimulator, self).__init__(circuit, temperature, nominal_temperature, pipe=True)
-
+        
         self._spice_server = SpiceServer()
 
     ##############################################
@@ -323,13 +415,13 @@ class SubprocessCircuitSimulator(CircuitSimulator):
     def _run(self, analysis_method, *args, **kwargs):
 
         super(SubprocessCircuitSimulator, self)._run(analysis_method, *args, **kwargs)
-
+        
         raw_file = self._spice_server(str(self))
         self.reset_analysis()
-
+        
         # for field in raw_file.variables:
         #     print field
-
+        
         return raw_file.to_analysis(self._circuit)
 
 ####################################################################################################
@@ -350,7 +442,7 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
         # Fixme: kwargs
 
         super(NgSpiceSharedCircuitSimulator, self).__init__(circuit, temperature, nominal_temperature, pipe=False)
-
+        
         if self.__ngspice_shared__ is None:
             self.__ngspice_shared__ = NgSpiceShared(send_data=False)
         self._ngspice_shared = self.__ngspice_shared__
@@ -365,7 +457,7 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
         self._ngspice_shared.run()
         self._logger.debug(str(self._ngspice_shared.plot_names))
         self.reset_analysis()
-
+        
         if analysis_method == 'dc':
             plot_name = 'dc1'
         elif analysis_method == 'ac':
@@ -374,11 +466,11 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
             plot_name = 'tran1'
         else:
             raise NotImplementedError
-
+        
         return self._ngspice_shared.plot(plot_name).to_analysis()
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################
