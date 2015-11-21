@@ -1,0 +1,16 @@
+*.stderr
+*.stdout
+.bzr/
+.bzrignore
+MANIFEST
+__pycache__
+#
+.ipynb_checkpoints/
+circuit-macros-tmp/
+dependencies/
+doc/extern/
+doc/sphinx/build/
+doc/sphinx/source/bower/bower_components/
+notebook-test/
+notes/
+test/
