@@ -25,7 +25,7 @@ import math
 from matplotlib import pyplot
 
 ####################################################################################################
- 
+
 # frequency in Hz, gain in dB, phase in radians between -pi and pi.
 
 def bode_diagram_gain(axe, frequency, gain, **kwargs):
@@ -35,7 +35,7 @@ def bode_diagram_gain(axe, frequency, gain, **kwargs):
     axe.grid(True, which='minor')
     axe.set_xlabel("Frequency [Hz]")
     axe.set_ylabel("Gain [dB]")
- 
+
 ####################################################################################################
 
 def bode_diagram_phase(axe, frequency, phase, **kwargs):
@@ -57,7 +57,7 @@ def bode_diagram(axes, frequency, gain, phase, **kwargs):
     bode_diagram_phase(axes[1], frequency, phase, **kwargs)
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################

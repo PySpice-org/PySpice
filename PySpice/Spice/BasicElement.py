@@ -118,7 +118,7 @@ class SubCircuitElement(Element):
     Attributes:
 
       :attr:`subcircuit_name`
-    
+
     """
 
     alias = 'X'
@@ -598,7 +598,7 @@ class CurrentControlledCurrentSource(TwoPortElement):
       :attr:`source`
 
       :attr:`current_gain`
-    
+
     """
 
     alias = 'CCCS'
@@ -1102,7 +1102,7 @@ class Mosfet(Element):
         return self.pins[3]
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################

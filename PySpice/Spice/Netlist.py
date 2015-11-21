@@ -595,7 +595,7 @@ class Netlist(object):
     ##############################################
 
     def __getattr__(self, attribute_name):
-        
+
         try:
             return self.__getitem__(attribute_name)
         except IndexError:
@@ -616,7 +616,7 @@ class SubCircuit(Netlist):
         self.name = str(name)
         self._external_nodes = list(nodes)
         self._ground = kwargs.get('ground', 0)
-        
+
     ##############################################
 
     @property
@@ -722,7 +722,7 @@ class Circuit(Netlist):
     def parameter(self, name, expression):
 
         """ Set a parameter. """
-        
+
         self._parameters[str(name)] = str(expression)
 
     ##############################################
@@ -792,7 +792,7 @@ class Circuit(Netlist):
             return ValueError('Unknown simulator type')
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################
