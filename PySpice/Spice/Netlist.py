@@ -113,7 +113,7 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-class DeviceModel(object):
+class DeviceModel:
 
     """ This class implements a device model.
 
@@ -191,7 +191,7 @@ class DeviceModel(object):
 
 ####################################################################################################
 
-class Pin(object):
+class Pin:
 
     """This class implements a pin of an element. It stores a reference to the element, the name of the
     pin and the node.
@@ -277,12 +277,20 @@ class ElementParameterMetaClass(type):
         attributes['parameters_from_args'] = [parameter
                                               for parameter in sorted(positional_parameters.values())
                                               if not parameter.key_parameter]
+        
+        # Implement alias for parameters
+        attributes['spice_to_parameters'] = {parameter.spice_name:parameter
+                                             for parameter in attributes['optional_parameters'].values()}
+        for parameter in attributes['spice_to_parameters'].values():
+            if (parameter.spice_name in attributes
+                and parameter.spice_name != parameter.attribute_name):
+                _module_logger.error('Spice parameter "{}" clash with attributes'.format(parameter.spice_name))
 
         return super(ElementParameterMetaClass, cls).__new__(cls, name, bases, attributes)
 
 ####################################################################################################
 
-class Element(object, metaclass=ElementParameterMetaClass):
+class Element(metaclass=ElementParameterMetaClass):
 
     """ This class implements a base class for an element.
 
@@ -333,6 +341,28 @@ class Element(object, metaclass=ElementParameterMetaClass):
 
     ##############################################
 
+    def __setattr__(self, name, value):
+
+        # Implement alias for parameters
+        if name in self.spice_to_parameters:
+            parameter = self.spice_to_parameters[name]
+            object.__setattr__(self, parameter.attribute_name, value)
+        else:
+            object.__setattr__(self, name, value)
+
+    ##############################################
+
+    def __getattr__(self, name):
+
+        # Implement alias for parameters
+        if name in self.spice_to_parameters:
+            parameter = self.spice_to_parameters[name]
+            return object.__getattribute__(self, parameter.attribute_name)
+        else:
+            raise AttributeError(name)
+
+    ##############################################
+
     def format_node_names(self):
         """ Return the formatted list of nodes. """
         return join_list((self.name, join_list(self.nodes)))
@@ -376,7 +406,7 @@ class TwoPinElement(Element):
 
         pins = (Pin(self, 'plus', node_plus), Pin(self, 'minus', node_minus))
 
-        super(TwoPinElement, self).__init__(name, pins, *args, **kwargs)
+        super().__init__(name, pins, *args, **kwargs)
 
     ##############################################
 
@@ -413,7 +443,7 @@ class TwoPortElement(Element):
                 Pin(self, 'input_plus', input_node_plus),
                 Pin(self, 'input_minus', input_node_minus))
 
-        super(TwoPortElement, self).__init__(name, pins, *args, **kwargs)
+        super().__init__(name, pins, *args, **kwargs)
 
     ##############################################
 
@@ -441,7 +471,7 @@ class TwoPortElement(Element):
 
 ####################################################################################################
 
-class Node(object):
+class Node:
 
     """This class implements a node in the circuit. It stores a reference to the elements connected to
     the node."""
@@ -477,7 +507,7 @@ class Node(object):
 
 ####################################################################################################
 
-class Netlist(object):
+class Netlist:
 
     """ This class implements a base class for a netlist.
 
@@ -613,7 +643,7 @@ class SubCircuit(Netlist):
 
     def __init__(self, name, *nodes, **kwargs):
 
-        super(SubCircuit, self).__init__()
+        super().__init__()
 
         self.name = str(name)
         self._external_nodes = list(nodes)
@@ -661,7 +691,7 @@ class SubCircuit(Netlist):
         parameters = join_list(['{}={}'.format(key, value)
                                 for key, value in self._parameters.items()])
         netlist = '.subckt ' + join_list((self.name, nodes, parameters)) + '\n'
-        netlist += super(SubCircuit, self).__str__()
+        netlist += super().__str__()
         netlist += '.ends\n'
         return netlist
 
@@ -678,7 +708,7 @@ class SubCircuitFactory(SubCircuit):
 
     def __init__(self, **kwargs):
 
-        super(SubCircuitFactory, self).__init__(self.__name__, *self.__nodes__, **kwargs)
+        super().__init__(self.__name__, *self.__nodes__, **kwargs)
 
 ####################################################################################################
 
@@ -705,7 +735,7 @@ class Circuit(Netlist):
                  global_nodes=(),
              ):
 
-        super(Circuit, self).__init__()
+        super().__init__()
 
         self.title = str(title)
         self._ground = ground
@@ -774,7 +804,7 @@ class Circuit(Netlist):
             netlist += join_lines(self._parameters, prefix='.param ') + '\n'
         if self._subcircuits:
             netlist += join_lines(self.subcircuit_iterator())
-        netlist += super(Circuit, self).__str__()
+        netlist += super().__str__()
         return netlist
 
     ##############################################
