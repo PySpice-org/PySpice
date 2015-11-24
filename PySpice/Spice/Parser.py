@@ -81,7 +81,7 @@ class SubCircuit(Token):
 
     def __init__(self, line):
 
-        super(SubCircuit, self).__init__(line)
+        super().__init__(line)
 
         parameters, dict_parameters = self.split_line('.subckt')
         self._name, self._nodes = parameters[0], parameters[1:]
@@ -129,7 +129,7 @@ class Title(Token):
 
     def __init__(self, line):
 
-        super(Title, self).__init__(line)
+        super().__init__(line)
 
         parameters, dict_parameters = self.split_line('.title')
         self._title = parameters[0]
@@ -150,7 +150,7 @@ class Element(Token):
 
     def __init__(self, line):
 
-        super(Element, self).__init__(line)
+        super().__init__(line)
 
         parameters, dict_parameters = self.split_line('R')
         self._element_type = str(line)[0]
@@ -181,7 +181,7 @@ class Model(Token):
 
     def __init__(self, line):
 
-        super(Model, self).__init__(line)
+        super().__init__(line)
 
         parameters, dict_parameters = self.split_line('.model')
         self._name, self._model_type = parameters[:2]

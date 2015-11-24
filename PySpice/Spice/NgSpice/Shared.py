@@ -167,7 +167,7 @@ class Plot(dict):
 
     def __init__(self, plot_name):
 
-        super(Plot, self).__init__()
+        super().__init__()
 
         self.plot_name = plot_name
 

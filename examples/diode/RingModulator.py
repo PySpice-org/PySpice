@@ -21,7 +21,7 @@ class RingModulator(SubCircuitFactory):
                  diode_model,
                 ):
 
-        super(RingModulator, self).__init__()
+        super().__init__()
 
         input_inductor = self.L('input', 'input_plus', 'input_minus', outer_inductance)
         top_inductor = self.L('input_top', 'input_top', 'carrier_plus', inner_inductance)

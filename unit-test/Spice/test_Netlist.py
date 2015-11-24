@@ -33,7 +33,7 @@ class VoltageDivider(SubCircuitFactory):
     __name__ = 'VoltageDivider'
     __nodes__ = ('input', 'output_plus', 'output_minus')
     def __init__(self, **kwargs):
-        super(VoltageDivider, self).__init__(title='Voltage Divider', **kwargs)
+        super().__init__(title='Voltage Divider', **kwargs)
         self.R(1, 'input', 'output_plus', kilo(9))
         self.R(2, 'output_plus', 'output_minus', kilo(1))
 
@@ -41,7 +41,7 @@ class VoltageDivider(SubCircuitFactory):
 
 class VoltageDividerCircuit(Circuit):
     def __init__(self, **kwargs):
-        super(VoltageDividerCircuit, self).__init__(title='Voltage Divider', **kwargs)
+        super().__init__(title='Voltage Divider', **kwargs)
         self.V('input', 'in', self.gnd, '10V')
         self.R(1, 'in', 'out', kilo(9))
         self.R(2, 'out', self.gnd, kilo(1))

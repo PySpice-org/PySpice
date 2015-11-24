@@ -133,7 +133,7 @@ class SubCircuitElement(Element):
 
         pins = [Pin(self, None, node) for node in nodes]
 
-        super(SubCircuitElement, self).__init__(name, pins, subcircuit_name)
+        super().__init__(name, pins, subcircuit_name)
 
         self.parameters = parameters
 
@@ -485,7 +485,7 @@ class CoupledInductor(Element):
     def __init__(self, name, inductor_name1, inductor_name2, coupling_factor):
 
         # Fixme: any pins here
-        super(CoupledInductor, self).__init__(name, (),
+        super().__init__(name, (),
                                               inductor_name1, inductor_name2, coupling_factor)
         self._inductor_names = (inductor_name1, inductor_name2)
 
@@ -746,7 +746,7 @@ class NonLinearVoltageSource(TwoPinElement):
                  expression=None,
                  table=None):
 
-        super(NonLinearVoltageSource, self).__init__(name, node_plus, node_minus)
+        super().__init__(name, node_plus, node_minus)
 
         self.expression = expression
         self.table = table
@@ -866,7 +866,7 @@ class BipolarJunctionTransistor(Element):
             self._substrate_pin = Pin(self, 'substrate', substrate_node)
             pins.append(self._substrate_pin)
 
-        super(BipolarJunctionTransistor, self).__init__(name, pins, **kwargs)
+        super().__init__(name, pins, **kwargs)
 
     ##############################################
 
@@ -941,7 +941,7 @@ class JunctionFieldEffectTransistor(Element):
                 Pin(self, 'gate', gate_node),
                 Pin(self, 'source', source_node),]
 
-        super(JunctionFieldEffectTransistor, self).__init__(name, pins, **kwargs)
+        super().__init__(name, pins, **kwargs)
 
     ##############################################
 
@@ -1004,7 +1004,7 @@ class Mesfet(Element):
                 Pin(self, 'gate', gate_node),
                 Pin(self, 'source', source_node),]
 
-        super(Mesfet, self).__init__(name, pins, **kwargs)
+        super().__init__(name, pins, **kwargs)
 
     ##############################################
 
@@ -1097,7 +1097,7 @@ class Mosfet(Element):
                 Pin(self, 'substrate', substrate_node), # bulk
         ]
 
-        super(Mosfet, self).__init__(name, pins, **kwargs)
+        super().__init__(name, pins, **kwargs)
 
     ##############################################
 

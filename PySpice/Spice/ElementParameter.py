@@ -117,7 +117,7 @@ class PositionalElementParameter(ParameterDescriptor):
 
     def __init__(self, position, default=None, key_parameter=False):
 
-        super(PositionalElementParameter, self).__init__(default)
+        super().__init__(default)
 
         self.position = position
         self.key_parameter = key_parameter
@@ -223,7 +223,7 @@ class FlagParameter(ParameterDescriptor):
 
     def __init__(self, spice_name, default=False):
 
-        super(FlagParameter, self).__init__(default)
+        super().__init__(default)
 
         self.spice_name = spice_name
 
@@ -259,7 +259,7 @@ class KeyValueParameter(ParameterDescriptor):
 
     def __init__(self, spice_name, default=None):
 
-        super(KeyValueParameter, self).__init__(default)
+        super().__init__(default)
 
         self.spice_name = spice_name
 

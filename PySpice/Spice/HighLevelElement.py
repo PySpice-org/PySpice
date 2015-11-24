@@ -87,7 +87,7 @@ class Sinusoidal(VoltageSource):
                  offset=0, amplitude=1, frequency=50,
                  delay=0, damping_factor=0):
 
-        super(Sinusoidal, self).__init__(name, node_plus, node_minus)
+        super().__init__(name, node_plus, node_minus)
 
         self.dc_offset = dc_offset
         self.offset = offset
@@ -125,7 +125,7 @@ class AcLine(Sinusoidal):
 
     def __init__(self, name, node_plus, node_minus, rms_voltage=230, frequency=50):
 
-        super(AcLine, self).__init__(name, node_plus, node_minus,
+        super().__init__(name, node_plus, node_minus,
                                      amplitude=rms_to_amplitude(rms_voltage),
                                      frequency=frequency)
 
@@ -209,7 +209,7 @@ class Pulse(VoltageSource):
         #  rise_time, fall_time = Tstep
         #  pulse_width, period = Tstop
 
-        super(Pulse, self).__init__(name, node_plus, node_minus)
+        super().__init__(name, node_plus, node_minus)
 
         self.initial_value = initial_value
         self.pulsed_value = pulsed_value
@@ -300,7 +300,7 @@ class Exponential(VoltageSource):
 
         # Fixme: default
 
-        super(Exponential, self).__init__(name, node_plus, node_minus)
+        super().__init__(name, node_plus, node_minus)
 
         self.initial_value = initial_value
         self.pulsed_value = pulsed_value
@@ -352,7 +352,7 @@ class PieceWiseLinear(VoltageSource):
 
         # Fixme: default
 
-        super(PieceWiseLinear, self).__init__(name, node_plus, node_minus)
+        super().__init__(name, node_plus, node_minus)
 
         self.values = values
         self.repeate_time = repeate_time
@@ -405,7 +405,7 @@ class SingleFrequencyFM(VoltageSource):
     def __init__(self, name, node_plus, node_minus,
                  offset, amplitude, carrier_frequency, modulation_index, signal_frequency):
 
-        super(SingleFrequencyFM, self).__init__(name, node_plus, node_minus)
+        super().__init__(name, node_plus, node_minus)
 
         self.offset = offset
         self.amplitude = amplitude
@@ -462,7 +462,7 @@ class AmplitudeModulated(VoltageSource):
 
         # Fixme: default
 
-        super(AmplitudeModulated, self).__init__(name, node_plus, node_minus)
+        super().__init__(name, node_plus, node_minus)
 
         self.offset = offset
         self.amplitude = amplitude
@@ -523,7 +523,7 @@ class RandomVoltage(VoltageSource):
 
         # Fixme: random_type and parameters
 
-        super(RandomVoltage, self).__init__(name, node_plus, node_minus)
+        super().__init__(name, node_plus, node_minus)
 
         self.random_type = random_type
         self.duration = duration

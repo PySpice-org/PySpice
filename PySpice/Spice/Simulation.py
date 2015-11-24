@@ -406,7 +406,7 @@ class SubprocessCircuitSimulator(CircuitSimulator):
 
         # Fixme: kwargs
 
-        super(SubprocessCircuitSimulator, self).__init__(circuit, temperature, nominal_temperature, pipe=True)
+        super().__init__(circuit, temperature, nominal_temperature, pipe=True)
         
         self._spice_server = SpiceServer()
 
@@ -414,7 +414,7 @@ class SubprocessCircuitSimulator(CircuitSimulator):
 
     def _run(self, analysis_method, *args, **kwargs):
 
-        super(SubprocessCircuitSimulator, self)._run(analysis_method, *args, **kwargs)
+        super()._run(analysis_method, *args, **kwargs)
         
         raw_file = self._spice_server(str(self))
         self.reset_analysis()
@@ -441,7 +441,7 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
 
         # Fixme: kwargs
 
-        super(NgSpiceSharedCircuitSimulator, self).__init__(circuit, temperature, nominal_temperature, pipe=False)
+        super().__init__(circuit, temperature, nominal_temperature, pipe=False)
         
         if self.__ngspice_shared__ is None:
             self.__ngspice_shared__ = NgSpiceShared(send_data=False)
@@ -451,7 +451,7 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
 
     def _run(self, analysis_method, *args, **kwargs):
 
-        super(NgSpiceSharedCircuitSimulator, self)._run(analysis_method, *args, **kwargs)
+        super()._run(analysis_method, *args, **kwargs)
         
         self._ngspice_shared.load_circuit(str(self))
         self._ngspice_shared.run()
