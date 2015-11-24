@@ -34,7 +34,7 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-class CircuitSimulation(object):
+class CircuitSimulation:
 
     """Define and generate the spice instruction to perform a circuit simulation.
 

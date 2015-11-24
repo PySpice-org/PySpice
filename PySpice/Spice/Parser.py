@@ -28,7 +28,7 @@ It would be difficult to implement a full parser for Ngspice since the syntax is
 
 ####################################################################################################
 
-class Token(object):
+class Token:
 
     """ This class implements a token, in fact a line in a Spice netlist. """
 
@@ -202,7 +202,7 @@ class Model(Token):
 
 ####################################################################################################
 
-class Line(object):
+class Line:
 
     """ This class implements a line in the netlist. """
 
@@ -225,7 +225,7 @@ class Line(object):
 
 ####################################################################################################
 
-class SpiceParser(object):
+class SpiceParser:
 
     """ This class parse a Spice netlist file and build a syntax tree.
 

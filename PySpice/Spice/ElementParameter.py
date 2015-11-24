@@ -26,7 +26,7 @@ from ..Unit.Units import Unit
 
 ####################################################################################################
 
-class ParameterDescriptor(object):
+class ParameterDescriptor:
 
     """ This base class implements a descriptor for element parameters.
 

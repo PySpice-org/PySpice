@@ -82,7 +82,7 @@ def timestamp(path):
 
 ####################################################################################################
 
-class Chunk(object):
+class Chunk:
 
     """ This class represents a chunk of lines in the source. """
 
@@ -199,7 +199,7 @@ class ImageChunk(Chunk):
 
 ####################################################################################################
 
-class CircuitMacrosImage(object):
+class CircuitMacrosImage:
 
     """ This class represents a circuit macros figure. """
 
@@ -290,7 +290,7 @@ class Chunks(list):
 
 ####################################################################################################
 
-class Example(object):
+class Example:
 
     """ This class is responsible to process an example. """
 
@@ -604,7 +604,7 @@ class Example(object):
 
 ####################################################################################################
 
-class Topic(object):
+class Topic:
 
     _logger = _module_logger.getChild('Example')
 
@@ -855,7 +855,7 @@ class Topic(object):
 
 ####################################################################################################
 
-class ExampleRstFactory(object):
+class ExampleRstFactory:
 
     """This class processes recursively the examples directory and generate figures and RST files."""
 

@@ -56,7 +56,7 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-class SpiceServer(object):
+class SpiceServer:
 
     """This class wraps the execution of ngspice in server mode and convert the output to a Python data
     structure.

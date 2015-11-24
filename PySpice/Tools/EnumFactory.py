@@ -108,7 +108,7 @@ class ExplicitEnumMetaClass(ReadOnlyMetaClass):
 
 ####################################################################################################
 
-class EnumConstant(object):
+class EnumConstant:
 
     """ Define an Enum Constant """
 

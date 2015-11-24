@@ -96,7 +96,7 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-class Variable(object):
+class Variable:
 
     """ This class implements a variable or probe in a SPICE simulation output.
 
@@ -191,7 +191,7 @@ class Variable(object):
 
 ####################################################################################################
 
-class RawFile(object):
+class RawFile:
 
     """ This class parse the stdout of ngspice and the raw data output.
 
