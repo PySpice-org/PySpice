@@ -31,7 +31,7 @@ import PySpice.Physics.PhysicalConstants as Cst
 
 ####################################################################################################
 
-class ShockleyDiode(object):
+class ShockleyDiode:
 
     """ This class provides an implementation of the Shockley Diode Model.
     """

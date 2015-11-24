@@ -25,7 +25,7 @@ from .Parser import SpiceParser
 
 ####################################################################################################
 
-class SpiceLibrary(object):
+class SpiceLibrary:
 
     """ This class implements a Spice sub-circuits and models library.
 

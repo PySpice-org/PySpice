@@ -26,7 +26,7 @@ import os
 
 ####################################################################################################
 
-class RstFactory(object):
+class RstFactory:
 
     """ This class build recursively a Sphinx API documentation from a Python root module. """
 

@@ -70,7 +70,7 @@ from PySpice.Tools.EnumFactory import EnumFactory
 
 ####################################################################################################
 
-class Vector(object):
+class Vector:
 
     """ This class implements a vector in a simulation output.
     
@@ -253,7 +253,7 @@ class Plot(dict):
 
 ####################################################################################################
 
-class NgSpiceShared(object):
+class NgSpiceShared:
 
     _logger = _module_logger.getChild('NgSpiceShared')
 

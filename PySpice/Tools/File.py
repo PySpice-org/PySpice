@@ -63,7 +63,7 @@ def run_shasum(filename, algorithm=1, text=False, binary=False, portable=False):
 
 ####################################################################################################
 
-class Path(object):
+class Path:
 
     ##############################################
 
