@@ -46,7 +46,7 @@ or as a class definition:
 
           def __init__(self, **kwargs):
 
-              super(VoltageDivider, self).__init__(title='Voltage Divider', **kwargs)
+              super().__init__(title='Voltage Divider', **kwargs)
 
               self.V('input', 'in', self.gnd, '10V')
               self.R(1, 'in', 'out', kilo(9))
@@ -286,7 +286,7 @@ class ElementParameterMetaClass(type):
                 and parameter.spice_name != parameter.attribute_name):
                 _module_logger.error('Spice parameter "{}" clash with attributes'.format(parameter.spice_name))
 
-        return super(ElementParameterMetaClass, cls).__new__(cls, name, bases, attributes)
+        return super().__new__(cls, name, bases, attributes)
 
 ####################################################################################################
 

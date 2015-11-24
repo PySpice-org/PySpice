@@ -14,7 +14,7 @@ class BasicOperationalAmplifier(SubCircuitFactory):
 
     def __init__(self):
 
-        super(BasicOperationalAmplifier, self).__init__()
+        super().__init__()
                                          
         # Input impedance
         self.R('input', 'non_inverting_input', 'inverting_input', mega(10))
@@ -42,7 +42,7 @@ class BasicComparator(SubCircuitFactory):
 
     def __init__(self,):
 
-        super(BasicOperationalAmplifier, self).__init__()
+        super().__init__()
 
         # Fixme: ngspice is buggy with such subcircuit
 

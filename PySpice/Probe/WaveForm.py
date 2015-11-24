@@ -110,7 +110,7 @@ class WaveForm(np.ndarray):
 
     def str_data(self):
 
-        return super(WaveForm, self).__repr__()
+        return super().__repr__()
 
 ####################################################################################################
 
@@ -162,7 +162,7 @@ class SensitivityAnalysis(Analysis):
 
     def __init__(self, elements):
 
-        super(SensitivityAnalysis, self).__init__(elements=elements)
+        super().__init__(elements=elements)
 
 ####################################################################################################
 
@@ -186,7 +186,7 @@ class DcAnalysis(Analysis):
 
     def __init__(self, v_sweep, nodes, branches):
 
-        super(DcAnalysis, self).__init__(nodes, branches)
+        super().__init__(nodes, branches)
 
         self._v_sweep = v_sweep
 
@@ -204,7 +204,7 @@ class AcAnalysis(Analysis):
 
     def __init__(self, frequency, nodes, branches):
 
-        super(AcAnalysis, self).__init__(nodes, branches)
+        super().__init__(nodes, branches)
 
         self._frequency = frequency
 
@@ -222,7 +222,7 @@ class TransientAnalysis(Analysis):
 
     def __init__(self, time, nodes, branches):
 
-        super(TransientAnalysis, self).__init__(nodes, branches)
+        super().__init__(nodes, branches)
 
         self._time = time
 

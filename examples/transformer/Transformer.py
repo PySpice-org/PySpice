@@ -22,7 +22,7 @@ class Transformer(SubCircuitFactory):
                  coupling=.999,
              ):
 
-        super(Transformer, self).__init__()
+        super().__init__()
 
         # For an ideal transformer you can reduce the values for the flux leakage inductances, the
         # copper resistors and the winding capacitances. But

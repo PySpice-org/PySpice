@@ -1,0 +1,63 @@
+
+.title HP54501A CEM
+.include /home/gv/sys/fc14/fabrice/PySpice/examples/libraries/diode/standard-rectifier/1N4148.lib
+.subckt HP54501A line_plus line_minus
+C1 line_plus line_minus 1u
+XD1 top line_plus 1N4148
+XD2 line_plus scope_ground 1N4148
+XD3 top line_minus 1N4148
+XD4 line_minus scope_ground 1N4148
+R1 top output 10
+C2 output scope_ground 50u
+R2 output scope_ground 900
+.ends
+Vinput input 0 DC 0V AC SIN(0V 325.269119346V 50Hz 0s 0)
+Xhp54501a input 0 HP54501A
+.options TNOM = 25
+.options NOINIT
+.options TEMP = 25
+.options filetype = binary
+.ic 
+.tran 0.0001 0.06
+.end
+
+2014-09-23 00:13:57,005 - PySpice.Spice.Server.SpiceServer.__call__ - INFO - Start the spice subprocess
+2014-09-23 00:13:57,029 - PySpice.Spice.RawFile.RawFile._read_header_field_line - DEBUG - Circuit: HP54501A CEM 
+2014-09-23 00:13:57,029 - PySpice.Spice.RawFile.RawFile._read_header_line - DEBUG - Doing analysis at TEMP = 25.000000 and TNOM = 25.000000
+2014-09-23 00:13:57,029 - PySpice.Spice.RawFile.RawFile._read_header_field_line - DEBUG - Title: HP54501A CEM 
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header_field_line - DEBUG - Date: Tue Sep 23 00:13:57  2014
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header_field_line - DEBUG - Plotname: Transient Analysis
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header_field_line - DEBUG - Flags: real
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header_field_line - DEBUG - No. Variables: 6
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header_field_line - DEBUG - No. Points: 0       
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header_field_line - DEBUG - Variables:
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header_field_line - DEBUG - No. of Data Columns : 6  
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header - DEBUG -  0       time    time
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header - DEBUG -  1       v(input)        voltage
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header - DEBUG -  2       v(xhp54501a.top)        voltage
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header - DEBUG -  3       v(xhp54501a.scope_ground)       voltage
+2014-09-23 00:13:57,030 - PySpice.Spice.RawFile.RawFile._read_header - DEBUG -  4       v(xhp54501a.output)     voltage
+2014-09-23 00:13:57,031 - PySpice.Spice.RawFile.RawFile._read_header - DEBUG -  5       i(vinput)       current
+(standard)fabrice@localhost:~/PySpice/examples/power-supply>python hp54501a-cem.py
+2014-09-23 00:14:57,843 - PySpice.Spice.Simulation.SubprocessCircuitSimulator._run - DEBUG - desk
+.title HP54501A CEM
+.include /home/gv/sys/fc14/fabrice/PySpice/examples/libraries/diode/standard-rectifier/1N4148.lib
+.subckt HP54501A line_plus line_minus
+C1 line_plus line_minus 1u
+XD1 top line_plus 1N4148
+XD2 line_plus scope_ground 1N4148
+XD3 top line_minus 1N4148
+XD4 line_minus scope_ground 1N4148
+R1 top output 10
+C2 output scope_ground 50u
+R2 output scope_ground 900
+.ends
+Vinput input 0 DC 0V AC SIN(0V 325.269119346V 50Hz 0s 0)
+Xhp54501a input 0 HP54501A
+.options TNOM = 25
+.options NOINIT
+.options TEMP = 25
+.options filetype = binary
+.ic 
+.tran 0.0001 0.06
+.end

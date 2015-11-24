@@ -190,7 +190,7 @@ class Directory(Path):
         
     def __bool__(self):
 
-        return super(Directory, self).__nonzero__() and self.is_directory()
+        return super().__nonzero__() and self.is_directory()
 
     ##############################################
 
@@ -230,7 +230,7 @@ class File(Path):
 
     def __init__(self, filename, path=''):
 
-        super(File, self).__init__(os.path.join(str(path), str(filename)))
+        super().__init__(os.path.join(str(path), str(filename)))
 
         self._filename = self.filename_part()
         if not self._filename:
@@ -243,7 +243,7 @@ class File(Path):
         
     def __bool__(self):
 
-        return super(File, self).__nonzero__() and os.path.isfile(self._path)
+        return super().__nonzero__() and os.path.isfile(self._path)
 
     ##############################################
         
