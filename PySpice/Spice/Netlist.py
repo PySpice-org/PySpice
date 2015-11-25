@@ -90,8 +90,6 @@ To simulate the circuit, we must create a simulator instance using the :meth:`Ci
 
 ####################################################################################################
 
-####################################################################################################
-
 from collections import OrderedDict
 import keyword
 import logging
@@ -256,10 +254,13 @@ class ElementParameterMetaClass(type):
 
     """ Metaclass to implements the element parameter machinery. """
 
+    __classes__ = {}
+
     ##############################################
 
-    def __new__(cls, name, bases, attributes):
+    def __new__(cls, class_name, super_classes, attributes):
 
+        # Collect positional and optional parameters from class attribute dict
         positional_parameters = {}
         parameters = {}
         for attribute_name, obj in attributes.items():
@@ -270,10 +271,15 @@ class ElementParameterMetaClass(type):
                 elif isinstance(obj, (FlagParameter, KeyValueParameter)):
                     d = parameters
                 d[attribute_name] = obj
+        
+        # Build dictionnary : attribute_name -> parameter
         attributes['positional_parameters'] = OrderedDict(sorted(list(positional_parameters.items()),
                                                                  key=lambda t: t[1].position))
+        
         # optional parameter order is not required for SPICE, but for unit test
         attributes['optional_parameters'] = OrderedDict(sorted(list(parameters.items()), key=lambda t: t[0]))
+        
+        # Positional parameter array
         attributes['parameters_from_args'] = [parameter
                                               for parameter in sorted(positional_parameters.values())
                                               if not parameter.key_parameter]
@@ -286,7 +292,23 @@ class ElementParameterMetaClass(type):
                 and parameter.spice_name != parameter.attribute_name):
                 _module_logger.error('Spice parameter "{}" clash with attributes'.format(parameter.spice_name))
 
-        return super().__new__(cls, name, bases, attributes)
+        return super().__new__(cls, class_name, super_classes, attributes)
+
+    ##############################################
+
+    def __init__(cls, class_name, super_classes, attributes):
+
+        type.__init__(cls, class_name, super_classes, attributes)
+        
+        # Collect basic element classes
+        if 'prefix' in attributes:
+            prefix = attributes['prefix']
+            if prefix is not None:
+                classes = ElementParameterMetaClass.__classes__
+                if prefix in classes:
+                    classes[prefix].append(cls)
+                else:
+                    classes[prefix] = [cls]
 
 ####################################################################################################
 
@@ -297,8 +319,18 @@ class Element(metaclass=ElementParameterMetaClass):
     It use a metaclass machinery for the declaration of the parameters.
     """
 
+    # Fixme: _prefix
+
     #: SPICE element prefix
     prefix = None
+
+    __number_of_pins__ = None
+
+    ##############################################
+
+    @classmethod
+    def number_of_pins(cls):
+        return cls.__number_of_pins__
 
     ##############################################
 
@@ -378,6 +410,12 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
+    @classmethod
+    def number_of_positional_parameters(cls):
+        return len(cls.parameters_from_args)
+
+    ##############################################
+
     # @property
     # def parameters(self):
     #     return self._parameters
@@ -396,9 +434,23 @@ class Element(metaclass=ElementParameterMetaClass):
 
 ####################################################################################################
 
+class NPinElement(Element):
+    pass
+
+####################################################################################################
+
+class AnyPinElement(Element):
+    __number_of_pins__ = 0
+
+####################################################################################################
+
 class TwoPinElement(Element):
 
     """ This class implements a base class for a two-pin element. """
+
+    # dipole
+
+    __number_of_pins__ = 2
 
     ##############################################
 
@@ -422,12 +474,24 @@ class TwoPinElement(Element):
 
 ####################################################################################################
 
+class ThreePinElement(Element):
+    __number_of_pins__ = 3
+
+####################################################################################################
+
+class FourPinElement(Element):
+    __number_of_pins__ = 4
+
+####################################################################################################
+
 class TwoPortElement(Element):
 
     """ This class implements a base class for a two-port element.
 
     .. warning:: As opposite to Spice, the input nodes are specified before the output nodes.
     """
+
+    __number_of_pins__ = 4
 
     ##############################################
 
