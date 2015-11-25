@@ -32,7 +32,7 @@ import logging
 
 ####################################################################################################
 
-from .Netlist import ElementParameterMetaClass, NPinElement
+from .Netlist import ElementParameterMetaClass, NPinElement, Circuit
 from .BasicElement import SubCircuitElement, BipolarJunctionTransistor
 
 ####################################################################################################
@@ -192,15 +192,42 @@ class Title(Token):
     def __init__(self, line):
 
         super().__init__(line)
+        
+        self._title = str(self._line)[len('.title'):].strip()
 
-        parameters, dict_parameters = self.split_line('.title')
-        self._title = parameters[0]
+    ##############################################
+
+    def __str__(self):
+        return self._title
 
     ##############################################
 
     def __repr__(self):
-
         return "Title {}".format(self._title)
+
+####################################################################################################
+
+class Include(Token):
+
+    """ This class implements a include definition. """
+
+    ##############################################
+
+    def __init__(self, line):
+
+        super().__init__(line)
+        
+        self._include = str(self._line)[len('.include'):].strip()
+
+    ##############################################
+
+    def __str__(self):
+        return self._include
+
+    ##############################################
+
+    def __repr__(self):
+        return "Include {}".format(self._title)
 
 ####################################################################################################
 
@@ -223,17 +250,17 @@ class Element(Token):
         location_stop = line_str.find(' ')
         self._name = line_str[location_start:location_stop]
         
-        self._parameters = None
-        self._dict_parameters = None
+        self._parameters = []
+        self._dict_parameters = {}
         
         classes = ElementParameterMetaClass.__classes__[self._prefix]
         element_class = classes[0] # Fixme: all compatible ?
-        self._logger.debug(str(element_class) + '\n' + line_str)
+        # self._logger.debug(str(element_class) + '\n' + line_str)
         if issubclass(element_class, NPinElement):
             if issubclass(element_class, SubCircuitElement):
                 args, location_stop = self.split_words(location_stop, until='=')
                 self._nodes = args[:-1]
-                self._parameters = args[-1]
+                self._parameters.append(args[-1]) # model name
             elif issubclass(element_class, BipolarJunctionTransistor):
                 self._nodes, location_stop = self.read_words(location_stop, 3)
                 # Fixme:
@@ -247,28 +274,24 @@ class Element(Token):
                 self._nodes = []
         
         if location_stop is not None:
-            # args, location_stop = self.split_words(location_stop, until='=')
-            # number_of_positional_parameters = element_class.number_of_positional_parameters()
-            # if len(args) == number_of_positional_parameters:
-            #     self._parameters = args
-            # else:
-            #     template = "wrong number of positional parameters {} / {}"
-            #     raise NameError(template.format(len(args), number_of_positional_parameters))
             number_of_positional_parameters = element_class.number_of_positional_parameters()
             if number_of_positional_parameters:
                 self._parameters, location_stop = self.read_words(location_stop, number_of_positional_parameters)
         if location_stop is not None:
             has_optional_parameters = bool(element_class.optional_parameters)
             if has_optional_parameters:
-                pass
+                # Fixme: will fail is space in value
+                kwargs, location_stop = self.split_words(location_stop)
+                for kwarg in kwargs:
+                    try:
+                        key, value = kwarg.split('=')
+                        self._dict_parameters[key] = value
+                    except ValueError:
+                        self._logger.warn(line_str)
+                        # raise NameError("Bad element line:", line_str)
             else: # merge
                 self._parameters[-1] += line_str[location_stop:]
 
-        # parameters, dict_parameters = self.split_line('R') # tokenizer for () ...
-        # self._element_type = str(line)[0]
-        # self._name, self._nodes = parameters[0], parameters[1:] # Fixme: wrong #number of parameters
-        # self._parameters = parameters[2:]
-        # self._dict_parameters = dict_parameters
 
     ##############################################
 
@@ -281,7 +304,7 @@ class Element(Token):
 
     def __repr__(self):
 
-        return "Element {} {} {} {}".format(self._prefix, self._name, self._nodes, self._parameters)
+        return "Element {0._prefix} {0._name} {0._nodes} {0._parameters} {0._dict_parameters}".format(self)
 
 ####################################################################################################
 
@@ -368,6 +391,7 @@ class SpiceParser:
             raise ValueError
         
         lines = self._merge_lines(raw_lines)
+        self._title = None
         self._tokens = self._parse(lines)
         self._find_sections()
 
@@ -418,7 +442,8 @@ class SpiceParser:
                 elif lower_case_text.startswith('ends'):
                     sub_circuit = None
                 elif lower_case_text.startswith('title'):
-                    tokens.append(Title(line))
+                    self._title = Title(line)
+                    tokens.append(self._title)
                 elif lower_case_text.startswith('end'):
                     pass
                 elif lower_case_text.startswith('model'):
@@ -427,6 +452,8 @@ class SpiceParser:
                         sub_circuit.append(model)
                     else:
                         tokens.append(model)
+                elif lower_case_text.startswith('include'):
+                    tokens.append(Include(line))
                 else:
                     # options param ...
                     # .global .include .lib .param
@@ -474,6 +501,31 @@ class SpiceParser:
     def is_only_model(self):
 
         return bool(not self.circuit and not self.subcircuits and self.models)
+
+    ##############################################
+
+    def build_circuit(self):
+
+        circuit = Circuit(str(self._title))
+        
+        for token in self._tokens:
+            if isinstance(token, Include):
+                circuit.include(str(token))
+        
+        for token in self._tokens:
+            if isinstance(token, Element):
+                factory = getattr(circuit, token._prefix)
+                if token._prefix != 'X':
+                    args = token._nodes + token._parameters
+                else: # != Spice
+                    args = token._parameters + token._nodes
+                kwargs = token._dict_parameters
+                message = ' '.join([str(x) for x in (token._prefix, token._name, token._nodes,
+                                                     token._parameters, token._dict_parameters)])
+                self._logger.debug(message)
+                factory(token._name, *args, **kwargs)
+        
+        return circuit
 
 ####################################################################################################
 #
