@@ -100,7 +100,11 @@ See Ngspice documentation for details.
 ####################################################################################################
 
 from ..Tools.StringTools import join_list
-from .Netlist import Pin, Element, TwoPinElement, TwoPortElement
+from .Netlist import (Pin,
+                      AnyPinElement,
+                      TwoPinElement, ThreePinElement, FourPinElement,
+                      NPinElement,
+                      TwoPortElement)
 from .ElementParameter import (
     # KeyValueParameter,
     BoolKeyParameter,
@@ -119,7 +123,7 @@ from .ElementParameter import (
 
 ####################################################################################################
 
-class SubCircuitElement(Element):
+class SubCircuitElement(NPinElement):
 
     """ This class implements a sub-circuit.
 
@@ -466,7 +470,7 @@ class BehavorialInductor(TwoPinElement):
 
 ####################################################################################################
 
-class CoupledInductor(Element):
+class CoupledInductor(AnyPinElement):
 
     """ This class implementss a coupled (mutual) inductors.
 
@@ -818,7 +822,7 @@ class Diode(TwoPinElement):
 
 ####################################################################################################
 
-class BipolarJunctionTransistor(Element):
+class BipolarJunctionTransistor(NPinElement):
 
     """ This class implements a bipolar junction transistor.
 
@@ -908,7 +912,7 @@ class BipolarJunctionTransistor(Element):
 
 ####################################################################################################
 
-class JunctionFieldEffectTransistor(Element):
+class JunctionFieldEffectTransistor(ThreePinElement):
 
     """ This class implements a bipolar junction transistor.
 
@@ -974,7 +978,7 @@ class JunctionFieldEffectTransistor(Element):
 
 ####################################################################################################
 
-class Mesfet(Element):
+class Mesfet(ThreePinElement):
 
     """ This class implements a Metal Semiconductor Field Effect Transistor.
 
@@ -1037,7 +1041,7 @@ class Mesfet(Element):
 
 ####################################################################################################
 
-class Mosfet(Element):
+class Mosfet(FourPinElement):
 
     """ This class implements a Metal Oxide Field Effect Transistor.
 
