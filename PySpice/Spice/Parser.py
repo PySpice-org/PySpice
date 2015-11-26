@@ -53,77 +53,6 @@ class Token:
 
     ##############################################
 
-    def read_words(self, location_start, number_of_words):
-
-        line_str = str(self._line)
-        number_of_words_read = 0
-        words = []
-        while number_of_words_read < number_of_words: # and location_start < len(line_str)
-            location_stop = line_str.find(' ', location_start)
-            if location_stop == -1:
-                location_stop = None # read until end
-            word = line_str[location_start:location_stop].strip()
-            if word:
-                number_of_words_read += 1
-                words.append(word)
-            if location_stop is None: # we should stop
-                if number_of_words_read != number_of_words:
-                    raise NameError("Bad element line, looking for word:\n" +
-                                    line_str + '\n' +
-                                    ' '*location_start + '^')
-            else:
-                if location_start < location_stop:
-                    location_start = location_stop
-                else: # we have read a space
-                    location_start += 1
-        
-        return words, location_stop
-
-    ##############################################
-
-    def split_words(self, location_start, until=None):
-
-        line_str = str(self._line)
-        location_stop = None
-        if until is not None:
-            location = line_str.find(until, location_start)
-            if location != -1:
-                location_stop = location
-                location = line_str.rfind(' ', location_start, location_stop)
-                if location != -1:
-                    location_stop = location
-                else:
-                    raise NameError("Bad element line, missing key? " + line_str)
-        
-        line_str = line_str[location_start:location_stop]
-        words = [x for x in line_str.split(' ') if x]
-        
-        return words, location_stop
-
-    ##############################################
-
-    def split_line(self, keyword):
-
-        """ Split the line according to the following pattern::
-
-            keyword parameter1 parameter2 ... key1=value1 key2=value2 ...
-
-        Return the list of parameters and the dictionnary.
-        """
-
-        raw_parameters = str(self._line)[len(keyword):].split()
-        parameters = []
-        dict_parameters = {}
-        for parameter in raw_parameters:
-            if '=' in parameter:
-                key, value = parameter.split('=')
-                dict_parameters[key.strip()] = value.strip()
-            else:
-                parameters.append(parameter)
-        return parameters, dict_parameters
-
-    ##############################################
-
     def __repr__(self):
 
         return "{} {}".format(self.__class__.__name__, repr(self._line))
@@ -135,9 +64,63 @@ class Comment(Token):
 
 ####################################################################################################
 
-class SubCircuit(Token):
+class Title(Token):
 
-    """ This class implements a sub-circuit definition. """
+    """ This class implements a title definition. """
+
+    ##############################################
+
+    def __init__(self, line):
+
+        super().__init__(line)
+        
+        self._title = self._line.read_right_of('.title')
+
+    ##############################################
+
+    def __str__(self):
+        return self._title
+
+    ##############################################
+
+    def __repr__(self):
+        return "Title {}".format(self._title)
+
+####################################################################################################
+
+class Include(Token):
+
+    """ This class implements a include definition. """
+
+    ##############################################
+
+    def __init__(self, line):
+
+        super().__init__(line)
+        
+        self._include = self._line.read_right_of('.include')
+
+    ##############################################
+
+    def __str__(self):
+        return self._include
+
+    ##############################################
+
+    def __repr__(self):
+        return "Include {}".format(self._title)
+
+####################################################################################################
+
+class Model(Token):
+
+    """ This class implements a model definition.
+
+    Spice syntax::
+
+        .model mname type (pname1=pval1 pname2=pval2)
+
+    """
 
     ##############################################
 
@@ -145,7 +128,44 @@ class SubCircuit(Token):
 
         super().__init__(line)
 
-        parameters, dict_parameters = self.split_line('.subckt')
+        # Fixme
+        parameters, dict_parameters = self._line.split_line('.model')
+        self._name, self._model_type = parameters[:2]
+        self._parameters = dict_parameters
+
+    ##############################################
+
+    @property
+    def name(self):
+        """ Name of the model """
+        return self._name
+
+    ##############################################
+
+    def __repr__(self):
+
+        return "Model {} {} {}".format(self._name, self._model_type, self._parameters)
+
+####################################################################################################
+
+class SubCircuit(Token):
+
+    """ This class implements a sub-circuit definition.
+
+    Spice syntax::
+
+        .SUBCKT name node1 ... param1=value1 ...
+
+    """
+
+    ##############################################
+
+    def __init__(self, line):
+
+        super().__init__(line)
+
+        # Fixme:
+        parameters, dict_parameters = self._line.split_line('.subckt')
         self._name, self._nodes = parameters[0], parameters[1:]
 
         self._tokens = []
@@ -183,54 +203,6 @@ class SubCircuit(Token):
 
 ####################################################################################################
 
-class Title(Token):
-
-    """ This class implements a title definition. """
-
-    ##############################################
-
-    def __init__(self, line):
-
-        super().__init__(line)
-        
-        self._title = str(self._line)[len('.title'):].strip()
-
-    ##############################################
-
-    def __str__(self):
-        return self._title
-
-    ##############################################
-
-    def __repr__(self):
-        return "Title {}".format(self._title)
-
-####################################################################################################
-
-class Include(Token):
-
-    """ This class implements a include definition. """
-
-    ##############################################
-
-    def __init__(self, line):
-
-        super().__init__(line)
-        
-        self._include = str(self._line)[len('.include'):].strip()
-
-    ##############################################
-
-    def __str__(self):
-        return self._include
-
-    ##############################################
-
-    def __repr__(self):
-        return "Include {}".format(self._title)
-
-####################################################################################################
-
 class Element(Token):
 
     """ This class implements an element definition. """
@@ -246,9 +218,9 @@ class Element(Token):
         line_str = str(line)
         
         self._prefix = line_str[0]
-        location_start = 1 # Fixme: start_location ?
-        location_stop = line_str.find(' ')
-        self._name = line_str[location_start:location_stop]
+        start_location = 1
+        stop_location = line_str.find(' ')
+        self._name = line_str[start_location:stop_location]
         
         self._parameters = []
         self._dict_parameters = {}
@@ -258,30 +230,30 @@ class Element(Token):
         # self._logger.debug(str(element_class) + '\n' + line_str)
         if issubclass(element_class, NPinElement):
             if issubclass(element_class, SubCircuitElement):
-                args, location_stop = self.split_words(location_stop, until='=')
+                args, stop_location = self._line.split_words(stop_location, until='=')
                 self._nodes = args[:-1]
                 self._parameters.append(args[-1]) # model name
             elif issubclass(element_class, BipolarJunctionTransistor):
-                self._nodes, location_stop = self.read_words(location_stop, 3)
+                self._nodes, stop_location = self._line.read_words(stop_location, 3)
                 # Fixme:
             else:
                 raise NotImplementedError
         else:
             number_of_pins = element_class.number_of_pins()
             if number_of_pins:
-                self._nodes, location_stop = self.read_words(location_stop, number_of_pins)
+                self._nodes, stop_location = self._line.read_words(stop_location, number_of_pins)
             else:
                 self._nodes = []
         
-        if location_stop is not None:
+        if stop_location is not None:
             number_of_positional_parameters = element_class.number_of_positional_parameters()
             if number_of_positional_parameters:
-                self._parameters, location_stop = self.read_words(location_stop, number_of_positional_parameters)
-        if location_stop is not None:
+                self._parameters, stop_location = self._line.read_words(stop_location, number_of_positional_parameters)
+        if stop_location is not None:
             has_optional_parameters = bool(element_class.optional_parameters)
             if has_optional_parameters:
                 # Fixme: will fail is space in value
-                kwargs, location_stop = self.split_words(location_stop)
+                kwargs, stop_location = self._line.split_words(stop_location)
                 for kwarg in kwargs:
                     try:
                         key, value = kwarg.split('=')
@@ -290,8 +262,7 @@ class Element(Token):
                         self._logger.warn(line_str)
                         # raise NameError("Bad element line:", line_str)
             else: # merge
-                self._parameters[-1] += line_str[location_stop:]
-
+                self._parameters[-1] += line_str[stop_location:]
 
     ##############################################
 
@@ -308,35 +279,6 @@ class Element(Token):
 
 ####################################################################################################
 
-class Model(Token):
-
-    """ This class implements a model definition. """
-
-    ##############################################
-
-    def __init__(self, line):
-
-        super().__init__(line)
-
-        parameters, dict_parameters = self.split_line('.model')
-        self._name, self._model_type = parameters[:2]
-        self._parameters = dict_parameters
-
-    ##############################################
-
-    @property
-    def name(self):
-        """ Name of the model """
-        return self._name
-
-    ##############################################
-
-    def __repr__(self):
-
-        return "Model {} {} {}".format(self._name, self._model_type, self._parameters)
-
-####################################################################################################
-
 class Line:
 
     """ This class implements a line in the netlist. """
@@ -345,18 +287,107 @@ class Line:
 
     def __init__(self, text, line_range):
 
-        self._text = str(text)
+        text = str(text)
+        for marker in ('$', ';', '//'):
+            location = text.find(marker)
+            if location != -1:
+                break
+        if location != -1:
+            text = text[:location]
+            comment = text[location:]
+        else:
+            comment = ''
+        
+        self._text = text
+        self._comment = comment
         self._line_range = line_range
 
     ##############################################
 
     def __repr__(self):
-        return "{} {}".format(self._line_range, self._text)
+        return "{0._line_range} {0._text}".format(self)
 
     ##############################################
 
     def __str__(self):
         return self._text
+
+    ##############################################
+
+    def read_right_of(self, text):
+
+        return self._text[len(text):].strip()
+
+    ##############################################
+
+    def read_words(self, start_location, number_of_words):
+
+        line_str = self._text
+        number_of_words_read = 0
+        words = []
+        while number_of_words_read < number_of_words: # and start_location < len(line_str)
+            stop_location = line_str.find(' ', start_location)
+            if stop_location == -1:
+                stop_location = None # read until end
+            word = line_str[start_location:stop_location].strip()
+            if word:
+                number_of_words_read += 1
+                words.append(word)
+            if stop_location is None: # we should stop
+                if number_of_words_read != number_of_words:
+                    raise NameError("Bad element line, looking for word:\n" +
+                                    line_str + '\n' +
+                                    ' '*start_location + '^')
+            else:
+                if start_location < stop_location:
+                    start_location = stop_location
+                else: # we have read a space
+                    start_location += 1
+        
+        return words, stop_location
+
+    ##############################################
+
+    def split_words(self, start_location, until=None):
+
+        line_str = self._text
+        stop_location = None
+        if until is not None:
+            location = line_str.find(until, start_location)
+            if location != -1:
+                stop_location = location
+                location = line_str.rfind(' ', start_location, stop_location)
+                if location != -1:
+                    stop_location = location
+                else:
+                    raise NameError("Bad element line, missing key? " + line_str)
+        
+        line_str = line_str[start_location:stop_location]
+        words = [x for x in line_str.split(' ') if x]
+        
+        return words, stop_location
+
+    ##############################################
+
+    def split_line(self, keyword):
+
+        """ Split the line according to the following pattern::
+
+            keyword parameter1 parameter2 ... key1=value1 key2=value2 ...
+
+        Return the list of parameters and the dictionnary.
+        """
+
+        raw_parameters = self._text[len(keyword):].split()
+        parameters = []
+        dict_parameters = {}
+        for parameter in raw_parameters:
+            if '=' in parameter:
+                key, value = parameter.split('=')
+                dict_parameters[key.strip()] = value.strip()
+            else:
+                parameters.append(parameter)
+        return parameters, dict_parameters
 
 ####################################################################################################
 
@@ -428,45 +459,43 @@ class SpiceParser:
 
         tokens = []
         sub_circuit = None
+        scope = tokens
         for line in lines:
             # print repr(line)
             text = str(line)
             lower_case_text = text.lower() # !
             if text.startswith('*'):
-                tokens.append(Comment(line))
+                scope.append(Comment(line))
             elif lower_case_text.startswith('.'):
                 lower_case_text = lower_case_text[1:]
                 if lower_case_text.startswith('subckt'):
                     sub_circuit = SubCircuit(line)
                     tokens.append(sub_circuit)
+                    scope = sub_circuit
                 elif lower_case_text.startswith('ends'):
                     sub_circuit = None
+                    scope = tokens
                 elif lower_case_text.startswith('title'):
                     self._title = Title(line)
-                    tokens.append(self._title)
+                    scope.append(self._title)
                 elif lower_case_text.startswith('end'):
                     pass
                 elif lower_case_text.startswith('model'):
                     model = Model(line)
-                    if sub_circuit:
-                        sub_circuit.append(model)
-                    else:
-                        tokens.append(model)
+                    scope.append(model)
                 elif lower_case_text.startswith('include'):
-                    tokens.append(Include(line))
+                    scope.append(Include(line))
                 else:
                     # options param ...
-                    # .global .include .lib .param
+                    # .global
+                    # .lib filename libname
+                    # .param
                     # .func .csparam .temp .if
                     # { expr } are allowed in .model lines and in device lines.
                     self._logger.warn(line)
-                    # pass
             else:
                 element = Element(line)
-                if sub_circuit:
-                    sub_circuit.append(element)
-                else:
-                    tokens.append(element)
+                scope.append(element)
 
         return tokens
 
