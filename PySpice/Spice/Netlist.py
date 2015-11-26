@@ -270,6 +270,8 @@ class ElementParameterMetaClass(type):
                     d = positional_parameters
                 elif isinstance(obj, (FlagParameter, KeyValueParameter)):
                     d = parameters
+                # else:
+                #     raise NotImplementedError
                 d[attribute_name] = obj
         
         # Build dictionnary : attribute_name -> parameter
@@ -412,7 +414,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     @classmethod
     def number_of_positional_parameters(cls):
-        return len(cls.parameters_from_args)
+        return len(cls.positional_parameters)
 
     ##############################################
 
