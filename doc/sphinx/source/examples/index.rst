@@ -1,6 +1,6 @@
 
 .. include:: ../examples.txt
-This section has 11 sub-topics and 22 examples.
+This section has 13 sub-topics and 24 examples.
 
 
 .. toctree::
@@ -11,9 +11,11 @@ This section has 11 sub-topics and 22 examples.
   electricity/index.rst
   filter/index.rst
   fundamental-laws/index.rst
+  ngspice-shared/index.rst
   operational-amplifier/index.rst
   passive/index.rst
   power-supply/index.rst
   resistor/index.rst
+  spice-parser/index.rst
   transformer/index.rst
   transistor/index.rst

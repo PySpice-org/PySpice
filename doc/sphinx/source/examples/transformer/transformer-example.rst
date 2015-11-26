@@ -1,11 +1,13 @@
 
+.. getthecode:: transformer-example.py
+    :language: python
+
+
 =============
  Transformer
 =============
 
-
-.. getthecode:: transformer.py
-    :language: python
+This examples shows how to simulate a transformer.
 
 
 .. code-block:: python
@@ -16,7 +18,6 @@
     logger = Logging.setup_logging()
     
     from PySpice.Probe.Plot import plot
-    from PySpice.Spice.Library import SpiceLibrary
     from PySpice.Spice.Netlist import Circuit
     from PySpice.Unit.Units import *
     
