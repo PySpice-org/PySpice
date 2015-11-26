@@ -17,6 +17,8 @@ Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
 
 -----
 
+.. include:: news.txt
+
 .. include:: introduction.txt
 
 .. include:: installation.rst

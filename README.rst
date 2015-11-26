@@ -95,6 +95,21 @@ Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
 
 .. -*- Mode: rst -*-
 
+======
+ News
+======
+
+V0.3.0
+------
+
+ * Added an example to show how to use the NgSpice Shared Simulation Mode.
+ * Completed the Spice netlist parser and added an example, thus we could now use a schematic editor
+   to define the circuit.
+
+.. End
+
+.. -*- Mode: rst -*-
+
 
 ==============
  Introduction
@@ -143,16 +158,27 @@ The main features of PySpice are:
  * actually PySpice only supports |Ngspice|_
  * an oriented-object API to describe circuit in a way similar to SPICE
  * a library and model manager that index recursively a directory
- * an incomplete SPICE parser (mainly used for the library and model indexer)
+ * an (experimental) SPICE netlist parser.  |Kicad|_ can be used as schematic editor to simplify the
+   netlist writing.
  * a circuit can be simulated using a subprocess (aka server mode) or using the NgSpice shared library,
    NgSpice vectors are converted to Numpy array
- * the NgSpice shared library permits to interact with the simulator and provides Python callback
-   for external voltage and current source
+ * the NgSpice shared library permits to plug voltage/current sources from Python to NgSpice and vice versa.
  * some data analysis add-ons
 
 Since PySpice is born with a learning goal, many examples are provided with the sources.  These
 examples could serve as learning materials. A tool to generate an HTML and PDF documentation is
 included in the *tools* directory. This tool could be extended to generate IPython Notebook as well.
+
+..
+    * an incomplete SPICE parser (mainly used for the library and model indexer)
+
+    * a circuit can be simulated using a subprocess (aka server mode) or using the NgSpice shared
+      library, NgSpice vectors are converted to Numpy array the NgSpice shared library permits to interact
+      with the simulator and provides Python callback for external voltage and current source
+
+    * implement a SPICE to Python converted using the parser. It could be used for the following
+      workflow: quick circuit sketching using  > SPICE netlist > spice2python > PySpice which
+      could help for complex circuit.
 
 .. end
 
@@ -162,9 +188,6 @@ included in the *tools* directory. This tool could be extended to generate IPyth
 
 These features are planned in the future:
 
- * implement a SPICE to Python converted using the parser. It could be used for the following
-   workflow: quick circuit sketching using |Kicad|_ > SPICE netlist > spice2python > PySpice which
-   could help for complex circuit.
  * implement a basic simulator featuring passive element like resistor, capacitor and inductor.
  * implement a Modelica backend. |Modelica|_ is a very interesting solution for transient analysis.
 
