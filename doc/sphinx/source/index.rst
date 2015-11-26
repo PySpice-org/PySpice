@@ -15,7 +15,8 @@ Welcome to the PySpice documentation!
     git repository after each commit.
 
     As opposite the |PySpiceHomePage|_ is built manually and is thus less prone to errors.
-	     
+
+.. include:: news.txt
 .. include:: introduction.txt
 
 ==============

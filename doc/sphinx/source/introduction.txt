@@ -46,9 +46,6 @@ same principle and extend PySpice later.
 
 These features are planned in the future:
 
- * implement a SPICE to Python converted using the parser. It could be used for the following
-   workflow: quick circuit sketching using |Kicad|_ > SPICE netlist > spice2python > PySpice which
-   could help for complex circuit.
  * implement a basic simulator featuring passive element like resistor, capacitor and inductor.
  * implement a Modelica backend. |Modelica|_ is a very interesting solution for transient analysis.
 
