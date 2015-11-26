@@ -1,0 +1,28 @@
+* /home/gv/fabrice/developpement/PySpice/examples/spice-parser/kicad-spice-example/kicad-spice-example-3.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: jeu. 26 nov. 2015 16:43:09 CET
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+* 
+* Bring in subckts for power, jacks and opamp
+.include components.cir
+
+* Sheet Name: /
+XU1  7 6 5 4 1 OPAMP		
+J1  2 5 5 JACK_IN		
+J2  7 3 5 JACK_OUT		
+R2  6 7 50K		
+R1  2 6 2K		
+R3  5 3 2K		
+P1  4 5 1 PWR_IN		
+
+.op
+
+.tran 0.1m 3m
+.plot tran V(7) V(2)
+
+.ac dec 10 1 100K
+.plot ac V(7)
+
+.end
