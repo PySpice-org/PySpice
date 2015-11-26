@@ -804,7 +804,7 @@ class Circuit(Netlist):
         self.title = str(title)
         self._ground = ground
         self._global_nodes = set(global_nodes) # .global
-        self._includes = set() # .include
+        self._includes = [] # .include
         self._parameters = {} # .param
         self._subcircuits = {}
 
@@ -825,7 +825,10 @@ class Circuit(Netlist):
 
         """ Include a file. """
 
-        self._includes.add(path)
+        if path not in self._includes:
+            self._includes.append(path)
+        else:
+            self._logger.warn("Duplicated include")
 
     ##############################################
 
