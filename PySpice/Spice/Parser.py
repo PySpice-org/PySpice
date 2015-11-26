@@ -32,12 +32,110 @@ import logging
 
 ####################################################################################################
 
+from .ElementParameter import (
+    FlagParameter,
+    )
 from .Netlist import ElementParameterMetaClass, NPinElement, Circuit
 from .BasicElement import SubCircuitElement, BipolarJunctionTransistor
 
 ####################################################################################################
 
 _module_logger = logging.getLogger(__name__)
+
+####################################################################################################
+
+class PrefixData:
+
+    ##############################################
+
+    def __init__(self, prefix, classes):
+
+        self.prefix = prefix
+        self.classes = classes
+        
+        number_of_positionals_min = 1000
+        number_of_positionals_max = 0
+        has_optionals = False
+        for element_class in classes:
+            number_of_positionals = element_class.number_of_positional_parameters()
+            number_of_positionals_min = min(number_of_positionals_min, number_of_positionals)
+            number_of_positionals_max = max(number_of_positionals_max, number_of_positionals)
+            has_optionals = max(has_optionals, bool(element_class.optional_parameters))
+        
+        self.number_of_positionals_min = number_of_positionals_min
+        self.number_of_positionals_max = number_of_positionals_max
+        self.has_optionals = has_optionals
+        
+        self.multi_devices = len(classes) > 1
+        self.npins = prefix in ('Q', 'X') # NPinElement, Q has 3 to 4 pins
+        if self.npins:
+            self.number_of_pins = None
+        else:
+            # Q and X are single
+            self.number_of_pins = classes[0].number_of_pins()
+        
+        self.has_flag = False
+        for element_class in classes:
+            for parameter in element_class.optional_parameters.values():
+                if isinstance(parameter, FlagParameter):
+                    self.has_flag = True
+
+    ##############################################
+
+    def __len__(self):
+        return len(self.classes)
+
+    ##############################################
+
+    def __iter__(self):
+        return iter(self.classes)
+
+    ##############################################
+
+    @property
+    def single(self):
+        if not self.multi_devices:
+            return self.classes[0]
+        else:
+            raise NameError()
+
+####################################################################################################
+
+_prefix_cache = {prefix:PrefixData(prefix, classes)
+                 for prefix, classes in ElementParameterMetaClass.__classes__.items()}
+
+# for prefix_data in sorted(_prefix_cache.values(), key=lambda x: len(x)):
+#     print(prefix_data.prefix,
+#           len(prefix_data),
+#           prefix_data.number_of_positionals_min, prefix_data.number_of_positionals_max,
+#           prefix_data.has_optionals)
+
+# Single:
+# B 0 True
+# D 1 True
+# F 2 False
+# G 1 False
+# H 2 False
+# I 1 False
+# J 1 True
+# K 3 False
+# M 1 True
+# S 2 False
+# V 1 False
+# W 3 False
+# Z 1 True
+
+# Two:
+# E 0 1 False
+# L 1 2 True
+
+# Three:
+# C 1 2 True
+# R 1 2 True
+
+# NPinElement:
+# Q 1 1 True
+# X 1 1 False
 
 ####################################################################################################
 
@@ -73,7 +171,6 @@ class Title(Token):
     def __init__(self, line):
 
         super().__init__(line)
-        
         self._title = self._line.read_right_of('.title')
 
     ##############################################
@@ -97,7 +194,6 @@ class Include(Token):
     def __init__(self, line):
 
         super().__init__(line)
-        
         self._include = self._line.read_right_of('.include')
 
     ##############################################
@@ -205,7 +301,11 @@ class SubCircuit(Token):
 
 class Element(Token):
 
-    """ This class implements an element definition. """
+    """ This class implements an element definition.
+
+    "{ expression }" are allowed in device line.
+
+    """
 
     _logger = _module_logger.getChild('Element')
 
@@ -214,55 +314,82 @@ class Element(Token):
     def __init__(self, line):
 
         super().__init__(line)
-
-        line_str = str(line)
         
+        line_str = str(line)
+        # self._logger.debug('\n' + line_str)
+        
+        # Retrieve device prefix
         self._prefix = line_str[0]
+        prefix_data = _prefix_cache[self._prefix]
+
+        # Retrieve device name
         start_location = 1
         stop_location = line_str.find(' ')
         self._name = line_str[start_location:stop_location]
         
+        self._nodes = []
         self._parameters = []
         self._dict_parameters = {}
         
-        classes = ElementParameterMetaClass.__classes__[self._prefix]
-        element_class = classes[0] # Fixme: all compatible ?
-        # self._logger.debug(str(element_class) + '\n' + line_str)
-        if issubclass(element_class, NPinElement):
-            if issubclass(element_class, SubCircuitElement):
+        # Read nodes
+        if not prefix_data.npins:
+            number_of_pins = prefix_data.number_of_pins
+            if number_of_pins:
+                self._nodes, stop_location = self._line.read_words(stop_location, number_of_pins)
+        else: # Q or X
+            if prefix_data.prefix == 'Q':
+                self._nodes, stop_location = self._line.read_words(stop_location, 3)
+                # Fixme: optional node
+            else: # X
                 args, stop_location = self._line.split_words(stop_location, until='=')
                 self._nodes = args[:-1]
                 self._parameters.append(args[-1]) # model name
-            elif issubclass(element_class, BipolarJunctionTransistor):
-                self._nodes, stop_location = self._line.read_words(stop_location, 3)
-                # Fixme:
-            else:
-                raise NotImplementedError
-        else:
-            number_of_pins = element_class.number_of_pins()
-            if number_of_pins:
-                self._nodes, stop_location = self._line.read_words(stop_location, number_of_pins)
-            else:
-                self._nodes = []
         
-        if stop_location is not None:
-            number_of_positional_parameters = element_class.number_of_positional_parameters()
-            if number_of_positional_parameters:
-                self._parameters, stop_location = self._line.read_words(stop_location, number_of_positional_parameters)
-        if stop_location is not None:
-            has_optional_parameters = bool(element_class.optional_parameters)
-            if has_optional_parameters:
-                # Fixme: will fail is space in value
-                kwargs, stop_location = self._line.split_words(stop_location)
-                for kwarg in kwargs:
-                    try:
-                        key, value = kwarg.split('=')
-                        self._dict_parameters[key] = value
-                    except ValueError:
+        # Read positionals
+        number_of_positionals = prefix_data.number_of_positionals_min
+        if number_of_positionals and stop_location is not None: # model is optional
+            self._parameters, stop_location = self._line.read_words(stop_location, number_of_positionals)
+        if prefix_data.multi_devices:
+            remaining, stop_location = self._line.split_words(stop_location, until='=')
+            self._parameters.extend(remaining)
+        
+        if prefix_data.prefix in ('V', 'I') and stop_location is not None:
+            # merge remaining
+            self._parameters[-1] += line_str[stop_location:]
+        
+        # Read optionals
+        if prefix_data.has_optionals and stop_location is not None:
+            kwargs, stop_location = self._line.split_words(stop_location)
+            for kwarg in kwargs:
+                try:
+                    key, value = kwarg.split('=')
+                    self._dict_parameters[key] = value
+                except ValueError:
+                    if kwarg in ('off',) and prefix_data.has_flag:
+                        self._dict_parameters['off'] = True
+                    else:
                         self._logger.warn(line_str)
                         # raise NameError("Bad element line:", line_str)
-            else: # merge
-                self._parameters[-1] += line_str[stop_location:]
+        
+        if prefix_data.multi_devices:
+            for element_class in prefix_data:
+                if len(self._parameters) == element_class.number_of_positional_parameters():
+                    break
+        else:
+            element_class = prefix_data.single
+        self.factory = element_class
+        
+        # Move positionals passed as kwarg
+        to_delete = []
+        for parameter in element_class.positional_parameters.values():
+            if parameter.key_parameter:
+                i = parameter.position
+                self._dict_parameters[parameter.attribute_name] = self._parameters[i]
+                to_delete.append(i)
+        for i in to_delete:
+            del self._parameters[i]
+        
+        self._logger.debug('\n' + self.__repr__())
 
     ##############################################
 
@@ -335,7 +462,8 @@ class Line:
                 words.append(word)
             if stop_location is None: # we should stop
                 if number_of_words_read != number_of_words:
-                    raise NameError("Bad element line, looking for word:\n" +
+                    template = "Bad element line, looking for word {}/{}:\n"
+                    raise NameError(template.format(number_of_words_read, number_of_words) +
                                     line_str + '\n' +
                                     ' '*start_location + '^')
             else:
@@ -543,7 +671,7 @@ class SpiceParser:
         
         for token in self._tokens:
             if isinstance(token, Element):
-                factory = getattr(circuit, token._prefix)
+                factory = getattr(circuit, token.factory.alias)
                 if token._prefix != 'X':
                     args = token._nodes + token._parameters
                 else: # != Spice
