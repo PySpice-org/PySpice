@@ -1,0 +1,25 @@
+* EESchema Netlist Version 1.1 (Spice format) creation date: Mon 27 Apr 2015 06:01:42 AM JST
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+* Bring in subckts for power, jacks and opamp
+.include components.cir
+
+*Sheet Name:/
+XU1  7 6 0 4 1 OPAMP		
+XJ1  2 0 0 JACK_IN		
+XJ2  7 3 0 JACK_OUT		
+R2  6 7 50K		
+R1  2 6 2K		
+R3  0 3 2K		
+XP1  4 0 1 PWR_IN		
+
+.op
+
+.tran 0.1m 3m
+.plot tran V(7) V(2)
+
+.ac dec 10 1 100K
+.plot ac V(7)
+
+.end
