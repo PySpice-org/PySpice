@@ -1,5 +1,15 @@
 ####################################################################################################
 
+#!#
+#!# =============================================
+#!#  NgSpice Shared Simulation Mode Introduction
+#!# =============================================
+#!#
+#!# This example explains how to plug a voltage source from Python to NgSpice.
+#!#
+
+####################################################################################################
+
 import math
 
 import matplotlib.pyplot as plt
@@ -47,35 +57,17 @@ class MyNgSpiceShared(NgSpiceShared):
 
 circuit = Circuit('Voltage Divider')
 
-# source = circuit.Sinusoidal('input', 'input', circuit.gnd, amplitude=10, frequency=50)
 circuit.V('input', 'input', circuit.gnd, 'dc 0 external')
 circuit.R(1, 'input', 'output', kilo(10))
 circuit.R(2, 'output', circuit.gnd, kilo(1))
 
-# simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-# analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
-
-####################################################################################################
-
-circuit_str = str(circuit)
-circuit_str += '''
-.options TEMP = 25
-.options TNOM = 25
-.tran 0.0001 0.04
-.end
-'''
-
-ngspice_shared = MyNgSpiceShared(amplitude=10, frequency=Frequency(50), send_data=False)
-ngspice_shared.load_circuit(circuit_str)
-ngspice_shared.run()
-
-print('Generated plots:', ngspice_shared.plot_names)
-# plot_names = ['tran1', 'const']
-tran_plot = ngspice_shared.plot('tran1')
-print('Plot name:', tran_plot.plot_name)
-for vector in tran_plot.values():
-    print('Vector:', vector.name, '[{}]'.format(vector.unit))
-analysis = tran_plot.to_analysis()
+amplitude = 10
+frequency = Frequency(50)
+ngspice_shared = MyNgSpiceShared(amplitude=amplitude, frequency=frequency, send_data=False)
+simulator = circuit.simulator(temperature=25, nominal_temperature=25,
+                              simulator='shared', ngspice_shared=ngspice_shared)
+period = float(frequency.period)
+analysis = simulator.transient(step_time=period/200, end_time=period*2)
 
 ####################################################################################################
 
@@ -87,7 +79,7 @@ plt.grid()
 plot(analysis.input)
 plot(analysis.output)
 plt.legend(('input', 'output'), loc=(.05,.1))
-# plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
+plt.ylim(-amplitude*1.1, amplitude*1.1)
 
 plt.tight_layout()
 plt.show()
