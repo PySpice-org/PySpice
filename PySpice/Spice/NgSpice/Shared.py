@@ -70,45 +70,51 @@ from PySpice.Tools.EnumFactory import EnumFactory
 
 ####################################################################################################
 
+def ffi_string_utf8(x):
+    return ffi.string(x).decode('utf8')
+
+####################################################################################################
+
 class Vector:
 
     """ This class implements a vector in a simulation output.
-    
+
     Public Attributes:
 
       :attr:`data`
 
       :attr:`name`
 
-      :attr:`simulation_type`
+      :attr:`type`
+        cf. `NgSpiceShared.simulation_type`
 
     """
 
     ##############################################
 
-    def __init__(self, name, simulation_type, data):
+    def __init__(self, name, type_, data):
 
         self.name = str(name)
-        self.simulation_type = simulation_type
+        self.type = type_
         self.data = data
 
     ##############################################
 
     def __repr__(self):
 
-        return 'variable: {self.name} {self.simulation_type}'.format(self=self)
+        return 'variable: {0.name} {0.type}'.format(self)
 
     ##############################################
 
     def is_voltage_node(self):
 
-        return self.simulation_type == NgSpiceShared.simulation_type.voltage
+        return self.type == NgSpiceShared.simulation_type.voltage
 
     ##############################################
 
     def is_branch_current(self):
 
-        return self.simulation_type == NgSpiceShared.simulation_type.current
+        return self.type == NgSpiceShared.simulation_type.current
 
     ##############################################
 
@@ -126,13 +132,13 @@ class Vector:
     @property
     def unit(self):
 
-        if self.simulation_type == NgSpiceShared.simulation_type.voltage:
+        if self.type == NgSpiceShared.simulation_type.voltage:
             return 'V'
-        elif self.simulation_type == NgSpiceShared.simulation_type.current:
+        elif self.type == NgSpiceShared.simulation_type.current:
             return 'A'
-        elif self.simulation_type == NgSpiceShared.simulation_type.time:
+        elif self.type == NgSpiceShared.simulation_type.time:
             return 's'
-        elif self.simulation_type == NgSpiceShared.simulation_type.frequency:
+        elif self.type == NgSpiceShared.simulation_type.frequency:
             return 'Hz'
         else:
             return ''
@@ -156,7 +162,7 @@ class Vector:
 class Plot(dict):
 
     """ This class implements a plot in a simulation output.
-    
+
     Public Attributes:
 
       :attr:`plot_name`
@@ -236,14 +242,14 @@ class Plot(dict):
             raise NotImplementedError
         sweep = sweep_variable.to_waveform()
         return DcAnalysis(sweep, nodes=self.nodes(), branches=self.branches())
-        
+
     ##############################################
 
     def _to_ac_analysis(self):
 
         frequency = self['frequency'].to_waveform(to_real=True)
         return AcAnalysis(frequency, nodes=self.nodes(), branches=self.branches())
-        
+
     ##############################################
 
     def _to_transient_analysis(self):
@@ -352,14 +358,14 @@ class NgSpiceShared:
     @staticmethod
     def _send_char(message, ngspice_id, user_data):
         self = ffi.from_handle(user_data)
-        return self.send_char(ffi.string(message), ngspice_id)
+        return self.send_char(ffi_string_utf8(message), ngspice_id)
 
     ##############################################
 
     @staticmethod
     def _send_stat(message, ngspice_id, user_data):
         self = ffi.from_handle(user_data)
-        return self.send_stat(ffi.string(message), ngspice_id)
+        return self.send_stat(ffi_string_utf8(message), ngspice_id)
 
     ##############################################
 
@@ -381,7 +387,7 @@ class NgSpiceShared:
         actual_vector_values = {}
         for i in range(int(number_of_vectors)):
             actual_vector_value = data.vecsa[i]
-            vector_name = ffi.string(actual_vector_value.name)
+            vector_name = ffi_string_utf8(actual_vector_value.name)
             value = complex(actual_vector_value.creal, actual_vector_value.cimag)
             actual_vector_values[vector_name] = value
             self._logger.debug('    Vector: {} {}'.format(vector_name, value))
@@ -396,7 +402,7 @@ class NgSpiceShared:
             self._logger.debug('ngspice_id-{} send_init_data'.format(ngspice_id))
             number_of_vectors = data.veccount
             for i in range(number_of_vectors):
-                self._logger.debug('  Vector: ' + ffi.string(data.vecs[i].vecname))
+                self._logger.debug('  Vector: ' + ffi_string_utf8(data.vecs[i].vecname))
         return self.send_init_data(data, ngspice_id) # Fixme: should be a Python object
 
     ##############################################
@@ -404,14 +410,14 @@ class NgSpiceShared:
     @staticmethod
     def _get_vsrc_data(voltage, time, node, ngspice_id, user_data):
         self = ffi.from_handle(user_data)
-        return self.get_vsrc_data(voltage, time, ffi.string(node), ngspice_id)
+        return self.get_vsrc_data(voltage, time, ffi_string_utf8(node), ngspice_id)
 
     ##############################################
 
     @staticmethod
     def _get_isrc_data(current, time, node, ngspice_id, user_data):
         self = ffi.from_handle(user_data)
-        return self.get_isrc_data(current, time, ffi.string(node), ngspice_id)
+        return self.get_isrc_data(current, time, ffi_string_utf8(node), ngspice_id)
 
     ##############################################
 
@@ -460,7 +466,9 @@ class NgSpiceShared:
         """ Load the given circuit string. """
 
         circuit_lines = [line for line in str(circuit).split('\n') if line]
-        circuit_lines_keepalive = [ffi.new("char[]", line) for line in circuit_lines] + [ffi.NULL]
+        circuit_lines_keepalive = [ffi.new("char[]", line.encode('utf8'))
+                                   for line in circuit_lines]
+        circuit_lines_keepalive += [ffi.NULL]
         circuit_array = ffi.new("char *[]", circuit_lines_keepalive)
         rc = self._ngspice_shared.ngSpice_Circ(circuit_array)
         if rc:
@@ -477,7 +485,7 @@ class NgSpiceShared:
 
         """ Run the simulation in the background thread and wait until the simulation is done. """
 
-        rc = self._ngspice_shared.ngSpice_Command('bg_run')
+        rc = self._ngspice_shared.ngSpice_Command(b'bg_run')
         if rc:
             raise NameError("ngSpice_Command bg_run returned {}".format(rc))
 
@@ -496,7 +504,7 @@ class NgSpiceShared:
             if array[i] == ffi.NULL:
                 break
             else:
-                strings.append(ffi.string(array[i]))
+                strings.append(ffi_string_utf8(array[i]))
             i += 1
         return strings
 
@@ -516,14 +524,15 @@ class NgSpiceShared:
         """ Return the corresponding plot. """
 
         plot = Plot(plot_name)
-        all_vectors_c = self._ngspice_shared.ngSpice_AllVecs(plot_name)
+        all_vectors_c = self._ngspice_shared.ngSpice_AllVecs(plot_name.encode('utf8'))
         i = 0
         while (True):
             if all_vectors_c[i] == ffi.NULL:
                 break
             else:
-                vector_name = ffi.string(all_vectors_c[i])
-                vector_info = self._ngspice_shared.ngGet_Vec_Info('.'.join((plot_name, vector_name)))
+                vector_name = ffi_string_utf8(all_vectors_c[i])
+                name = '.'.join((plot_name, vector_name))
+                vector_info = self._ngspice_shared.ngGet_Vec_Info(name.encode('utf8'))
                 vector_type = vector_info.v_type
                 length = vector_info.v_length
                 self._logger.debug("vector[{}] {} type {} flags {} length {}".format(i,
@@ -534,13 +543,13 @@ class NgSpiceShared:
                 # flags: VF_REAL = 1 << 0, VF_COMPLEX = 1 << 1
                 if vector_info.v_compdata == ffi.NULL:
                     # for k in xrange(length):
-                    #     print "  [{}] {}".format(k, vector_info.v_realdata[k])
+                    #     print("  [{}] {}".format(k, vector_info.v_realdata[k]))
                     array = np.frombuffer(ffi.buffer(vector_info.v_realdata, length*8), dtype=np.float64)
                 else:
                     # for k in xrange(length):
                     #     value = vector_info.v_compdata[k]
-                    #     print ffi.addressof(value, field='cx_real'), ffi.addressof(value, field='cx_imag')
-                    #     print "  [{}] {} + i {}".format(k, value.cx_real, value.cx_imag)
+                    #     print(ffi.addressof(value, field='cx_real'), ffi.addressof(value, field='cx_imag'))
+                    #     print("  [{}] {} + i {}".format(k, value.cx_real, value.cx_imag))
                     tmp_array = np.frombuffer(ffi.buffer(vector_info.v_compdata, length*8*2), dtype=np.float64)
                     array = np.array(tmp_array[0::2], dtype=np.complex64)
                     array.imag = tmp_array[1::2]
@@ -550,7 +559,7 @@ class NgSpiceShared:
         return plot
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################
