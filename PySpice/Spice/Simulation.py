@@ -430,22 +430,22 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
 
     _logger = _module_logger.getChild('NgSpiceSharedCircuitSimulator')
 
-    __ngspice_shared__ = None
-
     ##############################################
 
     def __init__(self, circuit,
                  temperature=27,
                  nominal_temperature=27,
+                 ngspice_shared=None,
                 ):
 
         # Fixme: kwargs
 
         super().__init__(circuit, temperature, nominal_temperature, pipe=False)
         
-        if self.__ngspice_shared__ is None:
-            self.__ngspice_shared__ = NgSpiceShared(send_data=False)
-        self._ngspice_shared = self.__ngspice_shared__
+        if ngspice_shared is None:
+            self._ngspice_shared = NgSpiceShared(send_data=False)
+        else:
+            self._ngspice_shared = ngspice_shared
 
     ##############################################
 
@@ -462,7 +462,7 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
             plot_name = 'dc1'
         elif analysis_method == 'ac':
             plot_name = 'ac1'
-        elif analysis_method == 'tran':
+        elif analysis_method == 'transient':
             plot_name = 'tran1'
         else:
             raise NotImplementedError
