@@ -20,8 +20,16 @@
 
 ####################################################################################################
 
+import logging
+
+####################################################################################################
+
 from ..Tools.File import Directory
 from .Parser import SpiceParser
+
+####################################################################################################
+
+_module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
@@ -43,6 +51,8 @@ class SpiceLibrary:
 
     """
 
+    _logger = _module_logger.getChild('Library')
+
     ##############################################
 
     def __init__(self, root_path):
@@ -53,7 +63,8 @@ class SpiceLibrary:
         self._models = {}
 
         for path in self._directory.iter_file():
-            if path.extension == '.lib':
+            if path.extension.lower() in ('.lib', '.mod'):
+                self._logger.debug("Parse {}".format(path))
                 spice_parser = SpiceParser(path)
                 if spice_parser.is_only_subcircuit():
                     for subcircuit in spice_parser.subcircuits:
@@ -78,12 +89,12 @@ class SpiceLibrary:
     @property
     def subcircuits(self):
         """ Dictionary of sub-circuits """
-        return self._subcircuits
+        return iter(self._subcircuits)
 
     @property
     def models(self):
         """ Dictionary of models """
-        return self._models
+        return iter(self._models)
 
     # ##############################################
 
