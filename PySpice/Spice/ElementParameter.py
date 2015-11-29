@@ -18,7 +18,7 @@
 #
 ####################################################################################################
 
-""" This modules implements the machinery to define element's parameters. """
+"""This modules implements the machinery to define element's parameters as descriptor."""
 
 ####################################################################################################
 
@@ -28,7 +28,7 @@ from ..Unit.Units import Unit
 
 class ParameterDescriptor:
 
-    """ This base class implements a descriptor for element parameters.
+    """This base class implements a descriptor for element parameters.
 
     Public Attributes:
 
@@ -44,64 +44,73 @@ class ParameterDescriptor:
 
     def __init__(self, default=None):
 
-        self.default_value = default
+        self._default_value = default
+        self._attribute_name = None
 
-        self.attribute_name = None
+    ##############################################
+
+    @property
+    def default_value(self):
+        return self._default_value
+
+    @property
+    def attribute_name(self):
+        return self._attribute_name
+
+    @attribute_name.setter
+    def attribute_name(self, name):
+        self._attribute_name = name
 
     ##############################################
 
     def __get__(self, instance, owner=None):
 
         try:
-            return getattr(instance, '_' + self.attribute_name)
+            return getattr(instance, '_' + self._attribute_name)
         except AttributeError:
             return self.default_value
 
     ##############################################
 
     def __set__(self, instance, value):
-
-        setattr(instance, '_' + self.attribute_name, value)
+        setattr(instance, '_' + self._attribute_name, value)
 
     ##############################################
 
     def __repr__(self):
-
         return self.__class__.__name__
 
     ##############################################
 
     def validate(self, value):
 
-        """ Validate the parameter's value. """
+        """Validate the parameter's value."""
 
         return value
 
     ##############################################
 
     def nonzero(self, instance):
-
         return self.__get__(instance) is not None
 
     ##############################################
 
     def to_str(self, instance):
 
-        """ Convert the parameter's value to SPICE syntax. """
+        """Convert the parameter's value to SPICE syntax."""
 
         raise NotImplementedError
 
     ##############################################
 
     def __lt__(self, other):
-
-        return self.attribute_name < other.attribute_name
+        return self._attribute_name < other.attribute_name
 
 ####################################################################################################
 
 class PositionalElementParameter(ParameterDescriptor):
 
-    """ This class implements a descriptor for positional element parameters.
+    """This class implements a descriptor for positional element parameters.
 
     Public Attributes:
 
@@ -119,38 +128,45 @@ class PositionalElementParameter(ParameterDescriptor):
 
         super().__init__(default)
 
-        self.position = position
-        self.key_parameter = key_parameter
+        self._position = position
+        self._key_parameter = key_parameter
+
+    ##############################################
+
+    @property
+    def position(self):
+        return self._position
+
+    @property
+    def key_parameter(self):
+        return self._key_parameter
 
     ##############################################
 
     def to_str(self, instance):
-
         return str(self.__get__(instance))
 
     ##############################################
 
     def __lt__(self, other):
-
-        return self.position < other.position
+        return self._position < other.position
 
 ####################################################################################################
 
 class ElementNamePositionalParameter(PositionalElementParameter):
 
-    """ This class implements an element name positional parameter. """
+    """This class implements an element name positional parameter."""
 
     ##############################################
 
     def validate(self, value):
-
         return str(value)
 
 ####################################################################################################
 
 class ExpressionPositionalParameter(PositionalElementParameter):
 
-    """ This class implements an expression positional parameter. """
+    """This class implements an expression positional parameter. """
 
     ##############################################
 
@@ -162,7 +178,7 @@ class ExpressionPositionalParameter(PositionalElementParameter):
 
 class FloatPositionalParameter(PositionalElementParameter):
 
-    """ This class implements a float positional parameter. """
+    """This class implements a float positional parameter."""
 
     ##############################################
 
@@ -177,12 +193,11 @@ class FloatPositionalParameter(PositionalElementParameter):
 
 class InitialStatePositionalParameter(PositionalElementParameter):
 
-    """ This class implements an initial state (on, off) positional parameter. """
+    """This class implements an initial state (on, off) positional parameter."""
 
     ##############################################
 
     def validate(self, value):
-
         return bool(value) # Fixme: check KeyParameter
 
     ##############################################
@@ -198,19 +213,18 @@ class InitialStatePositionalParameter(PositionalElementParameter):
 
 class ModelPositionalParameter(PositionalElementParameter):
 
-    """ This class implements a model positional parameter. """
+    """This class implements a model positional parameter. """
 
     ##############################################
 
     def validate(self, value):
-
         return str(value)
 
 ####################################################################################################
 
 class FlagParameter(ParameterDescriptor):
 
-    """ This class implements a flag parameter.
+    """This class implements a flag parameter.
 
     Public Attributes:
 
@@ -230,7 +244,6 @@ class FlagParameter(ParameterDescriptor):
     ##############################################
 
     def nonzero(self, instance):
-
         return bool(self.__get__(instance))
 
     ##############################################
@@ -246,7 +259,7 @@ class FlagParameter(ParameterDescriptor):
 
 class KeyValueParameter(ParameterDescriptor):
 
-    """ This class implements a key value pair parameter.
+    """This class implements a key value pair parameter.
 
     Public Attributes:
 
@@ -266,7 +279,6 @@ class KeyValueParameter(ParameterDescriptor):
     ##############################################
 
     def str_value(self, instance):
-
         return str(self.__get__(instance))
 
     ##############################################
@@ -282,12 +294,11 @@ class KeyValueParameter(ParameterDescriptor):
 
 class BoolKeyParameter(KeyValueParameter):
 
-    """ This class implements a boolean key parameter. """
+    """This class implements a boolean key parameter."""
 
     ##############################################
 
     def nonzero(self, instance):
-
         return bool(self.__get__(instance))
 
     ##############################################
@@ -303,7 +314,7 @@ class BoolKeyParameter(KeyValueParameter):
 
 class ExpressionKeyParameter(KeyValueParameter):
 
-    """ This class implements an expression key parameter. """
+    """This class implements an expression key parameter."""
 
     ##############################################
 
@@ -315,19 +326,18 @@ class ExpressionKeyParameter(KeyValueParameter):
 
 class FloatKeyParameter(KeyValueParameter):
 
-    """ This class implements a float key  parameter. """
+    """This class implements a float key parameter."""
 
     ##############################################
 
     def validate(self, value):
-
         return float(value)
 
 ####################################################################################################
 
 class FloatPairKeyParameter(KeyValueParameter):
 
-    """ This class implements a float pair key parameter. """
+    """This class implements a float pair key parameter. """
 
     ##############################################
 
@@ -341,14 +351,13 @@ class FloatPairKeyParameter(KeyValueParameter):
     ##############################################
 
     def str_value(self, instance):
-
         return ','.join([str(value) for value in self.__get__(instance)])
 
 ####################################################################################################
 
 class FloatTripletKeyParameter(FloatPairKeyParameter):
 
-    """ This class implements a triplet key parameter. """
+    """This class implements a triplet key parameter."""
 
     ##############################################
 
@@ -363,12 +372,11 @@ class FloatTripletKeyParameter(FloatPairKeyParameter):
 
 class IntKeyParameter(KeyValueParameter):
 
-    """ This class implements an integer key parameter. """
+    """This class implements an integer key parameter."""
 
     ##############################################
 
     def validate(self, value):
-
         return int(value)
 
 ####################################################################################################

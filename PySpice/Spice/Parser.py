@@ -57,7 +57,7 @@ class PrefixData:
         number_of_positionals_max = 0
         has_optionals = False
         for element_class in classes:
-            number_of_positionals = element_class.number_of_positional_parameters()
+            number_of_positionals = element_class.number_of_positional_parameters
             number_of_positionals_min = min(number_of_positionals_min, number_of_positionals)
             number_of_positionals_max = max(number_of_positionals_max, number_of_positionals)
             has_optionals = max(has_optionals, bool(element_class.optional_parameters))
@@ -72,7 +72,7 @@ class PrefixData:
             self.number_of_pins = None
         else:
             # Q and X are single
-            self.number_of_pins = classes[0].number_of_pins()
+            self.number_of_pins = classes[0].number_of_pins
         
         self.has_flag = False
         for element_class in classes:
@@ -373,7 +373,7 @@ class Element(Token):
         
         if prefix_data.multi_devices:
             for element_class in prefix_data:
-                if len(self._parameters) == element_class.number_of_positional_parameters():
+                if len(self._parameters) == element_class.number_of_positional_parameters:
                     break
         else:
             element_class = prefix_data.single
