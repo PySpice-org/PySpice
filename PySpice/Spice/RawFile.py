@@ -98,7 +98,7 @@ _module_logger = logging.getLogger(__name__)
 
 class Variable:
 
-    """ This class implements a variable or probe in a SPICE simulation output.
+    """This class implements a variable or probe in a SPICE simulation output.
 
     Public Attributes:
 
@@ -123,21 +123,17 @@ class Variable:
     ##############################################
 
     def __repr__(self):
-
         return 'variable[{self.index}]: {self.name} [{self.unit}]'.format(self=self)
 
     ##############################################
 
     def is_voltage_node(self):
-
         return self.name.startswith('v(')
 
     ##############################################
 
     def is_branch_current(self):
-
         # source branch current
-
         return self.name.startswith('i(')
 
     ##############################################
