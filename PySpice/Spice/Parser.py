@@ -661,8 +661,10 @@ class SpiceParser:
 
     ##############################################
 
-    def build_circuit(self):
+    def build_circuit(self, ground=0):
 
+        ground = str(ground)
+        
         circuit = Circuit(str(self._title))
         
         for token in self._tokens:
@@ -672,12 +674,17 @@ class SpiceParser:
         for token in self._tokens:
             if isinstance(token, Element):
                 factory = getattr(circuit, token.factory.alias)
+                nodes = []
+                for node in token._nodes:
+                    if str(node) == ground:
+                        node = 0
+                    nodes.append(node)
                 if token._prefix != 'X':
                     args = token._nodes + token._parameters
                 else: # != Spice
-                    args = token._parameters + token._nodes
+                    args = token._parameters + nodes
                 kwargs = token._dict_parameters
-                message = ' '.join([str(x) for x in (token._prefix, token._name, token._nodes,
+                message = ' '.join([str(x) for x in (token._prefix, token._name, nodes,
                                                      token._parameters, token._dict_parameters)])
                 self._logger.debug(message)
                 factory(token._name, *args, **kwargs)
