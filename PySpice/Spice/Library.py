@@ -27,7 +27,7 @@ from .Parser import SpiceParser
 
 class SpiceLibrary:
 
-    """ This class implements a Spice sub-circuits and models library.
+    """This class implements a Spice sub-circuits and models library.
 
     A library is a directory which is recursively scanned for '.lib' file and parsed for sub-circuit
     and models definitions.
