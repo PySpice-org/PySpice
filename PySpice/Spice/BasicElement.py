@@ -125,7 +125,7 @@ from .ElementParameter import (
 
 class SubCircuitElement(NPinElement):
 
-    """ This class implements a sub-circuit.
+    """This class implements a sub-circuit.
 
     Spice syntax::
 
@@ -134,6 +134,9 @@ class SubCircuitElement(NPinElement):
     Attributes:
 
       :attr:`subcircuit_name`
+
+    .note : As opposite to Spice, the circuit's name is specified before the nodes so as to act as
+    `*args`.
 
     """
 
@@ -175,11 +178,28 @@ class SubCircuitElement(NPinElement):
 
 class Resistor(TwoPinElement):
 
-    """ This class implements a resistor.
+    """This class implements a resistor.
 
     Spice syntax::
 
         RXXXXXXX n+ n- value <ac=val> <m=val> <scale=val> <temp=val> <dtemp=val> <noisy=0|1>
+
+    Keyword Parameters:
+
+      :attr:`ac`
+
+      :attr:`multiplier`
+         alias `m`
+
+      :attr:`scale`
+
+      :attr:`temperature`
+         alias `temp`
+
+      :attr:`device_temperature`
+         alias `dtemp`
+
+      :attr:`noisy`
 
     Attributes:
 
@@ -214,11 +234,36 @@ class Resistor(TwoPinElement):
 
 class SemiconductorResistor(TwoPinElement):
 
-    """ This class implements a Semiconductor resistor.
+    """This class implements a Semiconductor resistor.
 
     Spice syntax::
 
         RXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <temp=val> <dtemp=val> m=<val> <ac=val> <scale=val> <noisy=0|1>
+
+    Keyword Parameters:
+
+      :attr:`model`
+
+      :attr:`length`
+         alias `l`
+
+      :attr:`width`
+         alias `w`
+
+      :attr:`temperature`
+         alias `temp`
+
+      :attr:`device_temperature`
+         alias `dtemp`
+
+      :attr:`multiplier`
+         alias `m`
+
+      :attr:`ac`
+
+      :attr:`scale`
+
+      :attr:`noisy`
 
     Attributes:
 
@@ -262,12 +307,17 @@ class SemiconductorResistor(TwoPinElement):
 
 class BehavorialResistor(TwoPinElement):
 
-    """ This class implements a behavorial resistor.
+    """This class implements a behavorial resistor.
 
     Spice syntax::
 
-        RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
-        Rxxxxxxx n+ n- R='expression' <tc1=value> <tc2=value>
+        RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value> Rxxxxxxx n+ n- R='expression' <tc1=value> <tc2=value>
+
+    Keyword Parameters:
+
+      :attr:`tc1`
+
+      :attr:`tc2`
 
     Attributes:
 
@@ -290,11 +340,29 @@ class BehavorialResistor(TwoPinElement):
 
 class Capacitor(TwoPinElement):
 
-    """ This class implements a capacitor.
+    """This class implements a capacitor.
 
     Spice syntax::
 
         CXXXXXXX n+ n- <value> <mname> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
+
+    Keyword Parameters:
+
+      :attr:`model`
+
+      :attr:`multiplier`
+         alias `m`
+
+      :attr:`scale`
+
+      :attr:`temperature`
+         alias `temp`
+
+      :attr:`device_temperature`
+         alias `dtemp`
+
+      :attr:`initial_condition`
+         alias `ic`
 
     Attributes:
 
@@ -329,11 +397,35 @@ class Capacitor(TwoPinElement):
 
 class SemiconductorCapacitor(TwoPinElement):
 
-    """ This class implements a semiconductor capacitor.
+    """This class implements a semiconductor capacitor.
 
     Spice syntax::
 
         CXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
+
+    Keyword Parameters:
+
+      :attr:`model`
+
+      :attr:`length`
+         alias `l`
+
+      :attr:`width`
+         alias `w`
+
+      :attr:`multiplier`
+         alias `m`
+
+      :attr:`scale`
+
+      :attr:`temperature`
+         alias `temp`
+
+      :attr:`device_temperature`
+         alias `dtemp`
+
+      :attr:`initial_condition`
+         alias `ic`
 
     Attributes:
 
@@ -374,12 +466,18 @@ class SemiconductorCapacitor(TwoPinElement):
 
 class BehavorialCapacitor(TwoPinElement):
 
-    """ This class implements a behavioral capacitor.
+    """This class implements a behavioral capacitor.
 
     Spice syntax::
 
         CXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
         CXXXXXXX n+ n- C='expression' <tc1=value> <tc2=value>
+
+    Keyword Parameters:
+
+      :attr:`tc1`
+
+      :attr:`tc2`
 
     Attributes:
 
@@ -402,11 +500,29 @@ class BehavorialCapacitor(TwoPinElement):
 
 class Inductor(TwoPinElement):
 
-    """ This class implements an inductor.
+    """This class implements an inductor.
 
     Spice syntax::
 
         LYYYYYYY n+ n- <value> <mname> <nt=val> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
+
+    Keyword Parameters:
+
+      :attr:`nt`
+
+      :attr:`multiplier`
+         alias `m`
+
+      :attr:`scale`
+
+      :attr:`temperature`
+         alias `temp`
+
+      :attr:`device_temperature`
+         alias `dtemp`
+
+      :attr:`initial_condition`
+         alias `ic`
 
     Attributes:
 
@@ -444,12 +560,18 @@ class Inductor(TwoPinElement):
 
 class BehavorialInductor(TwoPinElement):
 
-    """ This class implements a behavioral inductor.
+    """This class implements a behavioral inductor.
 
     Spice syntax::
 
         LXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
         LXXXXXXX n+ n- L='expression' <tc1=value> <tc2=value>
+
+    Keyword Parameters:
+
+      :attr:`tc1`
+
+      :attr:`tc2`
 
     Attributes:
 
@@ -472,11 +594,13 @@ class BehavorialInductor(TwoPinElement):
 
 class CoupledInductor(AnyPinElement):
 
-    """ This class implementss a coupled (mutual) inductors.
+    """This class implementss a coupled (mutual) inductors.
 
     Spice syntax::
 
         KXXXXXXX LYYYYYYY LZZZZZZZ value
+
+    Keyword Parameters:
 
     Attributes:
 
@@ -508,11 +632,17 @@ class CoupledInductor(AnyPinElement):
 
 class VoltageControlledSwitch(TwoPortElement):
 
-    """ This class implements a voltage controlled switch.
+    """This class implements a voltage controlled switch.
 
     Spice syntax::
 
         SXXXXXXX n+ n- nc+ nc- model <on> <off>
+
+    Keyword Parameters:
+
+      :attr:`model`
+
+      :attr:`initial_state`
 
     Attributes:
 
@@ -532,11 +662,19 @@ class VoltageControlledSwitch(TwoPortElement):
 
 class CurrentControlledSwitch(TwoPinElement):
 
-    """ This class implements a current controlled switch.
+    """This class implements a current controlled switch.
 
     Spice syntax::
 
         WYYYYYYY n+ n- vname model <on> <off>
+
+    Keyword Parameters:
+
+      :attr:`source`
+
+      :attr:`model`
+
+      :attr:`initial_state`
 
     Attributes:
 
@@ -559,11 +697,13 @@ class CurrentControlledSwitch(TwoPinElement):
 
 class VoltageSource(TwoPinElement):
 
-    """ This class implements an independent sources for voltage.
+    """This class implements an independent sources for voltage.
 
     Spice syntax::
 
         VXXXXXXX n+ n- <<dc> dc/tran value> <ac <acmag <acphase>>> <distof1 <f1mag <f1phase>>> <distof2 <f2mag <f2phase>>>
+
+    Keyword Parameters:
 
     Attributes:
 
@@ -581,11 +721,13 @@ class VoltageSource(TwoPinElement):
 
 class CurrentSource(TwoPinElement):
 
-    """ This class implements an independent sources for current.
+    """This class implements an independent sources for current.
 
     Spice syntax::
 
        IYYYYYYY n+ n- <<dc> dc/tran value> <ac <acmag <acphase>>> <distof1 <f1mag <f1phase>>> <distof2 <f2mag <f2phase>>>
+
+    Keyword Parameters:
 
     Attributes:
 
@@ -603,11 +745,13 @@ class CurrentSource(TwoPinElement):
 
 class VoltageControlledVoltageSource(TwoPortElement):
 
-    """ This class implements a linear voltage-controlled voltage sources (VCVS).
+    """This class implements a linear voltage-controlled voltage sources (VCVS).
 
     Spice syntax::
 
         EXXXXXXX n+ n- nc+ nc- value
+
+    Keyword Parameters:
 
     Attributes:
 
@@ -624,11 +768,15 @@ class VoltageControlledVoltageSource(TwoPortElement):
 
 class CurrentControlledCurrentSource(TwoPortElement):
 
-    """ This class implements a linear current-controlled current sources (CCCS).
+    """This class implements a linear current-controlled current sources (CCCS).
 
     Spice syntax::
 
        FXXXXXXX n+ n- vname value
+
+    Keyword Parameters:
+
+      :attr:`source`
 
     Attributes:
 
@@ -641,14 +789,14 @@ class CurrentControlledCurrentSource(TwoPortElement):
     alias = 'CCCS'
     prefix = 'F'
 
-    source = ElementNamePositionalParameter(position=0, key_parameter=True)
+    source = ElementNamePositionalParameter(position=0, key_parameter=True) # Fixme: right ???
     current_gain = ExpressionPositionalParameter(position=1, key_parameter=False)
 
 ####################################################################################################
 
 class VoltageControlledCurrentSource(TwoPortElement):
 
-    """ This class implements a linear voltage-controlled current sources (VCCS).
+    """This class implements a linear voltage-controlled current sources (VCCS).
 
     .. warning:: partially implemented
 
@@ -659,6 +807,8 @@ class VoltageControlledCurrentSource(TwoPortElement):
         Gxxx n1 n2 TABLE {expression}=(x0,y0) (x1,y1) (x2,y2)
         Gxxx n+ n- ( POLY (nd) ) nc1+ nc1- ( nc2+ nc2- ... ) p0 ( p1 ... )
         Laplace
+
+    Keyword Parameters:
 
     Attributes:
 
@@ -675,11 +825,15 @@ class VoltageControlledCurrentSource(TwoPortElement):
 
 class CurrentControlledVoltageSource(TwoPortElement):
 
-    """ This class implements a linear current-controlled voltage sources (ccvs).
+    """This class implements a linear current-controlled voltage sources (ccvs).
 
     Spice syntax::
 
         HXXXXXXX n+ n- vname value
+
+    Keyword Parameters:
+
+      :attr:`source`
 
     Attributes:
 
@@ -692,18 +846,36 @@ class CurrentControlledVoltageSource(TwoPortElement):
     alias = 'CCVS'
     prefix = 'H'
 
-    source = ElementNamePositionalParameter(position=0, key_parameter=True)
+    source = ElementNamePositionalParameter(position=0, key_parameter=True) # Fixme: right ????
     transresistance = ExpressionPositionalParameter(position=1, key_parameter=False)
 
 ####################################################################################################
 
 class BehavorialSource(TwoPinElement):
 
-    """ This class implements a behavorial source.
+    """This class implements a behavorial source.
 
     Spice syntax::
 
         BXXXXXXX n+ n- <i=expr> <v=expr> <tc1=value> <tc2=value> <temp=value> <dtemp=value>
+
+    Keyword Parameters:
+
+      :attr:`current_expression`
+          alias `i`
+
+      :attr:`voltage_expression`
+          alias `v`
+
+      :attr:`tc1`
+
+      :attr:`tc2`
+
+      :attr:`temperature`
+         alias `temp`
+
+      :attr:`device_temperature`
+         alias `dtemp`
 
     Attributes:
 
@@ -735,7 +907,7 @@ class BehavorialSource(TwoPinElement):
 
 class NonLinearVoltageSource(TwoPinElement):
 
-    """ This class implements a non linear voltage source.
+    """This class implements a non linear voltage source.
 
     .. warning:: partially implemented
 
@@ -746,6 +918,8 @@ class NonLinearVoltageSource(TwoPinElement):
         Exxx n1 n2 TABLE {expression}=(x0,y0) (x1,y1) (x2,y2)
         Exxx n+ n- ( POLY (nd) ) nc1+ nc1- ( nc2+ nc2- ... ) p0 ( p1 ... )
         Laplace
+
+    Keyword Parameters:
 
     Attributes:
 
@@ -782,11 +956,32 @@ class NonLinearVoltageSource(TwoPinElement):
 
 class Diode(TwoPinElement):
 
-    """ This class implements a junction diode.
+    """This class implements a junction diode.
 
     Spice syntax::
 
         DXXXXXXX n+ n- mname <area=val> <m=val> <pj=val> <off> <ic=vd> <temp=val> <dtemp=val>
+
+    Keyword Parameters:
+
+      :attr:`model`
+
+      :attr:`area`
+
+      :attr:`multiplier`
+         alias `m`
+
+      :attr:`pj`
+
+      :attr:`off`
+
+      :attr:`ic`
+
+      :attr:`temperature`
+         alias `temp`
+
+      :attr:`device_temperature`
+         alias `dtemp`
 
     Attributes:
 
@@ -824,11 +1019,34 @@ class Diode(TwoPinElement):
 
 class BipolarJunctionTransistor(NPinElement):
 
-    """ This class implements a bipolar junction transistor.
+    """This class implements a bipolar junction transistor.
 
     Spice syntax::
 
          QXXXXXXX nc nb ne <ns> mname <area=val> <areac=val> <areab=val> <m=val> <off> <ic=vbe,vce> <temp=val> <dtemp=val>
+
+    Keyword Parameters:
+
+      :attr:`model`
+
+      :attr:`area`
+
+      :attr:`areac`
+
+      :attr:`areab`
+
+      :attr:`multiplier`
+         alias `m`
+
+      :attr:`off`
+
+      :attr:`ic`
+
+      :attr:`temperature`
+         alias `temp`
+
+      :attr:`device_temperature`
+         alias `dtemp`
 
     Attributes:
 
@@ -914,11 +1132,24 @@ class BipolarJunctionTransistor(NPinElement):
 
 class JunctionFieldEffectTransistor(ThreePinElement):
 
-    """ This class implements a bipolar junction transistor.
+    """This class implements a bipolar junction transistor.
 
     Spice syntax::
 
          JXXXXXXX nd ng ns mname <area> <off> <ic=vds,vgs> <temp=t>
+
+    Keyword Parameters:
+
+      :attr:`model`
+
+      :attr:`area`
+
+      :attr:`off`
+
+      :attr:`ic`
+
+      :attr:`temperature`
+         alias `temp`
 
     Attributes:
 
@@ -980,11 +1211,21 @@ class JunctionFieldEffectTransistor(ThreePinElement):
 
 class Mesfet(ThreePinElement):
 
-    """ This class implements a Metal Semiconductor Field Effect Transistor.
+    """This class implements a Metal Semiconductor Field Effect Transistor.
 
     Spice syntax::
 
          ZXXXXXXX nd ng ns mname <area> <off> <ic=vds,vgs>
+
+    Keyword Parameters:
+
+      :attr:`model`
+
+      :attr:`area`
+
+      :attr:`off`
+
+      :attr:`ic`
 
     Attributes:
 
@@ -1043,13 +1284,51 @@ class Mesfet(ThreePinElement):
 
 class Mosfet(FourPinElement):
 
-    """ This class implements a Metal Oxide Field Effect Transistor.
+    """This class implements a Metal Oxide Field Effect Transistor.
 
     Spice syntax::
 
-         MXXXXXXX nd ng ns nb mname <m=val> <l=val> <w=val> 
-         + <ad=val> <as=val> <pd=val> <ps=val> <nrd=val> 
+         MXXXXXXX nd ng ns nb mname <m=val> <l=val> <w=val>
+         + <ad=val> <as=val> <pd=val> <ps=val> <nrd=val>
          + <nrs=val> <off> <ic=vds,vgs,vbs> <temp=t>
+
+    Keyword Parameters:
+
+      :attr:`model`
+
+      :attr:`multiplier`
+         alias `m`
+
+      :attr:`length`
+         alias `l`
+
+      :attr:`width`
+         alias `w`
+
+      :attr:`drain_area`
+          alias `ad`
+
+      :attr:`source_area`
+          alias `as`
+
+      :attr:`drain_perimeter`
+          alias `pd`
+
+      :attr:`source_perimeter`
+          alias `ps`
+
+      :attr:`drain_number_square`
+          alias `nrd`
+
+      :attr:`source_number_square`
+          alias `nrs`
+
+      :attr:`off`
+
+      :attr:`ic`
+
+      :attr:`temperature`
+         alias `temp`
 
     Attributes:
 
