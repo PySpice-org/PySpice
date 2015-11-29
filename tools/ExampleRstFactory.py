@@ -149,7 +149,7 @@ class CodeChunk(Chunk):
 
 ####################################################################################################
 
-class IncludeChunk(Chunk):
+class LitteralIncludeChunk(Chunk):
 
     """ This class represents a litteral include block. """
 
@@ -157,7 +157,36 @@ class IncludeChunk(Chunk):
 
     def __init__(self, example, line):
 
+        # Fixme: duplicated code with figure etc. ???
+        include_path = line.replace('#itxt# ', '').strip()
+        self._include_filename = os.path.basename(include_path)
+        source = example.topic.join_path(include_path)
+        target = example.topic.join_rst_path(self._include_filename)
+        if not os.path.exists(target):
+            os.symlink(source, target)
+
+    ##############################################
+
+    def __str__(self):
+
+        template = '''
+.. literalinclude:: {}
+
+'''
+        return template.format(self._include_filename)
+
+####################################################################################################
+
+class PythonIncludeChunk(Chunk):
+
+    """ This class represents a Python litteral include block. """
+
+    ##############################################
+
+    def __init__(self, example, line):
+
         self._include_path = line.replace('#i# ', '').strip()
+        # Fixme: relpath right ?
         source = os.path.relpath(example.topic.join_path(self._include_path), example.topic.rst_path)
         target = example.topic.join_rst_path(self._include_path)
         if not os.path.exists(target):
@@ -167,35 +196,66 @@ class IncludeChunk(Chunk):
 
     def __str__(self):
 
-        return '''
+        template = '''
 .. getthecode:: {}
   :language: python
 
-'''.format(self._include_path)
+'''
+        return template.format(self._include_path)
 
 ####################################################################################################
 
 class ImageChunk(Chunk):
 
-    """ This class represents an image block for a figure. """
-
     ##############################################
 
-    def __init__(self, line, figure_directory=''):
+    def __init__(self, figure_path):
 
-        # weak ...
-        figure_filename = line[line.rindex(", '")+3:line.rindex("')")]
-        self._figure_path = os.path.join(figure_directory, figure_filename)
+        self._figure_path = figure_path
 
     ##############################################
 
     def __str__(self):
 
-        return '''
+        template = '''
 .. image:: {}
   :align: center
 
-'''.format(self._figure_path)
+'''
+        return template.format(self._figure_path)
+
+####################################################################################################
+
+class FigureChunk(ImageChunk):
+
+    """ This class represents an image block for a saved figure. """
+
+    ##############################################
+
+    def __init__(self, line):
+
+        # weak ...
+        figure_filename = line[line.rindex(", '")+3:line.rindex("')")]
+        super().__init__(figure_filename)
+
+####################################################################################################
+
+class LocaleFigureChunk(ImageChunk):
+
+    """ This class represents an image block for a figure. """
+
+    ##############################################
+
+    def __init__(self, line, source_directory, rst_directory):
+
+        figure_path = line[len('#lfig# '):].strip()
+        figure_filename = os.path.basename(figure_path)
+        figure_absolut_path = os.path.join(source_directory, figure_path)
+        link_path = os.path.join(rst_directory, figure_filename)
+        super().__init__(figure_filename)
+        
+        if not os.path.exists(link_path):
+            os.symlink(figure_absolut_path, link_path)
 
 ####################################################################################################
 
@@ -246,6 +306,7 @@ class CircuitMacrosImageChunk(CircuitMacrosImage, ImageChunk):
 
         m4_filename = line[len('#cm# '):].strip()
         CircuitMacrosImage.__init__(self, m4_filename, source_directory, rst_directory)
+        # Fixme: ImageChunk.__init__()
 
 ####################################################################################################
 
@@ -277,11 +338,12 @@ class OutputChunk(Chunk):
             lower += self._output_marker_index
             upper += self._output_marker_index
         
-        return '''
+        template = '''
 .. literalinclude:: {}
     :lines: {}-{}
 
-'''.format(os.path.basename(self._example.stdout_path), lower+1, upper+1)
+'''
+        return template.format(os.path.basename(self._example.stdout_path), lower+1, upper+1)
 
 ####################################################################################################
 
@@ -466,11 +528,11 @@ class Example:
 
         """Parse the Python source code and extract chunks of codes, RST contents, plot and circuit macros
         figures.  The source code is annoted using comment lines starting with special directives of
-        the form *#directive name#*.  RST content lines start with *#!#*.  We can include the
-        content of a matplotlib figure using the directive *#fig#*, circuit macros figures using
-        *#cm#* and the content of a file using *#i#*.  Comment that must be skipped start with
-        *#?#*.  The directive *#o#* is used to split the output and to instruct to include the
-        previous chunck.
+        the form *#directive name#*.  RST content lines start with *#!#*.  We can include a figure
+        using *#lfig#*, a figure generated by matplotlib using the directive *#fig#*, circuit macros
+        figure using *#cm#* and the content of a file using *#itxt#* and *#i#* for Python source.
+        Comment that must be skipped start with *#?#*.  The directive *#o#* is used to split the
+        output and to instruct to include the previous chunck.
 
         """
 
@@ -496,22 +558,30 @@ class Example:
             line = lines[i]
             i += 1
             remove_next_blanck_line = True
-            if line.startswith('#?#') or line.startswith('#'*100):
+            if (line.startswith('#?#')
+                or line.startswith('#'*10)
+                or line.startswith(' '*4 + '#'*10)):
                 pass # these comments
             elif (line.startswith('#fig# ')
+                  or line.startswith('#lfig# ')
                   or line.startswith('#cm# ')
                   or line.startswith('#i# ')
+                  or line.startswith('#itxt# ')
                   or line.startswith('#o#')):
                 if self._rst_chunck:
                     self._append_rst_chunck()
                 elif self._code_chunck:
                     self._append_code_chunck()
                 if line.startswith('#fig# '):
-                    self._chuncks.append(ImageChunk(line))
+                    self._chuncks.append(FigureChunk(line))
+                elif line.startswith('#lfig# '):
+                    self._chuncks.append(LocaleFigureChunk(line, self._topic.path, self._topic.rst_path))
                 elif line.startswith('#cm# '):
                     self._chuncks.append(CircuitMacrosImageChunk(line, self._topic.path, self._topic.rst_path))
                 elif line.startswith('#i# '):
-                    self._chuncks.append(IncludeChunk(self, line))
+                    self._chuncks.append(PythonIncludeChunk(self, line))
+                elif line.startswith('#itxt# '):
+                    self._chuncks.append(LitteralIncludeChunk(self, line))
                 elif line.startswith('#o#'):
                     self._chuncks.append(OutputChunk(self, line, output_marker_index))
                     output_marker_index += 1
@@ -581,6 +651,8 @@ class Example:
 
 """
             header = template.format(title=title, title_line=title_line)
+        else:
+            header = ''
 
         # place the Python file in the rst path
         python_file_name = self._basename + '.py'
@@ -588,7 +660,13 @@ class Example:
         if not os.path.exists(link_path):
             os.symlink(self._path, link_path)
         
+        includes = """
+.. include:: /project-links.txt
+.. include:: /abbreviation.txt
+"""
+
         with open(self._rst_path, 'w') as f:
+            f.write(includes)
             if not has_title:
                 f.write(header)
             template = """
