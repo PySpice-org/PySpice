@@ -82,7 +82,7 @@ PySpice_path = os.path.join(site_packages_path, 'PySpice')
 
 setup_dict = dict(
     name='PySpice',
-    version='0.2.4',
+    version='0.3.0',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='PySpice is a Python 3 Package to generate and steer Berkeley Spice circuit, '
@@ -90,7 +90,7 @@ setup_dict = dict(
     license="GPLv3",
     keywords="spice, berkeley, ngspice, circuit, simulation, electronic",
     url='https://github.com/FabriceSalvaire/PySpice',
-    scripts=[],
+    scripts=['bin/cir2py'],
     packages=['PySpice', # Fixme:
               'PySpice.Config',
               'PySpice.Logging',
