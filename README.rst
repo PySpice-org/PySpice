@@ -103,8 +103,8 @@ V0.3.0
 ------
 
  * Added an example to show how to use the NgSpice Shared Simulation Mode.
- * Completed the Spice netlist parser and added an example, thus we could now use a schematic editor
-   to define the circuit.
+ * Completed the Spice netlist parser and added examples, we could now use a schematic editor
+   to define the circuit.  The program *cir2py* translates a circuit file to Python.
 
 .. End
 
