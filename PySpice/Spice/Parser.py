@@ -325,6 +325,7 @@ class Element(Token):
         # Retrieve device name
         start_location = 1
         stop_location = line_str.find(' ')
+        # Fixme: if stop_location == -1:
         self._name = line_str[start_location:stop_location]
         
         self._nodes = []
@@ -349,7 +350,7 @@ class Element(Token):
         number_of_positionals = prefix_data.number_of_positionals_min
         if number_of_positionals and stop_location is not None: # model is optional
             self._parameters, stop_location = self._line.read_words(stop_location, number_of_positionals)
-        if prefix_data.multi_devices:
+        if prefix_data.multi_devices and stop_location is not None:
             remaining, stop_location = self._line.split_words(stop_location, until='=')
             self._parameters.extend(remaining)
         
@@ -680,7 +681,7 @@ class SpiceParser:
                         node = 0
                     nodes.append(node)
                 if token._prefix != 'X':
-                    args = token._nodes + token._parameters
+                    args = nodes + token._parameters
                 else: # != Spice
                     args = token._parameters + nodes
                 kwargs = token._dict_parameters
@@ -688,6 +689,55 @@ class SpiceParser:
                                                      token._parameters, token._dict_parameters)])
                 self._logger.debug(message)
                 factory(token._name, *args, **kwargs)
+        
+        return circuit
+
+    ##############################################
+
+    def _to_python(self, value):
+
+        try:
+            int_value = int(value)
+            value = float(value)
+            if int_value == value:
+                return str(int_value)
+            else:
+                return str(value)
+        except ValueError:
+            return "'{}'".format(value)
+
+    ##############################################
+
+    def to_python_code(self, ground=0):
+
+        ground = str(ground)
+        
+        # for token in self._tokens:
+        #     if isinstance(token, Include):
+        #         circuit.include(str(token))
+
+        if self._title:
+            title = self._title
+        else:
+            title = '...'
+        circuit = "circuit = Circuit('{}')\n".format(title)
+        
+        for token in self._tokens:
+            if isinstance(token, Element):
+                nodes = []
+                for node in token._nodes:
+                    if str(node) == ground:
+                        node = 0
+                    nodes.append(node)
+                if token._prefix != 'X':
+                    args = nodes + token._parameters
+                else: # != Spice
+                    args = token._parameters + nodes
+                args = [self._to_python(x) for x in args]
+                kwargs = ['{}={}'.format(key, self._to_python(value))
+                          for key, value in token._dict_parameters.items()]
+                parameters = ', '.join(args + kwargs)
+                circuit += "circuit.{}({})\n".format(token._prefix, parameters)
         
         return circuit
 
