@@ -13,8 +13,10 @@ include make-release.sh
 include pylintrc.ini
 include setenv.sh start.sh
 include setup_data.py
-include requirements.txt
+include requirements.txt requirements-dev.txt
 include .travis.yml
+include bin/cir2py
+include bower/bower.json
 recursive-include PySpice *.py *.yml *.h
 recursive-include doc *
 recursive-include doc/sphinx/source/_static *
@@ -24,6 +26,7 @@ recursive-include spec *.spec *.desktop
 recursive-include tools *
 recursive-include unit-test *.py
 recursive-include spice-examples *
+recursive-include issues *.py *.lib
 global-exclude *~
 global-exclude *__pycache__*
 global-exclude *.pyc
