@@ -76,7 +76,7 @@ long_description = read('README.txt')
 try:
     rc = subprocess.check_call(('ngspice', '--version'), stdout=sys.stderr)
 except FileNotFoundError:
-    raise NameError('Warning: You must install ngspice')
+    sys.stderr.write('\n\nWarning: You must install ngspice\n\n')
 
 PySpice_path = os.path.join(site_packages_path, 'PySpice')
 
