@@ -1,3 +1,4 @@
+*~
 *.stderr
 *.stdout
 .bzr/
@@ -6,11 +7,11 @@ MANIFEST
 __pycache__
 #
 .ipynb_checkpoints/
+bower/bower_components/
 circuit-macros-tmp/
 dependencies/
 doc/extern/
 doc/sphinx/build/
-doc/sphinx/source/bower/bower_components/
 notebook-test/
 notes/
 test/
