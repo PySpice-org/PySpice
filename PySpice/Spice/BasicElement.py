@@ -305,9 +305,11 @@ class SemiconductorResistor(TwoPinElement):
 
 ####################################################################################################
 
-class BehavorialResistor(TwoPinElement):
+class BehavioralResistor(TwoPinElement):
 
-    """This class implements a behavorial resistor.
+    # Behavioral / Behavioural
+
+    """This class implements a behavioral resistor.
 
     Spice syntax::
 
@@ -329,7 +331,7 @@ class BehavorialResistor(TwoPinElement):
 
     """
 
-    alias = 'BehavorialResistor'
+    alias = 'BehavioralResistor'
     prefix = 'R'
 
     resistance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
@@ -464,7 +466,7 @@ class SemiconductorCapacitor(TwoPinElement):
 
 ####################################################################################################
 
-class BehavorialCapacitor(TwoPinElement):
+class BehavioralCapacitor(TwoPinElement):
 
     """This class implements a behavioral capacitor.
 
@@ -489,7 +491,7 @@ class BehavorialCapacitor(TwoPinElement):
 
     """
 
-    alias = 'BehavorialCapacitor'
+    alias = 'BehavioralCapacitor'
     prefix = 'C'
 
     capacitance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
@@ -558,7 +560,7 @@ class Inductor(TwoPinElement):
 
 ####################################################################################################
 
-class BehavorialInductor(TwoPinElement):
+class BehavioralInductor(TwoPinElement):
 
     """This class implements a behavioral inductor.
 
@@ -583,7 +585,7 @@ class BehavorialInductor(TwoPinElement):
 
     """
 
-    alias = 'BehavorialInductor'
+    alias = 'BehavioralInductor'
     prefix = 'L'
 
     inductance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
@@ -851,9 +853,9 @@ class CurrentControlledVoltageSource(TwoPortElement):
 
 ####################################################################################################
 
-class BehavorialSource(TwoPinElement):
+class BehavioralSource(TwoPinElement):
 
-    """This class implements a behavorial source.
+    """This class implements a behavioral source.
 
     Spice syntax::
 
@@ -893,7 +895,7 @@ class BehavorialSource(TwoPinElement):
 
     """
 
-    alias = 'BehavorialSource'
+    alias = 'BehavioralSource'
     prefix = 'B'
 
     current_expression = ExpressionKeyParameter('i')
