@@ -1,5 +1,5 @@
 ####################################################################################################
-# 
+#
 # PySpice - A Spice Package for Python
 # Copyright (C) 2014 Fabrice Salvaire
 #
@@ -7,15 +7,15 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-# 
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 ####################################################################################################
 
 ####################################################################################################
@@ -133,7 +133,7 @@ class TestFiniteDifference(unittest.TestCase):
                     # print computed_coefficients
                     # print np.abs(coefficients - computed_coefficients)
                     self.assertTrue(np.all(np.isclose(coefficients, computed_coefficients)))
-    
+        
         for derivative_order, derivative_order_dict in forward_coefficients.items():
             for accuracy_order, coefficients in derivative_order_dict.items():
                 if accuracy_order > 1:
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     unittest.main()
 
 ####################################################################################################
-# 
+#
 # End
-# 
+#
 ####################################################################################################
