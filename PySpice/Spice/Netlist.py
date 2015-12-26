@@ -294,7 +294,7 @@ class ElementParameterMetaClass(type):
             if (parameter.spice_name in attributes
                 and parameter.spice_name != parameter.attribute_name):
                 _module_logger.error('Spice parameter "{}" clash with attributes'.format(parameter.spice_name))
-
+        
         return super().__new__(cls, class_name, super_classes, attributes)
 
     ##############################################
@@ -777,7 +777,7 @@ class SubCircuit(Netlist):
                                 for key, value in self._parameters.items()])
         netlist = '.subckt ' + join_list((self.name, nodes, parameters)) + '\n'
         netlist += super().__str__()
-        netlist += '.ends\n'
+        netlist += '.ends ' + self.name + '\n'
         return netlist
 
 ####################################################################################################
