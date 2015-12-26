@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/fundamental-laws/millman-theorem.py
+/home/fabrice/home/developpement/PySpice/examples/fundamental-laws/millman-theorem.py

@@ -1,4 +1,7 @@
 
+.. include:: /project-links.txt
+.. include:: /abbreviation.txt
+
 ==============
  Hp54501A Cem
 ==============

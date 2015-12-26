@@ -1,4 +1,7 @@
 
+.. include:: /project-links.txt
+.. include:: /abbreviation.txt
+
 .. getthecode:: transformer-example.py
     :language: python
 

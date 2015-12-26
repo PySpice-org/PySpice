@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/diode/zener-characteristic-curve.py
+/home/fabrice/home/developpement/PySpice/examples/diode/zener-characteristic-curve.py

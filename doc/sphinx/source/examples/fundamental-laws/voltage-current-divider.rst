@@ -1,4 +1,7 @@
 
+.. include:: /project-links.txt
+.. include:: /abbreviation.txt
+
 .. getthecode:: voltage-current-divider.py
     :language: python
 

@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/resistor/resistor-bridge.py
+/home/fabrice/home/developpement/PySpice/examples/resistor/resistor-bridge.py

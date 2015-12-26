@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/resistor/voltage-divider.py
+/home/fabrice/home/developpement/PySpice/examples/resistor/voltage-divider.py

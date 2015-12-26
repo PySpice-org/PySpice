@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/diode/rectification.py
+/home/fabrice/home/developpement/PySpice/examples/diode/rectification.py

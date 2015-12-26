@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/transistor/transistor.py
+/home/fabrice/home/developpement/PySpice/examples/transistor/transistor.py

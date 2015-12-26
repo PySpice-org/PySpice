@@ -1,4 +1,7 @@
 
+.. include:: /project-links.txt
+.. include:: /abbreviation.txt
+
 .. getthecode:: voltage-divider.py
     :language: python
 
@@ -26,8 +29,6 @@ This example explains how to plug a voltage source from Python to NgSpice.
     
     class MyNgSpiceShared(NgSpiceShared):
     
-        ##############################################
-    
         def __init__(self, amplitude, frequency, **kwargs):
     
             super().__init__(**kwargs)
@@ -35,14 +36,10 @@ This example explains how to plug a voltage source from Python to NgSpice.
             self._amplitude = amplitude
             self._pulsation = float(frequency.pulsation)
     
-        ##############################################
-    
         def get_vsrc_data(self, voltage, time, node, ngspice_id):
             self._logger.debug('ngspice_id-{} get_vsrc_data @{} node {}'.format(ngspice_id, time, node))
             voltage[0] = self._amplitude * math.sin(self._pulsation * time)
             return 0
-    
-        ##############################################
     
         def get_isrc_data(self, current, time, node, ngspice_id):
             self._logger.debug('ngspice_id-{} get_isrc_data @{} node {}'.format(ngspice_id, time, node))

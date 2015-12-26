@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/ngspice-shared/voltage-divider.py
+/home/fabrice/home/developpement/PySpice/examples/ngspice-shared/voltage-divider.py

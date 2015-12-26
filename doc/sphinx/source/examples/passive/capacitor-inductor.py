@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/passive/capacitor-inductor.py
+/home/fabrice/home/developpement/PySpice/examples/passive/capacitor-inductor.py

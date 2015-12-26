@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/fundamental-laws/voltage-current-divider.py
+/home/fabrice/home/developpement/PySpice/examples/fundamental-laws/voltage-current-divider.py

@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/diode/diode-recovery-time.py
+/home/fabrice/home/developpement/PySpice/examples/diode/diode-recovery-time.py

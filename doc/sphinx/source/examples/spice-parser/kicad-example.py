@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/spice-parser/kicad-example.py
+/home/fabrice/home/developpement/PySpice/examples/spice-parser/kicad-example.py

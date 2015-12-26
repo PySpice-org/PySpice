@@ -1,1 +1,1 @@
-/home/gv/fabrice/developpement/PySpice/examples/operational-amplifier/operational-amplifier.py
+/home/fabrice/home/developpement/PySpice/examples/operational-amplifier/operational-amplifier.py
