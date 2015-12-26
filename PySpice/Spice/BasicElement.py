@@ -313,7 +313,8 @@ class BehavioralResistor(TwoPinElement):
 
     Spice syntax::
 
-        RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value> Rxxxxxxx n+ n- R='expression' <tc1=value> <tc2=value>
+        RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
+        Rxxxxxxx n+ n- R='expression' <tc1=value> <tc2=value>
 
     Keyword Parameters:
 
