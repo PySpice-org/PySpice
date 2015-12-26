@@ -1,6 +1,0 @@
-#! /bin/bash
-
-# bdist
-python setup.py register sdist upload
-
-# End
