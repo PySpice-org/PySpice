@@ -1,20 +1,19 @@
 language: python
 python:
-    - "2.7"
-#   - "3.3"
-#   - "3.4"
-#   - "pypy"
+    - "3.4"
 env:
 
 before_script:
 
 install:
-    - pip install -q -r requirements.txt
-    - pip install .
+   - pip install -q -r requirements.txt
+   - pip install .
 
 script:
-    # fixme:
-    - python unit-test/Spice/test_BasicElement.py
+   # fixme:
+   - python unit-test/Spice/test_BasicElement.py
+   # - python unit-test/Spice/test_NetList.py # fail
+   python unit-test/Unit/test_Units.py
 
 ####################################################################################################
 #
