@@ -1,11 +1,14 @@
-*~
 *.stderr
 *.stdout
+*~
 .bzr/
 .bzrignore
 MANIFEST
 __pycache__
+build/
+dist/
 #
+du.log
 .ipynb_checkpoints/
 bower/bower_components/
 circuit-macros-tmp/
