@@ -952,7 +952,7 @@ class NonLinearVoltageSource(TwoPinElement):
         if self.table is not None:
             # TABLE {expression} = (x0, y0) (x1, y1) ...
             table = ['({}, {})'.format(x, y) for x, y in self.table]
-            spice_element += ' TABLE {%s} = %s' % (self.expression, join_list(table)) 
+            spice_element += ' TABLE {%s} = %s' % (self.expression, join_list(table))
         return spice_element
 
 ####################################################################################################
@@ -1419,6 +1419,71 @@ class Mosfet(FourPinElement):
     @property
     def substrate(self):
         return self.pins[3]
+
+####################################################################################################
+
+class TransmissionLine(TwoPortElement):
+
+    """This class implements a lossless transmission line.
+
+    Spice syntax::
+
+        TXXXXXXX N1 N2 N3 N4 Z0=VALUE <TD=VALUE> <F=FREQ <NL=NRMLEN>>
+
+    where TD or F, NL must be specified.
+
+    Keyword Parameters:
+
+      :attr:`impedance`
+         alias:`Z0`
+
+      :attr:`time_delay`
+         alias:`TD`
+
+      :attr:`frequency`
+         alias:`F`
+
+      :attr:`normalized_length`
+         alias:`NL`
+
+    Attributes:
+
+      :attr:`impedance`
+
+      :attr:`time_delay`
+
+      :attr:`frequency`
+
+      :attr:`normalized_length`
+
+    Note: Either time_delay or frequency must be given.
+
+    """
+
+    alias = 'TransmissionLine'
+    prefix = 'T'
+
+    impedance = FloatKeyParameter('Z0', default=50)
+    time_delay = FloatKeyParameter('TD')
+    frequency = FloatKeyParameter('F')
+    normalized_length = FloatKeyParameter('NL')
+
+    ##############################################
+
+    def __init__(self, name,
+                 input_node_plus, input_node_minus,
+                 output_node_plus, output_node_minus,
+                 *args, **kwargs):
+
+        # check: ^ xor, & bitwise and
+        if not (('time_delay' in kwargs) ^
+                (('frequency' in kwargs) & ('normalized_length' in kwargs))):
+            raise NameError('Either TD or F, NL must be specified')
+        
+        super().__init__(name,
+                         output_node_plus, output_node_minus,
+                         input_node_plus, input_node_minus, # Fixme: inverted inputs
+                         *args, **kwargs)
 
 ####################################################################################################
 #
