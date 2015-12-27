@@ -1473,8 +1473,8 @@ class TransmissionLine(TwoPortElement):
             raise NameError('Either TD or F,NL must be specified')
 
         super().__init__(name,
-                         input_node_plus, input_node_minus,
                          output_node_plus, output_node_minus,
+                         input_node_plus, input_node_minus,  # Fixme: inverted inputs
                          *args, **kwargs)
 
     impedance = FloatKeyParameter('Z0', default=50)
