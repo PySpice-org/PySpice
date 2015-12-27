@@ -1430,7 +1430,7 @@ class TransmissionLine(TwoPortElement):
 
         TXXXXXXX N1 N2 N3 N4 Z0=VALUE <TD=VALUE> <F=FREQ <NL=NRMLEN>>
 
-    where TD or F,NL must be specified.
+    where TD or F, NL must be specified.
 
     Keyword Parameters:
 
@@ -1463,24 +1463,27 @@ class TransmissionLine(TwoPortElement):
     alias = 'TransmissionLine'
     prefix = 'T'
 
+    impedance = FloatKeyParameter('Z0', default=50)
+    time_delay = FloatKeyParameter('TD')
+    frequency = FloatKeyParameter('F')
+    normalized_length = FloatKeyParameter('NL')
+
+    ##############################################
+
     def __init__(self, name,
                  input_node_plus, input_node_minus,
                  output_node_plus, output_node_minus,
                  *args, **kwargs):
 
+        # check: ^ xor, & bitwise and
         if not (('time_delay' in kwargs) ^
                 (('frequency' in kwargs) & ('normalized_length' in kwargs))):
-            raise NameError('Either TD or F,NL must be specified')
-
+            raise NameError('Either TD or F, NL must be specified')
+        
         super().__init__(name,
                          output_node_plus, output_node_minus,
-                         input_node_plus, input_node_minus,  # Fixme: inverted inputs
+                         input_node_plus, input_node_minus, # Fixme: inverted inputs
                          *args, **kwargs)
-
-    impedance = FloatKeyParameter('Z0', default=50)
-    time_delay = FloatKeyParameter('TD')
-    frequency = FloatKeyParameter('F')
-    normalized_length = FloatKeyParameter('NL')
 
 ####################################################################################################
 #
