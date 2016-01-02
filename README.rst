@@ -53,7 +53,7 @@
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice license
 
-.. |Pypi Format| image:: https://img.shields.io/pypi/f/PySpice.svg
+.. |Pypi Format| image:: https://img.shields.io/pypi/format/PySpice.svg
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice format
 
@@ -114,11 +114,12 @@ The latest documentation build from the git repository is available at readthedo
 Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
 
 |Build Status|
-|Pypi Download|
-|Pypi Version|
+
 |Pypi License|
-|Pypi Format|
 |Pypi Python Version|
+|Pypi Version|
+|Pypi Format|
+|Pypi Download|
 
 -----
 
