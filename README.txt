@@ -14,11 +14,12 @@ The latest documentation build from the git repository is available at readthedo
 Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
 
 |Build Status|
-|Pypi Download|
-|Pypi Version|
+
 |Pypi License|
-|Pypi Format|
 |Pypi Python Version|
+|Pypi Version|
+|Pypi Format|
+|Pypi Download|
 
 -----
 

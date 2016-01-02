@@ -51,7 +51,7 @@
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice license
 
-.. |Pypi Format| image:: https://img.shields.io/pypi/f/PySpice.svg
+.. |Pypi Format| image:: https://img.shields.io/pypi/format/PySpice.svg
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice format
 
