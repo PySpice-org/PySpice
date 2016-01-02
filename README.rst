@@ -41,6 +41,30 @@
    :target: https://travis-ci.org/FabriceSalvaire/PySpice
    :alt: PySpice build status @travis-ci.org
 
+.. |Pypi Download| image:: https://img.shields.io/pypi/dm/PySpice.svg
+   :target: https://pypi.python.org/pypi/PySpice
+   :alt: PySpice Download per month
+
+.. |Pypi Version| image:: https://img.shields.io/pypi/v/PySpice.svg
+   :target: https://pypi.python.org/pypi/PySpice
+   :alt: PySpice last version
+
+.. |Pypi License| image:: https://img.shields.io/pypi/l/PySpice.svg
+   :target: https://pypi.python.org/pypi/PySpice
+   :alt: PySpice license
+
+.. |Pypi Format| image:: https://img.shields.io/pypi/f/PySpice.svg
+   :target: https://pypi.python.org/pypi/PySpice
+   :alt: PySpice format
+
+.. |Pypi Python Version| image:: https://img.shields.io/pypi/pyversions/PySpice.svg
+   :target: https://pypi.python.org/pypi/PySpice
+   :alt: PySpice python version
+
+..  coverage test
+..  https://img.shields.io/pypi/status/Django.svg
+..  https://img.shields.io/github/stars/badges/shields.svg?style=social&label=Star
+
 .. End
 .. -*- Mode: rst -*-
 
@@ -90,6 +114,11 @@ The latest documentation build from the git repository is available at readthedo
 Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
 
 |Build Status|
+|Pypi Download|
+|Pypi Version|
+|Pypi License|
+|Pypi Format|
+|Pypi Python Version|
 
 -----
 
