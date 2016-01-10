@@ -99,11 +99,13 @@ class SpiceServer:
         # self._logger.debug('\n' + stdout)
         
         error_found = False
+        # UnicodeDecodeError: 'utf-8' codec can't decode byte 0xc0 in position 870: invalid start byte
+        # lines = stdout.decode('utf-8').splitlines()
         lines = stdout.splitlines()
         for line_index, line in enumerate(lines):
             if line.startswith(b'Error '):
                 error_found = True
-                self._logger.error('\n' + line + '\n' + lines[line_index+1].decode('utf-8'))
+                self._logger.error('\n' + line.decode('utf-8') + '\n' + lines[line_index+1].decode('utf-8'))
         if error_found:
             raise NameError("Errors was found by Spice")
 
