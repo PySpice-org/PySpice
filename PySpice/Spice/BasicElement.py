@@ -769,7 +769,7 @@ class VoltageControlledVoltageSource(TwoPortElement):
 
 ####################################################################################################
 
-class CurrentControlledCurrentSource(TwoPortElement):
+class CurrentControlledCurrentSource(TwoPinElement):
 
     """This class implements a linear current-controlled current sources (CCCS).
 
@@ -778,8 +778,6 @@ class CurrentControlledCurrentSource(TwoPortElement):
        FXXXXXXX n+ n- vname value
 
     Keyword Parameters:
-
-      :attr:`source`
 
     Attributes:
 
@@ -792,7 +790,7 @@ class CurrentControlledCurrentSource(TwoPortElement):
     alias = 'CCCS'
     prefix = 'F'
 
-    source = ElementNamePositionalParameter(position=0, key_parameter=True) # Fixme: right ???
+    source = ElementNamePositionalParameter(position=0, key_parameter=False)
     current_gain = ExpressionPositionalParameter(position=1, key_parameter=False)
 
 ####################################################################################################
@@ -826,7 +824,7 @@ class VoltageControlledCurrentSource(TwoPortElement):
 
 ####################################################################################################
 
-class CurrentControlledVoltageSource(TwoPortElement):
+class CurrentControlledVoltageSource(TwoPinElement):
 
     """This class implements a linear current-controlled voltage sources (ccvs).
 
@@ -835,8 +833,6 @@ class CurrentControlledVoltageSource(TwoPortElement):
         HXXXXXXX n+ n- vname value
 
     Keyword Parameters:
-
-      :attr:`source`
 
     Attributes:
 
@@ -849,7 +845,7 @@ class CurrentControlledVoltageSource(TwoPortElement):
     alias = 'CCVS'
     prefix = 'H'
 
-    source = ElementNamePositionalParameter(position=0, key_parameter=True) # Fixme: right ????
+    source = ElementNamePositionalParameter(position=0, key_parameter=False)
     transresistance = ExpressionPositionalParameter(position=1, key_parameter=False)
 
 ####################################################################################################
