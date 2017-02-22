@@ -130,6 +130,11 @@ Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
  News
 ======
 
+V0.3.2
+------
+
+ * fixed CCCS and CCVS
+
 V0.3.1
 ------
 

@@ -82,7 +82,7 @@ PySpice_path = os.path.join(site_packages_path, 'PySpice')
 
 setup_dict = dict(
     name='PySpice',
-    version='0.3.1',
+    version='0.3.2',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='PySpice is a Python 3 Package to generate and steer Berkeley Spice circuit, '
