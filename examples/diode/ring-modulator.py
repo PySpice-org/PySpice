@@ -75,19 +75,19 @@ circuit.X('ring_modulator', 'RingModulator',
 
 circuit.R('load', 'output', circuit.gnd, kilo(1))
 
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-# simulator.initial_condition(input_top=0, input_bottom=0, output_top=0, output_bottom=0)
-analysis = simulator.transient(step_time=modulator.period/1000, end_time=modulator.period)
-
-figure = plt.figure(1, (20, 10))
-plt.title('Ring Modulator')
-plt.xlabel('Time [s]')
-plt.ylabel('Voltage [V]')
-plt.grid()
-plot(analysis['Vmodulator'])
-plot(analysis['Vcarrier'])
-# plot(analysis['output'])
-plt.legend(('modulator', 'carrier', 'output'), loc=(.05,.1))
+### simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+### # simulator.initial_condition(input_top=0, input_bottom=0, output_top=0, output_bottom=0)
+### analysis = simulator.transient(step_time=modulator.period/1000, end_time=modulator.period)
+###
+### figure = plt.figure(1, (20, 10))
+### plt.title('Ring Modulator')
+### plt.xlabel('Time [s]')
+### plt.ylabel('Voltage [V]')
+### plt.grid()
+### plot(analysis['Vmodulator'])
+### plot(analysis['Vcarrier'])
+### # plot(analysis['output'])
+### plt.legend(('modulator', 'carrier', 'output'), loc=(.05,.1))
 
 ####################################################################################################
 
