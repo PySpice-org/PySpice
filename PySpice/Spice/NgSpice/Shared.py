@@ -323,7 +323,7 @@ class NgSpiceShared:
         self._send_stat_c = ffi.callback('int (char *, int, void *)', self._send_stat)
         self._exit_c = ffi.callback('int (int, bool, bool, int, void *)', self._exit)
         self._send_init_data_c = ffi.callback('int (pvecinfoall, int, void *)', self._send_init_data)
-        
+
         if send_data:
             self._send_data_c = ffi.callback('int (pvecvaluesall, int, int, void *)', self._send_data)
         else:
@@ -333,6 +333,7 @@ class NgSpiceShared:
         self._get_isrc_data_c = ffi.callback('int (double *, double, char *, int, void *)', self._get_isrc_data)
 
         self_c = ffi.new_handle(self)
+        self._self_c = self_c # To prevent garbage collection
 
         rc = self._ngspice_shared.ngSpice_Init(self._send_char_c,
                                                self._send_stat_c,
@@ -345,6 +346,7 @@ class NgSpiceShared:
             raise NameError("Ngspice_Init returned {}".format(rc))
 
         ngspice_id_c = ffi.new('int *', self._ngspice_id)
+        self._ngspice_id = ngspice_id_c # To prevent garbage collection
         rc = self._ngspice_shared.ngSpice_Init_Sync(self._get_vsrc_data_c,
                                                     self._get_isrc_data_c,
                                                     ffi.NULL, # GetSyncData
@@ -357,6 +359,7 @@ class NgSpiceShared:
 
     @staticmethod
     def _send_char(message, ngspice_id, user_data):
+        """FFI Callback"""
         self = ffi.from_handle(user_data)
         return self.send_char(ffi_string_utf8(message), ngspice_id)
 
@@ -364,6 +367,7 @@ class NgSpiceShared:
 
     @staticmethod
     def _send_stat(message, ngspice_id, user_data):
+        """FFI Callback"""
         self = ffi.from_handle(user_data)
         return self.send_stat(ffi_string_utf8(message), ngspice_id)
 
@@ -371,6 +375,7 @@ class NgSpiceShared:
 
     @staticmethod
     def _exit(exit_status, immediate_unloding, quit_exit, ngspice_id, user_data):
+        """FFI Callback"""
         self = ffi.from_handle(user_data)
         self._logger.debug('ngspice_id-{} exit {} {} {} {}'.format(ngspice_id,
                                                                    exit_status,
@@ -382,6 +387,7 @@ class NgSpiceShared:
 
     @staticmethod
     def _send_data(data, number_of_vectors, ngspice_id, user_data):
+        """FFI Callback"""
         self = ffi.from_handle(user_data)
         self._logger.debug('ngspice_id-{} send_data [{}]'.format(ngspice_id, data.vecindex))
         actual_vector_values = {}
@@ -396,7 +402,8 @@ class NgSpiceShared:
     ##############################################
 
     @staticmethod
-    def _send_init_data(data,  ngspice_id, user_data): 
+    def _send_init_data(data,  ngspice_id, user_data):
+        """FFI Callback"""
         self = ffi.from_handle(user_data)
         if self._logger.isEnabledFor(logging.DEBUG):
             self._logger.debug('ngspice_id-{} send_init_data'.format(ngspice_id))
@@ -409,6 +416,7 @@ class NgSpiceShared:
 
     @staticmethod
     def _get_vsrc_data(voltage, time, node, ngspice_id, user_data):
+        """FFI Callback"""
         self = ffi.from_handle(user_data)
         return self.get_vsrc_data(voltage, time, ffi_string_utf8(node), ngspice_id)
 
@@ -416,6 +424,7 @@ class NgSpiceShared:
 
     @staticmethod
     def _get_isrc_data(current, time, node, ngspice_id, user_data):
+        """FFI Callback"""
         self = ffi.from_handle(user_data)
         return self.get_isrc_data(current, time, ffi_string_utf8(node), ngspice_id)
 
