@@ -35,7 +35,7 @@ class MyNgSpiceShared(NgSpiceShared):
     def __init__(self, amplitude, frequency, **kwargs):
 
         super().__init__(**kwargs)
-        
+
         self._amplitude = amplitude
         self._pulsation = float(frequency.pulsation)
 
