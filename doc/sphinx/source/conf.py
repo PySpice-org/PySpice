@@ -227,6 +227,8 @@ htmlhelp_basename = 'PySpice'
 #
 
 # The paper size ('letter' or 'a4').
+# WARNING: latex_paper_size is deprecated. Use latex_elements['papersize'] instead.
+# Fixme: don't work ???
 latex_paper_size = 'a4'
 
 # The font size ('10pt', '11pt' or '12pt').
