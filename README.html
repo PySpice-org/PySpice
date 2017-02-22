@@ -3,13 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
 <title></title>
 <style type="text/css">
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 7614 2013-02-21 15:55:51Z milde $
+:Id: $Id: html4css1.css 7952 2016-07-26 18:15:59Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
@@ -36,6 +36,14 @@ table.borderless td, table.borderless th {
 
 .hidden {
   display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
 
 a.toc-backref {
   text-decoration: none ;
@@ -161,18 +169,23 @@ h2.subtitle {
 hr.docutils {
   width: 75% }
 
-img.align-left, .figure.align-left, object.align-left {
+img.align-left, .figure.align-left, object.align-left, table.align-left {
   clear: left ;
   float: left ;
   margin-right: 1em }
 
-img.align-right, .figure.align-right, object.align-right {
+img.align-right, .figure.align-right, object.align-right, table.align-right {
   clear: right ;
   float: right ;
   margin-left: 1em }
 
 img.align-center, .figure.align-center, object.align-center {
   display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
   margin-left: auto;
   margin-right: auto;
 }
@@ -193,6 +206,15 @@ div.align-right {
 
 /* div.align-center * { */
 /*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
 
 ol.simple, ul.simple {
   margin-bottom: 1em }
@@ -375,6 +397,14 @@ ul.auto-toc {
 </div>
 <div class="section" id="news">
 <h1>News</h1>
+<div class="section" id="v0-3-1">
+<h2>V0.3.1</h2>
+<blockquote>
+<ul class="simple">
+<li>fixed ngspice shared</li>
+</ul>
+</blockquote>
+</div>
 <div class="section" id="v0-3-0">
 <h2>V0.3.0</h2>
 <blockquote>
@@ -463,16 +493,16 @@ included in the <em>tools</em> directory. This tool could be extended to generat
 <div class="section" id="advertisements">
 <h1>Advertisements</h1>
 <p>Users should be aware of these advertisements.</p>
-<div class="warning">
+<div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">The API is quite unstable until now. Some efforts is made to have a smooth API.</p>
 </div>
-<div class="warning">
+<div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">Ngspice and PySpice are provided without any warranty. Thus use it with care for real
 design. Best is to cross check the simulation using an industrial grade simulator.</p>
 </div>
-<div class="warning">
+<div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">Simulation is a tool and not a perfect representation of the real world.</p>
 </div>
@@ -519,7 +549,7 @@ many experimental codes that have side effects. The recommended way to compile N
 the manual and the <tt class="docutils literal">INSTALLATION</tt> file. Ngspice is an example of complex software where we should
 not enable everything without care.</p>
 <!-- :file:`INSTALLATION` -->
-<div class="warning">
+<div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">For the following, the compilation option <strong>--enable-ndev</strong> is known to broke the server mode.</p>
 </div>

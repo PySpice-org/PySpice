@@ -4,6 +4,11 @@
  News
 ======
 
+V0.3.1
+------
+
+ * fixed ngspice shared
+
 V0.3.0
 ------
 

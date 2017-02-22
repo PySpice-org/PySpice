@@ -113,10 +113,14 @@ The latest documentation build from the git repository is available at readthedo
 
 Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
 
+|Build Status|
+
 |Pypi License|
 |Pypi Python Version|
 
 |Pypi Version|
+|Pypi Format|
+|Pypi Download|
 
 -----
 
@@ -125,6 +129,11 @@ Written by `Fabrice Salvaire <http://fabrice-salvaire.pagesperso-orange.fr>`_.
 ======
  News
 ======
+
+V0.3.1
+------
+
+ * fixed ngspice shared
 
 V0.3.0
 ------
