@@ -274,19 +274,19 @@ class ElementParameterMetaClass(type):
                 # else:
                 #     raise NotImplementedError
                 d[attribute_name] = obj
-        
+
         # Build dictionnary : attribute_name -> parameter
         attributes['_positional_parameters'] = OrderedDict(sorted(list(positional_parameters.items()),
                                                                   key=lambda t: t[1].position))
-        
+
         # optional parameter order is not required for SPICE, but for unit test
         attributes['_optional_parameters'] = OrderedDict(sorted(list(parameters.items()), key=lambda t: t[0]))
-        
+
         # Positional parameter array
         attributes['_parameters_from_args'] = [parameter
                                                for parameter in sorted(positional_parameters.values())
                                                if not parameter.key_parameter]
-        
+
         # Implement alias for parameters
         attributes['_spice_to_parameters'] = {parameter.spice_name:parameter
                                               for parameter in attributes['_optional_parameters'].values()}
@@ -294,7 +294,7 @@ class ElementParameterMetaClass(type):
             if (parameter.spice_name in attributes
                 and parameter.spice_name != parameter.attribute_name):
                 _module_logger.error('Spice parameter "{}" clash with attributes'.format(parameter.spice_name))
-        
+
         return super().__new__(cls, class_name, super_classes, attributes)
 
     ##############################################
@@ -302,7 +302,7 @@ class ElementParameterMetaClass(type):
     def __init__(cls, class_name, super_classes, attributes):
 
         type.__init__(cls, class_name, super_classes, attributes)
-        
+
         # Collect basic element classes
         if 'prefix' in attributes:
             prefix = attributes['prefix']
