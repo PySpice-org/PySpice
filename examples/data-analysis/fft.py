@@ -34,7 +34,7 @@ y = np.sin(2*np.pi * frequency1 * t) + .5 * np.sin(2*np.pi * frequency2 * t)
 
 yf = fft(y)
 tf = np.linspace(.0, 1./(2.*dt), N/2)
-spectrum = 2./N * np.abs(yf[0:N/2])
+spectrum = 2./N * np.abs(yf[0:N//2])
 
 figure1 = plt.figure(1, (20, 10))
 plt.plot(tf, spectrum, 'o-')
@@ -86,7 +86,7 @@ plt.ylim(-1.5, 1.5)
 
 yf = fft(y)
 tf = np.linspace(.0, 1./(2.*dt), N/2)
-spectrum = 2./N * np.abs(yf[0:N/2])
+spectrum = 2./N * np.abs(yf[0:N//2])
 
 plt.subplot(212)
 plt.plot(tf, spectrum)
