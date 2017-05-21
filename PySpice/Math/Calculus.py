@@ -108,7 +108,7 @@ def get_finite_difference_coefficients(derivative_order, accuracy_order, grid_ty
 ####################################################################################################
 
 def simple_derivative(x, values):
-    """ Compute the derivative as a simple slope. """ 
+    """ Compute the derivative as a simple slope. """
     return x[:-1], np.diff(values)/np.diff(x)
 
 ####################################################################################################
@@ -162,9 +162,3 @@ def derivative(x, values, derivative_order=1, accuracy_order=4):
         derivative_view += values[lower_index + offset:upper_index + offset] * coefficient
 
     return derivative / dx**derivative_order
-
-####################################################################################################
-# 
-# End
-# 
-####################################################################################################

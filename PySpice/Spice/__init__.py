@@ -58,9 +58,3 @@ for element_class in spice_elements + high_level_elements:
         function_name = element_class.__name__
 
     setattr(Netlist, function_name, _make_function(element_class))
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

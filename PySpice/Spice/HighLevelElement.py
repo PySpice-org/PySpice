@@ -329,7 +329,7 @@ class PieceWiseLinear(VoltageSource):
 
     Spice Syntax::
 
-        PWL( T1 V1 <T2 V2 T3 V3 T4 V4 ... > ) <r=value> <td=value>    
+        PWL( T1 V1 <T2 V2 T3 V3 T4 V4 ... > ) <r=value> <td=value>
 
     Each pair of values (Ti , Vi) specifies that the value of the source is Vi (in Volts or Amps) at
     time = Ti . The value of the source at intermediate values of time is determined by using linear
@@ -551,9 +551,3 @@ class RandomVoltage(VoltageSource):
                 join_list((random_type, self.duration, self.time_delay,
                            self.parameter1, self.parameter2)) +
                 ')')
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

@@ -97,7 +97,7 @@ class SpiceServer:
         """Parse stdout for errors."""
 
         # self._logger.debug('\n' + stdout)
-        
+
         error_found = False
         # UnicodeDecodeError: 'utf-8' codec can't decode byte 0xc0 in position 870: invalid start byte
         # lines = stdout.decode('utf-8').splitlines()
@@ -116,7 +116,7 @@ class SpiceServer:
         """Parse stderr for warnings and return the number of points."""
 
         self._logger.debug('\n' + stderr)
-        
+
         stderr_lines = stderr.splitlines()
         number_of_points = None
         for line in stderr_lines:
@@ -126,7 +126,7 @@ class SpiceServer:
                 raise NameError("Simulation aborted\n" + stderr)
             elif line.startswith('@@@'):
                 number_of_points = self._decode_number_of_points(line)
-        
+
         return number_of_points
 
     ##############################################
@@ -139,7 +139,7 @@ class SpiceServer:
         """
 
         self._logger.info("Start the spice subprocess")
-        
+
         process = subprocess.Popen((self._spice_command, '-s'),
                                    stdin=subprocess.PIPE,
                                    stdout=subprocess.PIPE,
@@ -148,18 +148,12 @@ class SpiceServer:
         stdout, stderr = process.communicate(input_)
         # stdout = stdout.decode('utf-8')
         stderr = stderr.decode('utf-8')
-        
+
         self._parse_stdout(stdout)
         number_of_points = self._parse_stderr(stderr)
         if number_of_points is None:
             raise NameError("The number of points was not found in the standard error buffer,"
                             " ngspice returned:\n" +
                             stderr)
-        
-        return RawFile(stdout, number_of_points)
 
-####################################################################################################
-#
-# End
-#
-####################################################################################################
+        return RawFile(stdout, number_of_points)

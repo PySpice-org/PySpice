@@ -181,7 +181,7 @@ class Plot(dict):
 
     def nodes(self, to_float=False, abscissa=None):
 
-        return [variable.to_waveform(abscissa, to_float=to_float) 
+        return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.values()
                 if variable.is_voltage_node()]
 
@@ -197,7 +197,7 @@ class Plot(dict):
 
     def elements(self, abscissa=None):
 
-        return [variable.to_waveform(abscissa, to_float=True) 
+        return [variable.to_waveform(abscissa, to_float=True)
                 for variable in self.values()]
 
     ##############################################
@@ -566,9 +566,3 @@ class NgSpiceShared:
             i += 1
 
         return plot
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

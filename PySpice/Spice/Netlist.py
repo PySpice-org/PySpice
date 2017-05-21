@@ -924,9 +924,3 @@ class Circuit(Netlist):
             return NgSpiceSharedCircuitSimulator(self, *args, **kwargs)
         else:
             return ValueError('Unknown simulator type')
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

@@ -1475,14 +1475,8 @@ class TransmissionLine(TwoPortElement):
         if not (('time_delay' in kwargs) ^
                 (('frequency' in kwargs) & ('normalized_length' in kwargs))):
             raise NameError('Either TD or F, NL must be specified')
-        
+
         super().__init__(name,
                          output_node_plus, output_node_minus,
                          input_node_plus, input_node_minus, # Fixme: inverted inputs
                          *args, **kwargs)
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

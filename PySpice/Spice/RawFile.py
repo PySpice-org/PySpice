@@ -182,7 +182,7 @@ class Variable:
             data = data.real
         if to_float:
             data = float(data[0])
-        
+
         return WaveForm(self.simplified_name, self.unit, data, abscissa=abscissa)
 
 ####################################################################################################
@@ -227,7 +227,7 @@ class RawFile:
     def __init__(self, stdout, number_of_points):
 
         self.number_of_points = number_of_points
-        
+
         raw_data = self._read_header(stdout)
         self._read_variable_data(raw_data)
         # self._to_analysis()
@@ -237,7 +237,7 @@ class RawFile:
     def _read_header(self, stdout):
 
         """ Parse the header """
-        
+
         binary_line = b'Binary:\n'
         binary_location = stdout.find(binary_line)
         if binary_location < 0:
@@ -247,7 +247,7 @@ class RawFile:
         header_lines = stdout[:binary_location].splitlines()
         raw_data = stdout[raw_data_start:]
         header_line_iterator = iter(header_lines)
-        
+
         self.circuit = self._read_header_field_line(header_line_iterator, 'Circuit')
         self.temperature = self._read_header_line(header_line_iterator, 'Doing analysis at TEMP')
         self.warnings = [self._read_header_field_line(header_line_iterator, 'Warning')
@@ -271,7 +271,7 @@ class RawFile:
             index, name, unit = items[:3]
             self.variables[name] = Variable(index, name, unit)
         # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
-        
+
         return raw_data
 
     ##############################################
@@ -332,7 +332,7 @@ class RawFile:
             number_of_columns = 2*self.number_of_variables
         else:
             raise NotImplementedError
-        
+
         input_data = np.fromstring(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
         input_data = input_data.reshape((self.number_of_points, number_of_columns))
         input_data = input_data.transpose()
@@ -383,7 +383,7 @@ class RawFile:
     def to_analysis(self, circuit):
 
         self.fix_case(circuit)
-        
+
         if self.plot_name == 'Operating Point':
             return self._to_operating_point_analysis()
         elif self.plot_name == 'Sensitivity Analysis':
@@ -420,7 +420,7 @@ class RawFile:
         elif 'v(i-sweep)' in self.variables:
             sweep_variable = self.variables['v(i-sweep)']
         else:
-            # 
+            #
             raise NotImplementedError
         sweep = sweep_variable.to_waveform()
         return DcAnalysis(sweep, nodes=self.nodes(), branches=self.branches())
@@ -438,9 +438,3 @@ class RawFile:
 
         time = self.variables['time'].to_waveform(to_real=True)
         return TransientAnalysis(time, nodes=self.nodes(abscissa=time), branches=self.branches(abscissa=time))
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

@@ -55,9 +55,3 @@ def bode_diagram_phase(axe, frequency, phase, **kwargs):
 def bode_diagram(axes, frequency, gain, phase, **kwargs):
     bode_diagram_gain(axes[0], frequency, gain, **kwargs)
     bode_diagram_phase(axes[1], frequency, phase, **kwargs)
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

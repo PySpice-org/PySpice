@@ -52,7 +52,7 @@ class PrefixData:
 
         self.prefix = prefix
         self.classes = classes
-        
+
         number_of_positionals_min = 1000
         number_of_positionals_max = 0
         has_optionals = False
@@ -61,11 +61,11 @@ class PrefixData:
             number_of_positionals_min = min(number_of_positionals_min, number_of_positionals)
             number_of_positionals_max = max(number_of_positionals_max, number_of_positionals)
             has_optionals = max(has_optionals, bool(element_class.optional_parameters))
-        
+
         self.number_of_positionals_min = number_of_positionals_min
         self.number_of_positionals_max = number_of_positionals_max
         self.has_optionals = has_optionals
-        
+
         self.multi_devices = len(classes) > 1
         self.npins = prefix in ('Q', 'X') # NPinElement, Q has 3 to 4 pins
         if self.npins:
@@ -73,7 +73,7 @@ class PrefixData:
         else:
             # Q and X are single
             self.number_of_pins = classes[0].number_of_pins
-        
+
         self.has_flag = False
         for element_class in classes:
             for parameter in element_class.optional_parameters.values():
@@ -314,10 +314,10 @@ class Element(Token):
     def __init__(self, line):
 
         super().__init__(line)
-        
+
         line_str = str(line)
         # self._logger.debug('\n' + line_str)
-        
+
         # Retrieve device prefix
         self._prefix = line_str[0]
         prefix_data = _prefix_cache[self._prefix]
@@ -327,11 +327,11 @@ class Element(Token):
         stop_location = line_str.find(' ')
         # Fixme: if stop_location == -1:
         self._name = line_str[start_location:stop_location]
-        
+
         self._nodes = []
         self._parameters = []
         self._dict_parameters = {}
-        
+
         # Read nodes
         if not prefix_data.npins:
             number_of_pins = prefix_data.number_of_pins
@@ -345,7 +345,7 @@ class Element(Token):
                 args, stop_location = self._line.split_words(stop_location, until='=')
                 self._nodes = args[:-1]
                 self._parameters.append(args[-1]) # model name
-        
+
         # Read positionals
         number_of_positionals = prefix_data.number_of_positionals_min
         if number_of_positionals and stop_location is not None: # model is optional
@@ -353,11 +353,11 @@ class Element(Token):
         if prefix_data.multi_devices and stop_location is not None:
             remaining, stop_location = self._line.split_words(stop_location, until='=')
             self._parameters.extend(remaining)
-        
+
         if prefix_data.prefix in ('V', 'I') and stop_location is not None:
             # merge remaining
             self._parameters[-1] += line_str[stop_location:]
-        
+
         # Read optionals
         if prefix_data.has_optionals and stop_location is not None:
             kwargs, stop_location = self._line.split_words(stop_location)
@@ -371,7 +371,7 @@ class Element(Token):
                     else:
                         self._logger.warn(line_str)
                         # raise NameError("Bad element line:", line_str)
-        
+
         if prefix_data.multi_devices:
             for element_class in prefix_data:
                 if len(self._parameters) == element_class.number_of_positional_parameters:
@@ -379,7 +379,7 @@ class Element(Token):
         else:
             element_class = prefix_data.single
         self.factory = element_class
-        
+
         # Move positionals passed as kwarg
         to_delete = []
         for parameter in element_class.positional_parameters.values():
@@ -389,7 +389,7 @@ class Element(Token):
                 to_delete.append(i)
         for i in to_delete:
             del self._parameters[i]
-        
+
         self._logger.debug('\n' + self.__repr__())
 
     ##############################################
@@ -425,7 +425,7 @@ class Line:
             comment = text[location:]
         else:
             comment = ''
-        
+
         self._text = text
         self._comment = comment
         self._line_range = line_range
@@ -472,7 +472,7 @@ class Line:
                     start_location = stop_location
                 else: # we have read a space
                     start_location += 1
-        
+
         return words, stop_location
 
     ##############################################
@@ -490,10 +490,10 @@ class Line:
                     stop_location = location
                 else:
                     raise NameError("Bad element line, missing key? " + line_str)
-        
+
         line_str = line_str[start_location:stop_location]
         words = [x for x in line_str.split(' ') if x]
-        
+
         return words, stop_location
 
     ##############################################
@@ -549,7 +549,7 @@ class SpiceParser:
             raw_lines = source.split('\n') # Fixme: other os
         else:
             raise ValueError
-        
+
         lines = self._merge_lines(raw_lines)
         self._title = None
         self._tokens = self._parse(lines)
@@ -560,7 +560,7 @@ class SpiceParser:
     def _merge_lines(self, raw_lines):
 
         """Merge broken lines and return a new list of lines.
-        
+
         A line starting with "+" continues the preceding line.
         """
 
@@ -665,13 +665,13 @@ class SpiceParser:
     def build_circuit(self, ground=0):
 
         ground = str(ground)
-        
+
         circuit = Circuit(str(self._title))
-        
+
         for token in self._tokens:
             if isinstance(token, Include):
                 circuit.include(str(token))
-        
+
         for token in self._tokens:
             if isinstance(token, Element):
                 factory = getattr(circuit, token.factory.alias)
@@ -689,7 +689,7 @@ class SpiceParser:
                                                      token._parameters, token._dict_parameters)])
                 self._logger.debug(message)
                 factory(token._name, *args, **kwargs)
-        
+
         return circuit
 
     ##############################################
@@ -711,7 +711,7 @@ class SpiceParser:
     def to_python_code(self, ground=0):
 
         ground = str(ground)
-        
+
         # for token in self._tokens:
         #     if isinstance(token, Include):
         #         circuit.include(str(token))
@@ -721,7 +721,7 @@ class SpiceParser:
         else:
             title = '...'
         circuit = "circuit = Circuit('{}')\n".format(title)
-        
+
         for token in self._tokens:
             if isinstance(token, Element):
                 nodes = []
@@ -738,11 +738,5 @@ class SpiceParser:
                           for key, value in token._dict_parameters.items()]
                 parameters = ', '.join(args + kwargs)
                 circuit += "circuit.{}({})\n".format(token._prefix, parameters)
-        
-        return circuit
 
-####################################################################################################
-#
-# End
-#
-####################################################################################################
+        return circuit

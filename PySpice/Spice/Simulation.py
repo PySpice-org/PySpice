@@ -54,15 +54,15 @@ class CircuitSimulation:
                 ):
 
         self._circuit = circuit
-        
+
         self._options = {} # .options
         self._initial_condition = {} # .ic
         self._saved_nodes = ()
         self._analysis_parameters = {}
-        
+
         self.temperature = temperature
         self.nominal_temperature = nominal_temperature
-        
+
         if pipe:
             self.options('NOINIT')
             self.options(filetype='binary')
@@ -217,7 +217,7 @@ class CircuitSimulation:
 
         if variation not in ('dec', 'oct', 'lin'):
             raise ValueError("Incorrect variation type")
-        
+
         self._analysis_parameters['sens'] = (output_variable,
                                              variation, number_of_points, start_frequency, stop_frequency)
 
@@ -407,7 +407,7 @@ class SubprocessCircuitSimulator(CircuitSimulator):
         # Fixme: kwargs
 
         super().__init__(circuit, temperature, nominal_temperature, pipe=True)
-        
+
         self._spice_server = SpiceServer()
 
     ##############################################
@@ -415,13 +415,13 @@ class SubprocessCircuitSimulator(CircuitSimulator):
     def _run(self, analysis_method, *args, **kwargs):
 
         super()._run(analysis_method, *args, **kwargs)
-        
+
         raw_file = self._spice_server(str(self))
         self.reset_analysis()
-        
+
         # for field in raw_file.variables:
         #     print field
-        
+
         return raw_file.to_analysis(self._circuit)
 
 ####################################################################################################
@@ -441,7 +441,7 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
         # Fixme: kwargs
 
         super().__init__(circuit, temperature, nominal_temperature, pipe=False)
-        
+
         if ngspice_shared is None:
             self._ngspice_shared = NgSpiceShared(send_data=False)
         else:
@@ -452,12 +452,12 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
     def _run(self, analysis_method, *args, **kwargs):
 
         super()._run(analysis_method, *args, **kwargs)
-        
+
         self._ngspice_shared.load_circuit(str(self))
         self._ngspice_shared.run()
         self._logger.debug(str(self._ngspice_shared.plot_names))
         self.reset_analysis()
-        
+
         if analysis_method == 'dc':
             plot_name = 'dc1'
         elif analysis_method == 'ac':
@@ -466,11 +466,5 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
             plot_name = 'tran1'
         else:
             raise NotImplementedError
-        
-        return self._ngspice_shared.plot(plot_name).to_analysis()
 
-####################################################################################################
-#
-# End
-#
-####################################################################################################
+        return self._ngspice_shared.plot(plot_name).to_analysis()

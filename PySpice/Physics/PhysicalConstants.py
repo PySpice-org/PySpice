@@ -55,16 +55,10 @@ def kelvin_to_degree(x):
 
 def temperature(degree=None, kelvin=None):
     if degree is not None:
-        return degree_to_kelvin(degree) 
+        return degree_to_kelvin(degree)
     else:
         return kelvin
 
 # kT at 300 K = [38.681 731(35)]−1 eV
 def kT(degree=None, kelvin=None):
-    return k*temperature(degree=degree, kelvin=kelvin) 
-
-####################################################################################################
-# 
-# End
-# 
-####################################################################################################
+    return k*temperature(degree=degree, kelvin=kelvin)

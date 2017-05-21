@@ -72,19 +72,19 @@ class Path:
         self._path = str(path)
 
     ##############################################
-        
+
     def __bool__(self):
 
         return os.path.exists(self._path)
 
     ##############################################
-        
+
     def __str__(self):
 
         return self._path
 
     ##############################################
-        
+
     @property
     def path(self):
 
@@ -139,44 +139,44 @@ class Path:
         return self.__class__(path)
 
     ##############################################
-        
+
     def split(self):
 
         return self._path.split(os.path.sep)
 
     ##############################################
-        
+
     def directory_part(self):
 
         return Directory(os.path.dirname(self._path))
 
     ##############################################
-        
+
     def filename_part(self):
 
         return os.path.basename(self._path)
 
     ##############################################
-        
+
     def is_directory(self):
 
         return os.path.isdir(self._path)
 
     ##############################################
-        
+
     def is_file(self):
 
         return os.path.isfile(self._path)
 
     ##############################################
-        
+
     @property
     def inode(self):
 
         return os.stat(self._path).st_ino
 
     ##############################################
-        
+
     @property
     def creation_time(self):
 
@@ -187,7 +187,7 @@ class Path:
 class Directory(Path):
 
     ##############################################
-        
+
     def __bool__(self):
 
         return super().__nonzero__() and self.is_directory()
@@ -238,29 +238,29 @@ class File(Path):
         self._directory = self.directory_part()
 
         self._shasum = None # lazy computation
- 
+
     ##############################################
-        
+
     def __bool__(self):
 
         return super().__nonzero__() and os.path.isfile(self._path)
 
     ##############################################
-        
+
     @property
     def directory(self):
 
         return self._directory
 
     ##############################################
-        
+
     @property
     def filename(self):
 
         return self._filename
 
     ##############################################
-        
+
     @property
     def extension(self):
 
@@ -277,7 +277,7 @@ class File(Path):
             return self._shasum
 
     ##############################################
-        
+
     def compute_shasum(self, algorithm=None):
 
         if algorithm is None:
@@ -285,9 +285,3 @@ class File(Path):
         self._shasum = run_shasum(self._path, algorithm, portable=True)
 
         return self._shasum
-
-####################################################################################################
-# 
-# End
-# 
-####################################################################################################
