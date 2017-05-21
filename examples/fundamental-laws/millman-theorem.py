@@ -78,9 +78,3 @@ branch_currents = np.arange(1, number_of_branches +1) * float(micro(100))
 voltage_A += np.sum(branch_currents) / np.sum(conductances)
 print('V(A) = {:5.2f} V'.format(voltage_A))
 #o#
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

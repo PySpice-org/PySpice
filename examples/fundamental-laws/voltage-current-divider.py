@@ -76,9 +76,3 @@ analysis = simulator.operating_point()
 for node in analysis.branches.values():
     print('Node {}: {:5.2f} A'.format(str(node), float(node))) # Fixme: format value + unit
 #o#
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

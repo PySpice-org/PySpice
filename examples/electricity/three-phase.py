@@ -55,7 +55,7 @@ L3 = amplitude_mono * np.cos(t*w - 4*math.pi/3)
 #!#   V_{L1 - L2} = V_{L1} \sqrt{3} e^{j \frac{\pi}{6} } \\
 #!#   V_{L2 - L3} = V_{L2} \sqrt{3} e^{j \frac{\pi}{6} } \\
 #!#   V_{L3 - L1} = V_{L3} \sqrt{3} e^{j \frac{\pi}{6} }
-#!# 
+#!#
 #!# In comparison to the Y configuration, the voltages in delta configuration are magnified by
 #!# a factor :math:`\sqrt{3}` and dephased of :math:`\frac{\pi}{6}`.
 #!#
@@ -93,9 +93,3 @@ plt.axhline(y=-rms_tri, color='blue')
 plt.show()
 
 #fig# save_figure(figure, 'three-phase.png')
-
-####################################################################################################
-# 
-# End
-# 
-####################################################################################################

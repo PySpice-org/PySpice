@@ -141,9 +141,3 @@ plt.show()
 
 #!# We observe the forward voltage threshold increase with the temperature.
 #?# #!# Indeed the thermal agitation overcome the electron flow.
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

@@ -39,9 +39,3 @@ class RingModulator(SubCircuitFactory):
         output_inductor = self.L('output', 'output_plus', 'output_minus', outer_inductance)
         self.CoupledInductor('output_top', output_inductor.name, top_inductor.name, coupling)
         self.CoupledInductor('output_bottom', output_inductor.name, bottom_inductor.name, coupling)
-
-####################################################################################################
-# 
-# End
-# 
-####################################################################################################

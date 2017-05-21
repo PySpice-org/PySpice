@@ -27,9 +27,3 @@ for node in (analysis['in'], analysis.out): # .in is invalid !
 analysis = simulator.dc_sensitivity('v(out)')
 for element in analysis.elements.values():
     print(element, float(element))
-
-####################################################################################################
-# 
-# End
-# 
-####################################################################################################

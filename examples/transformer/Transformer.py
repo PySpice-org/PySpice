@@ -52,9 +52,3 @@ class Transformer(SubCircuitFactory):
 
         # Coupling
         self.CoupledInductor('coupling', primary_inductor.name, secondary_inductor.name, coupling)
-
-####################################################################################################
-# 
-# End
-# 
-####################################################################################################

@@ -45,7 +45,7 @@ for voltage in (dc_offset - ac_amplitude, dc_offset, dc_offset + ac_amplitude):
     quiescent_points.append(dict(voltage=voltage,
                                  quiescent_voltage=quiescent_voltage, quiescent_current=quiescent_current))
     print("Quiescent {:.1f} mV {:.1f} mA".format(quiescent_voltage*1e3, quiescent_current*1e3))
-dynamic_resistance = ((quiescent_points[0]['quiescent_voltage'] - 
+dynamic_resistance = ((quiescent_points[0]['quiescent_voltage'] -
                        quiescent_points[-1]['quiescent_voltage'])
                       /
                       (quiescent_points[0]['quiescent_current'] -
@@ -117,9 +117,3 @@ plt.tight_layout()
 plt.show()
 
 #fig# save_figure(figure, 'diode-recovery-time.png')
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################
