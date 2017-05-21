@@ -8,7 +8,7 @@ Tutorials
 ---------
 
 This `blog page
-<http://fabrice-salvaire.pagesperso-orange.fr/open-hardware/simulation/spice/index.html>`_ gives an
+<https://www.fabrice-salvaire.fr/en/blog/first-steps-with-spice>`_ gives an
 introduction to SPICE and explain how to plug *ngspice* to Python.
 
 Similar Projects
