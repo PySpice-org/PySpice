@@ -25,9 +25,3 @@ args = argument_parser.parse_args()
 
 CircuitMacrosGenerator.generate(os.path.realpath(args.m4_path),
                                os.path.realpath(args.dst_path))
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

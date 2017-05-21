@@ -2,7 +2,7 @@
 # -*- python -*-
 
 ####################################################################################################
-# 
+#
 # PySpice - A Spice package for Python
 # Copyright (C) 2014 Salvaire Fabrice
 #
@@ -12,7 +12,7 @@
 
 import argparse
 import ast
-    
+
 ####################################################################################################
 #
 # Options
@@ -94,7 +94,7 @@ class AttributeVisitor(ast.NodeVisitor):
         print '\nClass %s' % (self._class_name)
         print '''
     """
-    
+
     Private Attributes:'''
         for attribute_name in sorted(private_attributes):
             print '\n      :attr:`%s`' % (attribute_name)
@@ -111,9 +111,3 @@ class AttributeVisitor(ast.NodeVisitor):
 source = open(args.file_name).read()
 source_ast = ast.parse(source, args.file_name)
 AttributeVisitor().visit(source_ast)
-
-####################################################################################################
-# 
-# End
-# 
-####################################################################################################

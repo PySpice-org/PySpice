@@ -253,7 +253,7 @@ class LocaleFigureChunk(ImageChunk):
         figure_absolut_path = os.path.join(source_directory, figure_path)
         link_path = os.path.join(rst_directory, figure_filename)
         super().__init__(figure_filename)
-        
+
         if not os.path.exists(link_path):
             os.symlink(figure_absolut_path, link_path)
 
@@ -337,7 +337,7 @@ class OutputChunk(Chunk):
         if self._output_marker_index:
             lower += self._output_marker_index
             upper += self._output_marker_index
-        
+
         template = '''
 .. literalinclude:: {}
     :lines: {}-{}
@@ -460,7 +460,7 @@ class Example:
         """
 
         working_directory = os.path.dirname(self._path)
-        
+
         # tmp_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir(), prefix='PySpice-', suffix='.py', mode='w')
         tmp_file = tempfile.NamedTemporaryFile(dir=working_directory,
                                                prefix='__example_rst_factory__', suffix='.py', mode='w')
@@ -483,7 +483,7 @@ class Example:
             elif not line.startswith('pylab.show') and not line.startswith('plt.show'):
                 tmp_file.write(line)
         tmp_file.flush()
-        
+
         self._logger.info("\nRun example " + self._path)
         with open(self.stdout_path, 'w') as stdout:
             with open(self.stderr_path, 'w') as stderr:
@@ -632,7 +632,7 @@ class Example:
         # Fixme: add last empty line ?
         if start <= last_i:
             self._stdout_chunks.append((start, last_i))
-        
+
         has_title= False
         for chunck in self._chuncks:
             if isinstance(chunck, RstChunk):
@@ -659,7 +659,7 @@ class Example:
         link_path = self._topic.join_rst_path(python_file_name)
         if not os.path.exists(link_path):
             os.symlink(self._path, link_path)
-        
+
         includes = """
 .. include:: /project-links.txt
 .. include:: /abbreviation.txt
@@ -1025,9 +1025,3 @@ class ExampleRstFactory:
     def register_failure(self, example):
 
         self._example_failures.append(example)
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- Python -*-
 
 ####################################################################################################
@@ -14,9 +14,3 @@ with open('README.rst', 'w') as f:
 
 # subprocess.call('python setup.py --long-description | rst2html > /dev/null', shell=True)
 subprocess.call('python setup.py --long-description | rst2html > README.html', shell=True)
-
-####################################################################################################
-# 
-# End
-# 
-####################################################################################################

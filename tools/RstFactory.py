@@ -61,7 +61,7 @@ class RstFactory:
     def _process_recursively(self):
 
         """ Process recursively the inner Python files and directories. """
-        
+
         for module_path, sub_directories, files in os.walk(self._root_module_path, followlinks=True):
             for sub_directory in list(sub_directories):
                 if os.path.join(module_path, sub_directory) in self._excluded_directory:
@@ -90,7 +90,7 @@ class RstFactory:
 
         if not os.path.exists(dst_directory):
             os.mkdir(dst_directory)
-        
+
         # Generate a RST file per module
         module_names = []
         for file_name in python_files:
@@ -101,7 +101,7 @@ class RstFactory:
             rst_file_name = os.path.join(dst_directory, module_name + '.rst')
             with open(rst_file_name, 'w') as f:
                 f.write(rst)
-        
+
         # Generate the TOC RST file
         rst = self._generate_toc(directory_module_name, sorted(module_names + sub_modules))
         rst += '\n'
@@ -115,7 +115,7 @@ class RstFactory:
 
     @staticmethod
     def is_python_directory_module(path):
-        
+
         return os.path.exists(os.path.join(path, RstFactory.init_file_name))
 
     ##############################################
@@ -177,7 +177,7 @@ class RstFactory:
 %(header_line)s
 %(mod)s%(module_name)s`
 %(header_line)s"""
-        
+
         rst = template.lstrip() % dict(
             module_name=module_name,
             mod=mod_rst,
@@ -194,7 +194,7 @@ class RstFactory:
 
 .. toctree::
 """
-    
+
         rst = template.lstrip() % dict(
             title=self._generate_title(directory_module_name),
             )
@@ -213,7 +213,7 @@ class RstFactory:
    :members:
    :show-inheritance:
 """
-        
+
         rst = template.lstrip() % dict(
             module_path=module_path,
             )
@@ -228,7 +228,7 @@ class RstFactory:
 
 %(automodule)s
 """
-        
+
         rst = template.lstrip() % dict(
             title=self._generate_title(module_name),
             automodule=self._generate_automodule(RstFactory.join_python_path(module_path, module_name))
@@ -236,9 +236,3 @@ class RstFactory:
         rst += self.end_marker
 
         return rst
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

@@ -47,9 +47,9 @@ def generate(m4_path,
     # Create a temporary directory, it is automatically deleted
     tmp_dir = tempfile.TemporaryDirectory()
     _module_logger.info('Temporary directory ' + tmp_dir.name)
-    
+
     picture_tex_path = os.path.join(tmp_dir.name, 'picture.tex')
-    
+
     picture_tex_header = r'''
 \documentclass[11pt]{article}
 \usepackage{tikz}
@@ -58,7 +58,7 @@ def generate(m4_path,
 \pagestyle{empty}
 \begin{document}
 '''
-    
+
     with open(picture_tex_path, 'w') as f:
         f.write(picture_tex_header)
 
@@ -83,7 +83,7 @@ def generate(m4_path,
         f.write(r'\end{document}')
 
     dev_null = open(os.devnull, 'w')
-    
+
     current_dir = os.curdir
     os.chdir(tmp_dir.name)
     subprocess.check_call(('pdflatex',
@@ -103,9 +103,3 @@ def generate(m4_path,
                            '-transparent', str(transparent),
                            pdf_path, png_path),
                           stdout=dev_null, stderr=subprocess.STDOUT)
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################
