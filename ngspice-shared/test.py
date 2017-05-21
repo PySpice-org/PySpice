@@ -120,7 +120,7 @@ def send_data_callback(data, number_of_vectors, ngspice_id, user_data):
         print("    Vector: {} {} +i {}".format(ffi.string(actual_vector_value.name),
                                                actual_vector_value.creal,
                                                actual_vector_value.cimag))
-      
+
     return 0
 #send_data_callback = ffi.NULL
 
@@ -221,9 +221,3 @@ while (True):
                 value = vector_info.v_compdata[k]
                 print("  [{}] {} + i {}".format(k, value.cx_real, value.cx_imag))
     i += 1
-
-####################################################################################################
-# 
-# End
-# 
-####################################################################################################
