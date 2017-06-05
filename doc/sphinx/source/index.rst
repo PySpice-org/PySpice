@@ -7,15 +7,6 @@
 
 Welcome to the PySpice documentation!
 
-.. note:: The official Home Page of PySpice is located at |PySpiceUrl|
-
-    If you are at http://readthedocs.org then you are reading the so called *latest documentation*.
-
-    The *latest documentation* |PySpice@readthedocs-badge| is automatically built from the
-    git repository after each commit.
-
-    As opposite the |PySpiceHomePage|_ is built manually and is thus less prone to errors.
-
 .. include:: news.txt
 .. include:: introduction.txt
 

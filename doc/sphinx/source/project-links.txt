@@ -15,19 +15,16 @@
    :height: 15px
    :width:  80px
 
-.. |PySpiceUrl| replace:: http://pyspice.fabrice-salvaire.fr
+.. |PySpiceUrl| replace:: https://pyspice.fabrice-salvaire.fr
 
 .. |PySpiceHomePage| replace:: PySpice Home Page
-.. _PySpiceHomePage: http://pyspice.fabrice-salvaire.fr
+.. _PySpiceHomePage: https://pyspice.fabrice-salvaire.fr
 
 .. |PySpice@readthedocs-badge| image:: https://readthedocs.org/projects/pyspice/badge/?version=latest
    :target: http://pyspice.readthedocs.org/en/latest
 
 .. |PySpice@github| replace:: https://github.com/FabriceSalvaire/PySpice
 .. .. _PySpice@github: https://github.com/FabriceSalvaire/PySpice
-
-.. |PySpice@readthedocs| replace:: http://pyspice.readthedocs.org
-.. .. _PySpice@readthedocs: http://pyspice.readthedocs.org
 
 .. |PySpice@pypi| replace:: https://pypi.python.org/pypi/PySpice
 .. .. _PySpice@pypi: https://pypi.python.org/pypi/PySpice
