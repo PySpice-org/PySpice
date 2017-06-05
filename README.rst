@@ -17,13 +17,10 @@
    :height: 15px
    :width:  80px
 
-.. |PySpiceUrl| replace:: http://fabricesalvaire.github.io/PySpice
+.. |PySpiceUrl| replace:: http://pyspice.fabrice-salvaire.fr
 
 .. |PySpiceHomePage| replace:: PySpice Home Page
-.. _PySpiceHomePage: http://fabricesalvaire.github.io/PySpice
-
-.. |PySpiceDoc| replace:: PySpice Documentation
-.. _PySpiceDoc: http://pyspice.readthedocs.org/en/latest
+.. _PySpiceHomePage: http://pyspice.fabrice-salvaire.fr
 
 .. |PySpice@readthedocs-badge| image:: https://readthedocs.org/projects/pyspice/badge/?version=latest
    :target: http://pyspice.readthedocs.org/en/latest
@@ -41,10 +38,6 @@
    :target: https://travis-ci.org/FabriceSalvaire/PySpice
    :alt: PySpice build status @travis-ci.org
 
-.. |Pypi Download| image:: https://img.shields.io/pypi/dm/PySpice.svg
-   :target: https://pypi.python.org/pypi/PySpice
-   :alt: PySpice Download per month
-
 .. |Pypi Version| image:: https://img.shields.io/pypi/v/PySpice.svg
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice last version
@@ -52,10 +45,6 @@
 .. |Pypi License| image:: https://img.shields.io/pypi/l/PySpice.svg
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice license
-
-.. |Pypi Format| image:: https://img.shields.io/pypi/format/PySpice.svg
-   :target: https://pypi.python.org/pypi/PySpice
-   :alt: PySpice format
 
 .. |Pypi Python Version| image:: https://img.shields.io/pypi/pyversions/PySpice.svg
    :target: https://pypi.python.org/pypi/PySpice
@@ -109,18 +98,12 @@
 
 The official PySpice Home Page is located at |PySpiceUrl|
 
-The latest documentation build from the git repository is available at readthedocs.org |PySpice@readthedocs-badge|
-
 Written by `Fabrice Salvaire <http://fabrice-salvaire.fr>`_.
-
-|Build Status|
 
 |Pypi License|
 |Pypi Python Version|
 
 |Pypi Version|
-|Pypi Format|
-|Pypi Download|
 
 -----
 

@@ -9,18 +9,12 @@
 
 The official PySpice Home Page is located at |PySpiceUrl|
 
-The latest documentation build from the git repository is available at readthedocs.org |PySpice@readthedocs-badge|
-
 Written by `Fabrice Salvaire <http://fabrice-salvaire.fr>`_.
-
-|Build Status|
 
 |Pypi License|
 |Pypi Python Version|
 
 |Pypi Version|
-|Pypi Format|
-|Pypi Download|
 
 -----
 
