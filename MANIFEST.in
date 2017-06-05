@@ -17,9 +17,10 @@ include requirements.txt requirements-dev.txt
 include .travis.yml
 include bin/cir2py
 include bower/bower.json
-recursive-include PySpice *.py *.yml *.h
+recursive-include PySpice *.py *.yml *.h *py.in
 recursive-include doc *
 recursive-include doc/sphinx/source/_static *
+recursive-include doc/sphinx/source/_templates *
 recursive-include examples *
 recursive-include gh-pages *
 recursive-include spec *.spec *.desktop
@@ -30,7 +31,8 @@ recursive-include issues *.py *.lib
 global-exclude *~
 global-exclude *__pycache__*
 global-exclude *.pyc
+global-exclude *.pdf
 prune build
 prune doc/sphinx/build
-prune doc/sphinx/source/bower
-prune doc/sphinx/source/_static/MathJax
+prune doc/sphinx/source/api
+prune doc/sphinx/source/examples
