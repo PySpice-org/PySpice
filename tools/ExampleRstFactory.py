@@ -40,6 +40,16 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
+from PySpice.Spice.Netlist import Pin
+
+class MessageFilter(logging.Filter):
+    def filter(self, record):
+        return not record.getMessage().contains('Node in is a Python keyword')
+
+Pin._logger.addFilter(MessageFilter())
+
+####################################################################################################
+
 FIGURE_DIRECTORY = None
 
 ####################################################################################################
@@ -60,8 +70,7 @@ def sublist_accumulator_iterator(iterable):
 ####################################################################################################
 
 def save_figure(figure,
-                figure_filename,
-            ):
+                figure_filename):
 
     """ This function is called from example to save a figure. """
 
@@ -540,22 +549,12 @@ class Example:
         self._rst_chunck = RstChunk()
         self._code_chunck = CodeChunk()
 
-        line_index = 0
-        if self._source[0].startswith('# -*- coding: utf-8 -*-'):
-            has_coding = True
-            line_index += 1
-        else:
-            has_coding = False
-
-        footer_index = -6
-
-        lines = self._source[line_index:footer_index]
         # Use a while loop trick to remove consecutive blank lines
-        number_of_lines = len(lines)
+        number_of_lines = len(self._source)
         i = 0
         output_marker_index = 0
         while i < number_of_lines:
-            line = lines[i]
+            line = self._source[i]
             i += 1
             remove_next_blanck_line = True
             if (line.startswith('#?#')
@@ -596,19 +595,12 @@ class Example:
                 if self._rst_chunck:
                     self._append_rst_chunck()
                 self._code_chunck.append(line)
-            if remove_next_blanck_line and i < number_of_lines and not lines[i].strip():
+            if remove_next_blanck_line and i < number_of_lines and not self._source[i].strip():
                 i += 1
         if self._rst_chunck:
             self._append_rst_chunck()
         elif self._code_chunck:
             self._append_code_chunck()
-
-        if has_coding :
-            # Add the coding comment line in the first code block
-            for chunck in self._chuncks:
-                if isinstance(chunck, CodeChunk) and bool(chunck):
-                    chunck.append_head(self._source[0] + '\n')
-                    break
 
     ##############################################
 
@@ -635,6 +627,7 @@ class Example:
 
         has_title= False
         for chunck in self._chuncks:
+            # self._logger.info('Chunck {0.__class__.__name__}'.format(chunck))
             if isinstance(chunck, RstChunk):
                 content = str(chunck)
                 if '='*7 in content:
