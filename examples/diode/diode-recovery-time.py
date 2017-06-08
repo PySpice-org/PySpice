@@ -1,3 +1,7 @@
+#!# This example illustrates the diode recovery time and the capacitive behaviour of a PN junction.
+
+# Fixme: Split the plots ? Add some explanations at the end
+
 ####################################################################################################
 
 import os
@@ -24,10 +28,16 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
+#!# Let define some parameters
+
 dc_offset = 1
 ac_amplitude = .1
 
 ####################################################################################################
+
+#!# We will first compute some quiescent points and the corresponding dynamic resistance.
+
+#cm# diode-characteristic-curve-circuit.m4
 
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
@@ -43,17 +53,25 @@ for voltage in (dc_offset - ac_amplitude, dc_offset, dc_offset + ac_amplitude):
     quiescent_voltage = float(analysis.out)
     quiescent_current = - float(analysis.Vinput)
     quiescent_points.append(dict(voltage=voltage,
-                                 quiescent_voltage=quiescent_voltage, quiescent_current=quiescent_current))
-    print("Quiescent {:.1f} mV {:.1f} mA".format(quiescent_voltage*1e3, quiescent_current*1e3))
-dynamic_resistance = ((quiescent_points[0]['quiescent_voltage'] -
+                                 quiescent_voltage=quiescent_voltage,
+                                 quiescent_current=quiescent_current))
+    print("Quiescent Point {:.1f} mV {:.1f} mA".format(quiescent_voltage*1e3, quiescent_current*1e3))
+#o#
+
+dynamic_resistance = ((quiescent_points[ 0]['quiescent_voltage'] -
                        quiescent_points[-1]['quiescent_voltage'])
                       /
-                      (quiescent_points[0]['quiescent_current'] -
+                      (quiescent_points[ 0]['quiescent_current'] -
                        quiescent_points[-1]['quiescent_current']))
 
-print("Dynamic Resistance", dynamic_resistance)
+print("Dynamic Resistance = {:.1f} Ω".format(dynamic_resistance))
+#o#
 
 ####################################################################################################
+
+#!# We will now drive the diode with a sinusoidal source and perform an AC analysis.
+
+#cm# diode-characteristic-curve-circuit-ac.m4
 
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
@@ -65,6 +83,8 @@ circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.ac(start_frequency=kilo(10), stop_frequency=giga(1), number_of_points=10,  variation='dec')
+
+#!# Let plot the voltage across the diode and the dynamic resistance as a function of the frequency.
 
 figure = plt.figure(1, (20, 10))
 
@@ -84,6 +104,10 @@ axe.set_xlabel("Frequency [Hz]")
 axe.set_ylabel('Rd [Ω]')
 
 ####################################################################################################
+
+#!# We will now drive the diode with a pulse and perform a transient analysis.
+
+#cm# diode-characteristic-curve-circuit-pulse.m4
 
 frequency = Frequency(mega(1))
 
@@ -117,3 +141,6 @@ plt.tight_layout()
 plt.show()
 
 #fig# save_figure(figure, 'diode-recovery-time.png')
+
+#!# We notice the diode cannot follow the pulse generator.  It is due to the capacitive behaviour of
+#!# a PN junction that cut off the highest frequencies of the pulse.

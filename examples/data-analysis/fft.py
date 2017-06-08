@@ -5,7 +5,7 @@
 #!#  Fast Fourier Transform
 #!# ========================
 #!#
-#!# This examples shows how to compute a FFT of a signal using the Scientific Python package.
+#!# This example shows how to compute a FFT of a signal using the scipy Scientific Python package.
 #!#
 
 ####################################################################################################

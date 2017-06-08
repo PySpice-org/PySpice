@@ -28,8 +28,7 @@ spice_library = SpiceLibrary(libraries_path)
 ####################################################################################################
 
 #!# For this purpose, we use the common high-speed diode 1N4148.  The diode is driven by a variable
-#!# voltage source through a limiting current resistance.  And We will simulate the circuit at these
-#!# temperatures: 0, 25 and 100 °C.
+#!# voltage source through a limiting current resistance.
 
 #cm# diode-characteristic-curve-circuit.m4
 
@@ -41,6 +40,8 @@ circuit.V('input', 'in', circuit.gnd, '10V')
 circuit.R(1, 'in', 'out', 1) # not required for simulation
 circuit.X('D1', '1N4148', 'out', circuit.gnd)
 
+#!# We simulate the circuit at these temperatures: 0, 25 and 100 °C.
+
 temperatures = [0, 25, 100]
 analyses = {}
 for temperature in temperatures:
@@ -50,7 +51,7 @@ for temperature in temperatures:
 
 ####################################################################################################
 
-#!# We plot the characteristic curve and compare them to the Shockley diode model:
+#!# We plot the characteristic curve and compare it to the Shockley diode model:
 #!#
 #!# .. math::
 #!#

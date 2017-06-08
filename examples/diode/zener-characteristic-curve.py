@@ -1,3 +1,5 @@
+#!# This example shows how to simulate and plot the characteristic curve of a Zener diode.
+
 ####################################################################################################
 
 import os
@@ -22,6 +24,8 @@ libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libra
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
+
+#cm# zener-diode-characteristic-curve-circuit.m4
 
 circuit = Circuit('Diode DC Curve')
 

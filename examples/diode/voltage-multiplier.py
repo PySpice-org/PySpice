@@ -1,5 +1,5 @@
-#!# This example depicts a voltage multiplier using diodes and capacitors.
-#!# See `link <http://en.wikipedia.org/wiki/Voltage_multiplier>`_
+#!# This example depicts a voltage multiplier using diodes and capacitors.  To go further, you can
+#!# read this `page <http://en.wikipedia.org/wiki/Voltage_multiplier>`_ on Wikipedia.
 
 ####################################################################################################
 
