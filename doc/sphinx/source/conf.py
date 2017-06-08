@@ -3,7 +3,7 @@
 ####################################################################################################
 #
 # PySpice - A Spice package for Python
-# Copyright (C) 2014 Salvaire Fabrice
+# Copyright (C) 2017 Salvaire Fabrice
 #
 ####################################################################################################
 
@@ -25,6 +25,18 @@
 ####################################################################################################
 
 import sys, os
+from datetime import datetime
+
+# http://www.sphinx-doc.org/en/stable/extdev/logging.html
+# from sphinx.util import logging
+import logging
+logger = logging.getLogger(__name__)
+
+try:
+    import sphinx_rtd_theme
+except:
+    logger.warning('Failed to import sphinx_rtd_theme')
+    pass
 
 ####################################################################################################
 
@@ -70,7 +82,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PySpice'
-copyright = '2015, Fabrice Salvaire'
+copyright = '{0.year}, Fabrice Salvaire'.format(datetime.now())
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -138,7 +150,9 @@ autodoc_default_flags = [
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'PySpice'
+#html_theme = 'PySpice'
+html_theme = 'PySpiceRtd'
+# html_theme = 'sphinx_rtd_theme'
 
 # on_rtd is whether we are on readthedocs.org
 ## on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -155,6 +169,7 @@ html_theme = 'PySpice'
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = ['themes']
+# html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

@@ -1,0 +1,96 @@
+/* -*- Mode: css -*- */
+
+/* ----------------------------------------------------------------------------------------------- *
+ *
+ * PySpice stylesheet
+ *
+ * :copyright: Copyright 2017 Fabrice Salvaire
+ *
+ * This file is part of the PySpice software.
+ *
+ */
+
+@import url("theme.css");
+
+/* ----------------------------------------------------------------------------------------------- *
+ *
+ * Overwrite RTD Theme
+ *
+ */
+
+.wy-nav-content {
+    padding: 1.618em 3.236em;
+    height: 100%;
+    max-width: 100%;
+    margin: auto;
+}
+
+p {
+    font-size: 100%; /* 16 px */
+}
+
+div[class^="highlight"] pre {
+    font-size: 100%; /* 16 px */
+}
+
+
+.btn {
+    border-radius: 10px; /* 2px */
+    box-shadow: none;
+}
+
+/* ----------------------------------------------------------------------------------------------- */
+
+dl.class, dl.function {
+    border-top: 1px solid black;
+    padding-top: 5px;
+}
+
+/* ----------------------------------------------------------------------------------------------- *
+ *
+ * GetTheCode
+ *
+ */
+
+div.getthecode {
+  border-radius: 3px;
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+div.getthecode-header {
+  padding: 5px;
+  margin-bottom: 0px;
+  border-bottom: 1px solid rgb(216, 216, 216);
+  background-repeat: repeat-x;
+  background-color: rgb(234, 234, 234);
+  background-image: linear-gradient(rgb(250, 250, 250), rgb(234, 234, 234));
+}
+
+div.getthecode-header span {
+}
+
+div.getthecode-header a {
+  margin-left: .5em;
+  display: inline-block;
+  background-image: url("../file-text-small.png");
+  background-repeat: no-repeat;
+  width: 16px;
+  height: 16px;
+  /* text-indent :-9999px; */ /* hide text */
+}
+
+div.getthecode-header a span {
+  display: none;
+}
+
+div.getthecode pre {
+  margin-top: 0px;
+  padding: 3px;
+}
+
+/* ----------------------------------------------------------------------------------------------- *
+ *
+ * End
+ *
+ *----------------------------------------------------------------------------------------------- */
