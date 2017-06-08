@@ -82,7 +82,7 @@ PySpice_path = os.path.join(site_packages_path, 'PySpice')
 
 setup_dict = dict(
     name='PySpice',
-    version='0.3.2',
+    version='0.3.3',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='PySpice is a Python 3 Package to generate and steer Berkeley Spice circuit, '
@@ -121,7 +121,7 @@ setup_dict = dict(
         "Programming Language :: Python :: 3.4",
         ],
     requires=[
-        'PyYAML'
+        'PyYAML',
         'cffi',
         'matplotlib',
         'numpy',
