@@ -55,11 +55,12 @@ These features are planned in the future:
 
 Users should be aware of these advertisements.
 
-.. Warning:: The API is quite unstable until now. Some efforts is made to have a smooth API.
+.. .. Warning:: The API is quite unstable until now. Some efforts is made to have a smooth API.
 
-.. Warning:: Ngspice and PySpice are provided without any warranty. Thus use it with care for real
-	     design. Best is to cross check the simulation using an industrial grade simulator.
+.. Warning:: Ngspice and PySpice are provided without any warranty. Thus you must use it with care
+	     for real design. Best is to cross check the simulation using an industrial grade
+	     simulator.
 
-.. Warning:: Simulation is a tool and not a perfect representation of the real world.
+.. Warning:: Simulation is a design tool and not a perfect description of the real world.
 
 .. End

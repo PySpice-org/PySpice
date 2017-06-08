@@ -20,7 +20,7 @@ The procedure to install PySpice is described in the :ref:`Installation Manual <
  Documentation
 ===============
 
-The best way to know what we can do with PySpice and learn it, is to start with the examples.
+The best way to know what you can do with PySpice and to learn it, is to look at the examples.
 
  * :ref:`Examples <examples-page>`
  * :ref:`PySpice Reference Manual <reference-manual-page>`

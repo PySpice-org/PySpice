@@ -4,12 +4,11 @@
  Bibliography
 ==============
 
-Tutorials
----------
+Related articles
+----------------
 
-This `blog page
-<https://www.fabrice-salvaire.fr/en/blog/first-steps-with-spice>`_ gives an
-introduction to SPICE and explain how to plug *ngspice* to Python.
+This `blog page <https://www.fabrice-salvaire.fr/en/blog/first-steps-with-spice>`_ was the genesis
+of PySpice and gives an introduction to SPICE and explain how to plug *ngspice* to Python.
 
 Similar Projects
 ----------------
@@ -23,7 +22,7 @@ SPICE References
 
 The `technical report No. UCB/ERL M520 <http://www.eecs.berkeley.edu/Pubs/TechRpts/1975/9602.html>`_
 written by Nagel gives an interesting description of the algorithms involved in Spice. I recommend
-to read the part 2 and 3 that explain the equation formulation. The next parts describes the
+to read part 2 and 3 that explain the equation formulation. The next parts describes the
 numerical analysis.
 
 The relevant references on Spice are by date of publication:

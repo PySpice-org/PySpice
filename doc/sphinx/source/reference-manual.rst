@@ -6,7 +6,7 @@
  API Documentation
 ===================
 
-This is the auto-generated API documentation for the PySpice library.
+This is the API documentation for the PySpice library.
 
 .. warning:: The API documentation is automatically generated from the docstrings in the source
   using the |Sphinx| tool.  This way to produce the documentation is know to be perfectible
@@ -24,7 +24,8 @@ Indexes
 
   * :ref:`genindex`
   * :ref:`modindex`
-  * :ref:`search`
-       
+
+..  * :ref:`search`
+
 .. End
 
