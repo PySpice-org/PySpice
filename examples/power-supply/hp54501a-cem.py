@@ -1,4 +1,10 @@
-#!# ...
+#!# ================
+#!#  CEM Simulation
+#!# ================
+
+#!# This example show a CEM simulation.
+
+# Fixme: retrieve PDF reference and complete
 
 ####################################################################################################
 
@@ -47,6 +53,8 @@ circuit.R(2, 'output', 'scope_ground', 900)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=ac_line.period/100, end_time=ac_line.period*3)
 
+figure = plt.figure(None, (20, 6))
+
 plot(analysis.input)
 plot(analysis.Vinput)
 plot(analysis.output - analysis.scope_ground)
@@ -56,3 +64,5 @@ plt.xlabel('t [s]')
 plt.ylabel('[V]')
 
 plt.show()
+
+#fig# save_figure(figure, 'hp54501a-cem.png')

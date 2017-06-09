@@ -1,3 +1,5 @@
+#!# This example shows the computation of the DC biases in a resistor bridge.
+
 ####################################################################################################
 
 import PySpice.Logging.Logging as Logging
@@ -9,6 +11,8 @@ from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit.Units import *
 
 ####################################################################################################
+
+#cm# resistor-bridge.m4
 
 circuit = Circuit('Resistor Bridge')
 

@@ -1,3 +1,5 @@
+#!# This example shows the computation of the DC bias and sensitivity in a voltage divider.
+
 ####################################################################################################
 
 import PySpice.Logging.Logging as Logging
@@ -9,6 +11,8 @@ from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit.Units import *
 
 ####################################################################################################
+
+#cm# voltage-divider.m4
 
 circuit = Circuit('Voltage Divider')
 
@@ -23,7 +27,9 @@ simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.operating_point()
 for node in (analysis['in'], analysis.out): # .in is invalid !
     print('Node {}: {} V'.format(str(node), float(node)))
+#o#
 
 analysis = simulator.dc_sensitivity('v(out)')
 for element in analysis.elements.values():
     print(element, float(element))
+#o#
