@@ -40,13 +40,17 @@ _module_logger = logging.getLogger(__name__)
 
 def generate(m4_path,
              dst_path,
-             density=300,
-             transparent='white',
+             # density=300,
+             # transparent='white',
              circuit_macros_path=_circuit_macros_path):
 
     # Create a temporary directory, it is automatically deleted
     tmp_dir = tempfile.TemporaryDirectory()
     _module_logger.info('Temporary directory ' + tmp_dir.name)
+
+    dev_null = open(os.devnull, 'w')
+
+    # Generate LaTeX file
 
     picture_tex_path = os.path.join(tmp_dir.name, 'picture.tex')
 
@@ -62,15 +66,20 @@ def generate(m4_path,
     with open(picture_tex_path, 'w') as f:
         f.write(picture_tex_header)
 
-        m4_process = subprocess.Popen(('m4',
-                                      '-I' + circuit_macros_path,
-                                      'pgf.m4',
-                                      'libcct.m4',
-                                      m4_path),
-                                      #shell=True,
-                                     stdout=subprocess.PIPE,
+        # Run dpic in pgf mode
+        m4_command = (
+            'm4',
+            '-I' + circuit_macros_path,
+            'pgf.m4',
+            'libcct.m4',
+            m4_path,
         )
-        dpic_process = subprocess.Popen(('dpic', '-g'),
+        dpic_command = ('dpic', '-g')
+
+        m4_process = subprocess.Popen(m4_command,
+                                      #shell=True,
+                                      stdout=subprocess.PIPE)
+        dpic_process = subprocess.Popen(dpic_command,
                                         #shell=True,
                                         stdin=m4_process.stdout,
                                         stdout=subprocess.PIPE)
@@ -82,24 +91,44 @@ def generate(m4_path,
         f.write(dpic_output)
         f.write(r'\end{document}')
 
-    dev_null = open(os.devnull, 'w')
+    # Run LaTeX to generate PDF
 
     current_dir = os.curdir
     os.chdir(tmp_dir.name)
-    subprocess.check_call(('pdflatex',
-                           '-shell-escape',
-                           # '-output-directory=' + tmp_dir.name,
-                           'picture.tex'),
-                          stdout=dev_null, stderr=subprocess.STDOUT)
+    latex_command = (
+        'pdflatex',
+        '-shell-escape',
+        # '-output-directory=' + tmp_dir.name,
+        'picture.tex',
+    )
+    subprocess.check_call(latex_command, stdout=dev_null, stderr=subprocess.STDOUT)
+
     os.chdir(current_dir)
     basename = os.path.splitext(os.path.basename(m4_path))[0]
     pdf_path = os.path.join(dst_path, basename + '.pdf')
     png_path = os.path.join(dst_path, basename + '.png')
+
     _module_logger.info('Generate ' + png_path)
     print('Generate ' + png_path)
     shutil.copy(os.path.join(tmp_dir.name, 'picture-figure0.pdf'), pdf_path)
-    subprocess.check_call(('convert',
-                           '-density', str(density),
-                           '-transparent', str(transparent),
-                           pdf_path, png_path),
-                          stdout=dev_null, stderr=subprocess.STDOUT)
+
+    # Convert PDF to PNG
+
+    # subprocess.check_call(('convert',
+    #                        '-density', str(density),
+    #                        '-transparent', str(transparent),
+    #                        pdf_path, png_path),
+    #                       stdout=dev_null, stderr=subprocess.STDOUT)
+
+    mutool_command = (
+        'mutool',
+        'convert',
+        '-A', '8',
+        '-O', 'resolution=300', # ,colorspace=rgb,alpha
+        '-F', 'png',
+        '-o', png_path,
+        pdf_path,
+        '1'
+    )
+    subprocess.check_call(mutool_command, stdout=dev_null, stderr=subprocess.STDOUT)
+    os.rename(png_path.replace('.png', '1.png'), png_path)
