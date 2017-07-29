@@ -1,0 +1,63 @@
+\documentclass[crop,tikz,convert={outext=.svg,command=\unexpanded{pdf2svg \infile\space\outfile}},multi=false]{standalone}
+
+% \usepackage{tikz}
+% \usepackage[europeanresistors,americaninductors]{circuitikz}
+\usetikzlibrary{calc,decorations.pathreplacing,arrows.meta}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% \pgfrealjobname{}
+
+\begin{document}
+\def\DiodeH{1}
+\def\DiodeW{2}
+\def\DiodePinLength{1.5}
+% \beginpgfgraphicnamed{}
+\begin{tikzpicture}[]
+  \begin{scope}[local bounding box=scope1]
+    \draw[fill,color=gray!20] (-\DiodeW,-\DiodeH) rectangle (0,\DiodeH);
+    \draw[fill,color=gray!40] (0,-\DiodeH) rectangle (\DiodeW,\DiodeH);
+    \draw (-\DiodeW*2/3,0) node {P};
+    \draw ( \DiodeW*2/3,0) node {N};
+    \foreach \i in {-2,...,2} {
+      \foreach \j in {.25,.7} {
+        \node[draw,circle,inner sep=0pt] at (-\j,\i*\DiodeH/2.5) {$-$};
+        \node[draw,circle,inner sep=0pt] at ( \j,\i*\DiodeH/2.5) {$+$};
+      }
+      \foreach \j in {1.25,2} {
+        \node[anchor=west] at (-\j,\i*\DiodeH/2.5) {\tiny $+$};
+        \node[anchor=east] at ( \j,\i*\DiodeH/2.5) {\tiny $-$};
+      }
+    }
+    \draw[decorate, decoration=brace] (-1,\DiodeH*1.2) -- (1,\DiodeH*1.2);
+    \node[anchor=south] at (0,\DiodeH*1.2) {Depletion Region};
+    \foreach \i in {-1,1} {
+      \draw[line width=1mm] (\i*\DiodeW,-\DiodeH) -- (\i*\DiodeW,\DiodeH);
+      \draw[fill] (\i*\DiodeW,-\DiodeH/4) -- (\i*\DiodeW,\DiodeH/4) -- (\i*\DiodeW+\i*\DiodeW/10, 0) -- cycle;
+      \draw[line width=.5mm] (\i*\DiodeW,0) -- +(\i*\DiodePinLength,0);
+    }
+    \node[anchor=north west] at (-\DiodeW-\DiodePinLength,0) {Cathode};
+    \node[anchor=north east] at ( \DiodeW+\DiodePinLength,0) {Anode};
+  \end{scope}
+  \begin{scope}[shift={(0,-2.5*\DiodeH)}]
+    \draw[fill] (-\DiodeW/2,-\DiodeH) -- (-\DiodeW/2,\DiodeH) -- (0,0) -- cycle;
+    \draw[fill] (0,-\DiodeH) rectangle (.1,\DiodeH);
+    \coordinate (Cc) at (-\DiodeW+.25*\DiodePinLength,0);
+    \coordinate (Ca) at (\DiodeW-.25*\DiodePinLength,0);
+    \draw[line width=.5mm,<-,>={Latex[length=15pt,inset=0pt]}] (-\DiodeW-.7*\DiodePinLength,-1.5\DiodeH)
+    -- node[anchor=north] {$U$} (\DiodeW+.7*\DiodePinLength,-1.5\DiodeH);
+    \draw[line width=.5mm] (-\DiodeW-.7*\DiodePinLength,0) -- (\DiodeW+.7*\DiodePinLength,0);
+    \node[anchor=south east] at (Cc) {$i$};
+    \draw[line width=.5mm,->,>={Latex[length=10pt,inset=0pt]}] (-\DiodeW-.7*\DiodePinLength,0) -- (Cc);
+    \node[anchor=south west] at (Ca) {$e-$};
+    \draw[line width=.5mm,->,>={Latex[length=10pt,inset=0pt]}] (\DiodeW+.7*\DiodePinLength,0) -- (Ca);
+  \end{scope}
+\end{tikzpicture}%}
+% \endpgfgraphicnamed
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: ""
+%%% End:

@@ -33,6 +33,7 @@ import tempfile
 ####################################################################################################
 
 import CircuitMacrosGenerator
+import TikzGenerator
 
 ####################################################################################################
 
@@ -125,6 +126,21 @@ class RstChunk(Chunk):
 
         return ''.join(self._lines)
 
+    ##############################################
+
+    def has_format(self):
+
+        for line in self._lines:
+            if '@<@' in line:
+                return True
+        return False
+
+    ##############################################
+
+    def to_rst_format_chunk(self, example, stdout_chunk_index):
+
+        return RstFormatChunk(example, self, stdout_chunk_index)
+
 ####################################################################################################
 
 class CodeChunk(Chunk):
@@ -155,6 +171,34 @@ class CodeChunk(Chunk):
             return '\n.. code-block:: python\n\n' + source + '\n'
         else:
             return ''
+
+    ##############################################
+
+    def to_python(self):
+
+        source = ''
+        for line in self._lines:
+            if not line.startswith('pylab.show') and not line.startswith('plt.show'):
+                source += line
+        return source
+
+####################################################################################################
+
+class HiddenCodeChunk(CodeChunk):
+
+    """ This class represents a code block. """
+
+    ##############################################
+
+    def append(self, line):
+
+        self._lines.append(line[len('#h# '):])
+
+    ##############################################
+
+    def __str__(self):
+
+        return ''
 
 ####################################################################################################
 
@@ -218,20 +262,43 @@ class ImageChunk(Chunk):
 
     ##############################################
 
-    def __init__(self, figure_path):
+    @staticmethod
+    def parse_args(line):
+
+        parts = [x for x in line.split(' ') if x]
+        figure_path = parts[0]
+        kwargs = {}
+        for part in parts[1:]:
+            if '=' in part:
+                key, value = [x.strip() for x in part.split('=')]
+                if key and value:
+                    kwargs[key] = value
+        return figure_path, kwargs
+
+    ##############################################
+
+    def __init__(self, figure_path, scale='', width='', height='', align=''):
 
         self._figure_path = figure_path
+        self._scale = scale
+        self._width = width
+        self._height = height
+        self._align = align
 
     ##############################################
 
     def __str__(self):
 
         template = '''
-.. image:: {}
+.. image:: {0._figure_path}
   :align: center
-
 '''
-        return template.format(self._figure_path)
+        rst_code = template.format(self)
+        for key in ('scale', 'width', 'height'):
+            value = getattr(self, '_' + key)
+            if value:
+                rst_code += '  :{0}: {1}\n'.format(key, value)
+        return rst_code + '\n'
 
 ####################################################################################################
 
@@ -244,8 +311,16 @@ class FigureChunk(ImageChunk):
     def __init__(self, line):
 
         # weak ...
-        figure_filename = line[line.rindex(", '")+3:line.rindex("')")]
-        super().__init__(figure_filename)
+        Chunk.__init__(self) # Fixme: better way ???
+        self.append(line)
+        figure_path = line[line.rindex(", '")+3:line.rindex("')")]
+        super().__init__(figure_path)
+
+    ##############################################
+
+    def to_python(self):
+
+        return self._lines[0][len('#fig# '):]
 
 ####################################################################################################
 
@@ -257,11 +332,11 @@ class LocaleFigureChunk(ImageChunk):
 
     def __init__(self, line, source_directory, rst_directory):
 
-        figure_path = line[len('#lfig# '):].strip()
+        figure_path, kwargs = ImageChunk.parse_args(line[len('#lfig# '):].strip())
         figure_filename = os.path.basename(figure_path)
         figure_absolut_path = os.path.join(source_directory, figure_path)
         link_path = os.path.join(rst_directory, figure_filename)
-        super().__init__(figure_filename)
+        super().__init__(figure_filename, **kwargs)
 
         if not os.path.exists(link_path):
             os.symlink(figure_absolut_path, link_path)
@@ -272,7 +347,7 @@ class CircuitMacrosImage:
 
     """ This class represents a circuit macros figure. """
 
-    _logger = _module_logger.getChild('Example')
+    _logger = _module_logger.getChild('CircuitMacrosImage')
 
     ##############################################
 
@@ -313,39 +388,103 @@ class CircuitMacrosImageChunk(CircuitMacrosImage, ImageChunk):
 
     def __init__(self, line, source_directory, rst_directory):
 
-        m4_filename = line[len('#cm# '):].strip()
+        m4_filename, kwargs = ImageChunk.parse_args(line[len('#cm# '):].strip())
+        ImageChunk.__init__(self, None, **kwargs) # Fixme: _figure_path
         CircuitMacrosImage.__init__(self, m4_filename, source_directory, rst_directory)
-        # Fixme: ImageChunk.__init__()
 
 ####################################################################################################
 
-class OutputChunk(Chunk):
+class TikzImage:
+
+    """ This class represents a Tikz figure. """
+
+    _logger = _module_logger.getChild('TikzImage')
+
+    ##############################################
+
+    def __init__(self, tex_filename, source_directory, rst_directory):
+
+        svg_filename = tex_filename.replace('.tex', '.svg')
+        self._tex_path = os.path.join(source_directory, 'tex', tex_filename)
+        self._rst_directory = rst_directory
+        self._figure_path = svg_filename
+        self._figure_real_path = os.path.join(rst_directory, svg_filename)
+
+    ##############################################
+
+    def __bool__(self):
+
+        if os.path.exists(self._figure_real_path):
+            return timestamp(self._tex_path) > timestamp(self._figure_real_path)
+        else:
+            return True
+
+    ##############################################
+
+    def make_figure(self):
+
+        self._logger.info("\nMake Tikz figure " + self._tex_path)
+        try:
+            TikzGenerator.generate(self._tex_path, self._rst_directory)
+        except subprocess.CalledProcessError:
+            self._logger.error("Failed to make circuit figure example", self._tex_path)
+
+####################################################################################################
+
+class TikzImageChunk(TikzImage, ImageChunk):
+
+    """ This class represents an image block for a Tikz figure. """
+
+    ##############################################
+
+    def __init__(self, line, source_directory, rst_directory):
+
+        tex_filename, kwargs = ImageChunk.parse_args(line[len('#tz# '):].strip())
+        ImageChunk.__init__(self, None, **kwargs) # Fixme: _figure_path
+        TikzImage.__init__(self, tex_filename, source_directory, rst_directory)
+
+####################################################################################################
+
+class StdoutChunk(Chunk):
 
     """ This class represents an output block. """
 
     ##############################################
 
-    def __init__(self, example, line, output_marker_index):
+    def __init__(self, example, stdout_chunk_index):
 
         self._example = example
-        self._line = line
-        self._output_marker_index = output_marker_index
+        self._stdout_chunk_index = stdout_chunk_index
 
     ##############################################
 
     @property
-    def output_marker_index(self):
-        return self._output_marker_index
+    def stdout_chunk_index(self):
+        return self._stdout_chunk_index
+
+####################################################################################################
+
+class OutputChunk(StdoutChunk):
+
+    ##############################################
+
+    def __init__(self, example, line, stdout_chunk_index):
+
+        StdoutChunk.__init__(self, example, stdout_chunk_index)
+        self._line = line
 
     ##############################################
 
     def __str__(self):
 
-        lower, upper = self._example.stdout_chunk(self._output_marker_index)
+        # Fixme: use content ???
+        slice_, content = self._example.stdout_chunk(self._stdout_chunk_index)
+        lower = slice_.start
+        upper = slice_.stop -1
         # Sphynx count \f as newline
-        if self._output_marker_index:
-            lower += self._output_marker_index
-            upper += self._output_marker_index
+        if self._stdout_chunk_index:
+            lower += self._stdout_chunk_index
+            upper += self._stdout_chunk_index
 
         template = '''
 .. literalinclude:: {}
@@ -353,6 +492,44 @@ class OutputChunk(Chunk):
 
 '''
         return template.format(os.path.basename(self._example.stdout_path), lower+1, upper+1)
+
+    ##############################################
+
+    def to_python(self):
+
+        return 'print("\f #{}")\n'.format(self._stdout_chunk_index)
+
+####################################################################################################
+
+class RstFormatChunk(StdoutChunk):
+
+    ##############################################
+
+    def __init__(self, example, rst_chunk, stdout_chunk_index):
+
+        StdoutChunk.__init__(self, example, stdout_chunk_index)
+        self._lines = rst_chunk._lines
+
+    ##############################################
+
+    def __str__(self):
+
+        slice_, content = self._example.stdout_chunk(self._stdout_chunk_index)
+        return content
+
+    ##############################################
+
+    def to_python(self):
+
+        rst = ''.join(self._lines)
+        rst = rst.replace('{', '{{')
+        rst = rst.replace('}', '}}')
+        rst = rst.replace('@<@', '{')
+        rst = rst.replace('@>@', '}')
+        rst = rst.replace('@@<<@@', '@<@')
+        rst = rst.replace('@@>>@@', '@>@')
+        marker = "\f #{}".format(self._stdout_chunk_index)
+        return 'print(r"""' + rst + '""".format(**locals()))\n' + 'print("' + marker + '")\n'
 
 ####################################################################################################
 
@@ -386,6 +563,8 @@ class Example:
             self._rst_path = self._topic.join_rst_path(self.rst_filename)
 
         self._stdout = None
+
+        self._stdout_chunck_counter = -1
 
     ##############################################
 
@@ -421,8 +600,12 @@ class Example:
 
     ##############################################
 
-    def stdout_chunk(self, output_marker_index):
-        return self._stdout_chunks[output_marker_index]
+    def increment_stdout_chunk_counter(self):
+        self._stdout_chunck_counter += 1
+        return self._stdout_chunck_counter
+
+    def stdout_chunk(self, i):
+        return self._stdout_chunks[i]
 
     ##############################################
 
@@ -433,6 +616,8 @@ class Example:
     ##############################################
 
     def read(self):
+
+        # Must be called first !
 
         with open(self._path) as f:
             self._source = f.readlines()
@@ -473,27 +658,18 @@ class Example:
         # tmp_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir(), prefix='PySpice-', suffix='.py', mode='w')
         tmp_file = tempfile.NamedTemporaryFile(dir=working_directory,
                                                prefix='__example_rst_factory__', suffix='.py', mode='w')
-        line_index = 0
-        if self._source[0].startswith('# -*- coding: utf-8 -*-'):
-            tmp_file.write(self._source[0])
-            tmp_file.write('\n')
-            line_index += 1
         tmp_file.write('import ExampleRstFactory\n')
         tmp_file.write('from ExampleRstFactory import save_figure\n')
         tmp_file.write('ExampleRstFactory.FIGURE_DIRECTORY = "{}"\n'.format(self._topic.rst_path))
         tmp_file.write('\n')
-        output_marker_index = 0
-        for line in self._source[line_index:]:
-            if line.startswith('#fig# '):
-                tmp_file.write(line[len('#fig# '):])
-            elif line.startswith('#o#'):
-                tmp_file.write('print("\foutput_marker_index={}")'.format(output_marker_index))
-                output_marker_index += 1
-            elif not line.startswith('pylab.show') and not line.startswith('plt.show'):
-                tmp_file.write(line)
+        for chunck in self._chuncks:
+            if isinstance(chunck, (CodeChunk, FigureChunk, OutputChunk, RstFormatChunk)):
+                tmp_file.write(chunck.to_python())
         tmp_file.flush()
 
         self._logger.info("\nRun example " + self._path)
+        # with open(tmp_file.name, 'r') as f:
+        #     print(f.read())
         with open(self.stdout_path, 'w') as stdout:
             with open(self.stderr_path, 'w') as stderr:
                 env = dict(os.environ)
@@ -513,7 +689,7 @@ class Example:
     def make_circuit_figure(self, force):
 
         for chunck in self._chuncks:
-            if isinstance(chunck, CircuitMacrosImageChunk):
+            if isinstance(chunck, (CircuitMacrosImageChunk, TikzImageChunk)):
                 if force or chunck:
                     chunck.make_figure()
 
@@ -521,27 +697,37 @@ class Example:
 
     def _append_rst_chunck(self):
 
-        self._chuncks.append(self._rst_chunck)
+        # if self._rst_chunck:
+        chunk = self._rst_chunck
+        if chunk.has_format():
+            chunk = chunk.to_rst_format_chunk(self, self.increment_stdout_chunk_counter())
+        self._chuncks.append(chunk)
         self._rst_chunck = RstChunk()
 
     ##############################################
 
-    def _append_code_chunck(self):
+    def _append_code_chunck(self, hidden=False):
 
-        self._chuncks.append(self._code_chunck)
-        self._code_chunck = CodeChunk()
+        if self._code_chunck:
+            self._chuncks.append(self._code_chunck)
+        if hidden:
+            self._code_chunck = HiddenCodeChunk()
+        else:
+            self._code_chunck = CodeChunk()
 
     ##############################################
 
     def _parse_source(self):
 
-        """Parse the Python source code and extract chunks of codes, RST contents, plot and circuit macros
-        figures.  The source code is annoted using comment lines starting with special directives of
-        the form *#directive name#*.  RST content lines start with *#!#*.  We can include a figure
-        using *#lfig#*, a figure generated by matplotlib using the directive *#fig#*, circuit macros
-        figure using *#cm#* and the content of a file using *#itxt#* and *#i#* for Python source.
-        Comment that must be skipped start with *#?#*.  The directive *#o#* is used to split the
-        output and to instruct to include the previous chunck.
+        """Parse the Python source code and extract chunks of codes, RST contents, plot, circuit macros and
+        Tikz figures.  The source code is annoted using comment lines starting with special
+        directives of the form *#directive name#*.  RST content lines start with *#!#*.  We can
+        include a figure using *#lfig#*, a figure generated by matplotlib using the directive
+        *#fig#*, circuit macros figure using *#cm#*, tikz figure using *#tz#* and the content of a
+        file using *#itxt#* and *#i#* for Python source.  Comment that must be skipped start with
+        *#?#*.  Hidden Python code start with *#h#*.  The directive *#o#* is used to split the
+        output and to instruct to include the previous chunk.  RST content can be formatted with
+        variable from the locals dictionary using *@<@...@>@* instead of *{...}*.
 
         """
 
@@ -552,7 +738,6 @@ class Example:
         # Use a while loop trick to remove consecutive blank lines
         number_of_lines = len(self._source)
         i = 0
-        output_marker_index = 0
         while i < number_of_lines:
             line = self._source[i]
             i += 1
@@ -564,6 +749,7 @@ class Example:
             elif (line.startswith('#fig# ')
                   or line.startswith('#lfig# ')
                   or line.startswith('#cm# ')
+                  or line.startswith('#tz# ')
                   or line.startswith('#i# ')
                   or line.startswith('#itxt# ')
                   or line.startswith('#o#')):
@@ -577,13 +763,14 @@ class Example:
                     self._chuncks.append(LocaleFigureChunk(line, self._topic.path, self._topic.rst_path))
                 elif line.startswith('#cm# '):
                     self._chuncks.append(CircuitMacrosImageChunk(line, self._topic.path, self._topic.rst_path))
+                elif line.startswith('#tz# '):
+                    self._chuncks.append(TikzImageChunk(line, self._topic.path, self._topic.rst_path))
                 elif line.startswith('#i# '):
                     self._chuncks.append(PythonIncludeChunk(self, line))
                 elif line.startswith('#itxt# '):
                     self._chuncks.append(LitteralIncludeChunk(self, line))
                 elif line.startswith('#o#'):
-                    self._chuncks.append(OutputChunk(self, line, output_marker_index))
-                    output_marker_index += 1
+                    self._chuncks.append(OutputChunk(self, line, self.increment_stdout_chunk_counter()))
             elif line.startswith('#!#'): # RST content
                 if self._code_chunck:
                     self._append_code_chunck()
@@ -594,6 +781,10 @@ class Example:
                 remove_next_blanck_line = False
                 if self._rst_chunck:
                     self._append_rst_chunck()
+                if line.startswith('#h#') and isinstance(self._code_chunck, CodeChunk):
+                    self._append_code_chunck(True)
+                elif isinstance(self._code_chunck, HiddenCodeChunk):
+                    self._append_code_chunck(False)
                 self._code_chunck.append(line)
             if remove_next_blanck_line and i < number_of_lines and not self._source[i].strip():
                 i += 1
@@ -604,11 +795,7 @@ class Example:
 
     ##############################################
 
-    def make_rst(self):
-
-        """ Generate the example RST file. """
-
-        self._logger.info("\nCreate RST file " + self._rst_path)
+    def _read_output_chunk(self):
 
         # Read the stdout and split in chunck
         with open(self.stdout_path) as f:
@@ -616,14 +803,27 @@ class Example:
         self._stdout_chunks = []
         start = 0
         last_i = -1
-        for i, line in enumerate(self._stdout.split('\n')): # Fixme: portability
+        lines = self._stdout.split('\n')
+        for i, line in enumerate(lines): # Fixme: portability
             if line.startswith('\f'):
-                self._stdout_chunks.append((start, i - 1))
+                slice_ = slice(start, i)
+                self._stdout_chunks.append((slice_, '\n'.join(lines[slice_])))
                 start = i + 1
             last_i = i
         # Fixme: add last empty line ?
         if start <= last_i:
-            self._stdout_chunks.append((start, last_i))
+            slice_ = slice(start, last_i +1)
+            self._stdout_chunks.append((slice_, '\n'.join(lines[slice_])))
+
+    ##############################################
+
+    def make_rst(self):
+
+        """ Generate the example RST file. """
+
+        self._logger.info("\nCreate RST file " + self._rst_path)
+
+        self._read_output_chunk()
 
         has_title= False
         for chunck in self._chuncks:
@@ -677,7 +877,7 @@ class Example:
 
 class Topic:
 
-    _logger = _module_logger.getChild('Example')
+    _logger = _module_logger.getChild('Topic')
 
     ##############################################
 
@@ -789,11 +989,12 @@ class Topic:
                     figure = line[image_directive_length:]
                     figures.append(figure)
 
+        # Fixme: m4 path, tikz ???
         if make_circuit_figure:
             m4_files = list(self._m4_files_iterator())
             for figure in figures:
                 m4_file = figure.replace('.png', '.m4')
-                if m4_file  in m4_files:
+                if m4_file in m4_files:
                     CircuitMacrosImage(m4_file, self._path, self._rst_path).make_figure()
 
         return content
@@ -823,13 +1024,19 @@ class Topic:
     def process_examples(self, make_figure, make_circuit_figure, force):
 
         for example in self._examples:
-            example.read()
-            if force or example:
-                if make_figure:
-                    example.make_figure()
-                example.make_rst()
-            if make_circuit_figure:
-                example.make_circuit_figure(force)
+            self.process_example(example, make_figure, make_circuit_figure, force)
+
+    ##############################################
+
+    def process_example(self, example, make_figure, make_circuit_figure, force):
+
+        example.read()
+        if force or example:
+            if make_figure:
+                example.make_figure()
+            example.make_rst()
+        if make_circuit_figure:
+            example.make_circuit_figure(force)
 
     ##############################################
 
@@ -930,7 +1137,7 @@ class ExampleRstFactory:
 
     """This class processes recursively the examples directory and generate figures and RST files."""
 
-    _logger = _module_logger.getChild('Example')
+    _logger = _module_logger.getChild('ExampleRstFactory')
 
     ##############################################
 

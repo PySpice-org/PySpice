@@ -1,0 +1,73 @@
+#! /usr/bin/env python
+# -*- Python -*-
+
+####################################################################################################
+#
+# PySpice - A Spice package for Python
+# Copyright (C) 2014 Salvaire Fabrice
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+####################################################################################################
+
+####################################################################################################
+
+import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
+
+####################################################################################################
+
+import argparse
+import os
+
+####################################################################################################
+
+from ExampleRstFactory import ExampleRstFactory, Topic, Example
+
+####################################################################################################
+#
+# Options
+#
+
+argument_parser = argparse.ArgumentParser(description='Generate Examples RST files')
+
+argument_parser.add_argument('example_path', metavar='Example',
+                             help='example path')
+
+argument_parser.add_argument('--skip-figure',
+                             action='store_true', default=False,
+                             help="Don't generate figures")
+
+argument_parser.add_argument('--skip-circuit-figure',
+                             action='store_true', default=False,
+                             help="Don't generate circuit figures")
+
+args = argument_parser.parse_args()
+
+####################################################################################################
+
+examples_path = 'examples'
+rst_source_directory = 'example-test'
+rst_example_directory = 'examples'
+
+rst_factory = ExampleRstFactory(examples_path, rst_source_directory, rst_example_directory)
+
+example_path= os.path.relpath(args.example_path, examples_path)
+
+topic = Topic(rst_factory, os.path.dirname(example_path))
+example = Example(topic, os.path.basename(example_path))
+topic.process_example(example,
+                      make_figure=not args.skip_figure,
+                      make_circuit_figure=not args.skip_circuit_figure,
+                      force=True)

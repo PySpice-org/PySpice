@@ -1,5 +1,7 @@
 #!# This example shows how to simulate and plot the characteristic curve of a diode.
 
+#tz# diode.tex width=500
+
 ####################################################################################################
 
 import os
