@@ -24,9 +24,6 @@ import os
 import sys
 import subprocess
 
-from distutils.sysconfig import get_python_lib
-site_packages_path = get_python_lib()
-
 ####################################################################################################
 
 def merge_include(src_lines, doc_path, included_rst_files=None):
@@ -78,8 +75,6 @@ try:
 except FileNotFoundError:
     sys.stderr.write('\n\nWarning: You must install ngspice\n\n')
 
-PySpice_path = os.path.join(site_packages_path, 'PySpice')
-
 setup_dict = dict(
     name='PySpice',
     version='0.3.3',
@@ -104,12 +99,10 @@ setup_dict = dict(
               'PySpice.Unit',
           ],
     # package_dir = {'PySpice': 'PySpice'},
-    data_files=[
-        (os.path.join(PySpice_path, 'Config'),
-         [os.path.join('PySpice', 'Config', 'logging.yml')]),
-        (os.path.join(PySpice_path, 'Spice', 'NgSpice'),
-         [os.path.join('PySpice', 'Spice', 'NgSpice', 'api.h')]),
-    ],
+    package_data={
+        'PySpice.Config': ['logging.yml'],
+        'PySpice.Spice.NgSpice': ['api.h'],
+    },
     long_description=long_description,
     # cf. http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
