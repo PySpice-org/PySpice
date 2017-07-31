@@ -1,37 +1,25 @@
 EESchema-LIBRARY Version 2.3
 #encoding utf-8
 #
-# GND-RESCUE-kicad-pyspice-example
+# LM193-RESCUE-kicad-pyspice-example
 #
-DEF ~GND-RESCUE-kicad-pyspice-example #PWR 0 0 Y Y 1 F P
-F0 "#PWR" 0 0 30 H I C CNN
-F1 "GND-RESCUE-kicad-pyspice-example" 0 -70 30 H I C CNN
+DEF LM193-RESCUE-kicad-pyspice-example U 0 20 Y Y 2 F N
+F0 "U" 150 150 60 H V C CNN
+F1 "LM193-RESCUE-kicad-pyspice-example" 200 -200 60 H V C CNN
 F2 "" 0 0 60 H V C CNN
 F3 "" 0 0 60 H V C CNN
 DRAW
-P 4 0 1 0  -50 0  0 -50  50 0  -50 0 N
-X GND 1 0 0 0 U 30 30 1 1 W N
-ENDDRAW
-ENDDEF
-#
-# R-RESCUE-kicad-pyspice-example
-#
-DEF R-RESCUE-kicad-pyspice-example R 0 0 N Y 1 F N
-F0 "R" 80 0 40 V V C CNN
-F1 "R-RESCUE-kicad-pyspice-example" 7 1 40 V V C CNN
-F2 "" -70 0 30 V V C CNN
-F3 "" 0 0 30 H V C CNN
-$FPLIST
- R?
- SM0603
- SM0805
- R?-*
- SM1206
-$ENDFPLIST
-DRAW
-S -40 150 40 -150 0 1 12 N
-X ~ 1 0 250 100 D 60 60 1 1 P
-X ~ 2 0 -250 100 U 60 60 1 1 P
+P 4 0 1 0 -200 200 200 0 -200 -200 -200 200 N
+X ~ 1 500 0 300 L 40 40 1 1 C
+X _ 2 -500 -100 300 R 40 40 1 1 I
+X + 3 -500 100 300 R 40 40 1 1 I
+X V- 4 -100 -400 250 U 40 40 1 1 W
+X V+ 8 -100 400 250 D 40 40 1 1 W
+X V- 4 -100 -400 250 U 40 40 2 1 W
+X + 5 -500 100 300 R 40 40 2 1 I
+X _ 6 -500 -100 300 R 40 40 2 1 I
+X ~ 7 500 0 300 L 40 40 2 1 C
+X V+ 8 -100 400 250 D 40 40 2 1 W
 ENDDRAW
 ENDDEF
 #

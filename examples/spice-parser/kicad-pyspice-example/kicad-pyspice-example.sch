@@ -27,7 +27,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L LM193 X3
+L LM193-RESCUE-kicad-pyspice-example X3
 U 1 1 55381082
 P 5450 3750
 F 0 "X3" H 5600 3900 60  0000 C CNN
@@ -112,25 +112,17 @@ Wire Wire Line
 Wire Wire Line
 	4850 4200 4850 3850
 Wire Wire Line
-	4700 3850 4850 3850
-Wire Wire Line
-	4850 3850 4950 3850
+	4700 3850 4950 3850
 Connection ~ 4850 3850
 Wire Wire Line
 	5350 3250 5350 3350
 Connection ~ 6350 3750
 Wire Wire Line
-	3950 4750 4750 4750
-Wire Wire Line
-	4750 4750 6550 4750
-Wire Wire Line
-	6550 4750 6750 4750
+	3950 4750 6750 4750
 Wire Wire Line
 	4950 3650 4750 3650
 Wire Wire Line
-	4750 3650 4750 4750
-Wire Wire Line
-	4750 4750 4750 4900
+	4750 3650 4750 4900
 Connection ~ 4750 4750
 $Comp
 L VCC #PWR03
@@ -161,9 +153,7 @@ Wire Wire Line
 Wire Wire Line
 	4200 3100 4200 3300
 Wire Wire Line
-	5950 3750 6350 3750
-Wire Wire Line
-	6350 3750 6850 3750
+	5950 3750 6850 3750
 Wire Wire Line
 	6850 3850 6550 3850
 Wire Wire Line
@@ -171,9 +161,7 @@ Wire Wire Line
 Wire Wire Line
 	3600 3750 3950 3750
 Wire Wire Line
-	3950 3600 3950 3750
-Wire Wire Line
-	3950 3750 3950 4750
+	3950 3600 3950 4750
 Wire Wire Line
 	3600 3600 3950 3600
 Connection ~ 3950 3750

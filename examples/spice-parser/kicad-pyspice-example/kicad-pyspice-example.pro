@@ -1,4 +1,4 @@
-update=jeu. 26 nov. 2015 16:40:27 CET
+update=lun. 31 juil. 2017 15:10:40 CEST
 version=1
 last_client=kicad
 [pcbnew]
@@ -36,6 +36,8 @@ version=1
 NetIExt=net
 [cvpcb/libraries]
 EquName1=devcms
+[general]
+version=1
 [eeschema]
 version=1
 LibDir=
@@ -52,23 +54,3 @@ LibName9=cmos4000
 LibName10=adc-dac
 LibName11=memory
 LibName12=xilinx
-LibName14=microcontrollers
-LibName15=dsp
-LibName16=microchip
-LibName17=analog_switches
-LibName18=motorola
-LibName19=texas
-LibName20=intel
-LibName21=audio
-LibName22=interface
-LibName23=digital-audio
-LibName24=philips
-LibName25=display
-LibName26=cypress
-LibName27=siliconi
-LibName28=opto
-LibName29=atmel
-LibName30=contrib
-LibName31=valves
-[general]
-version=1
