@@ -9,6 +9,8 @@
 
 The official PySpice Home Page is located at |PySpiceUrl|
 
+`Slides <https://pyspice.fabrice-salvaire.fr/pyparis-2017-talk.pdf>`_ of the talk at the `PyParis 2017 <http://pyparis.org/>`_ conference.
+
 Written by `Fabrice Salvaire <http://fabrice-salvaire.fr>`_.
 
 |Pypi License|

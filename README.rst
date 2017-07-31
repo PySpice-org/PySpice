@@ -95,6 +95,8 @@
 
 The official PySpice Home Page is located at |PySpiceUrl|
 
+`Slides <https://pyspice.fabrice-salvaire.fr/pyparis-2017-talk.pdf>`_ of the talk at the `PyParis 2017 <http://pyparis.org/>`_ conference.
+
 Written by `Fabrice Salvaire <http://fabrice-salvaire.fr>`_.
 
 |Pypi License|
@@ -115,7 +117,8 @@ V0.4.0
 
  * Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size
  * Improved unit support: It implements now the International System of Units.
-   And we can now use unit helper like :func:`u_mV`, or compute :code:`u_kΩ(1.2) / u_mA(2)`.
+   And we can now use unit helper like :code:`u_mV` or compute the value of :code:`u_kΩ(1.2) / u_mA(2)`.
+   The relevant documentation is on this `page <api/PySpice/Unit.html>`_.
 
 V0.3.2
 ------
