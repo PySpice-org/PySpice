@@ -4,6 +4,14 @@
  News
 ======
 
+V0.4.0
+------
+
+ * Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size
+ * Improved unit support: It implements now the International System of Units.
+   And we can now use unit helper like :func:`u_mV` or compute the value of :code:`u_kΩ(1.2) / u_mA(2)`.
+   The relevant documentation is on this `page <api/PySpice/Unit.html>`_.
+
 V0.3.2
 ------
 

@@ -35,6 +35,7 @@ The best way to know what you can do with PySpice and to learn it, is to look at
   :numbered:
 
   installation.rst
+  faq.rst
   examples/index.rst
   reference-manual.rst
   bibliography.rst

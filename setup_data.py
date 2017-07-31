@@ -77,7 +77,7 @@ except FileNotFoundError:
 
 setup_dict = dict(
     name='PySpice',
-    version='0.3.3',
+    version='0.4.0',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='PySpice is a Python 3 Package to generate and steer Berkeley Spice circuit, '

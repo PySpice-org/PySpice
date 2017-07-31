@@ -392,6 +392,22 @@ ul.auto-toc {
 </div>
 <div class="section" id="news">
 <h1>News</h1>
+<div class="section" id="v0-4-0">
+<h2>V0.4.0</h2>
+<blockquote>
+<ul>
+<li><p class="first">Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size</p>
+</li>
+<li><p class="first">Improved unit support: It implements now the International System of Units.
+And we can now use unit helper like <a href="#id1"><span class="problematic" id="id2">:func:`u_mV`</span></a>, or compute <code>u_kΩ(1.2) / u_mA(2)</code>.</p>
+<div class="system-message" id="id1">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">&lt;stdin&gt;</tt>, line 117); <em><a href="#id2">backlink</a></em></p>
+<p>Unknown interpreted text role &quot;func&quot;.</p>
+</div>
+</li>
+</ul>
+</blockquote>
+</div>
 <div class="section" id="v0-3-2">
 <h2>V0.3.2</h2>
 <blockquote>
@@ -496,18 +512,16 @@ included in the <em>tools</em> directory. This tool could be extended to generat
 <div class="section" id="advertisements">
 <h1>Advertisements</h1>
 <p>Users should be aware of these advertisements.</p>
+<!-- .. Warning:: The API is quite unstable until now. Some efforts is made to have a smooth API. -->
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">The API is quite unstable until now. Some efforts is made to have a smooth API.</p>
+<p class="last">Ngspice and PySpice are provided without any warranty. Thus you must use it with care
+for real design. Best is to cross check the simulation using an industrial grade
+simulator.</p>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Ngspice and PySpice are provided without any warranty. Thus use it with care for real
-design. Best is to cross check the simulation using an industrial grade simulator.</p>
-</div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Simulation is a tool and not a perfect representation of the real world.</p>
+<p class="last">Simulation is a design tool and not a perfect description of the real world.</p>
 </div>
 <!-- End -->
 <!-- -*- Mode: rst -*- -->
@@ -515,7 +529,7 @@ design. Best is to cross check the simulation using an industrial grade simulato
 <div class="section" id="installation">
 <span id="installation-page"></span><h1>Installation</h1>
 <p>The installation of PySpice by itself is quite simple. However it will be easier to get the
-dependencies on a Linux desktop.</p>
+dependencies on Linux.</p>
 <div class="section" id="dependencies">
 <h2>Dependencies</h2>
 <p>PySpice requires the following dependencies:</p>
@@ -532,11 +546,14 @@ dependencies on a Linux desktop.</p>
 <blockquote>
 <ul class="simple">
 <li><a class="reference external" href="http://ipython.org">IPython</a></li>
-<li>pip</li>
-<li>virtualenv</li>
 </ul>
 </blockquote>
-<p>For development, you will need in addition:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;stdin&gt;</tt>, line 264)</p>
+Block quote ends without a blank line; unexpected unindent.</div>
+<!-- * pip -->
+<!-- * virtualenv -->
+<p>To generate the documentation, you will need in addition:</p>
 <blockquote>
 <ul class="simple">
 <li><a class="reference external" href="http://sphinx-doc.org">Sphinx</a></li>
@@ -546,29 +563,39 @@ dependencies on a Linux desktop.</p>
 </div>
 <div class="section" id="ngspice-compilation">
 <h2>Ngspice Compilation</h2>
-<p>Usually Ngspice is available as a package in the major Linux distributions. But I recommend to check
-the compilation options before to use it extensively. For example the Fedora package enables too
-many experimental codes that have side effects. The recommended way to compile Ngspice is given in
-the manual and the <tt class="docutils literal">INSTALLATION</tt> file. Ngspice is an example of complex software where we should
-not enable everything without care.</p>
+<p>Usually Ngspice is available as a package on the most popular Linux distributions. But I recommend
+to <strong>check the compilation options</strong> before to use it extensively. For example the Fedora package
+enables too many experimental codes that have side effects. The recommended way to compile Ngspice
+is given in the manual and in the <tt class="docutils literal">INSTALLATION</tt> file. Ngspice is an example of complex software
+where we should not enable everything without care.</p>
 <!-- :file:`INSTALLATION` -->
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">For the following, the compilation option <strong>--enable-ndev</strong> is known to broke the server mode.</p>
+<p class="last">Compilation option <strong>--enable-ndev</strong> is known to broke the server mode.</p>
 </div>
 </div>
 <div class="section" id="installation-from-pypi-repository">
 <h2>Installation from PyPi Repository</h2>
-<p>PySpice is made available on the <a class="reference external" href="https://pypi.python.org/pypi">PyPI</a> repository at <a class="reference external" href="https://pypi.python.org/pypi/PySpice">https://pypi.python.org/pypi/PySpice</a></p>
-<p>Run this command to install the last release:</p>
+<p>PySpice is available on the Python Packages <a class="reference external" href="https://pypi.python.org/pypi">PyPI</a> repository at <a class="reference external" href="https://pypi.python.org/pypi/PySpice">https://pypi.python.org/pypi/PySpice</a></p>
+<p>Run this command in the console to install the latest release:</p>
 <pre class="code sh literal-block">
 pip install PySpice
 </pre>
 </div>
+<div class="section" id="how-to-get-the-examples">
+<h2>How to get the Examples</h2>
+<p>Examples are not installed by <tt class="docutils literal">pip</tt> or <tt class="docutils literal">setup.pip</tt>. The installation process only install
+PySpice on your Python environment.</p>
+<p><strong>You have to download the PySpice archive or clone the Git repository to get the examples.</strong> See &quot;Installation from Source&quot;.</p>
+</div>
 <div class="section" id="installation-from-source">
 <h2>Installation from Source</h2>
 <p>The PySpice source code is hosted at <a class="reference external" href="https://github.com/FabriceSalvaire/PySpice">https://github.com/FabriceSalvaire/PySpice</a></p>
-<p>To clone the Git repository, run this command in a terminal:</p>
+<!-- add link to pages ... -->
+<p>You have to solution to get the source code, the first one is to clone the repository, but if you
+are not familiar with Git then you can simply download an archive either from the PySpice Pypi page
+(at the bottom) or the GitHub page (see clone or download button).</p>
+<p>To clone the Git repository, run this command in a console:</p>
 <pre class="code sh literal-block">
 git clone git&#64;github.com:FabriceSalvaire/PySpice.git
 </pre>

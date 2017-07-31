@@ -27,7 +27,7 @@ A shortcut is defined for each unit and prefix as the concatenation of *u_*, an 
 unit suffix, e.g. :class:`u_pV`, :class:`u_nV`, :class:`u_uV` :class:`u_mV`, :class:`u_V`,
 :class:`u_kV`, :class:`u_MV`, :class:`u_TV`.
 
-Some shortcuts have UTF-8 and ASCII variants:
+Some shortcuts have Unicode and ASCII variants:
 
 * For micro, we have the prefix *μ* and *u*.
 * For Ohm, we have :class:`u_Ω` and :class:`u_Ohm`.
