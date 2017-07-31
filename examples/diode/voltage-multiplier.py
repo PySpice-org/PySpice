@@ -17,7 +17,7 @@ logger = Logging.setup_logging()
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -30,7 +30,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 circuit = Circuit('Voltage Multiplier')
 circuit.include(spice_library['1N4148'])
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10, frequency=50)
+source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=u_V(10), frequency=u_Hz(50))
 
 multiplier = 5
 for i in range(multiplier):
@@ -39,9 +39,9 @@ for i in range(multiplier):
     else:
         top_node = 'in'
     midlle_node, bottom_node = i + 1, i
-    circuit.C(i, top_node, midlle_node, milli(1))
+    circuit.C(i, top_node, midlle_node, u_mF(1))
     circuit.X(i, '1N4148', midlle_node, bottom_node)
-circuit.R(1, multiplier, multiplier+1, mega(1))
+circuit.R(1, multiplier, multiplier+1, u_MΩ(1))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*20)

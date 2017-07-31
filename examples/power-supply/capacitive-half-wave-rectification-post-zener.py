@@ -23,7 +23,7 @@ logger = Logging.setup_logging()
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -40,13 +40,13 @@ circuit.include(spice_library['1N4148'])
 # 1N5919B: 5.6 V, 3.0 W Zener Diode Voltage Regulator
 circuit.include(spice_library['d1n5919brl'])
 
-ac_line = circuit.AcLine('input', circuit.gnd, 'L', rms_voltage=230, frequency=50)
-circuit.R('in', 'L', 1, 470)
-circuit.C('in', 1, 2, nano(470))
+ac_line = circuit.AcLine('input', circuit.gnd, 'L', rms_voltage=u_V(230), frequency=u_Hz(50))
+circuit.R('in', 'L', 1, u_Ω(470))
+circuit.C('in', 1, 2, u_nF(470))
 circuit.X('Dz', 'd1n5919brl', circuit.gnd, 2)
 circuit.X('D', '1N4148', 2, 'out')
-circuit.C('', circuit.gnd, 'out', micro(220))
-circuit.R('load', circuit.gnd, 'out', kilo(1))
+circuit.C('', circuit.gnd, 'out', u_uF(220))
+circuit.R('load', circuit.gnd, 'out', u_kΩ(1))
 
 # # Fixme: circuit.nodes[2].v, circuit.branch.current
 # print circuit.nodes

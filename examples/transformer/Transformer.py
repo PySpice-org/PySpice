@@ -1,7 +1,7 @@
 ####################################################################################################
 
 from PySpice.Spice.Netlist import SubCircuitFactory
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -15,10 +15,10 @@ class Transformer(SubCircuitFactory):
 
     def __init__(self,
                  turn_ratio,
-                 primary_inductance=1,
-                 copper_resistance=1,
-                 leakage_inductance=milli(1),
-                 winding_capacitance=pico(20),
+                 primary_inductance=u_H(1),
+                 copper_resistance=u_Ω(1),
+                 leakage_inductance=u_mH(1),
+                 winding_capacitance=u_pF(20),
                  coupling=.999,
              ):
 

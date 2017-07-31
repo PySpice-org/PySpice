@@ -58,15 +58,15 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
 thevenin_circuit = Circuit('Thévenin Representation')
 
-thevenin_circuit.V('input', 1, thevenin_circuit.gnd, 10)
-thevenin_circuit.R('generator', 1, 'load', 10)
-thevenin_circuit.R('load', 'load', thevenin_circuit.gnd, kilo(1))
+thevenin_circuit.V('input', 1, thevenin_circuit.gnd, u_V(10))
+thevenin_circuit.R('generator', 1, 'load', u_Ω(10))
+thevenin_circuit.R('load', 'load', thevenin_circuit.gnd, u_kΩ(1))
 
 simulator = thevenin_circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.operating_point()

@@ -100,6 +100,7 @@ See Ngspice documentation for details.
 ####################################################################################################
 
 from ..Tools.StringTools import join_list
+from ..Unit import u_m, u_s, u_A, u_V, u_Degree, u_Ω, u_F, u_H, u_Hz
 from .Netlist import (Pin,
                       AnyPinElement,
                       TwoPinElement, ThreePinElement, FourPinElement,
@@ -222,12 +223,12 @@ class Resistor(TwoPinElement):
     alias = 'R'
     prefix = 'R'
 
-    resistance = FloatPositionalParameter(position=0, key_parameter=False)
-    ac = FloatKeyParameter('ac')
+    resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=u_Ω)
+    ac = FloatKeyParameter('ac', unit=u_Ω)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
-    temperature = FloatKeyParameter('temp')
-    device_temperature = FloatKeyParameter('dtemp')
+    temperature = FloatKeyParameter('temp', unit=u_Degree)
+    device_temperature = FloatKeyParameter('dtemp', unit=u_Degree)
     noisy = BoolKeyParameter('noisy')
 
 ####################################################################################################
@@ -292,14 +293,14 @@ class SemiconductorResistor(TwoPinElement):
     alias = 'SemiconductorResistor'
     prefix = 'R'
 
-    resistance = FloatPositionalParameter(position=0, key_parameter=False)
+    resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=u_Ω)
     model = ModelPositionalParameter(position=1, key_parameter=True)
-    length = FloatKeyParameter('l')
-    width = FloatKeyParameter('w')
-    temperature = FloatKeyParameter('temp')
-    device_temperature = FloatKeyParameter('dtemp')
+    length = FloatKeyParameter('l', unit=u_m)
+    width = FloatKeyParameter('w', unit=u_m)
+    temperature = FloatKeyParameter('temp', unit=u_Degree)
+    device_temperature = FloatKeyParameter('dtemp', unit=u_Degree)
     multiplier = IntKeyParameter('m')
-    ac = FloatKeyParameter('ac')
+    ac = FloatKeyParameter('ac', unit=u_Ω)
     scale = FloatKeyParameter('scale')
     noisy = BoolKeyParameter('noisy')
 
@@ -388,12 +389,12 @@ class Capacitor(TwoPinElement):
     alias = 'C'
     prefix = 'C'
 
-    capacitance = FloatPositionalParameter(position=0, key_parameter=False)
+    capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=u_F)
     model = ModelPositionalParameter(position=1, key_parameter=True)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
-    temperature = FloatKeyParameter('temp')
-    device_temperature = FloatKeyParameter('dtemp')
+    temperature = FloatKeyParameter('temp', unit=u_Degree)
+    device_temperature = FloatKeyParameter('dtemp', unit=u_Degree)
     initial_condition = FloatKeyParameter('ic')
 
 ####################################################################################################
@@ -455,14 +456,14 @@ class SemiconductorCapacitor(TwoPinElement):
     alias = 'SemiconductorCapacitor'
     prefix = 'C'
 
-    capacitance = FloatPositionalParameter(position=0, key_parameter=False)
+    capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=u_F)
     model = ModelPositionalParameter(position=1, key_parameter=True)
-    length = FloatKeyParameter('l')
-    width = FloatKeyParameter('w')
+    length = FloatKeyParameter('l', unit=u_m)
+    width = FloatKeyParameter('w', unit=u_m)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
-    temperature = FloatKeyParameter('temp')
-    device_temperature = FloatKeyParameter('dtemp')
+    temperature = FloatKeyParameter('temp', unit=u_Degree)
+    device_temperature = FloatKeyParameter('dtemp', unit=u_Degree)
     initial_condition = FloatKeyParameter('ic')
 
 ####################################################################################################
@@ -550,13 +551,13 @@ class Inductor(TwoPinElement):
     alias = 'L'
     prefix = 'L'
 
-    inductance = FloatPositionalParameter(position=0, key_parameter=False)
+    inductance = FloatPositionalParameter(position=0, key_parameter=False, unit=u_H)
     model = ModelPositionalParameter(position=1, key_parameter=True)
     nt = FloatKeyParameter('nt')
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
-    temperature = FloatKeyParameter('temp')
-    device_temperature = FloatKeyParameter('dtemp')
+    temperature = FloatKeyParameter('temp', unit=u_Degree)
+    device_temperature = FloatKeyParameter('dtemp', unit=u_Degree)
     initial_condition = FloatKeyParameter('ic')
 
 ####################################################################################################
@@ -718,7 +719,7 @@ class VoltageSource(TwoPinElement):
     prefix = 'V'
 
     # Fixme: ngspice manual doesn't describe well the syntax
-    dc_value = FloatPositionalParameter(position=0, key_parameter=False)
+    dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=u_V)
 
 ####################################################################################################
 
@@ -742,7 +743,7 @@ class CurrentSource(TwoPinElement):
     prefix = 'I'
 
     # Fixme: ngspice manual doesn't describe well the syntax
-    dc_value = FloatPositionalParameter(position=0, key_parameter=False)
+    dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=u_A)
 
 ####################################################################################################
 
@@ -899,8 +900,8 @@ class BehavioralSource(TwoPinElement):
     voltage_expression = ExpressionKeyParameter('v')
     tc1 = FloatKeyParameter('tc1')
     tc2 = FloatKeyParameter('tc2')
-    temperature = FloatKeyParameter('temp')
-    device_temperature = FloatKeyParameter('dtemp')
+    temperature = FloatKeyParameter('temp', unit=u_Degree)
+    device_temperature = FloatKeyParameter('dtemp', unit=u_Degree)
 
 ####################################################################################################
 
@@ -1011,8 +1012,8 @@ class Diode(TwoPinElement):
     pj = FloatKeyParameter('pj')
     off = FlagParameter('off')
     ic = FloatPairKeyParameter('ic')
-    temperature = FloatKeyParameter('temp')
-    device_temperature = FloatKeyParameter('dtemp')
+    temperature = FloatKeyParameter('temp', unit=u_Degree)
+    device_temperature = FloatKeyParameter('dtemp', unit=u_Degree)
 
 ####################################################################################################
 
@@ -1081,8 +1082,8 @@ class BipolarJunctionTransistor(NPinElement):
     multiplier = IntKeyParameter('m')
     off = FlagParameter('off')
     ic = FloatPairKeyParameter('ic')
-    temperature = FloatKeyParameter('temp')
-    device_temperature = FloatKeyParameter('dtemp')
+    temperature = FloatKeyParameter('temp', unit=u_Degree)
+    device_temperature = FloatKeyParameter('dtemp', unit=u_Degree)
 
     ##############################################
 
@@ -1174,7 +1175,7 @@ class JunctionFieldEffectTransistor(ThreePinElement):
     multiplier = IntKeyParameter('m')
     off = FlagParameter('off')
     ic = FloatPairKeyParameter('ic')
-    temperature = FloatKeyParameter('temp')
+    temperature = FloatKeyParameter('temp', unit=u_Degree)
 
     ##############################################
 
@@ -1366,8 +1367,8 @@ class Mosfet(FourPinElement):
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     multiplier = IntKeyParameter('m')
-    length = FloatKeyParameter('l')
-    width = FloatKeyParameter('w')
+    length = FloatKeyParameter('l', unit=u_m)
+    width = FloatKeyParameter('w', unit=u_m)
     drain_area = FloatKeyParameter('ad')
     source_area = FloatKeyParameter('as')
     drain_perimeter = FloatKeyParameter('pd')
@@ -1376,7 +1377,7 @@ class Mosfet(FourPinElement):
     source_number_square = FloatKeyParameter('nrs')
     off = FlagParameter('off')
     ic = FloatTripletKeyParameter('ic')
-    temperature = FloatKeyParameter('temp')
+    temperature = FloatKeyParameter('temp', unit=u_Degree)
 
     ##############################################
 
@@ -1459,9 +1460,9 @@ class TransmissionLine(TwoPortElement):
     alias = 'TransmissionLine'
     prefix = 'T'
 
-    impedance = FloatKeyParameter('Z0', default=50)
-    time_delay = FloatKeyParameter('TD')
-    frequency = FloatKeyParameter('F')
+    impedance = FloatKeyParameter('Z0', default=50, unit=u_Ω)
+    time_delay = FloatKeyParameter('TD', unit=u_s)
+    frequency = FloatKeyParameter('F', unit=u_Hz)
     normalized_length = FloatKeyParameter('NL')
 
     ##############################################

@@ -13,16 +13,17 @@ logger = Logging.setup_logging()
 
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Netlist import Circuit
+from PySpice.Unit import *
 
 ####################################################################################################
 
 #!# We will drive the transmission line with a pulse source and use a standard 50 Ω load.
 
 circuit = Circuit('Transmission Line')
-circuit.Pulse('pulse', 'input', circuit.gnd, 0, 1, 1e-9, 1e-6)
+circuit.Pulse('pulse', 'input', circuit.gnd, u_V(0), u_V(1), u_ns(1), u_us(1))
 circuit.TransmissionLine('delay', 'input', circuit.gnd, 'output',
                          circuit.gnd, impedance=50, time_delay=40e-9)
-circuit.R('load', 'output', circuit.gnd, 50)
+circuit.R('load', 'output', circuit.gnd, u_Ω(50))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=1e-11, end_time=100e-9)

@@ -28,7 +28,7 @@
 
 from ..Math import rms_to_amplitude, amplitude_to_rms
 from ..Tools.StringTools import join_list, join_dict
-from ..Unit.Units import Frequency, Period
+from ..Unit import u_s, u_V, u_A, u_Hz, Period
 from .BasicElement import VoltageSource
 
 ####################################################################################################
@@ -89,12 +89,12 @@ class Sinusoidal(VoltageSource):
 
         super().__init__(name, node_plus, node_minus)
 
-        self.dc_offset = dc_offset
-        self.offset = offset
-        self.amplitude = amplitude
-        self.frequency = Frequency(frequency) # Fixme: protect by setter?
-        self.delay = delay
-        self.damping_factor = damping_factor
+        self.dc_offset = u_V(dc_offset)
+        self.offset = u_V(offset)
+        self.amplitude = u_V(amplitude)
+        self.frequency = u_Hz(frequency) # Fixme: protect by setter?
+        self.delay = u_s(delay)
+        self.damping_factor = u_Hz(damping_factor)
 
     ##############################################
 
@@ -112,10 +112,10 @@ class Sinusoidal(VoltageSource):
 
     def format_spice_parameters(self):
 
-        return join_list(('DC {}V'.format(self.dc_offset),
-                          'AC SIN({}V {}V {}Hz {}s {})'.format(self.offset, self.amplitude,
-                                                               self.frequency, self.delay,
-                                                               self.damping_factor)))
+        return join_list(('DC {}'.format(self.dc_offset),
+                          'AC SIN({} {} {} {} {})'.format(self.offset, self.amplitude,
+                                                          self.frequency, self.delay,
+                                                          self.damping_factor)))
 
 ####################################################################################################
 
@@ -211,12 +211,12 @@ class Pulse(VoltageSource):
 
         super().__init__(name, node_plus, node_minus)
 
-        self.initial_value = initial_value
-        self.pulsed_value = pulsed_value
-        self.delay_time = delay_time
-        self.rise_time = rise_time
-        self.fall_time = fall_time
-        self.pulse_width = pulse_width
+        self.initial_value = u_V(initial_value)
+        self.pulsed_value = u_V(pulsed_value)
+        self.delay_time = u_s(delay_time)
+        self.rise_time = u_s(rise_time)
+        self.fall_time = u_s(fall_time)
+        self.pulse_width = u_s(pulse_width)
         self.period = Period(period) # Fixme: protect by setter?
 
         # # Fixme: to func?
@@ -302,12 +302,12 @@ class Exponential(VoltageSource):
 
         super().__init__(name, node_plus, node_minus)
 
-        self.initial_value = initial_value
-        self.pulsed_value = pulsed_value
-        self.rise_delay_time = rise_delay_time
-        self.rise_time_constant = rise_time_constant
-        self.fall_delay_time = fall_delay_time
-        self.fall_time_constant = fall_time_constant
+        self.initial_value = u_V(initial_value)
+        self.pulsed_value = u_V(pulsed_value)
+        self.rise_delay_time = u_s(rise_delay_time)
+        self.rise_time_constant = u_s(rise_time_constant)
+        self.fall_delay_time = u_s(fall_delay_time)
+        self.fall_time_constant = u_s(fall_time_constant)
 
     ##############################################
 
@@ -354,9 +354,9 @@ class PieceWiseLinear(VoltageSource):
 
         super().__init__(name, node_plus, node_minus)
 
-        self.values = values
-        self.repeate_time = repeate_time
-        self.delay_time = delay_time
+        self.values = [u_V(x) for x in values]
+        self.repeate_time = u_s(repeate_time)
+        self.delay_time = u_s(delay_time)
 
     ##############################################
 
@@ -407,11 +407,11 @@ class SingleFrequencyFM(VoltageSource):
 
         super().__init__(name, node_plus, node_minus)
 
-        self.offset = offset
-        self.amplitude = amplitude
-        self.carrier_frequency = Frequency(carrier_frequency)
+        self.offset = u_V(offset)
+        self.amplitude = u_V(amplitude)
+        self.carrier_frequency = u_Hz(carrier_frequency)
         self.modulation_index = modulation_index
-        self.signal_frequency = Frequency(signal_frequency)
+        self.signal_frequency = u_Hz(signal_frequency)
 
     ##############################################
 
@@ -464,11 +464,11 @@ class AmplitudeModulated(VoltageSource):
 
         super().__init__(name, node_plus, node_minus)
 
-        self.offset = offset
-        self.amplitude = amplitude
-        self.carrier_frequency = Frequency(carrier_frequency)
-        self.modulating_frequency = Frequency(modulating_frequency)
-        self.signal_delay = signal_delay
+        self.offset = u_V(offset)
+        self.amplitude = u_V(amplitude)
+        self.carrier_frequency = u_Hz(carrier_frequency)
+        self.modulating_frequency = u_Hz(modulating_frequency)
+        self.signal_delay = u_s(signal_delay)
 
     ##############################################
 
@@ -526,8 +526,8 @@ class RandomVoltage(VoltageSource):
         super().__init__(name, node_plus, node_minus)
 
         self.random_type = random_type
-        self.duration = duration
-        self.time_delay = time_delay
+        self.duration = u_s(duration)
+        self.time_delay = u_s(time_delay)
         self.parameter1 = parameter1
         self.parameter2 = parameter2
 

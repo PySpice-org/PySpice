@@ -259,7 +259,7 @@ class ElementParameterMetaClass(type):
 
     ##############################################
 
-    def __new__(cls, class_name, super_classes, attributes):
+    def __new__(cls, class_name, base_classes, attributes):
 
         # Collect positional and optional parameters from class attribute dict
         positional_parameters = {}
@@ -295,13 +295,13 @@ class ElementParameterMetaClass(type):
                 and parameter.spice_name != parameter.attribute_name):
                 _module_logger.error('Spice parameter "{}" clash with attributes'.format(parameter.spice_name))
 
-        return super().__new__(cls, class_name, super_classes, attributes)
+        return super().__new__(cls, class_name, base_classes, attributes)
 
     ##############################################
 
-    def __init__(cls, class_name, super_classes, attributes):
+    def __init__(cls, class_name, base_classes, attributes):
 
-        type.__init__(cls, class_name, super_classes, attributes)
+        type.__init__(cls, class_name, base_classes, attributes)
 
         # Collect basic element classes
         if 'prefix' in attributes:

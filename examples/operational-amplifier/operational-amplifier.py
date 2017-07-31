@@ -14,7 +14,7 @@ logger = Logging.setup_logging()
 from PySpice.Plot.BodeDiagram import bode_diagram
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 from OperationalAmplifier import BasicOperationalAmplifier
 
@@ -23,13 +23,13 @@ from OperationalAmplifier import BasicOperationalAmplifier
 circuit = Circuit('Operational Amplifier')
 
 # AC 1 PWL(0US 0V  0.01US 1V)
-circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=1)
+circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=u_V(1))
 circuit.subcircuit(BasicOperationalAmplifier())
 circuit.X('op', 'BasicOperationalAmplifier', 'in', circuit.gnd, 'out')
-circuit.R('load', 'out', circuit.gnd, 470)
+circuit.R('load', 'out', circuit.gnd, u_Ω(470))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.ac(start_frequency=1, stop_frequency=mega(100), number_of_points=5,  variation='dec')
+analysis = simulator.ac(start_frequency=u_Hz(1), stop_frequency=u_MHz(100), number_of_points=5,  variation='dec')
 
 figure = plt.figure(1, (20, 10))
 plt.title("Bode Diagram of an Operational Amplifier")

@@ -1,7 +1,7 @@
 ####################################################################################################
 
 from PySpice.Spice.Netlist import SubCircuitFactory
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -16,7 +16,7 @@ class HP54501A(SubCircuitFactory):
 
         super().__init__()
 
-        self.C(1, 'line_plus', 'line_minus', micro(1))
+        self.C(1, 'line_plus', 'line_minus', u_uF(1))
 
         self.X('D1', diode_model, 'top', 'line_plus')
         self.X('D2', diode_model, 'line_plus', 'scope_ground')
@@ -24,5 +24,5 @@ class HP54501A(SubCircuitFactory):
         self.X('D4', diode_model, 'line_minus', 'scope_ground')
 
         self.R(1, 'top', 'output', 10)
-        self.C(2, 'output', 'scope_ground', micro(50))
-        self.R(2, 'output', 'scope_ground', 900)
+        self.C(2, 'output', 'scope_ground', u_uF(50))
+        self.R(2, 'output', 'scope_ground', u_Ω(900))

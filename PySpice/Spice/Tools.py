@@ -1,7 +1,7 @@
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
-# Copyright (C) 2014 Fabrice Salvaire
+# Copyright (C) 2017 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,11 +20,19 @@
 
 ####################################################################################################
 
-from . import Units
-from .Units import __units__
+"""This modules implements some tools."""
 
 ####################################################################################################
 
-for unit in __units__:
-    unit_name = unit.__spice_suffix__ + 'V'
-    setattr(Units, unit_name, type(unit_name, (unit,), dict()))
+from ..Unit import Unit
+
+####################################################################################################
+
+def str_spice(obj):
+
+    """Convert an object to a Spice compatible string."""
+
+    if isinstance(obj, Unit):
+        return obj.str_spice()
+    else:
+        return str(obj)

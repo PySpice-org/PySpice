@@ -16,7 +16,7 @@ logger = Logging.setup_logging()
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -31,9 +31,9 @@ figure1 = plt.figure(1, (20, 10))
 
 circuit = Circuit('half-wave rectification')
 circuit.include(spice_library['1N4148'])
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10, frequency=50)
+source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=u_V(10), frequency=u_Hz(50))
 circuit.X('D1', '1N4148', 'in', 'output')
-circuit.R('load', 'output', circuit.gnd, 100)
+circuit.R('load', 'output', circuit.gnd, u_Ω(100))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
@@ -52,7 +52,7 @@ plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
 
 #cm# half-wave-rectification.m4
 
-circuit.C('1', 'output', circuit.gnd, milli(1))
+circuit.C('1', 'output', circuit.gnd, u_mF(1))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
@@ -73,7 +73,7 @@ circuit = Circuit('half-wave rectification')
 circuit.include(spice_library['1N4148'])
 source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10, frequency=50)
 circuit.X('D1', '1N4148', 'in', 'output_plus')
-circuit.R('load', 'output_plus', 'output_minus', 100)
+circuit.R('load', 'output_plus', 'output_minus', u_Ω(100))
 circuit.X('D2', '1N4148', 'output_minus', circuit.gnd)
 circuit.X('D3', '1N4148', circuit.gnd, 'output_plus')
 circuit.X('D4', '1N4148', 'output_minus', 'in')
@@ -95,7 +95,7 @@ plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
 
 #cm# full-wave-rectification.m4
 
-circuit.C('1', 'output_plus', 'output_minus', milli(1))
+circuit.C('1', 'output_plus', 'output_minus', u_mF(1))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
@@ -121,19 +121,19 @@ on_115 = True # switch to select 115 or 230V
 if on_115:
     node_230 = circuit.gnd
     node_115 = 'node_115'
-    amplitude = 115
+    amplitude = u_V(115)
 else:
     node_230 = 'node_230'
     node_115 = circuit.gnd
-    amplitude = 230
+    amplitude = u_V(230)
 source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=amplitude, frequency=50) # Fixme: rms
 circuit.X('D1', '1N4148', 'in', 'output_plus')
 circuit.X('D3', '1N4148', node_230, 'output_plus')
 circuit.X('D2', '1N4148', 'output_minus', node_230)
 circuit.X('D4', '1N4148', 'output_minus', 'in')
-circuit.C('1', 'output_plus', node_115, milli(1))
-circuit.C('2', node_115, 'output_minus', milli(1))
-circuit.R('load', 'output_plus', 'output_minus', 10)
+circuit.C('1', 'output_plus', node_115, u_mF(1))
+circuit.C('2', node_115, 'output_minus', u_mF(1))
+circuit.R('load', 'output_plus', 'output_minus', u_Ω(10))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 if on_115:

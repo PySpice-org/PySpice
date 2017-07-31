@@ -24,7 +24,7 @@ logger = Logging.setup_logging()
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Spice.NgSpice.Shared import NgSpiceShared
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -58,11 +58,11 @@ class MyNgSpiceShared(NgSpiceShared):
 circuit = Circuit('Voltage Divider')
 
 circuit.V('input', 'input', circuit.gnd, 'dc 0 external')
-circuit.R(1, 'input', 'output', kilo(10))
-circuit.R(2, 'output', circuit.gnd, kilo(1))
+circuit.R(1, 'input', 'output', u_kΩ(10))
+circuit.R(2, 'output', circuit.gnd, u_kΩ(1))
 
-amplitude = 10
-frequency = Frequency(50)
+amplitude = u_V(10)
+frequency = u_Hz(50)
 ngspice_shared = MyNgSpiceShared(amplitude=amplitude, frequency=frequency, send_data=False)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25,
                               simulator='shared', ngspice_shared=ngspice_shared)

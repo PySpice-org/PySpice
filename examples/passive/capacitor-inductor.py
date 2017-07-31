@@ -5,6 +5,7 @@
 
 ####################################################################################################
 
+import numpy as np
 import matplotlib.pyplot as plt
 
 ####################################################################################################
@@ -16,7 +17,7 @@ logger = Logging.setup_logging()
 
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 from scipy.optimize import curve_fit
 
@@ -44,37 +45,38 @@ for element_type in ('capacitor', 'inductor'):
     circuit = Circuit(element_type.title())
     # Fixme: compute value
     source = circuit.Pulse('input', 'in', circuit.gnd,
-                           initial_value=0, pulsed_value=10,
-                           pulse_width=milli(10), period=milli(20))
-    circuit.R(1, 'in', 'out', kilo(1))
+                           initial_value=u_V(0), pulsed_value=u_V(10),
+                           pulse_width=u_ms(10), period=u_ms(20))
+    circuit.R(1, 'in', 'out', u_kΩ(1))
     if element_type == 'capacitor':
         element = circuit.C
-        value = micro(1) # F
+        value = u_uF(1)
         # tau = RC = 1 ms
     else:
         element = circuit.L
         # Fixme: force component value to an Unit instance ?
-        value = 1 # H
+        value = u_H(1)
         # tau = L/R = 1 ms
     element(1, 'out', circuit.gnd, value)
     # circuit.R(2, 'out', circuit.gnd, kilo(1)) # for debug
 
     if element_type == 'capacitor':
-        tau = float(circuit['R1'].resistance * circuit['C1'].capacitance )
+        tau = circuit['R1'].resistance * circuit['C1'].capacitance
     else:
-        tau = circuit['L1'].inductance / float(circuit['R1'].resistance)
+        tau = circuit['L1'].inductance / circuit['R1'].resistance
 
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    step_time = micro(10)
+    step_time = u_us(10)
     analysis = simulator.transient(step_time=step_time, end_time=source.period*3)
 
     # Let define the theoretical output voltage.
     if element_type == 'capacitor':
         def out_voltage(t, tau):
-            return source.pulsed_value * (1 -  np.exp(-t / tau))
+            # Fixme: TypeError: only length-1 arrays can be converted to Python scalars
+            return float(source.pulsed_value) * (1 -  np.exp(-t / tau))
     else:
         def out_voltage(t, tau):
-            return source.pulsed_value * np.exp(-t / tau)
+            return float(source.pulsed_value) * np.exp(-t / tau)
     # Fixme: get step_time from analysis
     # At t = 5 tau, each circuit has nearly reached it steady state.
     i_max = int(5 * tau / float(step_time))
@@ -82,7 +84,7 @@ for element_type in ('capacitor', 'inductor'):
     tau_measured = popt[0]
 
     # Fixme: use Unit().canonise()
-    print('tau {0} = {1:.1f} ms'.format(element_type, tau * 1000))
+    print('tau {0} = {1}'.format(element_type, tau.canonise().str_space()))
     print('tau measured {0} = {1:.1f} ms'.format(element_type, tau_measured * 1000))
 
     if element_type == 'capacitor':
@@ -98,7 +100,7 @@ for element_type in ('capacitor', 'inductor'):
     plot(analysis['out'])
     # Fixme: resistor current, scale
     plot((analysis['in'] - analysis.out)/float(circuit['R1'].resistance)*current_scale)
-    axe.axvline(x=tau, color='red')
+    axe.axvline(x=float(tau), color='red')
     axe.set_ylim(-11, 11)
     axe.set_xlabel('t [s]')
     axe.set_ylabel('[V]')

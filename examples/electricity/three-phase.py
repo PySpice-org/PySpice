@@ -17,13 +17,13 @@ import matplotlib.pyplot as plt
 
 ####################################################################################################
 
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
 #!# Let use an European 230 V / 50 Hz electric network.
 
-frequency = Frequency(50)
+frequency = u_Hz(50)
 w = frequency.pulsation
 period = frequency.period
 

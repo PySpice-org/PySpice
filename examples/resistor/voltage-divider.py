@@ -8,7 +8,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -16,9 +16,9 @@ from PySpice.Unit.Units import *
 
 circuit = Circuit('Voltage Divider')
 
-circuit.V('input', 'in', circuit.gnd, '10V')
-circuit.R(1, 'in', 'out', kilo(9))
-circuit.R(2, 'out', circuit.gnd, kilo(1))
+circuit.V('input', 'in', circuit.gnd, u_V(10))
+circuit.R(1, 'in', 'out', u_kΩ(9))
+circuit.R(2, 'out', circuit.gnd, u_kΩ(1))
 
 ####################################################################################################
 

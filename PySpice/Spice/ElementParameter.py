@@ -22,7 +22,8 @@
 
 ####################################################################################################
 
-from ..Unit.Units import Unit
+from ..Unit import Unit
+from .Tools import str_spice
 
 ####################################################################################################
 
@@ -144,7 +145,7 @@ class PositionalElementParameter(ParameterDescriptor):
     ##############################################
 
     def to_str(self, instance):
-        return str(self.__get__(instance))
+        return str_spice(self.__get__(instance))
 
     ##############################################
 
@@ -171,7 +172,6 @@ class ExpressionPositionalParameter(PositionalElementParameter):
     ##############################################
 
     def validate(self, value):
-
         return str(value)
 
 ####################################################################################################
@@ -179,6 +179,13 @@ class ExpressionPositionalParameter(PositionalElementParameter):
 class FloatPositionalParameter(PositionalElementParameter):
 
     """This class implements a float positional parameter."""
+
+    ##############################################
+
+    def __init__(self, position, unit=None, **kwargs):
+
+        super().__init__(position, **kwargs)
+        self._unit = unit
 
     ##############################################
 
@@ -279,7 +286,7 @@ class KeyValueParameter(ParameterDescriptor):
     ##############################################
 
     def str_value(self, instance):
-        return str(self.__get__(instance))
+        return str_spice(self.__get__(instance))
 
     ##############################################
 
@@ -319,7 +326,6 @@ class ExpressionKeyParameter(KeyValueParameter):
     ##############################################
 
     def validate(self, value):
-
         return str(value)
 
 ####################################################################################################
@@ -327,6 +333,13 @@ class ExpressionKeyParameter(KeyValueParameter):
 class FloatKeyParameter(KeyValueParameter):
 
     """This class implements a float key parameter."""
+
+    ##############################################
+
+    def __init__(self, spice_name, unit=None, **kwargs):
+
+        super().__init__(spice_name, **kwargs)
+        self._unit = unit
 
     ##############################################
 

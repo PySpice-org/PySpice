@@ -23,7 +23,7 @@ logger = Logging.setup_logging()
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -42,10 +42,10 @@ figure = plt.figure(1, (20, 10))
 
 circuit = Circuit('Transistor')
 
-Vbase = circuit.V('base', '1', circuit.gnd, 1)
-circuit.R('base', 1, 'base', kilo(1))
-Vcollector = circuit.V('collector', '2', circuit.gnd, 0)
-circuit.R('collector', 2, 'collector', kilo(1))
+Vbase = circuit.V('base', '1', circuit.gnd, u_V(1))
+circuit.R('base', 1, 'base', u_kΩ(1))
+Vcollector = circuit.V('collector', '2', circuit.gnd, u_V(0))
+circuit.R('collector', 2, 'collector', u_kΩ(1))
 # circuit.BJT(1, 'collector', 'base', circuit.gnd, 'generic')
 # circuit.model('generic', 'npn')
 circuit.include(spice_library['2n2222a'])
@@ -69,7 +69,7 @@ axe1.set_ylabel('Ib [mA]')
 #!# We will now replace the base's voltage source by a current source in the previous circuit.
 
 circuit = Circuit('Transistor')
-Ibase = circuit.I('base', circuit.gnd, 'base', micro(10)) # take care to the orientation
+Ibase = circuit.I('base', circuit.gnd, 'base', u_uA(10)) # take care to the orientation
 Vcollector = circuit.V('collector', 'collector', circuit.gnd, 5)
 # circuit.BJT(1, 'collector', 'base', circuit.gnd, 'generic')
 # circuit.model('generic', 'npn')
@@ -117,7 +117,7 @@ axe3.set_ylabel('beta')
 axe3.axvline(x=.2, color='red')
 
 for base_current in np.arange(0, 100, 10):
-    base_current = micro(base_current)
+    base_current = u_uA(base_current)
     Ibase.dc_value = base_current
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.dc(Vcollector=slice(0, 5, .01))

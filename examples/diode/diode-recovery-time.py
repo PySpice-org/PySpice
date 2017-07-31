@@ -19,7 +19,7 @@ logger = Logging.setup_logging()
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -30,8 +30,8 @@ spice_library = SpiceLibrary(libraries_path)
 
 #!# Let define some parameters
 
-dc_offset = 1
-ac_amplitude = .1
+dc_offset = u_V(1)
+ac_amplitude = u_mV(100)
 
 ####################################################################################################
 
@@ -42,7 +42,7 @@ ac_amplitude = .1
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
 source = circuit.V('input', 'in', circuit.gnd, dc_offset)
-circuit.R(1, 'in', 'out', kilo(1))
+circuit.R(1, 'in', 'out', u_kΩ(1))
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
 quiescent_points = []
@@ -50,6 +50,7 @@ for voltage in (dc_offset - ac_amplitude, dc_offset, dc_offset + ac_amplitude):
     source.dc_value = voltage
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
     analysis = simulator.operating_point()
+    # Fixme: handle unit
     quiescent_voltage = float(analysis.out)
     quiescent_current = - float(analysis.Vinput)
     quiescent_points.append(dict(voltage=voltage,
@@ -78,7 +79,7 @@ circuit.include(spice_library['BAV21'])
 circuit.Sinusoidal('input', 'in', circuit.gnd,
                    dc_offset=dc_offset, offset=dc_offset,
                    amplitude=ac_amplitude)
-R = circuit.R(1, 'in', 'out', kilo(1))
+R = circuit.R(1, 'in', 'out', u_kΩ(1))
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
@@ -89,6 +90,7 @@ analysis = simulator.ac(start_frequency=kilo(10), stop_frequency=giga(1), number
 figure = plt.figure(1, (20, 10))
 
 axe = plt.subplot(311)
+# Fixme: handle unit in plot (scale and legend)
 axe.semilogx(analysis.frequency, np.absolute(analysis.out)*1e3)
 axe.grid(True)
 axe.grid(True, which='minor')
@@ -109,7 +111,7 @@ axe.set_ylabel('Rd [Ω]')
 
 #cm# diode-characteristic-curve-circuit-pulse.m4
 
-frequency = Frequency(mega(1))
+frequency = u_MHz(1)
 
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
@@ -119,8 +121,8 @@ circuit.include(spice_library['BAV21'])
 #                             frequency=frequency)
 source = circuit.Pulse('input', 'in', circuit.gnd,
                        initial_value=dc_offset-ac_amplitude, pulsed_value=dc_offset+ac_amplitude,
-                       pulse_width=frequency.period/2., period=frequency.period)
-circuit.R(1, 'in', 'out', kilo(1))
+                       pulse_width=frequency.period/2, period=frequency.period)
+circuit.R(1, 'in', 'out', u_kΩ(1))
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
@@ -133,7 +135,7 @@ axe = plt.subplot(313)
 axe.plot(analysis.out.abscissa*1e6, analysis.out)
 axe.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
 axe.grid()
-axe.set_xlabel('t [us]')
+axe.set_xlabel('t [μs]')
 axe.set_ylabel('[V]')
 # axe.set_ylim(.5, 1 + ac_amplitude + .1)
 

@@ -19,7 +19,7 @@ logger = Logging.setup_logging()
 
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 from PySpice.Physics.SemiConductor import ShockleyDiode
 
 ####################################################################################################
@@ -38,8 +38,8 @@ circuit = Circuit('Diode Characteristic Curve')
 
 circuit.include(spice_library['1N4148'])
 
-circuit.V('input', 'in', circuit.gnd, '10V')
-circuit.R(1, 'in', 'out', 1) # not required for simulation
+circuit.V('input', 'in', circuit.gnd, u_V(10))
+circuit.R(1, 'in', 'out', u_Ω(1)) # not required for simulation
 circuit.X('D1', '1N4148', 'out', circuit.gnd)
 
 #!# We simulate the circuit at these temperatures: 0, 25 and 100 °C.

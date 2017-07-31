@@ -21,7 +21,7 @@ logger = Logging.setup_logging()
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -34,17 +34,17 @@ spice_library = SpiceLibrary(libraries_path)
 
 circuit = Circuit('Transistor')
 
-circuit.V('power', 5, circuit.gnd, 15)
-source = circuit.Sinusoidal('in', 'in', circuit.gnd, amplitude=.5, frequency=kilo(1))
-circuit.C(1, 'in', 2, micro(10))
-circuit.R(1, 5, 2, kilo(100))
-circuit.R(2, 2, 0, kilo(20))
-circuit.R('C', 5, 4, kilo(10))
+circuit.V('power', 5, circuit.gnd, u_V(15))
+source = circuit.Sinusoidal('in', 'in', circuit.gnd, amplitude=u_V(.5), frequency=u_kHz(1))
+circuit.C(1, 'in', 2, u_uF(10))
+circuit.R(1, 5, 2, u_kΩ(100))
+circuit.R(2, 2, 0, u_kΩ(20))
+circuit.R('C', 5, 4, u_kΩ(10))
 circuit.BJT(1, 4, 2, 3, 'bjt') # Q is mapped to BJT !
 circuit.model('bjt', 'npn', bf=80, cjc=pico(5), rb=100)
-circuit.R('E', 3, 0, kilo(2))
-circuit.C(2, 4, 'out', micro(10))
-circuit.R('Load', 'out', 0, mega(1))
+circuit.R('E', 3, 0, u_kΩ(2))
+circuit.C(2, 4, 'out', u_uF(10))
+circuit.R('Load', 'out', 0, u_MΩ(1))
 
 ####################################################################################################
 

@@ -15,7 +15,7 @@ logger = Logging.setup_logging()
 
 from PySpice.Plot.BodeDiagram import bode_diagram
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -23,9 +23,9 @@ from PySpice.Unit.Units import *
 
 circuit = Circuit('Low-Pass RC Filter')
 
-circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=1)
-R1 = circuit.R(1, 'in', 'out', kilo(1))
-C1 = circuit.C(1, 'out', circuit.gnd, micro(1))
+circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=u_V(1))
+R1 = circuit.R(1, 'in', 'out', u_kΩ(1))
+C1 = circuit.C(1, 'out', circuit.gnd, u_uF(1))
 
 #!# The break frequency is given by :math:`f_c = \frac{1}{2 \pi R C}`
 

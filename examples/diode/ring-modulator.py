@@ -22,7 +22,7 @@ logger = Logging.setup_logging()
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -37,14 +37,14 @@ from RingModulator import RingModulator
 
 circuit = Circuit('Ring Modulator')
 
-modulator = circuit.Sinusoidal('modulator', 'in', circuit.gnd, amplitude=1, frequency=kilo(1))
-carrier = circuit.Sinusoidal('carrier', 'carrier', circuit.gnd, amplitude=10, frequency=kilo(100))
-circuit.R('in', 'in', 1, 50)
-circuit.R('carrier', 'carrier', 2, 50)
+modulator = circuit.Sinusoidal('modulator', 'in', circuit.gnd, amplitude=u_V(1), frequency=u_kHz(1))
+carrier = circuit.Sinusoidal('carrier', 'carrier', circuit.gnd, amplitude=u_V(10), frequency=u_kHz(100))
+circuit.R('in', 'in', 1, u_Ω(50))
+circuit.R('carrier', 'carrier', 2, u_Ω(50))
 
 circuit.include(spice_library['1N4148'])
-circuit.subcircuit(RingModulator(outer_inductance=micro(1),
-                                 inner_inductance=micro(1),
+circuit.subcircuit(RingModulator(outer_inductance=u_uH(1),
+                                 inner_inductance=u_uH(1),
                                  coupling=.99,
                                  diode_model='1N4148',
                              ))
@@ -73,7 +73,7 @@ circuit.X('ring_modulator', 'RingModulator',
 # circuit.CoupledInductor('output_top', output_inductor.name, top_inductor.name, coupling)
 # circuit.CoupledInductor('output_bottom', output_inductor.name, bottom_inductor.name, coupling)
 
-circuit.R('load', 'output', circuit.gnd, kilo(1))
+circuit.R('load', 'output', circuit.gnd, u_kΩ(1))
 
 ### simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 ### # simulator.initial_condition(input_top=0, input_bottom=0, output_top=0, output_bottom=0)

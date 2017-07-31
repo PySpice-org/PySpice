@@ -117,6 +117,7 @@ class Variable:
 
         self.index = int(index)
         self.name = str(name)
+        # Fixme: use Unit
         self.unit = str(unit) # could be guessed from name also for voltage node and branch current
         self.data = None
 
@@ -269,6 +270,8 @@ class RawFile:
             items = [x.strip() for x in line.split('\t') if x]
             # 0 frequency frequency grid=3
             index, name, unit = items[:3]
+             # Fixme: use Unit
+            #   unit = time, voltage, current
             self.variables[name] = Variable(index, name, unit)
         # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
 

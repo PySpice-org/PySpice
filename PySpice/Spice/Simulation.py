@@ -27,6 +27,7 @@ import logging
 from ..Tools.StringTools import join_list, join_dict
 from .NgSpice.Shared import NgSpiceShared
 from .Server import SpiceServer
+from PySpice.Unit import Unit, u_Degree
 
 ####################################################################################################
 
@@ -90,7 +91,7 @@ class CircuitSimulation:
 
     @temperature.setter
     def temperature(self, value):
-        self._options['TEMP'] = value
+        self._options['TEMP'] = u_Degree(value)
 
     ##############################################
 
@@ -100,7 +101,7 @@ class CircuitSimulation:
 
     @nominal_temperature.setter
     def nominal_temperature(self, value):
-        self._options['TNOM'] = value
+        self._options['TNOM'] = u_Degree(value)
 
     ##############################################
 
@@ -322,6 +323,8 @@ class CircuitSimulation:
         if self.options:
             for key, value in self._options.items():
                 if value is not None:
+                    if isinstance(value, Unit):
+                        value = value.str_spice()
                     netlist += '.options {} = {}\n'.format(key, value)
                 else:
                     netlist += '.options {}\n'.format(key)
