@@ -39,6 +39,14 @@ ac_amplitude = u_mV(100)
 
 #cm# diode-characteristic-curve-circuit.m4
 
+#!# Since this circuit is equivalent to a voltage divider, we can write the following relation :
+#!#
+#!# .. math::
+#!#
+#!#     V_{out} = \frac{Z_d}{R_1 + Z_d} V_{in}
+#!#
+#!# where :math:`Z_d` is the diode impedance.
+
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
 source = circuit.V('input', 'in', circuit.gnd, dc_offset)
@@ -65,11 +73,14 @@ dynamic_resistance = ((quiescent_points[ 0]['quiescent_voltage'] -
                       (quiescent_points[ 0]['quiescent_current'] -
                        quiescent_points[-1]['quiescent_current']))
 
-print("Dynamic Resistance = {:.1f} Ω".format(dynamic_resistance))
-#o#
+#?# print("Dynamic Resistance = {:.1f} Ω".format(dynamic_resistance))
+#?# #o#
+
+#!# We found a dynamic resistance of @<@dynamic_resistance:.1f@>@ Ω.
 
 ####################################################################################################
 
+#!#
 #!# We will now drive the diode with a sinusoidal source and perform an AC analysis.
 
 #cm# diode-characteristic-curve-circuit-ac.m4
@@ -107,7 +118,7 @@ axe.set_ylabel('Rd [Ω]')
 
 ####################################################################################################
 
-#!# We will now drive the diode with a pulse and perform a transient analysis.
+#!# We will now drive the diode with a pulse generator and perform a transient analysis.
 
 #cm# diode-characteristic-curve-circuit-pulse.m4
 
@@ -144,5 +155,7 @@ plt.show()
 
 #fig# save_figure(figure, 'diode-recovery-time.png')
 
-#!# We notice the diode cannot follow the pulse generator.  It is due to the capacitive behaviour of
-#!# a PN junction that cut off the highest frequencies of the pulse.
+#!# We notice the output of the circuit cannot follow the pulse generator.  It is due to the
+#!# capacitive behaviour of a PN junction that cut off the highest frequencies of the pulse.  The
+#!# plot of the dynamic resistance as a function of the frequency show a typical low pass filter
+#!# behaviour where the impedance drop at high frequencies.

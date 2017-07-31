@@ -1,6 +1,65 @@
 #!# This example shows how to simulate and plot the characteristic curve of a diode.
+#!#
+#!# Theory
+#!# ------
+
+#!# A diode is a semiconductor device made of a PN junction which is a sandwich of two doped silicon
+#!# layers.
 
 #tz# diode.tex width=500
+
+#!# Before two explains the purpose of the silicon doping.  We will give a quick and simplified look
+#!# on the atomic world.  An atom is made of the same number of protons and electrons, this number
+#!# is so called Z and characterise the atom.  Each electron is coupled to the proton's kernel by
+#!# the electromagnetic interaction, but with different levels of energy.  The reason is due to the
+#!# fact each electron screens each other.  There is thus some electrons which are strongly coupled
+#!# and other ones which are weakly coupled, so called valence's electrons.  An atom is a neutral
+#!# object when we observe it at a large distance, but when the pressure and temperature of the
+#!# environment match some conditions, the weakly coupled electrons can be shared with atoms in the
+#!# neighbourhood and create the electromagnetic interaction between atoms which make the cohesion
+#!# of the matter.
+
+#!#
+#!# Depending on the weakness of the electrons, an atom can be an insulated material or a conductor.
+#!# Semiconductors are between them.
+
+#!#
+#!# The doping consists to diffuse a small quantities of atoms with a larger or smaller number of
+#!# valence electron in a silicon layer.  Since a silicon atom has four valence electrons, we use
+#!# atoms having 3 or 5 valence electrons for the doping.  A doping using a larger number of valence
+#!# electrons is called N for negative, and P respectively.  In a silicon lattice doped with atoms
+#!# having a larger number of valence electrons, the additional electrons do not participate to the
+#!# lattice cohesion and are weakly coupled to the atoms.  The conductivity is thus improved.  In
+#!# other hands, a silicon lattice doped with atoms having a smaller number of valence electrons,
+#!# some electrons are missing for the lattice cohesion.  These missing electrons are called holes
+#!# since the P doping atoms will catch free electrons so as to normalise the lattice cohesion.
+
+#!#
+#!# When we make a sandwich of P and N doped silicon layers, the weak electrons of the N layer
+#!# diffuse to the P layer until an equilibrium state is achieved.  Indeed this diffusion creates a
+#!# depletion region which acts as a barrier to the electrons, since a P doping atom becomes negative
+#!# (anion) when it catches an electron and reciprocally a N doping atom becomes positive (cation)
+#!# when it lost an electron.  The depletion region is thus a kind of capacitor.
+
+#!#
+#!# The volume of the depletion region can be changed by applying a tension across the PN junction.
+#!# If the tension between the PN junction is negative then the depletion region is enlarged, and
+#!# only a very small current can flow through the junction due to the thermal agitation.  But if we
+#!# apply a positive tension, the depletion region is pressurised, and if it reaches a threshold, an
+#!# electron flow will be able to pass through the junction.
+
+#!#
+#!# A PN junction can thus only conduct a current from the anode to the cathode and only if a
+#!# minimal bias tension is applied across it.
+
+#!#
+#!# However if a large enough inverse tension is applied to the junction then the electrostatic
+#!# force will become sufficiently large enough to pull off electrons across the junction and the
+#!# current will flow from the cathode to the anode. This effect is called breakdown.
+
+#!#
+#!# Simulation
+#!# ----------
 
 ####################################################################################################
 
