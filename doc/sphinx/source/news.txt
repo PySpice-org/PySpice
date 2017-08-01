@@ -8,10 +8,12 @@ V0.4.0
 ------
 
  * Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size
- * Improved documentation generator: Implemented RST formatting and Tikz figure.
+ * Improved documentation generator: Implemented :code:`format` for RST content and Tikz figure.
  * Improved unit support: It implements now the International System of Units.
-   And we can now use unit helper like :code:`u_mV` or compute the value of :code:`u_kΩ(1.2) / u_mA(2)`.
+   And we can now use unit helper like :code:`u_mV` or compute the value of :code:`1.2@u_kΩ / 2@u_mA`.
    The relevant documentation is on this `page <api/PySpice/Unit.html>`_.
+ * Added the Simulation instance to the Analysis class.
+ * Refactored simulation parameters as classes.
 
 V0.3.2
 ------
