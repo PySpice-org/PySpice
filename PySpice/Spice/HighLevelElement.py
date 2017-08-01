@@ -112,9 +112,10 @@ class Sinusoidal(VoltageSource):
 
     def format_spice_parameters(self):
 
+        sin_part = join_list((self.offset, self.amplitude, self.frequency, self.delay, self.damping_factor))
         return join_list((
             'DC {}'.format(str_spice(self.dc_offset)),
-            'AC SIN({})'.format(join_list((self.amplitude, self.frequency, self.delay, self.damping_factor))),
+            'AC SIN({})'.format(sin_part),
         ))
 
 ####################################################################################################
