@@ -60,8 +60,8 @@ class PowerIn(SubCircuitFactory):
 
         super().__init__()
 
-        self.V('positive', 'output_plus', 'ground', 3.3 @u_V)
-        self.V('negative', 'ground', 'output_minus', 3.3 @u_V)
+        self.V('positive', 'output_plus', 'ground', 3.3@u_V)
+        self.V('negative', 'ground', 'output_minus', 3.3@u_V)
 
 ####################################################################################################
 
@@ -112,7 +112,7 @@ class JackOut(SubCircuitFactory):
 
         super().__init__()
 
-        self.R('load', 'output', 'x', 10 @u_Ω)
+        self.R('load', 'output', 'x', 10@u_Ω)
 
 ####################################################################################################
 

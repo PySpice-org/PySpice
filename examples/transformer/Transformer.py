@@ -15,10 +15,10 @@ class Transformer(SubCircuitFactory):
 
     def __init__(self,
                  turn_ratio,
-                 primary_inductance=1 @u_H,
-                 copper_resistance=1 @u_Ω,
-                 leakage_inductance=1 @u_mH,
-                 winding_capacitance=20 @u_pF,
+                 primary_inductance=1@u_H,
+                 copper_resistance=1@u_Ω,
+                 leakage_inductance=1@u_mH,
+                 winding_capacitance=20@u_pF,
                  coupling=.999,
              ):
 

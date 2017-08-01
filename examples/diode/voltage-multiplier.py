@@ -39,9 +39,9 @@ for i in range(multiplier):
     else:
         top_node = 'in'
     midlle_node, bottom_node = i + 1, i
-    circuit.C(i, top_node, midlle_node, 1 @u_mF)
+    circuit.C(i, top_node, midlle_node, 1@u_mF)
     circuit.X(i, '1N4148', midlle_node, bottom_node)
-circuit.R(1, multiplier, multiplier+1, 1 @u_MΩ)
+circuit.R(1, multiplier, multiplier+1, 1@u_MΩ)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*20)

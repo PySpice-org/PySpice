@@ -30,8 +30,8 @@ spice_library = SpiceLibrary(libraries_path)
 
 #!# Let define some parameters
 
-dc_offset = 1 @u_V
-ac_amplitude = 100 @u_mV
+dc_offset = 1@u_V
+ac_amplitude = 100@u_mV
 
 ####################################################################################################
 
@@ -50,7 +50,7 @@ ac_amplitude = 100 @u_mV
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
 source = circuit.V('input', 'in', circuit.gnd, dc_offset)
-circuit.R(1, 'in', 'out', 1 @u_kΩ)
+circuit.R(1, 'in', 'out', 1@u_kΩ)
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
 quiescent_points = []
@@ -90,7 +90,7 @@ circuit.include(spice_library['BAV21'])
 circuit.Sinusoidal('input', 'in', circuit.gnd,
                    dc_offset=dc_offset, offset=dc_offset,
                    amplitude=ac_amplitude)
-R = circuit.R(1, 'in', 'out', 1 @u_kΩ)
+R = circuit.R(1, 'in', 'out', 1@u_kΩ)
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
@@ -122,7 +122,7 @@ axe.set_ylabel('Rd [Ω]')
 
 #cm# diode-characteristic-curve-circuit-pulse.m4
 
-frequency = 1 @u_MHz
+frequency = 1@u_MHz
 
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
@@ -133,7 +133,7 @@ circuit.include(spice_library['BAV21'])
 source = circuit.Pulse('input', 'in', circuit.gnd,
                        initial_value=dc_offset-ac_amplitude, pulsed_value=dc_offset+ac_amplitude,
                        pulse_width=frequency.period/2, period=frequency.period)
-circuit.R(1, 'in', 'out', 1 @u_kΩ)
+circuit.R(1, 'in', 'out', 1@u_kΩ)
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)

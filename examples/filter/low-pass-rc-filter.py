@@ -23,9 +23,9 @@ from PySpice.Unit import *
 
 circuit = Circuit('Low-Pass RC Filter')
 
-circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=1 @u_V)
-R1 = circuit.R(1, 'in', 'out', 1 @u_kΩ)
-C1 = circuit.C(1, 'out', circuit.gnd, 1 @u_uF)
+circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=1@u_V)
+R1 = circuit.R(1, 'in', 'out', 1@u_kΩ)
+C1 = circuit.C(1, 'out', circuit.gnd, 1@u_uF)
 
 #!# The break frequency is given by :math:`f_c = \frac{1}{2 \pi R C}`
 

@@ -58,11 +58,11 @@ class MyNgSpiceShared(NgSpiceShared):
 circuit = Circuit('Voltage Divider')
 
 circuit.V('input', 'input', circuit.gnd, 'dc 0 external')
-circuit.R(1, 'input', 'output', 10 @u_kΩ)
-circuit.R(2, 'output', circuit.gnd, 1 @u_kΩ)
+circuit.R(1, 'input', 'output', 10@u_kΩ)
+circuit.R(2, 'output', circuit.gnd, 1@u_kΩ)
 
-amplitude = 10 @u_V
-frequency = 50 @u_Hz
+amplitude = 10@u_V
+frequency = 50@u_Hz
 ngspice_shared = MyNgSpiceShared(amplitude=amplitude, frequency=frequency, send_data=False)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25,
                               simulator='shared', ngspice_shared=ngspice_shared)

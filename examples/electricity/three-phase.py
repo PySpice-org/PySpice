@@ -23,7 +23,7 @@ from PySpice.Unit import *
 
 #!# Let use an European 230 V / 50 Hz electric network.
 
-frequency = 50 @u_Hz
+frequency = 50@u_Hz
 w = frequency.pulsation
 period = frequency.period
 

@@ -19,14 +19,14 @@ from PySpice.Unit import *
 
 circuit = Circuit('Astable Multivibrator')
 
-source = circuit.V('cc', 'vcc', circuit.gnd, 15 @u_V)
+source = circuit.V('cc', 'vcc', circuit.gnd, 15@u_V)
 # Time constant
-circuit.R(1, 'output', 'comparator', 1 @u_kΩ)
-circuit.C(1, 'comparator', circuit.gnd, 100 @u_nF)
+circuit.R(1, 'output', 'comparator', 1@u_kΩ)
+circuit.C(1, 'comparator', circuit.gnd, 100@u_nF)
 # Reference
-circuit.R(2, 'output', 'reference', 100 @u_kΩ)
-circuit.R(3, 'vcc', 'reference', 100 @u_kΩ)
-circuit.R(4, 'reference', circuit.gnd, 100 @u_kΩ)
+circuit.R(2, 'output', 'reference', 100@u_kΩ)
+circuit.R(3, 'vcc', 'reference', 100@u_kΩ)
+circuit.R(4, 'reference', circuit.gnd, 100@u_kΩ)
 # Comparator
 # Fixme: ngspice is buggy with such subcircuit
 # circuit.subcircuit(basic_comparator)

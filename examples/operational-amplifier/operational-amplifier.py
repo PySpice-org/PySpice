@@ -23,10 +23,10 @@ from OperationalAmplifier import BasicOperationalAmplifier
 circuit = Circuit('Operational Amplifier')
 
 # AC 1 PWL(0US 0V  0.01US 1V)
-circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=1 @u_V)
+circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=1@u_V)
 circuit.subcircuit(BasicOperationalAmplifier())
 circuit.X('op', 'BasicOperationalAmplifier', 'in', circuit.gnd, 'out')
-circuit.R('load', 'out', circuit.gnd, 470 @u_Ω)
+circuit.R('load', 'out', circuit.gnd, 470@u_Ω)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.ac(start_frequency=1@u_Hz, stop_frequency=100@u_MHz, number_of_points=5,  variation='dec')

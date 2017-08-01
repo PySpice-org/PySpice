@@ -45,17 +45,17 @@ for element_type in ('capacitor', 'inductor'):
     circuit = Circuit(element_type.title())
     # Fixme: compute value
     source = circuit.Pulse('input', 'in', circuit.gnd,
-                           initial_value=0 @u_V, pulsed_value=10 @u_V,
-                           pulse_width=10 @u_ms, period=20 @u_ms)
-    circuit.R(1, 'in', 'out', 1 @u_kΩ)
+                           initial_value=0@u_V, pulsed_value=10 @u_V,
+                           pulse_width=10@u_ms, period=20 @u_ms)
+    circuit.R(1, 'in', 'out', 1@u_kΩ)
     if element_type == 'capacitor':
         element = circuit.C
-        value = 1 @u_uF
+        value = 1@u_uF
         # tau = RC = 1 ms
     else:
         element = circuit.L
         # Fixme: force component value to an Unit instance ?
-        value = 1 @u_H
+        value = 1@u_H
         # tau = L/R = 1 ms
     element(1, 'out', circuit.gnd, value)
     # circuit.R(2, 'out', circuit.gnd, kilo(1)) # for debug
@@ -66,7 +66,7 @@ for element_type in ('capacitor', 'inductor'):
         tau = circuit['L1'].inductance / circuit['R1'].resistance
 
     simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    step_time = 10 @u_us
+    step_time = 10@u_us
     analysis = simulator.transient(step_time=step_time, end_time=source.period*3)
 
     # Let define the theoretical output voltage.

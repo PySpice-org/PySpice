@@ -37,14 +37,14 @@ from RingModulator import RingModulator
 
 circuit = Circuit('Ring Modulator')
 
-modulator = circuit.Sinusoidal('modulator', 'in', circuit.gnd, amplitude=1 @u_V, frequency=1 @u_kHz)
-carrier = circuit.Sinusoidal('carrier', 'carrier', circuit.gnd, amplitude=10 @u_V, frequency=100 @u_kHz)
-circuit.R('in', 'in', 1, 50 @u_Ω)
-circuit.R('carrier', 'carrier', 2, 50 @u_Ω)
+modulator = circuit.Sinusoidal('modulator', 'in', circuit.gnd, amplitude=1@u_V, frequency=1 @u_kHz)
+carrier = circuit.Sinusoidal('carrier', 'carrier', circuit.gnd, amplitude=10@u_V, frequency=100 @u_kHz)
+circuit.R('in', 'in', 1, 50@u_Ω)
+circuit.R('carrier', 'carrier', 2, 50@u_Ω)
 
 circuit.include(spice_library['1N4148'])
-circuit.subcircuit(RingModulator(outer_inductance=1 @u_uH,
-                                 inner_inductance=1 @u_uH,
+circuit.subcircuit(RingModulator(outer_inductance=1@u_uH,
+                                 inner_inductance=1@u_uH,
                                  coupling=.99,
                                  diode_model='1N4148',
                              ))
@@ -73,7 +73,7 @@ circuit.X('ring_modulator', 'RingModulator',
 # circuit.CoupledInductor('output_top', output_inductor.name, top_inductor.name, coupling)
 # circuit.CoupledInductor('output_bottom', output_inductor.name, bottom_inductor.name, coupling)
 
-circuit.R('load', 'output', circuit.gnd, 1 @u_kΩ)
+circuit.R('load', 'output', circuit.gnd, 1@u_kΩ)
 
 ### simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 ### # simulator.initial_condition(input_top=0, input_bottom=0, output_top=0, output_bottom=0)
