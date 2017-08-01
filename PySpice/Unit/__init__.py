@@ -140,7 +140,10 @@ def _to_ascii(name):
     return ascii_name
 
 def define_shortcut(name, shortcut) :
-    if '°' not in name: # ° is illegal
+    # ° is illegal in Python 3.5
+    #  see https://docs.python.org/3/reference/lexical_analysis.html#identifiers
+    #      https://www.python.org/dev/peps/pep-3131/
+    if '°' not in name:
         globals()[name] = shortcut
     ascii_name = _to_ascii(name)
     if ascii_name != name:
