@@ -23,7 +23,7 @@ logger = Logging.setup_logging()
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Spice.Parser import SpiceParser
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 

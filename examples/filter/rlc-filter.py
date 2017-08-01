@@ -6,6 +6,8 @@
 
 ####################################################################################################
 
+import math
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -103,6 +105,9 @@ circuit2.Sinusoidal('input', 'in', circuit2.gnd, amplitude=1 @u_V)
 circuit2.L(1, 'in', 2, inductance)
 circuit2.C(1, 2, 'out', capacitance)
 circuit2.R(1, 'out', circuit2.gnd, 25 @u_Ω)
+
+simulator2 = circuit2.simulator(temperature=25, nominal_temperature=25)
+analysis2 = simulator2.ac(start_frequency=100 @u_Hz, stop_frequency=10 @u_kHz, number_of_points=100,  variation='dec')
 
 bode_diagram(axes=axes,
              frequency=analysis2.frequency,

@@ -94,7 +94,7 @@ R = circuit.R(1, 'in', 'out', 1 @u_kΩ)
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.ac(start_frequency=kilo(10), stop_frequency=giga(1), number_of_points=10,  variation='dec')
+analysis = simulator.ac(start_frequency=10@u_kHz, stop_frequency=1@u_GHz, number_of_points=10,  variation='dec')
 
 #!# Let plot the voltage across the diode and the dynamic resistance as a function of the frequency.
 

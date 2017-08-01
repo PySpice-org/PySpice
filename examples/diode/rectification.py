@@ -46,7 +46,7 @@ plt.grid()
 plot(analysis['in'], axis=axe)
 plot(analysis.output, axis=axe)
 plt.legend(('input', 'output'), loc=(.05,.1))
-plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
+plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 ####################################################################################################
 
@@ -65,7 +65,7 @@ plt.grid()
 plot(analysis['in'], axis=axe)
 plot(analysis.output, axis=axe)
 plt.legend(('input', 'output'), loc=(.05,.1))
-plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
+plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 ####################################################################################################
 
@@ -89,7 +89,7 @@ plt.grid()
 plot(analysis['in'], axis=axe)
 plot(analysis.output_plus - analysis.output_minus, axis=axe)
 plt.legend(('input', 'output'), loc=(.05,.1))
-plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
+plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 ####################################################################################################
 
@@ -108,7 +108,7 @@ plt.grid()
 plot(analysis['in'], axis=axe)
 plot(analysis.output_plus - analysis.output_minus, axis=axe)
 plt.legend(('input', 'output'), loc=(.05,.1))
-plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
+plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 plt.tight_layout()
 #fig# save_figure(figure1, 'rectification.png')
@@ -149,7 +149,7 @@ plt.grid()
 plot(analysis['in'], axis=axe)
 plot(analysis.output_plus - analysis.output_minus, axis=axe)
 plt.legend(('input', 'output'), loc=(.05,.1))
-# plt.ylim(-source.amplitude*1.1, source.amplitude*1.1)
+# plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 plt.tight_layout()
 #fig# save_figure(figure2, 'universal-rectifier.png')

@@ -103,12 +103,12 @@ circuit.X('D1', '1N4148', 'out', circuit.gnd)
 
 #!# We simulate the circuit at these temperatures: 0, 25 and 100 °C.
 
-temperatures = [0, 25, 100]
+temperatures = [0, 25, 100] @u_Degree
 analyses = {}
 for temperature in temperatures:
     simulator = circuit.simulator(temperature=temperature, nominal_temperature=temperature)
     analysis = simulator.dc(Vinput=slice(-2, 5, .01))
-    analyses[temperature] = analysis
+    analyses[float(temperature)] = analysis
 
 ####################################################################################################
 
@@ -154,7 +154,7 @@ reverse_region = np.invert(forward_region)
 scale =  reverse_region*1e11 + forward_region*1e3
 #?# check temperature
 for temperature in temperatures:
-    analysis = analyses[temperature]
+    analysis = analyses[float(temperature)]
     axe.plot(Vd, - analysis.Vinput * scale)
 axe.plot(Vd, shockley_diode.I(Vd) * scale, 'black')
 axe.legend(['@ {} °C'.format(temperature)

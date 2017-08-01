@@ -79,7 +79,7 @@ plt.grid()
 plot(analysis.input)
 plot(analysis.output)
 plt.legend(('input', 'output'), loc=(.05,.1))
-plt.ylim(-amplitude*1.1, amplitude*1.1)
+plt.ylim(float(-amplitude*1.1), float(amplitude*1.1))
 
 plt.tight_layout()
 plt.show()

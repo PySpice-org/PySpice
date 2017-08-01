@@ -63,7 +63,7 @@ for i in range(1, multiplier+1):
         y -= analysis['in']
     plot(y, axis=axe)
 # axe.axhline(-multiplier*source.amplitude)
-axe.set_ylim(-multiplier*1.1*source.amplitude, 1.1*source.amplitude)
+axe.set_ylim(float(-multiplier*1.1*source.amplitude), float(1.1*source.amplitude))
 axe.legend(['input'] + ['*' + str(i) for i in range(1, multiplier+1)] ,
            loc=(.2,.8))
 

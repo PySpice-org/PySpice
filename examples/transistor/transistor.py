@@ -127,8 +127,8 @@ for base_current in np.arange(0, 100, 10):
     # Plot β = Ic / Ib = f(Vce)
     axe3.plot(analysis.collector, -analysis.Vcollector/float(base_current))
     # trans-resistance U = RI   R = U / I = Vce / Ie
-    # axe3.plot(analysis.collector, analysis.v_sweep/(float(base_current)-analysis.Vcollector))
-    # Fixme: v_sweep is not so explicit
+    # axe3.plot(analysis.collector, analysis.sweep/(float(base_current)-analysis.Vcollector))
+    # Fixme: sweep is not so explicit
 
 #!# Let plot :math:`Ic = f(Ib)`
 
@@ -139,8 +139,8 @@ axe4.set_ylabel('Ic [mA]')
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Ibase=slice(0, 100e-6, 10e-6))
-# Fixme: v_sweep
-axe4.plot(analysis.v_sweep*1e6, -analysis.Vcollector*1000, 'o-')
+# Fixme: sweep
+axe4.plot(analysis.sweep*1e6, -analysis.Vcollector*1000, 'o-')
 axe4.legend(('Ic(Ib)',), loc=(.1,.8))
 
 ####################################################################################################
