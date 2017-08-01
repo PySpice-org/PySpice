@@ -20,7 +20,7 @@
 
 ####################################################################################################
 
-from ..Unit import u_Degree
+from ..Unit import u_Degree, U_V, U_A, U_s, U_Hz
 
 ####################################################################################################
 
@@ -125,14 +125,13 @@ class Variable:
 
         self.index = int(index)
         self.name = str(name)
-        # Fixme: use Unit
-        self.unit = str(unit) # could be guessed from name also for voltage node and branch current
+        self.unit = unit # could be guessed from name also for voltage node and branch current
         self.data = None
 
     ##############################################
 
     def __repr__(self):
-        return 'variable[{self.index}]: {self.name} [{self.unit}]'.format(self=self)
+        return 'variable[{0.index}]: {0.name} [{0.unit}]'.format(self)
 
     ##############################################
 
@@ -265,6 +264,15 @@ class RawFile:
 
     ##############################################
 
+    __name_to_unit__ = {
+        'time': U_s,
+        'voltage': U_V,
+        'current': U_A,
+        'frequency': U_Hz,
+    }
+
+    ##############################################
+
     def _read_header(self, stdout):
 
         """ Parse the header """
@@ -300,8 +308,8 @@ class RawFile:
             items = [x.strip() for x in line.split('\t') if x]
             # 0 frequency frequency grid=3
             index, name, unit = items[:3]
-             # Fixme: use Unit
-            #   unit = time, voltage, current
+            #  unit = time, voltage, current
+            unit = self.__name_to_unit__[unit] # convert to Unit
             self.variables[name] = Variable(index, name, unit)
         # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
 

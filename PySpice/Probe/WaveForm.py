@@ -78,7 +78,7 @@ class WaveForm(np.ndarray):
         obj = np.asarray(data).view(cls)
 
         obj.name = str(name)
-        obj.unit = str(unit)
+        obj.unit = unit
         obj.title = title # str(title)
         obj.abscissa = abscissa
 
@@ -100,7 +100,7 @@ class WaveForm(np.ndarray):
 
     def __repr__(self):
 
-        return 'variable {self.name} [{self.unit}]'.format(self=self)
+        return 'variable {0.name} [{0.unit}]'.format(self)
 
     ##############################################
 
@@ -109,7 +109,7 @@ class WaveForm(np.ndarray):
         if self.title is not None:
             return self.title
         else:
-            return '{self.name} [{self.unit}]'.format(self=self)
+            return '{0.name} [{0.unit}]'.format(self)
 
     ##############################################
 
