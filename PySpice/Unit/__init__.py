@@ -20,18 +20,25 @@
 
 """This module implements units.
 
-A shortcut is defined for each unit prefix, e.g. :class:`pico`, :class:`nano`, :class:`micro`,
-:class:`milli`, :class:`kilo`, :class:`mega`, :class:`tera`.
+Shortcuts are defined to build easily unit values :
 
-A shortcut is defined for each unit and prefix as the concatenation of *u_*, an unit prefix and an
-unit suffix, e.g. :class:`u_pV`, :class:`u_nV`, :class:`u_uV` :class:`u_mV`, :class:`u_V`,
-:class:`u_kV`, :class:`u_MV`, :class:`u_TV`.
+* for each unit prefix, e.g. :func:`pico`, :func:`nano`, :func:`micro`, :func:`milli`, :func:`kilo`,
+:func:`mega`, :func:`tera`. These shortcuts return unit less values.
+
+* for each unit and prefix as the concatenation of *u_*, the unit prefix and the
+unit suffix, e.g. :func:`u_pV`, :func:`u_nV`, :func:`u_uV` :func:`u_mV`, :func:`u_V`,
+:func:`u_kV`, :func:`u_MV`, :func:`u_TV`.
+
+A shortcut is defined to check an unit value match a particular unit, e.g. :func:`as_V`.  Theses
+shortcuts return the value if the unit match else it raises the exception *UnitError*.
+
+A shortcut is defined to access each unit, e.g. :func:`U_V`.
 
 Some shortcuts have Unicode and ASCII variants:
 
 * For micro, we have the prefix *μ* and *u*.
-* For Ohm, we have :class:`u_Ω` and :class:`u_Ohm`.
-* For Degree Celcius, we have :class:`u_°C` and :class:`u_Degree`.
+* For Ohm, we have :func:`u_Ω` and :func:`u_Ohm`.
+* For Degree Celcius, we have :func:`u_°C` and :func:`u_Degree`.
 
 """
 
@@ -72,6 +79,31 @@ class PeriodValue(_Unit.UnitValue, _Unit.PeriodMixin):
 
 # Define unit shortcuts
 
+def _to_ascii(name):
+    ascii_name = name
+    for args in (
+            ('μ', 'u'),
+            ('Ω', 'Ohm'),
+            ('°C', 'Degree'), # ° is illegal ???
+    ):
+        ascii_name = ascii_name.replace(*args)
+    return ascii_name
+
+def _build_unit_type_shortcut(unit):
+    name = 'U_' + unit.unit_suffix
+    globals()[name] = unit
+    ascii_name = _to_ascii(name)
+    if ascii_name != name:
+        globals()[ascii_name] = unit
+
+def _build_as_unit_shortcut(unit):
+    name = 'as_' + unit.unit_suffix
+    shortcut = lambda value: unit.validate(value)
+    globals()[name] = shortcut
+    ascii_name = _to_ascii(name)
+    if ascii_name != name:
+        globals()[ascii_name] = shortcut
+
 def _exec_body(ns, unit_prefix):
     ns['__power__'] = unit_prefix
 
@@ -87,17 +119,13 @@ def _build_unit_prefix_shortcut(unit, unit_prefix):
     _Unit.UnitPower.register(unit_power)
     shortcut = lambda value: value_ctor(unit_power, value)
     globals()[name] = shortcut
-    ascii_name = name
-    for args in (
-            ('μ', 'u'),
-            ('Ω', 'Ohm'),
-            ('°C', 'Degree'), # ° is illegal ???
-    ):
-        ascii_name = ascii_name.replace(*args)
+    ascii_name = _to_ascii(name)
     if ascii_name != name:
         globals()[ascii_name] = shortcut
 
 def _build_unit_shortcut(unit):
+    _build_as_unit_shortcut(unit)
+    _build_unit_type_shortcut(unit)
     for unit_prefix in _Unit.UnitPrefixMetaclass.prefix_iter():
         if unit_prefix.is_defined_in_spice:
             _build_unit_prefix_shortcut(unit, unit_prefix)

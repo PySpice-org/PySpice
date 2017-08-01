@@ -602,6 +602,25 @@ class Unit(metaclass=UnitMetaclass):
         else:
             return str(self._si_unit)
 
+    ##############################################
+
+    def is_same_unit(self, value):
+
+        return value.unit == self
+
+    ##############################################
+
+    def validate(self, value):
+
+        if isinstance(value, UnitValue):
+            if  self.is_same_unit(value):
+                return value
+            else:
+                raise UnitError
+        else:
+            unit_power = UnitPower.from_unit_power(self)
+            return unit_power.new_value(value)
+
 ####################################################################################################
 
 class SiBaseUnit(Unit):
@@ -627,7 +646,8 @@ class UnitPower:
     """This class implements an unit power.
     """
 
-    __map__ = {} # Unit power singletons
+    __unit_map__ = {} # Unit power singletons
+    __unit_power_map__ = {}
 
     __value_ctor__ = None
 
@@ -637,28 +657,41 @@ class UnitPower:
     def register(cls, unit_power):
         unit = unit_power.unit
         unit_prefix = unit_power.power
-        if unit.unit_suffix:
-            key = str(unit_power)
-        else:
-            key = unit_prefix.power
-        # print('Register', key, unit_power)
-        cls.__map__[key] = unit_power
         if unit_prefix.is_unit and unit.is_default_unit():
             key = unit.si_unit.hash
             # print('Register', key, unit_power)
-            cls.__map__[key] = unit_power
-
-    ##############################################
-
-    @classmethod
-    def get_unit_power(cls, key):
-        return cls.__map__.get(key, None)
+            cls.__unit_map__[key] = unit_power
+        if unit.unit_suffix:
+            unit_key = str(unit)
+        else:
+            unit_key = '_'
+        power_key = unit_prefix.power
+        # print('Register', unit_key, power_key, unit_power)
+        if unit_key not in cls.__unit_power_map__:
+            cls.__unit_power_map__[unit_key] = {}
+        cls.__unit_power_map__[unit_key][power_key] = unit_power
 
     ##############################################
 
     @classmethod
     def from_si_unit(cls, si_unit):
-        return cls.get_unit_power(si_unit.hash)
+        return cls.__unit_map__.get(si_unit.hash, None)
+
+    ##############################################
+
+    @classmethod
+    def from_unit_power(cls, unit, power=0):
+
+        if unit.unit_suffix:
+            unit_key = str(unit)
+        else:
+            if power == 0:
+                return _simple_unit_power
+            unit_key = '_'
+        try:
+            return cls.__unit_power_map__[unit_key][power]
+        except KeyError:
+            return None
 
     ##############################################
 
@@ -789,10 +822,6 @@ class UnitPower:
 
 ####################################################################################################
 
-_simple_unit_power = UnitPower()
-
-####################################################################################################
-
 class UnitValue: # numbers.Real
 
     """This class implements a value with an unit and a power (prefix).
@@ -816,6 +845,9 @@ class UnitValue: # numbers.Real
         self._unit_power = unit_power
 
         if isinstance(value, UnitValue):
+            # Fixme: anonymous ???
+            if not self.is_same_unit(value):
+                raise UnitError
             if self.is_same_power(value):
                 self._value = value.value
             else:
@@ -865,8 +897,8 @@ class UnitValue: # numbers.Real
 
     ##############################################
 
-    def clone_unit(self, value, power):
-        return self.__class__(UnitPower(self.unit, power), value)
+    # def clone_unit(self, value, power):
+    #     return self.__class__(UnitPower(self.unit, power), value)
 
     ##############################################
 
@@ -907,19 +939,6 @@ class UnitValue: # numbers.Real
         # The default __ne__ doesn't negate __eq__ until 3.0.
 
         return not (self == other)
-
-    ##############################################
-
-    def convert(self, unit_power):
-
-        """Convert the value to another power."""
-
-        self._unit_power.check_unit(unit_power)
-        if self._unit_power.is_same_power(unit_power):
-            return self
-        else:
-            value = float(self) / unit_power.scale
-            return self.clone_unit(value, unit_power.power)
 
     ##############################################
 
@@ -1329,6 +1348,42 @@ class UnitValue: # numbers.Real
 
     ##############################################
 
+    def get_unit_power(self, power=0):
+
+        unit_power = UnitPower.from_unit_power(self.unit, power)
+        if unit_power is not None:
+            return unit_power
+        else:
+            raise NameError("Unit power not found for {} and power {}".format(self, power))
+
+    ##############################################
+
+    def convert(self, unit_power):
+
+        """Convert the value to another power."""
+
+        self._unit_power.check_unit(unit_power)
+        if self._unit_power.is_same_power(unit_power):
+            return self
+        else:
+            value = float(self) / unit_power.scale
+            return unit_power.new_value(value)
+
+    ##############################################
+
+    def convert_to_power(self, power=0):
+
+        """Convert the value to another power."""
+
+        if power == 0:
+            value = float(self)
+        else:
+            value = float(self) / 10**power
+
+        return self.get_unit_power(power).new_value(value)
+
+    ##############################################
+
     def canonise(self):
 
         # log10(10**n) = n    log10(1) = 0   log10(10**-n) = -n   log10(0) = -oo
@@ -1351,14 +1406,10 @@ class UnitValue: # numbers.Real
             if power == int(self.power):
                 # print('Unit.canonise noting to do for', self)
                 return self
-            elif power == 0:
-                # print('Unit.canonise convert', self, 'to', Unit)
-                return self.clone_unit(float(self), _zero_power) # Fixme: duplicate unit_power
             else:
-                # Fixme: retrieve root unit
-                unit_prefix = UnitPrefixMetaclass.get(power)
                 # print('Unit.canonise convert', self, 'to', power)
-                return self.clone_unit(float(self) / 10**power, unit_prefix)
+                # print('Unit.canonise convert', self, 'to', Unit)
+                return self.convert_to_power(power)
         except Exception as e: # Fixme: fallback
             self._logger.warning(e)
             return self
@@ -1367,6 +1418,8 @@ class UnitValue: # numbers.Real
 
 # Reset
 UnitPower.__value_ctor__ = UnitValue
+
+_simple_unit_power = UnitPower()
 
 ####################################################################################################
 

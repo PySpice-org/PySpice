@@ -201,6 +201,17 @@ class TestUnits(unittest.TestCase):
     ##############################################
 
     # @unittest.skip('')
+    def test_validation(self):
+
+        self.assertEqual(as_Hz(50), u_Hz(50))
+        self.assertEqual(as_Hz(u_kHz(100)), u_kHz(100))
+        self.assertEqual(as_Hz(u_kHz(100)).unit_power.power.power, 3) # Fixme: API ...
+        with self.assertRaises(UnitError):
+            as_Hz(u_A(1))
+
+    ##############################################
+
+    # @unittest.skip('')
     def test_frequency_mixin(self):
 
         self.assertEqual(Frequency(50).period, u_s(1/50.))
