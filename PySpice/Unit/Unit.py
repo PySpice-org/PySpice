@@ -611,8 +611,10 @@ class Unit(metaclass=UnitMetaclass):
 
     ##############################################
 
-    def validate(self, value):
+    def validate(self, value, none=False):
 
+        if none and value is None:
+            return None
         if isinstance(value, UnitValue):
             if  self.is_same_unit(value):
                 return value

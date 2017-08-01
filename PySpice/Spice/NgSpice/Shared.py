@@ -171,10 +171,11 @@ class Plot(dict):
 
     ##############################################
 
-    def __init__(self, plot_name):
+    def __init__(self, simulation, plot_name):
 
         super().__init__()
 
+        self._simulation = simulation
         self.plot_name = plot_name
 
     ##############################################
@@ -221,14 +222,21 @@ class Plot(dict):
 
     def _to_operating_point_analysis(self):
 
-        return OperatingPoint(nodes=self.nodes(to_float=True), branches=self.branches(to_float=True))
+        return OperatingPoint(
+            simulation=self._simulation,
+            nodes=self.nodes(to_float=True),
+            branches=self.branches(to_float=True),
+        )
 
     ##############################################
 
     def _to_sensitivity_analysis(self):
 
         # Fixme: separate v(vinput), analysis.R2.m
-        return SensitivityAnalysis(elements=self.elements())
+        return SensitivityAnalysis(
+            simulation=self._simulation,
+            elements=self.elements(),
+        )
 
     ##############################################
 
@@ -241,21 +249,36 @@ class Plot(dict):
         else:
             raise NotImplementedError
         sweep = sweep_variable.to_waveform()
-        return DcAnalysis(sweep, nodes=self.nodes(), branches=self.branches())
+        return DcAnalysis(
+            simulation=self._simulation,
+            sweep=sweep,
+            nodes=self.nodes(),
+            branches=self.branches(),
+        )
 
     ##############################################
 
     def _to_ac_analysis(self):
 
         frequency = self['frequency'].to_waveform(to_real=True)
-        return AcAnalysis(frequency, nodes=self.nodes(), branches=self.branches())
+        return AcAnalysis(
+            simulation=self._simulation,
+            frequency=frequency,
+            nodes=self.nodes(),
+            branches=self.branches(),
+        )
 
     ##############################################
 
     def _to_transient_analysis(self):
 
         time = self['time'].to_waveform(to_real=True)
-        return TransientAnalysis(time, nodes=self.nodes(abscissa=time), branches=self.branches(abscissa=time))
+        return TransientAnalysis(
+            simulation=self._simulation,
+            time=time,
+            nodes=self.nodes(abscissa=time),
+            branches=self.branches(abscissa=time),
+        )
 
 ####################################################################################################
 
@@ -528,11 +551,11 @@ class NgSpiceShared:
 
     ##############################################
 
-    def plot(self, plot_name):
+    def plot(self, simulation, plot_name):
 
         """ Return the corresponding plot. """
 
-        plot = Plot(plot_name)
+        plot = Plot(simulation, plot_name)
         all_vectors_c = self._ngspice_shared.ngSpice_AllVecs(plot_name.encode('utf8'))
         i = 0
         while (True):

@@ -2,7 +2,7 @@
 #
 # PySpice - A Spice Package for Python
 # Copyright (C) 2014 Fabrice Salvaire
-#
+# 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -24,14 +24,259 @@ import logging
 
 ####################################################################################################
 
-from ..Tools.StringTools import join_list, join_dict
+from ..Tools.StringTools import join_list, join_dict, str_spice
+from ..Unit import Unit, as_V, as_A, as_s, as_Hz, as_Degree, u_Degree
 from .NgSpice.Shared import NgSpiceShared
 from .Server import SpiceServer
-from PySpice.Unit import Unit, u_Degree
 
 ####################################################################################################
 
 _module_logger = logging.getLogger(__name__)
+
+####################################################################################################
+
+class AnalysisParameters:
+
+    __analysis_name__ = None
+
+    ##############################################
+
+    @property
+    def analysis_name(self):
+        return self.__analysis_name__
+
+    ##############################################
+
+    def to_list(self):
+        return ()
+
+    ##############################################
+
+    def __str__(self):
+
+        return '.{0.analysis_name} {1}'.format(self, join_list(self.to_list()))
+
+####################################################################################################
+
+class OperatingPointAnalysisParameters(AnalysisParameters):
+
+    __analysis_name__ = 'op'
+
+####################################################################################################
+
+class DcSensitivityAnalysisParameters(AnalysisParameters):
+
+    __analysis_name__ = 'sens'
+
+    ##############################################
+
+    def __init__(self, output_variable):
+
+        self._output_variable = output_variable
+
+    ##############################################
+
+    @property
+    def output_variable(self):
+        return self._output_variable
+
+    ##############################################
+
+    def to_list(self):
+
+        return (
+            self._output_variable,
+        )
+
+####################################################################################################
+
+class AcSensitivityAnalysisParameters(AnalysisParameters):
+
+    __analysis_name__ = 'sens'
+
+    ##############################################
+
+    def __init__(self, output_variable,
+                 variation, number_of_points, start_frequency, stop_frequency):
+
+        if variation not in ('dec', 'oct', 'lin'):
+            raise ValueError("Incorrect variation type")
+
+        self._output_variable = output_variable
+        self._variation = variation
+        self._number_of_points = number_of_points
+        self._start_frequency = as_Hz(start_frequency)
+        self._stop_frequency = as_Hz(stop_frequency)
+
+    ##############################################
+
+    @property
+    def output_variable(self):
+        return self._output_variable
+
+    @property
+    def variation(self):
+        return self._variation
+
+    @property
+    def number_of_points(self):
+        return self._number_of_points
+
+    @property
+    def start_frequency(self):
+        return self._start_frequency
+
+    @property
+    def stop_frequencyr(self):
+        return self._stop_frequency
+
+    ##############################################
+
+    def to_list(self):
+
+        return (
+            self._output_variable,
+            self._variation,
+            self._number_of_points,
+            self._start_frequency,
+            self._stop_frequency
+        )
+
+####################################################################################################
+
+class DCAnalysisParameters(AnalysisParameters):
+
+    __analysis_name__ = 'dc'
+
+    ##############################################
+
+    def __init__(self, **kwargs):
+
+        self._parameters = []
+        for variable, value_slice in kwargs.items():
+            variable_lower = variable.lower()
+            if variable_lower[0] in ('v', 'i', 'r') or variable_lower == 'temp':
+                self._parameters += [variable, value_slice.start, value_slice.stop, value_slice.step]
+            else:
+                raise NameError('Sweep variable must be a voltage/current source, '
+                                'a resistor or the circuit temperature')
+
+    ##############################################
+
+    @property
+    def parameters(self):
+        return self._parameters
+
+    ##############################################
+
+    def to_list(self):
+
+        return self._parameters
+
+####################################################################################################
+
+class ACAnalysisParameters(AnalysisParameters):
+
+    __analysis_name__ = 'ac'
+
+    ##############################################
+
+    def __init__(self, variation, number_of_points, start_frequency, stop_frequency):
+
+        # Fixme: use mixin
+
+        if variation not in ('dec', 'oct', 'lin'):
+            raise ValueError("Incorrect variation type")
+
+        self._variation = variation
+        self._number_of_points = number_of_points
+        self._start_frequency = as_Hz(start_frequency)
+        self._stop_frequency = as_Hz(stop_frequency)
+
+    ##############################################
+
+    @property
+    def variation(self):
+        return self._variation
+
+    @property
+    def number_of_points(self):
+        return self._number_of_points
+
+    @property
+    def start_frequency(self):
+        return self._start_frequency
+
+    @property
+    def stop_frequencyr(self):
+        return self._stop_frequency
+
+    ##############################################
+
+    def to_list(self):
+
+        return (
+            self._variation,
+            self._number_of_points,
+            self._start_frequency,
+            self._stop_frequency
+        )
+
+####################################################################################################
+
+class TransientAnalysisParameters(AnalysisParameters):
+
+    __analysis_name__ = 'tran'
+
+    ##############################################
+
+    def __init__(self, step_time, end_time, start_time=0, max_time=None,
+                 use_initial_condition=False):
+
+        if use_initial_condition:
+            uic = 'uic'
+        else:
+            uic = None
+
+        self._step_time = as_s(step_time)
+        self._end_time = as_s(end_time)
+        self._start_time = as_s(start_time)
+        self._max_time = as_s(max_time, none=True)
+        self._use_initial_condition = uic
+
+    ##############################################
+
+    @property
+    def step_time(self):
+        return self._step_time
+
+    @property
+    def end_time(self):
+        return self._end_time
+
+    @property
+    def start_time(self):
+        return self._start_time
+
+    @property
+    def max_time(self):
+        return self._max_time
+
+    @property
+    def use_initial_condition(self):
+        return self._use_initial_condition
+
+    ##############################################
+
+    def to_list(self):
+
+        return (
+            self._step_time,
+            self._end_time,
+            self._start_time,
+            self._max_time,
+            self._use_initial_condition,
+        )
 
 ####################################################################################################
 
@@ -49,7 +294,7 @@ class CircuitSimulation:
     ##############################################
 
     def __init__(self, circuit,
-                 temperature=27,
+                 temperature=27, # u_Degree()
                  nominal_temperature=27,
                  pipe=True,
                 ):
@@ -59,7 +304,7 @@ class CircuitSimulation:
         self._options = {} # .options
         self._initial_condition = {} # .ic
         self._saved_nodes = ()
-        self._analysis_parameters = {}
+        self._analyses = {}
 
         self.temperature = temperature
         self.nominal_temperature = nominal_temperature
@@ -91,7 +336,7 @@ class CircuitSimulation:
 
     @temperature.setter
     def temperature(self, value):
-        self._options['TEMP'] = u_Degree(value)
+        self._options['TEMP'] = as_Degree(value)
 
     ##############################################
 
@@ -101,7 +346,7 @@ class CircuitSimulation:
 
     @nominal_temperature.setter
     def nominal_temperature(self, value):
-        self._options['TNOM'] = u_Degree(value)
+        self._options['TNOM'] = as_Degree(value)
 
     ##############################################
 
@@ -158,7 +403,19 @@ class CircuitSimulation:
 
     def reset_analysis(self):
 
-        self._analysis_parameters.clear()
+        self._analyses.clear()
+
+    ##############################################
+
+    def analysis_iter(self):
+
+        return self._analyses.values()
+
+    ##############################################
+
+    def _add_analysis(self, analysis_parameters):
+
+        self._analyses[analysis_parameters.analysis_name] = analysis_parameters
 
     ##############################################
 
@@ -166,7 +423,7 @@ class CircuitSimulation:
 
         """Compute the operating point of the circuit with capacitors open and inductors shorted."""
 
-        self._analysis_parameters['op'] = ''
+        self._add_analysis(OperatingPointAnalysisParameters())
 
     ##############################################
 
@@ -190,12 +447,12 @@ class CircuitSimulation:
 
         """
 
-        self._analysis_parameters['sens'] = (output_variable,)
+        self._add_analysis(DcSensitivityAnalysisParameters(output_variable))
 
     ##############################################
 
     def ac_sensitivity(self, output_variable,
-                       start_frequency, stop_frequency, number_of_points, variation):
+                       variation, number_of_points, start_frequency, stop_frequency):
 
         """Compute the sensitivity of the AC values of a node voltage or voltage-source branch
         current to all non-zero device parameters.
@@ -216,11 +473,11 @@ class CircuitSimulation:
 
         """
 
-        if variation not in ('dec', 'oct', 'lin'):
-            raise ValueError("Incorrect variation type")
-
-        self._analysis_parameters['sens'] = (output_variable,
-                                             variation, number_of_points, start_frequency, stop_frequency)
+        self._add_analysis(
+            AcSensitivityAnalysisParameters(
+                output_variable,
+                variation, number_of_points, start_frequency, stop_frequency
+            ))
 
     ##############################################
 
@@ -253,19 +510,11 @@ class CircuitSimulation:
 
         """
 
-        parameters = []
-        for variable, value_slice in kwargs.items():
-            variable_lower = variable.lower()
-            if variable_lower[0] in ('v', 'i', 'r') or variable_lower == 'temp':
-                parameters += [variable, value_slice.start, value_slice.stop, value_slice.step]
-            else:
-                raise NameError('Sweep variable must be a voltage/current source, '
-                                'a resistor or the circuit temperature')
-        self._analysis_parameters['dc'] = parameters
+        self._add_analysis(DCAnalysisParameters(**kwargs))
 
     ##############################################
 
-    def ac(self, start_frequency, stop_frequency, number_of_points, variation):
+    def ac(self, variation, number_of_points, start_frequency, stop_frequency):
 
         # fixme: concise keyword ?
 
@@ -289,14 +538,14 @@ class CircuitSimulation:
 
         """
 
-        if variation not in ('dec', 'oct', 'lin'):
-            raise ValueError("Incorrect variation type")
-
-        self._analysis_parameters['ac'] = (variation, number_of_points, start_frequency, stop_frequency)
+        self._add_analysis(
+            ACAnalysisParameters(
+                variation, number_of_points, start_frequency, stop_frequency
+            ))
 
     ##############################################
 
-    def transient(self, step_time, end_time, start_time=None, max_time=None,
+    def transient(self, step_time, end_time, start_time=0, max_time=None,
                   use_initial_condition=False):
 
         """Perform a transient analysis of the circuit.
@@ -309,11 +558,11 @@ class CircuitSimulation:
 
         """
 
-        if use_initial_condition:
-            uic = 'uic'
-        else:
-            uic = None
-        self._analysis_parameters['tran'] = (step_time, end_time, start_time, max_time, uic)
+        self._add_analysis(
+            TransientAnalysisParameters(
+                step_time, end_time, start_time, max_time,
+                use_initial_condition
+            ))
 
     ##############################################
 
@@ -323,17 +572,15 @@ class CircuitSimulation:
         if self.options:
             for key, value in self._options.items():
                 if value is not None:
-                    if isinstance(value, Unit):
-                        value = value.str_spice()
-                    netlist += '.options {} = {}\n'.format(key, value)
+                    netlist += '.options {} = {}\n'.format(key, str_spice(value))
                 else:
                     netlist += '.options {}\n'.format(key)
         if self.initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + '\n'
         if self._saved_nodes:
             netlist += '.save ' + join_list(self._saved_nodes) + '\n'
-        for analysis, analysis_parameters in self._analysis_parameters.items():
-            netlist += '.' + analysis + ' ' + join_list(analysis_parameters) + '\n'
+        for analysis_parameters in self._analyses.values():
+            netlist += str(analysis_parameters) + '\n'
         netlist += '.end\n'
         return netlist
 
@@ -421,11 +668,12 @@ class SubprocessCircuitSimulator(CircuitSimulator):
 
         raw_file = self._spice_server(str(self))
         self.reset_analysis()
+        raw_file.simulation = self
 
         # for field in raw_file.variables:
         #     print field
 
-        return raw_file.to_analysis(self._circuit)
+        return raw_file.to_analysis()
 
 ####################################################################################################
 
@@ -470,4 +718,4 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
         else:
             raise NotImplementedError
 
-        return self._ngspice_shared.plot(plot_name).to_analysis()
+        return self._ngspice_shared.plot(self, plot_name).to_analysis()

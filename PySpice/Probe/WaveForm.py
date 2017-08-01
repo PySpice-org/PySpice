@@ -64,7 +64,12 @@ import numpy as np
 
 ####################################################################################################
 
+# Fixme: self._
+
 class WaveForm(np.ndarray):
+
+    """This class implements a waveform on top of Numpy Array.
+    """
 
     ##############################################
 
@@ -118,14 +123,21 @@ class Analysis:
 
     ##############################################
 
-    def __init__(self, nodes=(), branches=(), elements=()):
+    def __init__(self, simulation, nodes=(), branches=(), elements=()):
 
         # Fixme: branches are elements in fact, and elements is not yet supported ...
 
+        self._simulation = simulation
         # Fixme: to func?
         self.nodes = {waveform.name:waveform for waveform in nodes}
         self.branches = {waveform.name:waveform for waveform in branches}
         self.elements = {waveform.name:waveform for waveform in elements}
+
+    ##############################################
+
+    @property
+    def simulation(self):
+        return self._simulation
 
     ##############################################
 
@@ -160,9 +172,9 @@ class SensitivityAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, elements):
+    def __init__(self, simulation, elements):
 
-        super().__init__(elements=elements)
+        super().__init__(simulation=simulation, elements=elements)
 
 ####################################################################################################
 
@@ -170,7 +182,7 @@ class DcAnalysis(Analysis):
 
     """
 
-    When the DC analysis is performed with multiple sources, v-sweep is the last source.
+    When the DC analysis is performed with multiple sources, sweep is the last source.
 
     The loop scheme is::
 
@@ -182,19 +194,17 @@ class DcAnalysis(Analysis):
 
     ##############################################
 
-    # Fixme: can be current sweep too
+    def __init__(self, simulation, sweep, nodes, branches):
 
-    def __init__(self, v_sweep, nodes, branches):
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches)
 
-        super().__init__(nodes, branches)
-
-        self._v_sweep = v_sweep
+        self._sweep = sweep
 
     ##############################################
 
     @property
-    def v_sweep(self):
-        return self._v_sweep
+    def sweep(self):
+        return self._sweep
 
 ####################################################################################################
 
@@ -202,9 +212,9 @@ class AcAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, frequency, nodes, branches):
+    def __init__(self, simulation, frequency, nodes, branches):
 
-        super().__init__(nodes, branches)
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches)
 
         self._frequency = frequency
 
@@ -220,9 +230,9 @@ class TransientAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, time, nodes, branches):
+    def __init__(self, simulation, time, nodes, branches):
 
-        super().__init__(nodes, branches)
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches)
 
         self._time = time
 

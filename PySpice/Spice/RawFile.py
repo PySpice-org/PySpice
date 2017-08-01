@@ -18,6 +18,12 @@
 #
 ####################################################################################################
 
+####################################################################################################
+
+from ..Unit import u_Degree
+
+####################################################################################################
+
 """
 
 Header
@@ -95,6 +101,8 @@ from ..Probe.WaveForm import (OperatingPoint, SensitivityAnalysis,
 _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
+
+# Fixme: self._
 
 class Variable:
 
@@ -233,6 +241,28 @@ class RawFile:
         self._read_variable_data(raw_data)
         # self._to_analysis()
 
+        self._simulation = None
+
+    ##############################################
+
+    @property
+    def simulation(self):
+
+        if self._simulation is not None:
+            return self._simulation
+        else:
+            raise NameError('Simulation is undefined')
+
+    @simulation.setter
+    def simulation(self, value):
+        self._simulation = value
+
+    ##############################################
+
+    @property
+    def circuit(self):
+        return self._simulation.circuit
+
     ##############################################
 
     def _read_header(self, stdout):
@@ -249,8 +279,8 @@ class RawFile:
         raw_data = stdout[raw_data_start:]
         header_line_iterator = iter(header_lines)
 
-        self.circuit = self._read_header_field_line(header_line_iterator, 'Circuit')
-        self.temperature = self._read_header_line(header_line_iterator, 'Doing analysis at TEMP')
+        self.circuit_name = self._read_header_field_line(header_line_iterator, 'Circuit')
+        self.temperature, self.nominal_temperature = self._read_temperature_line(header_line_iterator)
         self.warnings = [self._read_header_field_line(header_line_iterator, 'Warning')
                          for i in range(stdout.count(b'Warning'))]
         for warning in self.warnings:
@@ -298,7 +328,9 @@ class RawFile:
 
         line = self._read_line(header_line_iterator)
         self._logger.debug(line)
-        if not line.startswith(head_line):
+        if line.startswith(head_line):
+            return line
+        else:
             raise NameError("Unexpected line: %s" % (line))
 
     ##############################################
@@ -322,6 +354,27 @@ class RawFile:
             raise NameError("Expected label %s instead of %s" % (expected_label, label))
         if has_value:
             return value.strip()
+
+    ##############################################
+
+    def _read_temperature_line(self, header_line_iterator):
+
+        # Doing analysis at TEMP = 25.000000 and TNOM = 25.000000
+
+        line = self._read_header_line(header_line_iterator, 'Doing analysis at TEMP')
+        pattern1 = 'TEMP = '
+        pattern2 = ' and TNOM = '
+        pos1 = line.find(pattern1)
+        pos2 = line.find(pattern2)
+        if pos1 != -1 and pos2 != -1:
+            part1 = line[pos1+len(pattern1):pos2]
+            part2 = line[pos2+len(pattern2):].strip()
+            temperature = u_Degree(float(part1))
+            nominal_temperature = u_Degree(float(part2))
+        else:
+            temperature = None
+            nominal_temperature = None
+        return temperature, nominal_temperature
 
     ##############################################
 
@@ -349,10 +402,11 @@ class RawFile:
 
     ##############################################
 
-    def fix_case(self, circuit):
+    def fix_case(self):
 
         """ Ngspice return lower case names. This method fixes the case of the variable names. """
 
+        circuit = self.circuit
         element_translation = {element.lower():element for element in circuit.element_names()}
         node_translation = {node.lower():node for node in circuit.node_names()}
         for variable in self.variables.values():
@@ -383,9 +437,9 @@ class RawFile:
 
     ##############################################
 
-    def to_analysis(self, circuit):
+    def to_analysis(self):
 
-        self.fix_case(circuit)
+        self.fix_case()
 
         if self.plot_name == 'Operating Point':
             return self._to_operating_point_analysis()
@@ -398,13 +452,18 @@ class RawFile:
         elif self.plot_name == 'Transient Analysis':
             return self._to_transient_analysis()
         else:
+
             raise NotImplementedError("Unsupported plot name {}".format(self.plot_name))
 
     ##############################################
 
     def _to_operating_point_analysis(self):
 
-        return OperatingPoint(nodes=self.nodes(to_float=True), branches=self.branches(to_float=True))
+        return OperatingPoint(
+            simulation=self.simulation,
+            nodes=self.nodes(to_float=True),
+            branches=self.branches(to_float=True),
+        )
 
     ##############################################
 
@@ -412,7 +471,10 @@ class RawFile:
 
         # Fixme: test .SENS I (VTEST)
         # Fixme: separate v(vinput), analysis.R2.m
-        return SensitivityAnalysis(elements=self.elements())
+        return SensitivityAnalysis(
+            simulation=self.simulation,
+            elements=self.elements(),
+        )
 
     ##############################################
 
@@ -426,18 +488,33 @@ class RawFile:
             #
             raise NotImplementedError
         sweep = sweep_variable.to_waveform()
-        return DcAnalysis(sweep, nodes=self.nodes(), branches=self.branches())
+        return DcAnalysis(
+            simulation=self.simulation,
+            sweep=sweep,
+            nodes=self.nodes(),
+            branches=self.branches(),
+        )
 
     ##############################################
 
     def _to_ac_analysis(self):
 
         frequency = self.variables['frequency'].to_waveform(to_real=True)
-        return AcAnalysis(frequency, nodes=self.nodes(), branches=self.branches())
+        return AcAnalysis(
+            simulation=self.simulation,
+            frequency=frequency,
+            nodes=self.nodes(),
+            branches=self.branches(),
+        )
 
     ##############################################
 
     def _to_transient_analysis(self):
 
         time = self.variables['time'].to_waveform(to_real=True)
-        return TransientAnalysis(time, nodes=self.nodes(abscissa=time), branches=self.branches(abscissa=time))
+        return TransientAnalysis(
+            simulation=self.simulation,
+            time=time,
+            nodes=self.nodes(abscissa=time),
+            branches=self.branches(abscissa=time),
+        )
