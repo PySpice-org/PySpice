@@ -31,6 +31,7 @@ A shortcut is defined for each unit prefix, e.g. :class:`pico`, :class:`nano`, :
 
 import logging
 
+import collections
 import math
 # import numbers
 
@@ -786,6 +787,10 @@ class UnitPower:
         string = self._power.str(spice)
         if unit:
             string += str(self._unit)
+        if spice:
+            # Ngspice don't support utf-8
+            string = string.replace('Ω', 'Ohm') # utf-8 cea0
+            string = string.replace('μ',   'u') # utf-8 cebc
         return string
 
     ##############################################
@@ -802,11 +807,7 @@ class UnitPower:
 
         # Fixme: unit clash, e.g. mm ???
 
-        string = self.str(spice=True, unit=True)
-        # Ngspice don't support utf-8
-        string = string.replace('Ω', 'Ohm') # utf-8 cea0
-        string = string.replace('μ',   'u') # utf-8 cebc
-        return string
+        return self.str(spice=True, unit=True)
 
     ##############################################
 
@@ -818,7 +819,10 @@ class UnitPower:
 
     def new_value(self, value):
 
-        return self._value_ctor(self, value)
+        if isinstance(value, collections.Iterable):
+            return [self._value_ctor(self, x) for x in value]
+        else:
+            return self._value_ctor(self, value)
 
 ####################################################################################################
 

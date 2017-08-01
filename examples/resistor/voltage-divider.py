@@ -16,9 +16,9 @@ from PySpice.Unit import *
 
 circuit = Circuit('Voltage Divider')
 
-circuit.V('input', 'in', circuit.gnd, u_V(10))
-circuit.R(1, 'in', 'out', u_kΩ(9))
-circuit.R(2, 'out', circuit.gnd, u_kΩ(1))
+circuit.V('input', 'in', circuit.gnd, 10 @u_V)
+circuit.R(1, 'in', 'out', 9 @u_kΩ)
+circuit.R(2, 'out', circuit.gnd, 1 @u_kΩ)
 
 ####################################################################################################
 

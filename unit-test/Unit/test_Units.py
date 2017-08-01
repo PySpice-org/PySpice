@@ -221,6 +221,25 @@ class TestUnits(unittest.TestCase):
         self.assertEqual(u_s(1/50.).frequency, u_Hz(50.))
         self.assertEqual(Period(1/50.).pulsation, 2*math.pi*50)
 
+    ##############################################
+
+    # @unittest.skip('')
+    def test_list_ctor(self):
+
+        self.assertEqual(u_mV((1, 2)), [u_mV(x) for x in range(1, 3)])
+        self.assertEqual(u_mV([1, 2]), [u_mV(x) for x in range(1, 3)])
+        self.assertEqual(u_mV(range(3)), [u_mV(x) for x in range(3)])
+
+    ##############################################
+
+    # @unittest.skip('')
+    def test_matmul_syntax(self):
+
+        self.assertEqual(1@u_kΩ, 1000.)
+        self.assertEqual(1 @u_kΩ, 1000.)
+        self.assertEqual(1 @ u_kΩ, 1000.)
+        self.assertEqual((1, 2)@u_mV, u_mV((1, 2)))
+
 ####################################################################################################
 
 if __name__ == '__main__':

@@ -19,14 +19,14 @@ from PySpice.Unit import *
 
 circuit = Circuit('Astable Multivibrator')
 
-source = circuit.V('cc', 'vcc', circuit.gnd, u_V(15))
+source = circuit.V('cc', 'vcc', circuit.gnd, 15 @u_V)
 # Time constant
-circuit.R(1, 'output', 'comparator', u_kΩ(1))
-circuit.C(1, 'comparator', circuit.gnd, u_nF(100))
+circuit.R(1, 'output', 'comparator', 1 @u_kΩ)
+circuit.C(1, 'comparator', circuit.gnd, 100 @u_nF)
 # Reference
-circuit.R(2, 'output', 'reference', u_kΩ(100))
-circuit.R(3, 'vcc', 'reference', u_kΩ(100))
-circuit.R(4, 'reference', circuit.gnd, u_kΩ(100))
+circuit.R(2, 'output', 'reference', 100 @u_kΩ)
+circuit.R(3, 'vcc', 'reference', 100 @u_kΩ)
+circuit.R(4, 'reference', circuit.gnd, 100 @u_kΩ)
 # Comparator
 # Fixme: ngspice is buggy with such subcircuit
 # circuit.subcircuit(basic_comparator)
@@ -39,7 +39,7 @@ circuit.NonLinearVoltageSource(1, 'output', circuit.gnd,
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 simulator.initial_condition(comparator=0) # Fixme: simulator.nodes.comparator == 0
-analysis = simulator.transient(step_time=u_us(1), end_time=u_us(500))
+analysis = simulator.transient(step_time=1 @u_us, end_time=500 @u_us)
 
 figure = plt.figure(1, (20, 10))
 plot(analysis.reference)

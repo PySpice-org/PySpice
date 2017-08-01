@@ -24,7 +24,7 @@
 
 ####################################################################################################
 
-from ..Unit import Unit
+from ..Unit.Unit import UnitValue
 
 ####################################################################################################
 
@@ -32,7 +32,7 @@ def str_spice(obj):
 
     """Convert an object to a Spice compatible string."""
 
-    if isinstance(obj, Unit):
+    if isinstance(obj, UnitValue):
         return obj.str_spice()
     else:
         return str(obj)

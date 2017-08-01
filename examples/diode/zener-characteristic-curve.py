@@ -33,8 +33,8 @@ circuit.include(spice_library['1N4148'])
 # 1N5919B: 5.6 V, 3.0 W Zener Diode Voltage Regulator
 circuit.include(spice_library['d1n5919brl'])
 
-circuit.V('input', 'in', circuit.gnd, u_V(10))
-circuit.R(1, 'in', 'out', u_Ω(1)) # not required for simulation
+circuit.V('input', 'in', circuit.gnd, 10 @u_V)
+circuit.R(1, 'in', 'out', 1 @u_Ω) # not required for simulation
 # circuit.X('D1', '1N4148', 'out', circuit.gnd)
 circuit.X('DZ1', 'd1n5919brl', 'out', circuit.gnd)
 

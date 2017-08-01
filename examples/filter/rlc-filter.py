@@ -28,32 +28,32 @@ from PySpice.Unit import *
 
 circuit1 = Circuit('Four double-pole Low-Pass RLC Filter')
 
-inductance = u_mH(10)
-capacitance = u_uF(1)
+inductance = 10 @u_mH
+capacitance = 1 @u_uF
 
-circuit1.Sinusoidal('input', 'in', circuit1.gnd, amplitude=u_V(1))
+circuit1.Sinusoidal('input', 'in', circuit1.gnd, amplitude=1 @u_V)
 #?# pulse 0 5 10 ms
 # Q = .5
-circuit1.R(1, 'in', 1, u_Ω(200))
+circuit1.R(1, 'in', 1, 200 @u_Ω)
 circuit1.L(1, 1, 'out5', inductance)
 circuit1.C(1, 'out5', circuit1.gnd, capacitance)
 # Q = 1
-circuit1.R(2, 'in', 2, u_Ω(100))
+circuit1.R(2, 'in', 2, 100 @u_Ω)
 circuit1.L(2, 2, 'out1', inductance)
 circuit1.C(2, 'out1', circuit1.gnd, capacitance)
 # Q = 2
-circuit1.R(3, 'in', 3, u_Ω(50))
+circuit1.R(3, 'in', 3, 50 @u_Ω)
 circuit1.L(3, 3, 'out2', inductance)
 circuit1.C(3, 'out2', circuit1.gnd, capacitance)
 # Q = 4
-R4 = circuit1.R(4, 'in', 4, u_Ω(25))
+R4 = circuit1.R(4, 'in', 4, 25 @u_Ω)
 circuit1.L(4, 4, 'out4', inductance)
 circuit1.C(4, 'out4', circuit1.gnd, capacitance)
 
 #!# We perform an AC analysis.
 
 simulator1 = circuit1.simulator(temperature=25, nominal_temperature=25)
-analysis1 = simulator1.ac(start_frequency=u_Hz(100), stop_frequency=u_kHz(10), number_of_points=100,  variation='dec')
+analysis1 = simulator1.ac(start_frequency=100 @u_Hz, stop_frequency=10 @u_kHz, number_of_points=100,  variation='dec')
 
 #!# The resonant frequency is given by
 #!#
@@ -99,10 +99,10 @@ for axe in axes:
 
 circuit2 = Circuit('Pass-Band RLC Filter')
 
-circuit2.Sinusoidal('input', 'in', circuit2.gnd, amplitude=u_V(1))
+circuit2.Sinusoidal('input', 'in', circuit2.gnd, amplitude=1 @u_V)
 circuit2.L(1, 'in', 2, inductance)
 circuit2.C(1, 2, 'out', capacitance)
-circuit2.R(1, 'out', circuit2.gnd, u_Ω(25))
+circuit2.R(1, 'out', circuit2.gnd, 25 @u_Ω)
 
 bode_diagram(axes=axes,
              frequency=analysis2.frequency,

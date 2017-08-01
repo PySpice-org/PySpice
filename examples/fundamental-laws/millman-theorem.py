@@ -44,8 +44,8 @@ circuit = Circuit("Millman's theorem")
 
 number_of_branches = 3
 for i in range(1, number_of_branches +1):
-    circuit.V('input%u' % i, i, circuit.gnd, u_V(i))
-    circuit.R(i, i, 'A', u_kΩ(i))
+    circuit.V('input%u' % i, i, circuit.gnd, i @u_V)
+    circuit.R(i, i, 'A', i @u_kΩ)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.operating_point()
@@ -64,8 +64,8 @@ print('V(A) = {:5.2f} V'.format(voltage_A))
 # with current sources
 for i in range(1, number_of_branches +1):
     ii = number_of_branches + i
-    circuit.I('input%u' % i, circuit.gnd, ii, u_uA(100*i))
-    circuit.R(ii, ii, 'A', u_kΩ(i))
+    circuit.I('input%u' % i, circuit.gnd, ii, 100*i @u_uA)
+    circuit.R(ii, ii, 'A', i @u_kΩ)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.operating_point()

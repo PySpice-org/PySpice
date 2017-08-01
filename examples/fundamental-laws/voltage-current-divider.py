@@ -31,9 +31,9 @@ from PySpice.Unit import *
 
 circuit = Circuit('Voltage Divider')
 
-circuit.V('input', 1, circuit.gnd, u_V(10))
-circuit.R(1, 1, 2, u_kΩ(2))
-circuit.R(2, 2, circuit.gnd, u_kΩ(1))
+circuit.V('input', 1, circuit.gnd, 10 @u_V)
+circuit.R(1, 1, 2, 2 @u_kΩ)
+circuit.R(2, 2, circuit.gnd, 1 @u_kΩ)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.operating_point()
@@ -62,9 +62,9 @@ for node in analysis.nodes.values():
 
 circuit = Circuit('Current Divider')
 
-circuit.I('input', 1, circuit.gnd, u_A(1)) # Fixme: current value
-circuit.R(1, 1, circuit.gnd, u_kΩ(2))
-circuit.R(2, 1, circuit.gnd, u_kΩ(1))
+circuit.I('input', 1, circuit.gnd, 1 @u_A) # Fixme: current value
+circuit.R(1, 1, circuit.gnd, 2 @u_kΩ)
+circuit.R(2, 1, circuit.gnd, 1 @u_kΩ)
 
 for resistance in (circuit.R1, circuit.R2):
     resistance.minus.add_current_probe(circuit) # to get positive value
