@@ -80,10 +80,9 @@ setup_dict = dict(
     version='0.4.0',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
-    description='PySpice is a Python 3 Package to generate and steer Berkeley Spice circuit, '
-    ' to simulate them and finally analyse the output using Python.',
-    license="GPLv3",
-    keywords="spice, berkeley, ngspice, circuit, simulation, electronic",
+    description='Simulate electronic circuit using Python and Ngspice simulator',
+    license='GPLv3',
+    keywords='spice, berkeley, ngspice, electronic, circuit, simulation, simulator',
     url='https://github.com/FabriceSalvaire/PySpice',
     scripts=['bin/cir2py'],
     packages=['PySpice', # Fixme:
@@ -106,12 +105,12 @@ setup_dict = dict(
     long_description=long_description,
     # cf. http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        "Topic :: Scientific/Engineering",
-        "Intended Audience :: Education",
-        "Development Status :: 5 - Production/Stable",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.4",
+        'Topic :: Scientific/Engineering',
+        'Intended Audience :: Education',
+        'Development Status :: 5 - Production/Stable',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.4',
         ],
     requires=[
         'PyYAML',
