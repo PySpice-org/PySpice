@@ -38,7 +38,7 @@ from HP54501A import HP54501A
 circuit = Circuit('HP54501A CEM')
 circuit.include(spice_library['1N4148'])
 diode_model = '1N4148'
-ac_line = circuit.AcLine('input', 'input', circuit.gnd, rms_voltage=230@u_V, frequency=50 @u_Hz)
+ac_line = circuit.AcLine('input', 'input', circuit.gnd, rms_voltage=230@u_V, frequency=50@u_Hz)
 # circuit.subcircuit(HP54501A(diode_model='1N4148'))
 # circuit.X('hp54501a', 'HP54501A', 'input', circuit.gnd)
 circuit.C(1, 'input', circuit.gnd, 1@u_uF)

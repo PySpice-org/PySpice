@@ -31,7 +31,7 @@ figure1 = plt.figure(1, (20, 10))
 
 circuit = Circuit('half-wave rectification')
 circuit.include(spice_library['1N4148'])
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10@u_V, frequency=50 @u_Hz)
+source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10@u_V, frequency=50@u_Hz)
 circuit.X('D1', '1N4148', 'in', 'output')
 circuit.R('load', 'output', circuit.gnd, 100@u_Ω)
 

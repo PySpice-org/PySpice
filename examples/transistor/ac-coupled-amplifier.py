@@ -35,7 +35,7 @@ spice_library = SpiceLibrary(libraries_path)
 circuit = Circuit('Transistor')
 
 circuit.V('power', 5, circuit.gnd, 15@u_V)
-source = circuit.Sinusoidal('in', 'in', circuit.gnd, amplitude=.5@u_V, frequency=1 @u_kHz)
+source = circuit.Sinusoidal('in', 'in', circuit.gnd, amplitude=.5@u_V, frequency=1@u_kHz)
 circuit.C(1, 'in', 2, 10@u_uF)
 circuit.R(1, 5, 2, 100@u_kΩ)
 circuit.R(2, 2, 0, 20@u_kΩ)

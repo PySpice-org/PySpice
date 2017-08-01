@@ -45,8 +45,8 @@ for element_type in ('capacitor', 'inductor'):
     circuit = Circuit(element_type.title())
     # Fixme: compute value
     source = circuit.Pulse('input', 'in', circuit.gnd,
-                           initial_value=0@u_V, pulsed_value=10 @u_V,
-                           pulse_width=10@u_ms, period=20 @u_ms)
+                           initial_value=0@u_V, pulsed_value=10@u_V,
+                           pulse_width=10@u_ms, period=20@u_ms)
     circuit.R(1, 'in', 'out', 1@u_kΩ)
     if element_type == 'capacitor':
         element = circuit.C

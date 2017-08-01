@@ -55,7 +55,7 @@ circuit1.C(4, 'out4', circuit1.gnd, capacitance)
 #!# We perform an AC analysis.
 
 simulator1 = circuit1.simulator(temperature=25, nominal_temperature=25)
-analysis1 = simulator1.ac(start_frequency=100@u_Hz, stop_frequency=10 @u_kHz, number_of_points=100,  variation='dec')
+analysis1 = simulator1.ac(start_frequency=100@u_Hz, stop_frequency=10@u_kHz, number_of_points=100,  variation='dec')
 
 #!# The resonant frequency is given by
 #!#
@@ -107,7 +107,7 @@ circuit2.C(1, 2, 'out', capacitance)
 circuit2.R(1, 'out', circuit2.gnd, 25@u_Ω)
 
 simulator2 = circuit2.simulator(temperature=25, nominal_temperature=25)
-analysis2 = simulator2.ac(start_frequency=100@u_Hz, stop_frequency=10 @u_kHz, number_of_points=100,  variation='dec')
+analysis2 = simulator2.ac(start_frequency=100@u_Hz, stop_frequency=10@u_kHz, number_of_points=100,  variation='dec')
 
 bode_diagram(axes=axes,
              frequency=analysis2.frequency,

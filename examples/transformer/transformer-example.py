@@ -31,7 +31,7 @@ from Transformer import Transformer
 
 circuit = Circuit('Transformer')
 
-ac_line = circuit.AcLine('input', 'input', circuit.gnd, rms_voltage=230@u_V, frequency=50 @u_Hz)
+ac_line = circuit.AcLine('input', 'input', circuit.gnd, rms_voltage=230@u_V, frequency=50@u_Hz)
 circuit.subcircuit(Transformer(turn_ratio=10))
 circuit.X('transformer', 'Transformer', 'input', circuit.gnd, 'output', circuit.gnd)
 circuit.R('load', 'output', circuit.gnd, 1@u_kΩ)
