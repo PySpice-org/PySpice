@@ -27,7 +27,7 @@
 ####################################################################################################
 
 from ..Math import rms_to_amplitude, amplitude_to_rms
-from ..Tools.StringTools import join_list, join_dict
+from ..Tools.StringTools import join_list, join_dict, str_spice
 from ..Unit import as_s, as_V, as_A, as_Hz
 from .BasicElement import VoltageSource
 
@@ -113,8 +113,8 @@ class Sinusoidal(VoltageSource):
     def format_spice_parameters(self):
 
         return join_list((
-            'DC {0.dc_offset}'.format(self),
-            'AC SIN({0.offset} {0.amplitude} {0.frequency} {0.delay} {0.damping_factor})'.format(self)
+            'DC {}'.format(str_spice(self.dc_offset)),
+            'AC SIN({})'.format(join_list((self.amplitude, self.frequency, self.delay, self.damping_factor))),
         ))
 
 ####################################################################################################

@@ -20,15 +20,30 @@
 
 ####################################################################################################
 
+from ..Unit.Unit import UnitValue
+
+####################################################################################################
+
+def str_spice(obj):
+
+    """Convert an object to a Spice compatible string."""
+
+    if isinstance(obj, UnitValue):
+        return obj.str_spice()
+    else:
+        return str(obj)
+
+####################################################################################################
+
 def join_lines(items, prefix=''):
     return '\n'.join([prefix + str(item) for item in items if item is not None])
 
 ####################################################################################################
 
 def join_list(items):
-    return ' '.join([str(item) for item in items if item is not None])
+    return ' '.join([str_spice(item) for item in items if item is not None])
 
 ####################################################################################################
 
 def join_dict(d):
-    return ' '.join(["{}={}".format(key, value) for key, value in d.items() if value is not None])
+    return ' '.join(["{}={}".format(key, str_spice(value)) for key, value in d.items() if value is not None])

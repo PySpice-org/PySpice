@@ -99,7 +99,7 @@ See Ngspice documentation for details.
 
 ####################################################################################################
 
-from ..Tools.StringTools import join_list
+from ..Tools.StringTools import join_list, str_spice
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
 from .Netlist import (Pin,
                       AnyPinElement,
@@ -170,7 +170,7 @@ class SubCircuitElement(NPinElement):
 
         spice_parameters = super().format_spice_parameters()
         if self.parameters:
-            spice_parameters += ' ' + join_list(['{}={}'.format(key, value)
+            spice_parameters += ' ' + join_list(['{}={}'.format(key, str_spice(value))
                                                  for key, value in self.parameters.items()])
 
         return spice_parameters
@@ -948,7 +948,7 @@ class NonLinearVoltageSource(TwoPinElement):
         # Fixme: expression
         if self.table is not None:
             # TABLE {expression} = (x0, y0) (x1, y1) ...
-            table = ['({}, {})'.format(x, y) for x, y in self.table]
+            table = ['({}, {})'.format(str_spice(x), str_spice(y)) for x, y in self.table]
             spice_element += ' TABLE {%s} = %s' % (self.expression, join_list(table))
         return spice_element
 
