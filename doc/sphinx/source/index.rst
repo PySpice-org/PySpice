@@ -5,10 +5,30 @@
 
    <br/>
 
-Welcome to the PySpice documentation!
+######################################################
+ Simulate electronic circuit using Python and Ngspice
+######################################################
+
+To discover PySpice, you can look this talk `Circuit Simulation using Python
+<https://www.slideshare.net/PoleSystematicParisRegion/pyparis2017-circuit-simulation-using-python-by-fabrice-salvaire>`_
+given at the `PyParis 2017 <http://pyparis.org/>`_ conference (`PDF file
+<https://pyspice.fabrice-salvaire.fr/pyparis-2017-talk.pdf>`_)
+
+.. Welcome to the PySpice documentation!
+
+======
+ News
+======
 
 .. include:: news.txt
+
+==============
+ Introduction
+==============
+
 .. include:: introduction.txt
+
+.. other title
 
 ==============
  Installation

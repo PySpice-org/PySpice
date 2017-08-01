@@ -2,10 +2,6 @@
 
 .. include:: abbreviation.txt
 
-==============
- Introduction
-==============
-
 PySpice is a |Python|_ 3 library which interplay with Berkeley SPICE, the industrial circuit
 simulator reference.
 
@@ -37,6 +33,10 @@ interface. Thus it doesn't feature a schematic capture editor and we cannot pick
 element and plot the associated waveform.  Moreover we can notice the |Modelica|_ language treats
 diagrams as annotations.  A choice which I consider judicious.  Thus we can imagine to follow the
 same principle and extend PySpice later.
+
+==========
+ Features
+==========
 
 .. include:: features.txt
 

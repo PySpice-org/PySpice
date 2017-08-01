@@ -1,9 +1,5 @@
 .. -*- Mode: rst -*-
 
-==========
- Features
-==========
-
 The main features of PySpice are:
 
  * actually PySpice only supports |Ngspice|_
