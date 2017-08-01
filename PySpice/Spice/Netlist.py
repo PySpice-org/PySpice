@@ -31,7 +31,7 @@ is translated to Python like this:
     R2 out 0 1k
     .end
 
-.. code-block:: py
+.. code-block:: python3
 
     circuit = Circuit('Voltage Divider')
     circuit.V('input', 'in', circuit.gnd, 10)
@@ -40,7 +40,7 @@ is translated to Python like this:
 
 or as a class definition:
 
-.. code-block:: py
+.. code-block:: python3
 
       class VoltageDivider(Circuit):
 
