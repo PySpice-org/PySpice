@@ -29,7 +29,3 @@ analysis = simulator.operating_point()
 for node in analysis.nodes.values():
     print('Node {}: {:4.1f} V'.format(str(node), float(node))) # Fixme: format value + unit
 #o#
-
-x = 1 + 2
-
-#!# X is @<@x@>@ \frac
