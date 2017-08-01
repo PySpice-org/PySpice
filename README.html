@@ -400,9 +400,12 @@ ul.auto-toc {
 <blockquote>
 <ul class="simple">
 <li>Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size</li>
+<li>Improved documentation generator: Implemented <code>format</code> for RST content and Tikz figure.</li>
 <li>Improved unit support: It implements now the International System of Units.
-And we can now use unit helper like <code>u_mV</code> or compute the value of <code>u_kΩ(1.2) / u_mA(2)</code>.
+And we can now use unit helper like <code>u_mV</code> or compute the value of <code>1.2&#64;u_kΩ / 2&#64;u_mA</code>.
 The relevant documentation is on this <a class="reference external" href="api/PySpice/Unit.html">page</a>.</li>
+<li>Added the Simulation instance to the Analysis class.</li>
+<li>Refactored simulation parameters as classes.</li>
 </ul>
 </blockquote>
 </div>
@@ -547,7 +550,7 @@ dependencies on Linux.</p>
 </ul>
 </blockquote>
 <div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;stdin&gt;</tt>, line 270)</p>
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;stdin&gt;</tt>, line 273)</p>
 Block quote ends without a blank line; unexpected unindent.</div>
 <!-- * pip -->
 <!-- * virtualenv -->
