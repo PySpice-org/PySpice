@@ -82,7 +82,15 @@ setup_dict = dict(
     author_email='fabrice.salvaire@orange.fr',
     description='Simulate electronic circuit using Python and Ngspice simulator',
     license='GPLv3',
-    keywords='spice, berkeley, ngspice, electronic, circuit, simulation, simulator',
+    keywords=[
+        'spice',
+        'berkeley',
+        'ngspice',
+        'electronic',
+        'circuit',
+        'simulation',
+        'simulator',
+        ],
     url='https://github.com/FabriceSalvaire/PySpice',
     scripts=['bin/cir2py'],
     packages=['PySpice', # Fixme:
@@ -110,7 +118,7 @@ setup_dict = dict(
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         ],
     requires=[
         'PyYAML',
