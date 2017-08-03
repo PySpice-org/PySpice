@@ -46,7 +46,7 @@ def merge_include(src_lines, doc_path, included_rst_files=None):
 
 # Utility function to read the README file.
 # Used for the long_description.
-def read(file_name):
+def read_readme(file_name):
 
     source_path = os.path.dirname(os.path.realpath(__file__))
     if os.path.basename(source_path) == 'tools':
@@ -65,7 +65,7 @@ def read(file_name):
 
 ####################################################################################################
 
-long_description = read('README.txt')
+long_description = read_readme('README.txt')
 
 ####################################################################################################
 
@@ -77,7 +77,7 @@ except FileNotFoundError:
 
 setup_dict = dict(
     name='PySpice',
-    version='0.4.0',
+    version='0.4.1',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='Simulate electronic circuit using Python and Ngspice simulator',
