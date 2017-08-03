@@ -101,8 +101,11 @@ class PrefixData:
 
 ####################################################################################################
 
-_prefix_cache = {prefix:PrefixData(prefix, classes)
-                 for prefix, classes in ElementParameterMetaClass.__classes__.items()}
+_prefix_cache = {}
+for prefix, classes in ElementParameterMetaClass.__classes__.items():
+    prefix_data = PrefixData(prefix, classes)
+    _prefix_cache[prefix] = prefix_data
+    _prefix_cache[prefix.lower()] = prefix_data
 
 # for prefix_data in sorted(_prefix_cache.values(), key=lambda x: len(x)):
 #     print(prefix_data.prefix,
