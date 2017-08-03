@@ -26,6 +26,7 @@ PySpice requires the following dependencies:
 Also it is recommanded to have these Python modules:
 
  * |IPython|_
+
 .. * pip
 .. * virtualenv
 
