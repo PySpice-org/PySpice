@@ -111,10 +111,6 @@ The official PySpice Home Page is located at |PySpiceUrl|
 
 .. -*- Mode: rst -*-
 
-======
- News
-======
-
 V0.4.0
 ------
 
@@ -148,10 +144,6 @@ V0.3.0
 .. -*- Mode: rst -*-
 
 
-==============
- Introduction
-==============
-
 PySpice is a |Python|_ 3 library which interplay with Berkeley SPICE, the industrial circuit
 simulator reference.
 
@@ -184,11 +176,11 @@ element and plot the associated waveform.  Moreover we can notice the |Modelica|
 diagrams as annotations.  A choice which I consider judicious.  Thus we can imagine to follow the
 same principle and extend PySpice later.
 
-.. -*- Mode: rst -*-
-
 ==========
  Features
 ==========
+
+.. -*- Mode: rst -*-
 
 The main features of PySpice are:
 
@@ -270,6 +262,7 @@ PySpice requires the following dependencies:
 Also it is recommanded to have these Python modules:
 
  * |IPython|_
+
 .. * pip
 .. * virtualenv
 
