@@ -111,10 +111,16 @@ The official PySpice Home Page is located at |PySpiceUrl|
 
 .. -*- Mode: rst -*-
 
+V0.4.2
+------
+
+ * Fixed Spice parser for lower case device prefix.
+
+
 V0.4.0
 ------
 
- * Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size
+ * Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size.
  * Improved documentation generator: Implemented :code:`format` for RST content and Tikz figure.
  * Improved unit support: It implements now the International System of Units.
    And we can now use unit helper like :code:`u_mV` or compute the value of :code:`1.2@u_kΩ / 2@u_mA`.
