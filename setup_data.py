@@ -77,20 +77,12 @@ except FileNotFoundError:
 
 setup_dict = dict(
     name='PySpice',
-    version='0.4.1',
+    version='0.4.2',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='Simulate electronic circuit using Python and Ngspice simulator',
     license='GPLv3',
-    keywords=[
-        'spice',
-        'berkeley',
-        'ngspice',
-        'electronic',
-        'circuit',
-        'simulation',
-        'simulator',
-        ],
+    keywords= 'spice berkeley ngspice electronic circuit simulation simulator',
     url='https://github.com/FabriceSalvaire/PySpice',
     scripts=['bin/cir2py'],
     packages=['PySpice', # Fixme:
