@@ -49,14 +49,20 @@ parser.add_argument('--ground',
                     default=0,
                     help='Ground node')
 
+parser.add_argument('--build',
+                    default=False, action='store_true',
+                    help='Build circuit')
+
 args = parser.parse_args()
 
 ####################################################################################################
 
 parser = SpiceParser(path=args.circuit_file)
 
-circuit = parser.to_python_code(ground=args.ground)
+if args.build:
+    parser.build_circuit()
 
+circuit = parser.to_python_code(ground=args.ground)
 if args.output is not None:
     with open(args.output, 'w') as f:
         f.write(circuit)

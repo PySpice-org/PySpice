@@ -32,11 +32,9 @@ import logging
 
 ####################################################################################################
 
-from .ElementParameter import (
-    FlagParameter,
-    )
-from .Netlist import ElementParameterMetaClass, NPinElement, Circuit
 from .BasicElement import SubCircuitElement, BipolarJunctionTransistor
+from .ElementParameter import FlagParameter
+from .Netlist import ElementParameterMetaClass, NPinElement, Circuit, SubCircuit
 
 ####################################################################################################
 
@@ -45,6 +43,8 @@ _module_logger = logging.getLogger(__name__)
 ####################################################################################################
 
 class PrefixData:
+
+    """This class represents a device prefix."""
 
     ##############################################
 
@@ -142,15 +142,16 @@ for prefix, classes in ElementParameterMetaClass.__classes__.items():
 
 ####################################################################################################
 
-class Token:
+class Statement:
 
-    """ This class implements a token, in fact a line in a Spice netlist. """
+    """ This class implements a statement, in fact a line in a Spice netlist. """
 
     ##############################################
 
-    def __init__(self, line):
+    def __init__(self, line, statement=None):
 
         self._line = line
+        self._line.lower_case_statement(statement)
 
     ##############################################
 
@@ -158,14 +159,45 @@ class Token:
 
         return "{} {}".format(self.__class__.__name__, repr(self._line))
 
+    ##############################################
+
+    def value_to_python(self, x):
+
+        if x:
+            if str(x)[0].isdigit():
+                return str(x)
+            else:
+                return "'{}'".format(x)
+        else:
+            return ''
+
+    ##############################################
+
+    def values_to_python(self, values):
+
+        return [self.value_to_python(x) for x in values]
+
+    ##############################################
+
+    def kwargs_to_python(self, kwargs):
+
+        return ['{}={}'.format(key, self.value_to_python(value))
+                for key, value in kwargs.items()]
+
+    ##############################################
+
+    def join_args(self, args):
+
+        return ', '.join(args)
+
 ####################################################################################################
 
-class Comment(Token):
+class Comment(Statement):
     pass
 
 ####################################################################################################
 
-class Title(Token):
+class Title(Statement):
 
     """ This class implements a title definition. """
 
@@ -173,7 +205,7 @@ class Title(Token):
 
     def __init__(self, line):
 
-        super().__init__(line)
+        super().__init__(line, statement='title')
         self._title = self._line.read_right_of('.title')
 
     ##############################################
@@ -188,7 +220,7 @@ class Title(Token):
 
 ####################################################################################################
 
-class Include(Token):
+class Include(Statement):
 
     """ This class implements a include definition. """
 
@@ -196,7 +228,7 @@ class Include(Token):
 
     def __init__(self, line):
 
-        super().__init__(line)
+        super().__init__(line, statement='include')
         self._include = self._line.read_right_of('.include')
 
     ##############################################
@@ -207,11 +239,17 @@ class Include(Token):
     ##############################################
 
     def __repr__(self):
-        return "Include {}".format(self._title)
+        return "Include {}".format(self._include)
+
+    ##############################################
+
+    def to_python(self, netlist_name):
+
+        return '{}.include({})\n'.format(netlist_name, self._include)
 
 ####################################################################################################
 
-class Model(Token):
+class Model(Statement):
 
     """ This class implements a model definition.
 
@@ -225,7 +263,7 @@ class Model(Token):
 
     def __init__(self, line):
 
-        super().__init__(line)
+        super().__init__(line, statement='mode')
 
         # Fixme
         parameters, dict_parameters = self._line.split_line('.model')
@@ -245,9 +283,23 @@ class Model(Token):
 
         return "Model {} {} {}".format(self._name, self._model_type, self._parameters)
 
+    ##############################################
+
+    def to_python(self, netlist_name):
+
+        args = self.values_to_python((self._name, self._model_type))
+        kwargs = self.kwargs_to_python(self._parameters)
+        return '{}.model({})\n'.format(netlist_name, self.join_args(args + kwargs))
+
+    ##############################################
+
+    def build(self, circuit):
+
+        circuit.model(self._name, self._model_type, **self._parameters)
+
 ####################################################################################################
 
-class SubCircuit(Token):
+class SubCircuitStatement(Statement):
 
     """ This class implements a sub-circuit definition.
 
@@ -261,13 +313,13 @@ class SubCircuit(Token):
 
     def __init__(self, line):
 
-        super().__init__(line)
+        super().__init__(line, statement='subckt')
 
-        # Fixme:
+        # Fixme
         parameters, dict_parameters = self._line.split_line('.subckt')
         self._name, self._nodes = parameters[0], parameters[1:]
 
-        self._tokens = []
+        self._statements = []
 
     ##############################################
 
@@ -276,33 +328,57 @@ class SubCircuit(Token):
         """ Name of the sub-circuit. """
         return self._name
 
+    @property
+    def nodes(self):
+        """ Nodes of the sub-circuit. """
+        return self._nodes
+
     ##############################################
 
     def __repr__(self):
 
         text = "SubCircuit {} {}\n".format(self._name, self._nodes)
-        text += '\n'.join(['  ' + repr(token) for token in self._tokens])
+        text += '\n'.join(['  ' + repr(statement) for statement in self._statements])
         return text
 
     ##############################################
 
     def __iter__(self):
 
-        """ Return an iterator on the tokens. """
+        """ Return an iterator on the statements. """
 
-        return iter(self._tokens)
+        return iter(self._statements)
 
     ##############################################
 
-    def append(self, token):
+    def append(self, statement):
 
-        """ Append a token to the token's list. """
+        """ Append a statement to the statement's list. """
 
-        self._tokens .append(token)
+        self._statements .append(statement)
+
+    ##############################################
+
+    def to_python(self, ground=0):
+
+        subcircuit_name = 'subcircuit_' + self._name
+        args = self.values_to_python([subcircuit_name] + self._nodes)
+        source_code = ''
+        source_code += '{} = SubCircuit({})\n'.format(subcircuit_name, self.join_args(args))
+        source_code += SpiceParser.netlist_to_python(subcircuit_name, self, ground)
+        return source_code
+
+    ##############################################
+
+    def build(self, circuit):
+
+        subcircuit = SubCircuit(self._name, self._nodes)
+        SpiceParser.build_netlist(subcircuit, self._statements)
+        return subcircuit
 
 ####################################################################################################
 
-class Element(Token):
+class Element(Statement):
 
     """ This class implements an element definition.
 
@@ -408,6 +484,45 @@ class Element(Token):
 
         return "Element {0._prefix} {0._name} {0._nodes} {0._parameters} {0._dict_parameters}".format(self)
 
+
+    ##############################################
+
+    def to_python(self, netlist_name, ground=0):
+
+        nodes = []
+        for node in self._nodes:
+            if str(node) == ground:
+                node = 0
+            nodes.append(node)
+        args = [self._name]
+        if self._prefix != 'X':
+            args += nodes + self._parameters
+        else: # != Spice
+            args += self._parameters + nodes
+        args = self.values_to_python(args)
+        kwargs = self.kwargs_to_python(self._dict_parameters)
+        return "{}.{}({})\n".format(netlist_name, self._prefix, self.join_args(args + kwargs))
+
+    ##############################################
+
+    def build(self, circuit, ground=0):
+
+        factory = getattr(circuit, self.factory.alias)
+        nodes = []
+        for node in self._nodes:
+            if str(node) == ground:
+                node = 0
+            nodes.append(node)
+        if self._prefix != 'X':
+            args = nodes + self._parameters
+        else: # != Spice
+            args = self._parameters + nodes
+        kwargs = self._dict_parameters
+        message = ' '.join([str(x) for x in (self._prefix, self._name, nodes,
+                                             self._parameters, self._dict_parameters)])
+        self._logger.debug(message)
+        factory(self._name, *args, **kwargs)
+
 ####################################################################################################
 
 class Line:
@@ -442,6 +557,13 @@ class Line:
 
     def __str__(self):
         return self._text
+
+    ##############################################
+
+    def lower_case_statement(self, statement):
+
+        if statement:
+            self._text = self._text.replace(statement.upper(), statement.lower())
 
     ##############################################
 
@@ -510,15 +632,28 @@ class Line:
         Return the list of parameters and the dictionnary.
         """
 
-        raw_parameters = self._text[len(keyword):].split()
         parameters = []
         dict_parameters = {}
-        for parameter in raw_parameters:
-            if '=' in parameter:
-                key, value = parameter.split('=')
-                dict_parameters[key.strip()] = value.strip()
+
+        text = self._text[len(keyword):]
+        parts = []
+        for part in text.split():
+            if '=' in part:
+                left, right = [x for x in part.split('=')]
+                parts += [left, '=', right]
             else:
-                parameters.append(parameter)
+                parts.append(part)
+        i = 0
+        i_stop = len(parts)
+        while i < i_stop:
+            if i + 1 < i_stop and parts[i + 1] == '=':
+                key, value = parts[i], parts[i + 2]
+                dict_parameters[key] = value
+                i += 3
+            else:
+                parameters.append(parts[i])
+                i += 1
+
         return parameters, dict_parameters
 
 ####################################################################################################
@@ -555,7 +690,7 @@ class SpiceParser:
 
         lines = self._merge_lines(raw_lines)
         self._title = None
-        self._tokens = self._parse(lines)
+        self._statements = self._parse(lines)
         self._find_sections()
 
     ##############################################
@@ -587,13 +722,13 @@ class SpiceParser:
 
     def _parse(self, lines):
 
-        """ Parse the lines and return a list of tokens. """
+        """ Parse the lines and return a list of statements. """
 
-        tokens = []
+        statements = []
         sub_circuit = None
-        scope = tokens
+        scope = statements
         for line in lines:
-            # print repr(line)
+            # print(repr(line))
             text = str(line)
             lower_case_text = text.lower() # !
             if text.startswith('*'):
@@ -601,12 +736,12 @@ class SpiceParser:
             elif lower_case_text.startswith('.'):
                 lower_case_text = lower_case_text[1:]
                 if lower_case_text.startswith('subckt'):
-                    sub_circuit = SubCircuit(line)
-                    tokens.append(sub_circuit)
+                    sub_circuit = SubCircuitStatement(line)
+                    statements.append(sub_circuit)
                     scope = sub_circuit
                 elif lower_case_text.startswith('ends'):
                     sub_circuit = None
-                    scope = tokens
+                    scope = statements
                 elif lower_case_text.startswith('title'):
                     self._title = Title(line)
                     scope.append(self._title)
@@ -629,27 +764,27 @@ class SpiceParser:
                 element = Element(line)
                 scope.append(element)
 
-        return tokens
+        return statements
 
     ##############################################
 
     def _find_sections(self):
 
-        """ Look for model, sub-circuit and circuit definitions in the token list. """
+        """ Look for model, sub-circuit and circuit definitions in the statement list. """
 
         self.circuit = None
         self.subcircuits = []
         self.models = []
-        for token in self._tokens:
-            if isinstance(token, Title):
+        for statement in self._statements:
+            if isinstance(statement, Title):
                 if self.circuit is None:
-                    self.circuit = token
+                    self.circuit = statement
                 else:
                     raise NameError("More than one title")
-            elif isinstance(token, SubCircuit):
-                self.subcircuits.append(token)
-            elif isinstance(token, Model):
-                self.models.append(token)
+            elif isinstance(statement, SubCircuitStatement):
+                self.subcircuits.append(statement)
+            elif isinstance(statement, Model):
+                self.models.append(statement)
 
     ##############################################
 
@@ -665,49 +800,48 @@ class SpiceParser:
 
     ##############################################
 
+    @staticmethod
+    def build_netlist(netlist, statements):
+
+        for statement in statements:
+            if isinstance(statement, Include):
+                netlist.include(str(statement))
+
+        for statement in statements:
+            if isinstance(statement, Element):
+                statement.build(netlist, netlist.gnd)
+            elif isinstance(statement, Model):
+                statement.build(netlist)
+            elif isinstance(statement, SubCircuit):
+                subcircuit = statement.build()
+                netlist.subcircuit(subcircuit)
+
+    ##############################################
+
     def build_circuit(self, ground=0):
 
-        ground = str(ground)
-
         circuit = Circuit(str(self._title))
-
-        for token in self._tokens:
-            if isinstance(token, Include):
-                circuit.include(str(token))
-
-        for token in self._tokens:
-            if isinstance(token, Element):
-                factory = getattr(circuit, token.factory.alias)
-                nodes = []
-                for node in token._nodes:
-                    if str(node) == ground:
-                        node = 0
-                    nodes.append(node)
-                if token._prefix != 'X':
-                    args = nodes + token._parameters
-                else: # != Spice
-                    args = token._parameters + nodes
-                kwargs = token._dict_parameters
-                message = ' '.join([str(x) for x in (token._prefix, token._name, nodes,
-                                                     token._parameters, token._dict_parameters)])
-                self._logger.debug(message)
-                factory(token._name, *args, **kwargs)
-
+        self.build_netlist(circuit, self._statements)
         return circuit
 
     ##############################################
 
-    def _to_python(self, value):
+    @staticmethod
+    def netlist_to_python(netlist_name, statements, ground=0):
 
-        try:
-            int_value = int(value)
-            value = float(value)
-            if int_value == value:
-                return str(int_value)
-            else:
-                return str(value)
-        except ValueError:
-            return "'{}'".format(value)
+        source_code = ''
+        for statement in statements:
+            if isinstance(statement, Element):
+                source_code += statement.to_python(netlist_name, ground)
+            elif isinstance(statement, Include):
+                pass
+            elif isinstance(statement, Model):
+                source_code += statement.to_python(netlist_name)
+            elif isinstance(statement, SubCircuitStatement):
+                source_code += statement.to_python(netlist_name)
+            elif isinstance(statement, Include):
+                source_code += statement.to_python(netlist_name)
+        return source_code
 
     ##############################################
 
@@ -715,31 +849,10 @@ class SpiceParser:
 
         ground = str(ground)
 
-        # for token in self._tokens:
-        #     if isinstance(token, Include):
-        #         circuit.include(str(token))
+        source_code = ''
 
-        if self._title:
-            title = self._title
-        else:
-            title = '...'
-        circuit = "circuit = Circuit('{}')\n".format(title)
+        if self.circuit:
+            source_code += "circuit = Circuit('{}')\n".format(self._title)
+        source_code += self.netlist_to_python('circuit', self._statements, ground)
 
-        for token in self._tokens:
-            if isinstance(token, Element):
-                nodes = []
-                for node in token._nodes:
-                    if str(node) == ground:
-                        node = 0
-                    nodes.append(node)
-                if token._prefix != 'X':
-                    args = nodes + token._parameters
-                else: # != Spice
-                    args = token._parameters + nodes
-                args = [self._to_python(x) for x in args]
-                kwargs = ['{}={}'.format(key, self._to_python(value))
-                          for key, value in token._dict_parameters.items()]
-                parameters = ', '.join(args + kwargs)
-                circuit += "circuit.{}({})\n".format(token._prefix, parameters)
-
-        return circuit
+        return source_code
