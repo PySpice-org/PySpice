@@ -33,4 +33,7 @@
 .. |Circuit_macros| replace:: Circuit_macros
 .. _Circuit_macros: http://ece.uwaterloo.ca/~aplevich/Circuit_macros
 
+.. |Tikz| replace:: Tikz
+.. _Tikz: http://www.texample.net/tikz
+
 .. End

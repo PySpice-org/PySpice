@@ -5,9 +5,9 @@
 .. include:: project-links.txt
 .. include:: abbreviation.txt
 
-=====
- FAQ
-=====
+==========
+ User FAQ
+==========
 
 How to typeset :code:`u_kΩ` or :code:`u_μV` in Python code
   There is three solutions if you don't have these Unicode characters available on your

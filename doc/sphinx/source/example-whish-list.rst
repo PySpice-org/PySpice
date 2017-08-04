@@ -1,8 +1,6 @@
-.. -*- Mode: rst -*-
-
---------------------
- Ideas for Examples
---------------------
+===================
+ Example Wish List
+===================
 
 Operational Points
 ------------------
@@ -64,6 +62,9 @@ Power Supplies
 
 * Zener Voltage Regulator
 
+Switching Power Supplies
+------------------------
+
 Telecommunication
 -----------------
 
@@ -81,5 +82,16 @@ Transistor
 * Current Mirror
 * Logic Gates
 * Random Noise Generator (Bolyestad p329)
+
+MOSFET
+------
+
+SCR
+---
+
+* Thyristor
+* Diac
+* Triac
+* Zero Crossing Detector
 
 .. End
