@@ -22,12 +22,12 @@
 
 Shortcuts are defined to build unit values easily :
 
-* for each unit prefix, e.g. :func:`pico`, :func:`nano`, :func:`micro`, :func:`milli`, :func:`kilo`,
-:func:`mega`, :func:`tera`. These shortcuts return unit less values.
+ * for each unit prefix, e.g. :func:`pico`, :func:`nano`, :func:`micro`, :func:`milli`, :func:`kilo`,
+   :func:`mega`, :func:`tera`. These shortcuts return unit less values.
 
-* for each unit and prefix as the concatenation of *u_*, the unit prefix and the
-unit suffix, e.g. :func:`u_pV`, :func:`u_nV`, :func:`u_uV` :func:`u_mV`, :func:`u_V`,
-:func:`u_kV`, :func:`u_MV`, :func:`u_TV`.
+ * for each unit and prefix as the concatenation of *u_*, the unit prefix and the
+   unit suffix, e.g. :func:`u_pV`, :func:`u_nV`, :func:`u_uV` :func:`u_mV`, :func:`u_V`,
+   :func:`u_kV`, :func:`u_MV`, :func:`u_TV`.
 
 Theses unit value constructors accept int, float, object that can be converted to float,
 :class:`UnitValue` instance and an iterable on these types.
@@ -40,8 +40,8 @@ A shortcut is defined to access each unit, e.g. :func:`U_V`, :func:`U_A`, :func:
 
 Some shortcuts have Unicode and ASCII variants:
 
-* For micro, we have the prefix *μ* and *u*.
-* For Ohm, we have :func:`u_Ω` and :func:`u_Ohm`.
+ * For micro, we have the prefix *μ* and *u*.
+ * For Ohm, we have :func:`u_Ω` and :func:`u_Ohm`.
 
 Some examples of usage:
 
