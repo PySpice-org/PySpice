@@ -1,0 +1,1 @@
+find examples/libraries/ -name '*.lib' -exec ./bin/cir2py {} \;
