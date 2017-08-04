@@ -36,7 +36,7 @@ for topic in (
         'filter',
         'operational-amplifier',
         'passive',
-        'power-supply',
+        'power-supplies',
         'resistor',
         'transformer',
         'transistor',
