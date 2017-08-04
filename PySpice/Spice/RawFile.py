@@ -24,7 +24,7 @@ from ..Unit import u_Degree, U_V, U_A, U_s, U_Hz
 
 ####################################################################################################
 
-"""
+"""This module provide tools to read the output of Ngspice.
 
 Header
 
