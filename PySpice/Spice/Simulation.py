@@ -343,7 +343,7 @@ class CircuitSimulation:
         for item in args:
             self._options[str(item)] = None
         for key, value in kwargs.items():
-            self._options[str(key)] = str(value)
+            self._options[str(key)] = str_spice(value)
 
     ##############################################
 
@@ -378,7 +378,7 @@ class CircuitSimulation:
         """
 
         for key, value in kwargs.items():
-            self._initial_condition['V({})'.format(str(key))] = str(value)
+            self._initial_condition['V({})'.format(str(key))] = str_spice(value)
 
         # Fixme: .nodeset
 
