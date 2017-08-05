@@ -1,5 +1,8 @@
 ####################################################################################################
 
+find PySpice -name "flycheck*.py" -exec rm {} \;
+find PySpice -name "parsetab.py" -exec rm {} \;
+
 api=doc/sphinx/source/api
 ##old_api=doc/sphinx/old-api
 
