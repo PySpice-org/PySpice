@@ -20,7 +20,7 @@
 #
 ####################################################################################################
 
-""" This module implements high level elements built on Spice elements. """
+""" This module implements high level elements built on top of Spice elements. """
 
 # Fixme: these waveforms can be current sources as well
 

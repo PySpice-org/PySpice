@@ -18,6 +18,11 @@
 #
 ####################################################################################################
 
+"""This module provides helpers to plot Bode diagrams using Matplolib.
+
+Frequency is in Hz, gain in dB, phase in radians between -π and π.
+"""
+
 ####################################################################################################
 
 import math
@@ -25,8 +30,6 @@ import math
 from matplotlib import pyplot
 
 ####################################################################################################
-
-# frequency in Hz, gain in dB, phase in radians between -pi and pi.
 
 def bode_diagram_gain(axe, frequency, gain, **kwargs):
 

@@ -22,6 +22,8 @@
 
 """This module implements a partial SPICE netlist parser.
 
+See the :command:`cir2py` tool for an example of usage of the parser.
+
 It would be difficult to implement a full parser for Ngspice since the syntax is mainly contextual.
 
 """

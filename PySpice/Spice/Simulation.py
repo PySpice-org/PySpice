@@ -18,6 +18,9 @@
 #
 ####################################################################################################
 
+"""This modules implements classes to perform a simulation.
+"""
+
 ####################################################################################################
 
 import logging
@@ -36,6 +39,8 @@ _module_logger = logging.getLogger(__name__)
 ####################################################################################################
 
 class AnalysisParameters:
+
+    """Base class for analysis parameters"""
 
     __analysis_name__ = None
 
@@ -60,11 +65,15 @@ class AnalysisParameters:
 
 class OperatingPointAnalysisParameters(AnalysisParameters):
 
+    """This class defines analysis parameters for operating point analysis."""
+
     __analysis_name__ = 'op'
 
 ####################################################################################################
 
 class DcSensitivityAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for DC sensitivity analysis."""
 
     __analysis_name__ = 'sens'
 
@@ -91,6 +100,8 @@ class DcSensitivityAnalysisParameters(AnalysisParameters):
 ####################################################################################################
 
 class AcSensitivityAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for AC sensitivity analysis."""
 
     __analysis_name__ = 'sens'
 
@@ -146,6 +157,8 @@ class AcSensitivityAnalysisParameters(AnalysisParameters):
 
 class DCAnalysisParameters(AnalysisParameters):
 
+    """This class defines analysis parameters for DC analysis."""
+
     __analysis_name__ = 'dc'
 
     ##############################################
@@ -176,6 +189,8 @@ class DCAnalysisParameters(AnalysisParameters):
 ####################################################################################################
 
 class ACAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for AC analysis."""
 
     __analysis_name__ = 'ac'
 
@@ -225,6 +240,8 @@ class ACAnalysisParameters(AnalysisParameters):
 ####################################################################################################
 
 class TransientAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for transient analysis."""
 
     __analysis_name__ = 'tran'
 
@@ -354,7 +371,10 @@ class CircuitSimulation:
 
         """ Set initial condition for voltage nodes.
 
-        Usage: initial_condition(node_name1=value, ...)
+        Usage::
+
+            simulator.initial_condition(node_name1=value, ...)
+
         """
 
         for key, value in kwargs.items():
@@ -432,18 +452,22 @@ class CircuitSimulation:
         """Compute the sensitivity of the DC operating point of a node voltage or voltage-source branch
         current to all non-zero device parameters.
 
-        General form:
+        Examples of usage::
 
-        .. code::
+            analysis = simulator.dc_sensitivity('v(out)')
+
+        Spice syntax:
+
+        .. code:: spice
 
             .sens outvar
 
         Examples:
 
-        .. code::
+        .. code:: spice
 
-            .SENS V(1, OUT)
-            .SENS I(VTEST)
+            .sens V(1, OUT)
+            .sens I(VTEST)
 
         """
 
@@ -457,7 +481,11 @@ class CircuitSimulation:
         """Compute the sensitivity of the AC values of a node voltage or voltage-source branch
         current to all non-zero device parameters.
 
-        General form:
+        Examples of usage::
+
+            analysis = simulator.ac_sensitivity(...)
+
+        Spice syntax:
 
         .. code::
 
@@ -465,11 +493,11 @@ class CircuitSimulation:
             .sens outvar ac oct no fstart fstop
             .sens outvar ac lin np fstart fstop
 
-        Examples:
+        Spice examples:
 
         .. code::
 
-            .SENS V(OUT) AC DEC 10 100 100 k
+            .sens V(OUT) AC DEC 10 100 100 k
 
         """
 
@@ -485,22 +513,29 @@ class CircuitSimulation:
 
         """Compute the DC transfer fonction of the circuit with capacitors open and inductors shorted.
 
-        General form:
+        Examples of usage::
 
-        .. code::
+            analysis = simulator.dc(Vinput=slice(-2, 5, .01))
+            analysis = simulator.dc(Ibase=slice(0, 100e-6, 10e-6))
+            analysis = simulator.dc(Vcollector=slice(0, 5, .1), Ibase=slice(micro(10), micro(100), micro(10))) # broken ???
 
-            .dc srcnam vstart vstop vincr [ src2 start2 stop2 incr2 ]
+        Spice syntax:
 
-        *srcnam* is the name of an independent voltage or current source, a resistor or the circuit
-        temperature. *vstart*, *vstop*, and *vincr* are the starting, final, and incrementing values
-        respectively.
+        .. code:: spice
+
+            .dc src_name vstart vstop vincr [ src2 start2 stop2 incr2 ]
+
+        *src_name* is the name of an independent voltage or a current source, a resistor or the
+        circuit temperature.
+
+        *vstart*, *vstop*, and *vincr* are the starting, final, and incrementing values respectively.
 
         A second source (*src2*) may optionally be specified with associated sweep parameters. In
         this case, the first source is swept over its range for each value of the second source.
 
-        Examples:
+        Spice examples:
 
-        .. code::
+        .. code:: spice
 
             .dc VIN 0 .2 5 5.0 0.25
             .dc VDS 0 10 .5 VGS 0 5 1
@@ -521,12 +556,16 @@ class CircuitSimulation:
         """Perform a small-signal AC analysis of the circuit where all non-linear devices are linearized
         around their actual DC operating point.
 
+        Examples of usage::
+
+            analysis = simulator.ac(start_frequency=10@u_kHz, stop_frequency=1@u_GHz, number_of_points=10,  variation='dec')
+
         Note that in order for this analysis to be meaningful, at least one independent source must
         have been specified with an AC value. Typically it does not make much sense to specify more
         than one AC source. If you do, the result will be a superposition of all sources, thus
         difficult to interpret.
 
-        Examples:
+        Spice examples:
 
         .. code::
 
@@ -550,9 +589,14 @@ class CircuitSimulation:
 
         """Perform a transient analysis of the circuit.
 
-        General Form:
+        Examples of usage::
 
-        .. code::
+            analysis = simulator.transient(step_time=1@u_us, end_time=500@u_us)
+            analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
+
+        Spice syntax:
+
+        .. code:: spice
 
             .tran tstep tstop <tstart <tmax>> <uic>
 

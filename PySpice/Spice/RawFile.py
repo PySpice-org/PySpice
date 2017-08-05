@@ -20,33 +20,29 @@
 
 ####################################################################################################
 
-from ..Unit import u_Degree, U_V, U_A, U_s, U_Hz
-
-####################################################################################################
-
 """This module provide tools to read the output of Ngspice.
 
 Header
 
-    .. code::
+.. code::
 
-        Circuit: 230V Rectifier
+    Circuit: 230V Rectifier
 
-        Doing analysis at TEMP = 25.000000 and TNOM = 25.000000
+    Doing analysis at TEMP = 25.000000 and TNOM = 25.000000
 
-        Title: 230V Rectifier
-        Date: Thu Jun  4 23:40:58  2015
-        Plotname: Transient Analysis
-        Flags: real
-        No. Variables: 6
-        No. Points: 0
-        Variables:
-        No. of Data Columns : 6
-                0       time    time
-                1       v(in)   voltage
-                ...
-                5       i(vinput)       current
-        Binary:
+    Title: 230V Rectifier
+    Date: Thu Jun  4 23:40:58  2015
+    Plotname: Transient Analysis
+    Flags: real
+    No. Variables: 6
+    No. Points: 0
+    Variables:
+    No. of Data Columns : 6
+            0       time    time
+            1       v(in)   voltage
+            ...
+            5       i(vinput)       current
+    Binary:
 
 Operating Point
 Node voltages and source branch currents:
@@ -84,6 +80,10 @@ Time, node voltages and source branch currents:
 
 # * v({element}:bv_max)
 # * i(e.xdz1.ev1)
+
+####################################################################################################
+
+from ..Unit import u_Degree, U_V, U_A, U_s, U_Hz
 
 ####################################################################################################
 

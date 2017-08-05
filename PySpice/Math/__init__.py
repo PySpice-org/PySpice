@@ -18,6 +18,9 @@
 #
 ####################################################################################################
 
+"""This module implements mathematical functions.
+"""
+
 ####################################################################################################
 
 import math
@@ -25,15 +28,19 @@ import math
 ####################################################################################################
 
 def odd(x):
+    """Return True is *x* is odd"""
     return x & 1
 
 def even(x):
+    """Return True is *x* is even"""
     return not(odd(x))
 
 ####################################################################################################
 
 def rms_to_amplitude(x):
+    """Return :math:`x \sqrt{2}`"""
     return x * math.sqrt(2)
 
 def amplitude_to_rms(x):
+    """Return :math:`x / \sqrt{2}`"""
     return x / math.sqrt(2)

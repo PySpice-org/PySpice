@@ -19,44 +19,11 @@
 ####################################################################################################
 
 ####################################################################################################
-#
-# op: value
-# transient: time
-# dc: v-sweep
-# ac: frequency
-# sens: element parameters
-#
-# Probes
-#
-# Nodes:
-#   Voltage versus gnd
-#   real or complex
-#   static or (temporale/transient, v-sweep, frequency)
-#
-#   static waveform: (node->, unit, value)
-#   waveform: (node->, unit, values, abscissa->)
-#
-#   analysis.1.v !
-#   analysis.in.v !
-#   analysis['1'].v
-#   analysis.n1.v
-#
-# Source:
-#   Current
-#
-#   analysis.Vinput.i
-#
-# Vinput -> lower case
-#
-# axe.plot(x, y, *args, **kwargs)
-#
-###################################################################################################
 
-####################################################################################################
-#
-# Analysis versus Simulation
-#
-####################################################################################################
+# Fixme: self._
+
+"""This module implements classes to handle analysis output.
+"""
 
 ####################################################################################################
 
@@ -64,11 +31,21 @@ import numpy as np
 
 ####################################################################################################
 
-# Fixme: self._
-
 class WaveForm(np.ndarray):
 
-    """This class implements a waveform on top of Numpy Array.
+    """This class implements waveform on top of a Numpy Array.
+
+    Public Attributes:
+
+      :attr:`name`
+
+      :attr:`unit`
+
+      :attr:`title`
+
+      :attr:`abscissa`
+        Numpy array of the analysis abscissa
+
     """
 
     ##############################################
@@ -121,6 +98,48 @@ class WaveForm(np.ndarray):
 
 class Analysis:
 
+    """Base class for the simulation output.
+
+    Depending of the simulation type, the simulator will return waveforms as a function of
+
+      * time
+      * frequency
+      * sweep
+      * ...
+
+    and corresponding to
+
+      * a node's voltage
+      * a source's current
+      * ...
+
+    The name of a waveform is
+
+      * node's voltage: node's name
+      * source's current: source'name
+      * ...
+
+    If the waveform name is a valid Python identifier, then you can get the corresponding waveform using::
+
+      analysis.waveforme_name
+
+    else you have to use this fallback::
+
+      analysis['waveforme_name']
+
+    Public Attributes:
+
+      :attr:`nodes`
+        Dictionary for node voltages indexed by node names
+
+      :attr:`branches`
+        Dictionary for branch currents indexed by source names
+
+      :attr:`elements`
+        Dictionary for elements ...
+
+    """
+
     ##############################################
 
     def __init__(self, simulation, nodes=(), branches=(), elements=()):
@@ -137,6 +156,7 @@ class Analysis:
 
     @property
     def simulation(self):
+        """Return the simulation instance"""
         return self._simulation
 
     ##############################################
@@ -164,11 +184,14 @@ class Analysis:
 ####################################################################################################
 
 class OperatingPoint(Analysis):
+    """This class implements an operating point analysis."""
     pass
 
 ####################################################################################################
 
 class SensitivityAnalysis(Analysis):
+
+    """This class implements an sensitivity analysis."""
 
     ##############################################
 
@@ -180,7 +203,7 @@ class SensitivityAnalysis(Analysis):
 
 class DcAnalysis(Analysis):
 
-    """
+    """This class implements a DC analysis.
 
     When the DC analysis is performed with multiple sources, sweep is the last source.
 
@@ -204,11 +227,14 @@ class DcAnalysis(Analysis):
 
     @property
     def sweep(self):
+        """Return an Numpy array for the sweep abscissa"""
         return self._sweep
 
 ####################################################################################################
 
 class AcAnalysis(Analysis):
+
+    """This class implements an AC analysis."""
 
     ##############################################
 
@@ -222,11 +248,14 @@ class AcAnalysis(Analysis):
 
     @property
     def frequency(self):
+        """Return an Numpy array for the frequency abscissa"""
         return self._frequency
 
 ####################################################################################################
 
 class TransientAnalysis(Analysis):
+
+    """This class implements a transient analysis."""
 
     ##############################################
 
@@ -240,4 +269,5 @@ class TransientAnalysis(Analysis):
 
     @property
     def time(self):
+        """Return an Numpy array for the time abscissa"""
         return self._time
