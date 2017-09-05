@@ -23,6 +23,7 @@
 # Fixme: self._
 
 """This module implements classes to handle analysis output.
+
 """
 
 ####################################################################################################
@@ -126,6 +127,21 @@ class Analysis:
     else you have to use this fallback::
 
       analysis['waveforme_name']
+
+    Examples of usages::
+
+        # Operating point analysis
+        for node in analysis.nodes.values():
+            print('Node {}: {:5.2f} V'.format(str(node), float(node)))
+        for node in analysis.branches.values():
+            print('Node {}: {:5.2f} A'.format(str(node), float(node)))
+
+        # DC sensitivity analysis
+        for element in analysis.elements.values():
+            print(element, float(element))
+
+        # Plot the voltage of the "out" node
+        plt.plot(analysis.out.abscissa, analysis.out)
 
     Public Attributes:
 
