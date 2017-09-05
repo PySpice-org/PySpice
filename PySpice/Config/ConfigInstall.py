@@ -1,10 +1,46 @@
 ####################################################################################################
 
 import os
+import sys
 
 ####################################################################################################
 
 import PySpice.Tools.Path as PathTools # Fixme: why ?
+
+####################################################################################################
+
+class OsFactory:
+
+    ##############################################
+
+    def __init__(self):
+
+        if sys.platform.startswith('linux'):
+            self._name = 'linux'
+        elif sys.platform.startswith('win'):
+            self._name = 'windows'
+        elif sys.platform.startswith('darwin'):
+            self._name = 'osx'
+
+    ##############################################
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def on_linux(self):
+        return self._name == 'linux'
+
+    @property
+    def on_windows(self):
+        return self._name == 'windows'
+
+    @property
+    def on_osx(self):
+        return self._name == 'osx'
+
+OS = OsFactory()
 
 ####################################################################################################
 

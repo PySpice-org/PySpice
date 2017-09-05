@@ -24,6 +24,7 @@
 ####################################################################################################
 
 import logging
+import os
 
 ####################################################################################################
 
@@ -61,7 +62,7 @@ class StatementList:
 
     def __str__(self):
 
-        return '\n'.join([str(statement) for statement in self])
+        return os.linesep.join([str(statement) for statement in self])
 
 ####################################################################################################
 
@@ -368,9 +369,9 @@ class If: #(TernaryExpression)
 
     # def _str_compound_expression(self, expressions):
 
-    #     string = '(\n'
+    #     string = '(' + os.linesep
     #     if expressions:
-    #         string += str(expressions) + '\n'
+    #         string += str(expressions) + os.linesep
     #     string += ')'
 
     #     return string

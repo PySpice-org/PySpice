@@ -89,7 +89,7 @@ class Parser:
     t_ignore  = ' \t'
 
     def t_newline(self, t):
-        r'\n+'
+        r'\r?\n+'
         # Track newline
         t.lexer.lineno += len(t.value)
         self._previous_newline_position = t.lexer.lexpos

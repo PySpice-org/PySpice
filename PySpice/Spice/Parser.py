@@ -31,6 +31,7 @@ It would be difficult to implement a full parser for Ngspice since the syntax is
 ####################################################################################################
 
 import logging
+import os
 
 ####################################################################################################
 
@@ -159,7 +160,7 @@ class Statement:
 
     def __repr__(self):
 
-        return "{} {}".format(self.__class__.__name__, repr(self._line))
+        return '{} {}'.format(self.__class__.__name__, repr(self._line))
 
     ##############################################
 
@@ -218,7 +219,7 @@ class Title(Statement):
     ##############################################
 
     def __repr__(self):
-        return "Title {}".format(self._title)
+        return 'Title {}'.format(self._title)
 
 ####################################################################################################
 
@@ -241,13 +242,13 @@ class Include(Statement):
     ##############################################
 
     def __repr__(self):
-        return "Include {}".format(self._include)
+        return 'Include {}'.format(self._include)
 
     ##############################################
 
     def to_python(self, netlist_name):
 
-        return '{}.include({})\n'.format(netlist_name, self._include)
+        return '{}.include({})'.format(netlist_name, self._include) + os.linesep
 
 ####################################################################################################
 
@@ -283,7 +284,7 @@ class Model(Statement):
 
     def __repr__(self):
 
-        return "Model {} {} {}".format(self._name, self._model_type, self._parameters)
+        return 'Model {} {} {}'.format(self._name, self._model_type, self._parameters)
 
     ##############################################
 
@@ -291,7 +292,7 @@ class Model(Statement):
 
         args = self.values_to_python((self._name, self._model_type))
         kwargs = self.kwargs_to_python(self._parameters)
-        return '{}.model({})\n'.format(netlist_name, self.join_args(args + kwargs))
+        return '{}.model({})'.format(netlist_name, self.join_args(args + kwargs)) + os.linesep
 
     ##############################################
 
@@ -339,8 +340,8 @@ class SubCircuitStatement(Statement):
 
     def __repr__(self):
 
-        text = "SubCircuit {} {}\n".format(self._name, self._nodes)
-        text += '\n'.join(['  ' + repr(statement) for statement in self._statements])
+        text = 'SubCircuit {} {}'.format(self._name, self._nodes) + os.linesep
+        text += os.linesep.join(['  ' + repr(statement) for statement in self._statements])
         return text
 
     ##############################################
@@ -366,7 +367,7 @@ class SubCircuitStatement(Statement):
         subcircuit_name = 'subcircuit_' + self._name
         args = self.values_to_python([subcircuit_name] + self._nodes)
         source_code = ''
-        source_code += '{} = SubCircuit({})\n'.format(subcircuit_name, self.join_args(args))
+        source_code += '{} = SubCircuit({})'.format(subcircuit_name, self.join_args(args)) + os.linesep
         source_code += SpiceParser.netlist_to_python(subcircuit_name, self, ground)
         return source_code
 
@@ -397,7 +398,7 @@ class Element(Statement):
         super().__init__(line)
 
         line_str = str(line)
-        # self._logger.debug('\n' + line_str)
+        # self._logger.debug(os.linesep + line_str)
 
         # Retrieve device prefix
         self._prefix = line_str[0]
@@ -451,7 +452,7 @@ class Element(Statement):
                         self._dict_parameters['off'] = True
                     else:
                         self._logger.warn(line_str)
-                        # raise NameError("Bad element line:", line_str)
+                        # raise NameError('Bad element line:', line_str)
 
         if prefix_data.multi_devices:
             for element_class in prefix_data:
@@ -471,7 +472,7 @@ class Element(Statement):
         for i in to_delete:
             del self._parameters[i]
 
-        self._logger.debug('\n' + self.__repr__())
+        self._logger.debug(os.linesep + self.__repr__())
 
     ##############################################
 
@@ -484,7 +485,7 @@ class Element(Statement):
 
     def __repr__(self):
 
-        return "Element {0._prefix} {0._name} {0._nodes} {0._parameters} {0._dict_parameters}".format(self)
+        return 'Element {0._prefix} {0._name} {0._nodes} {0._parameters} {0._dict_parameters}'.format(self)
 
 
     ##############################################
@@ -503,7 +504,7 @@ class Element(Statement):
             args += self._parameters + nodes
         args = self.values_to_python(args)
         kwargs = self.kwargs_to_python(self._dict_parameters)
-        return "{}.{}({})\n".format(netlist_name, self._prefix, self.join_args(args + kwargs))
+        return '{}.{}({})'.format(netlist_name, self._prefix, self.join_args(args + kwargs)) + os.linesep
 
     ##############################################
 
@@ -553,7 +554,7 @@ class Line:
     ##############################################
 
     def __repr__(self):
-        return "{0._line_range} {0._text}".format(self)
+        return '{0._line_range} {0._text}'.format(self)
 
     ##############################################
 
@@ -590,9 +591,9 @@ class Line:
                 words.append(word)
             if stop_location is None: # we should stop
                 if number_of_words_read != number_of_words:
-                    template = "Bad element line, looking for word {}/{}:\n"
+                    template = 'Bad element line, looking for word {}/{}:' + os.linesep
                     raise NameError(template.format(number_of_words_read, number_of_words) +
-                                    line_str + '\n' +
+                                    line_str + os.linesep +
                                     ' '*start_location + '^')
             else:
                 if start_location < stop_location:
@@ -616,7 +617,7 @@ class Line:
                 if location != -1:
                     stop_location = location
                 else:
-                    raise NameError("Bad element line, missing key? " + line_str)
+                    raise NameError('Bad element line, missing key? ' + line_str)
 
         line_str = line_str[start_location:stop_location]
         words = [x for x in line_str.split(' ') if x]
@@ -686,7 +687,7 @@ class SpiceParser:
             with open(str(path), 'r') as f:
                 raw_lines = f.readlines()
         elif source is not None:
-            raw_lines = source.split('\n') # Fixme: other os
+            raw_lines = source.split(os.linesep) # Fixme: other os
         else:
             raise ValueError
 
@@ -782,7 +783,7 @@ class SpiceParser:
                 if self.circuit is None:
                     self.circuit = statement
                 else:
-                    raise NameError("More than one title")
+                    raise NameError('More than one title')
             elif isinstance(statement, SubCircuitStatement):
                 self.subcircuits.append(statement)
             elif isinstance(statement, Model):
@@ -854,7 +855,7 @@ class SpiceParser:
         source_code = ''
 
         if self.circuit:
-            source_code += "circuit = Circuit('{}')\n".format(self._title)
+            source_code += "circuit = Circuit('{}')".format(self._title) + os.linesep
         source_code += self.netlist_to_python('circuit', self._statements, ground)
 
         return source_code

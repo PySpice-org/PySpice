@@ -20,6 +20,10 @@
 
 ####################################################################################################
 
+import os
+
+####################################################################################################
+
 """This module provide tools to read the output of Ngspice.
 
 Header
@@ -277,12 +281,12 @@ class RawFile:
 
         """ Parse the header """
 
-        binary_line = b'Binary:\n'
+        binary_line = b'Binary:' + os.linesep.encode('ascii')
         binary_location = stdout.find(binary_line)
         if binary_location < 0:
             raise NameError('Cannot locate binary data')
         raw_data_start = binary_location + len(binary_line)
-        # self._logger.debug('\n' + stdout[:raw_data_start].decode('utf-8'))
+        # self._logger.debug(os.linesep + stdout[:raw_data_start].decode('utf-8'))
         header_lines = stdout[:binary_location].splitlines()
         raw_data = stdout[raw_data_start:]
         header_line_iterator = iter(header_lines)
