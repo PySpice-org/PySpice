@@ -2,7 +2,7 @@
 #
 # PySpice - A Spice Package for Python
 # Copyright (C) 2014 Fabrice Salvaire
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -24,9 +24,11 @@
 ####################################################################################################
 
 import logging
+import os
 
 ####################################################################################################
 
+from ..Config import ConfigInstall
 from ..Tools.StringTools import join_list, join_dict, str_spice
 from ..Unit import Unit, as_V, as_A, as_s, as_Hz, as_Degree, u_Degree
 from .NgSpice.Shared import NgSpiceShared
@@ -616,16 +618,16 @@ class CircuitSimulation:
         if self.options:
             for key, value in self._options.items():
                 if value is not None:
-                    netlist += '.options {} = {}\n'.format(key, str_spice(value))
+                    netlist += '.options {} = {}'.format(key, str_spice(value)) + os.linesep
                 else:
-                    netlist += '.options {}\n'.format(key)
+                    netlist += '.options {}'.format(key) + os.linesep
         if self.initial_condition:
-            netlist += '.ic ' + join_dict(self._initial_condition) + '\n'
+            netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
         if self._saved_nodes:
-            netlist += '.save ' + join_list(self._saved_nodes) + '\n'
+            netlist += '.save ' + join_list(self._saved_nodes) + os.linesep
         for analysis_parameters in self._analyses.values():
-            netlist += str(analysis_parameters) + '\n'
-        netlist += '.end\n'
+            netlist += str(analysis_parameters) + os.linesep
+        netlist += '.end' + os.linesep
         return netlist
 
 ####################################################################################################
@@ -641,6 +643,8 @@ class CircuitSimulator(CircuitSimulation):
 
     _logger = _module_logger.getChild('CircuitSimulator')
 
+    DEFAULT_SIMULATOR_MODE = None
+
     ##############################################
 
     def _run(self, analysis_method, *args, **kwargs):
@@ -652,7 +656,7 @@ class CircuitSimulator(CircuitSimulation):
         method = getattr(CircuitSimulation, analysis_method)
         method(self, *args, **kwargs)
 
-        self._logger.debug('desk\n' + str(self))
+        self._logger.debug('desk' + os.linesep + str(self))
 
     ##############################################
 
@@ -684,6 +688,14 @@ class CircuitSimulator(CircuitSimulation):
 
         return self._run('transient', *args, **kwargs)
 
+
+if ConfigInstall.OS.on_windows:
+    _mode = 'shared'
+else:
+    # _mode = 'shared'
+    _mode = 'subprocess'
+CircuitSimulator.DEFAULT_SIMULATOR_MODE = _mode
+
 ####################################################################################################
 
 class SubprocessCircuitSimulator(CircuitSimulator):
@@ -695,14 +707,14 @@ class SubprocessCircuitSimulator(CircuitSimulator):
     def __init__(self, circuit,
                  temperature=27,
                  nominal_temperature=27,
-                 spice_command='ngspice',
+                 spice_command=None,
                 ):
 
         # Fixme: kwargs
 
         super().__init__(circuit, temperature, nominal_temperature, pipe=True)
 
-        self._spice_server = SpiceServer()
+        self._spice_server = SpiceServer(spice_command=spice_command)
 
     ##############################################
 
@@ -738,7 +750,7 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
         super().__init__(circuit, temperature, nominal_temperature, pipe=False)
 
         if ngspice_shared is None:
-            self._ngspice_shared = NgSpiceShared(send_data=False)
+            self._ngspice_shared = NgSpiceShared.new_instance()
         else:
             self._ngspice_shared = ngspice_shared
 
@@ -753,13 +765,19 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
         self._logger.debug(str(self._ngspice_shared.plot_names))
         self.reset_analysis()
 
-        if analysis_method == 'dc':
-            plot_name = 'dc1'
-        elif analysis_method == 'ac':
-            plot_name = 'ac1'
-        elif analysis_method == 'transient':
-            plot_name = 'tran1'
-        else:
-            raise NotImplementedError
+        # if analysis_method == 'operating_point':
+        #     plot_name = 'op1'
+        # elif analysis_method == 'dc':
+        #     plot_name = 'dc1'
+        # elif analysis_method == 'dc_sensitivity':
+        #     plot_name = 'sens1'
+        # elif analysis_method == 'ac':
+        #     plot_name = 'ac1'
+        # elif analysis_method == 'transient':
+        #     plot_name = 'tran1'
+        # else:
+        #     raise NotImplementedError
+
+        plot_name = self._ngspice_shared.last_plot
 
         return self._ngspice_shared.plot(self, plot_name).to_analysis()

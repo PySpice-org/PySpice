@@ -43,6 +43,7 @@ simulation process.
 ####################################################################################################
 
 import logging
+import os
 import re
 import subprocess
 
@@ -72,11 +73,16 @@ class SpiceServer:
 
     _logger = _module_logger.getChild('SpiceServer')
 
+    SPICE_COMMAND = 'ngspice'
+
     ##############################################
 
-    def __init__(self, spice_command='ngspice'):
+    def __init__(self, spice_command=None):
 
-        self._spice_command = spice_command
+        if spice_command is not None:
+            self._spice_command = spice_command
+        else:
+            self._spice_command = self.SPICE_COMMAND
 
     ##############################################
 
@@ -96,7 +102,7 @@ class SpiceServer:
 
         """Parse stdout for errors."""
 
-        # self._logger.debug('\n' + stdout)
+        # self._logger.debug(os.linesep + stdout)
 
         error_found = False
         # UnicodeDecodeError: 'utf-8' codec can't decode byte 0xc0 in position 870: invalid start byte
@@ -105,7 +111,7 @@ class SpiceServer:
         for line_index, line in enumerate(lines):
             if line.startswith(b'Error '):
                 error_found = True
-                self._logger.error('\n' + line.decode('utf-8') + '\n' + lines[line_index+1].decode('utf-8'))
+                self._logger.error(os.linesep + line.decode('utf-8') + os.linesep + lines[line_index+1].decode('utf-8'))
         if error_found:
             raise NameError("Errors was found by Spice")
 
@@ -115,7 +121,7 @@ class SpiceServer:
 
         """Parse stderr for warnings and return the number of points."""
 
-        self._logger.debug('\n' + stderr)
+        self._logger.debug(os.linesep + stderr)
 
         stderr_lines = stderr.splitlines()
         number_of_points = None
@@ -123,7 +129,7 @@ class SpiceServer:
             if line.startswith('Warning:'):
                 self._logger.warning(line[len('Warning :'):])
             elif line == 'run simulation(s) aborted':
-                raise NameError("Simulation aborted\n" + stderr)
+                raise NameError('Simulation aborted' + os.linesep + stderr)
             elif line.startswith('@@@'):
                 number_of_points = self._decode_number_of_points(line)
 
@@ -152,8 +158,8 @@ class SpiceServer:
         self._parse_stdout(stdout)
         number_of_points = self._parse_stderr(stderr)
         if number_of_points is None:
-            raise NameError("The number of points was not found in the standard error buffer,"
-                            " ngspice returned:\n" +
+            raise NameError('The number of points was not found in the standard error buffer,'
+                            ' ngspice returned:' + os.linesep +
                             stderr)
 
         return RawFile(stdout, number_of_points)

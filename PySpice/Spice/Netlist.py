@@ -103,7 +103,7 @@ from ..Tools.StringTools import join_lines, join_list, join_dict
 from .ElementParameter import (ParameterDescriptor,
                                PositionalElementParameter,
                                FlagParameter, KeyValueParameter)
-from .Simulation import SubprocessCircuitSimulator, NgSpiceSharedCircuitSimulator
+from .Simulation import CircuitSimulator, SubprocessCircuitSimulator, NgSpiceSharedCircuitSimulator
 
 ####################################################################################################
 
@@ -636,9 +636,9 @@ class Netlist:
 
         """ Return the formatted list of element and model definitions. """
 
-        netlist = join_lines(self.element_iterator()) + '\n'
+        netlist = join_lines(self.element_iterator()) + os.linesep
         if self._models:
-            netlist += join_lines(self.model_iterator()) + '\n'
+            netlist += join_lines(self.model_iterator()) + os.linesep
         return netlist
 
     ##############################################
@@ -775,9 +775,9 @@ class SubCircuit(Netlist):
         nodes = join_list(self._external_nodes)
         parameters = join_list(['{}={}'.format(key, value)
                                 for key, value in self._parameters.items()])
-        netlist = '.subckt ' + join_list((self.name, nodes, parameters)) + '\n'
+        netlist = '.subckt ' + join_list((self.name, nodes, parameters)) + os.linesep
         netlist += super().__str__()
-        netlist += '.ends ' + self.name + '\n'
+        netlist += '.ends ' + self.name + os.linesep
         return netlist
 
 ####################################################################################################
@@ -881,15 +881,15 @@ class Circuit(Netlist):
 
         """Return the formatted desk."""
 
-        netlist = '.title {}\n'.format(self.title)
+        netlist = '.title {}'.format(self.title) + os.linesep
         if self._includes:
             # ngspice don't like // in path, thus ensure we write real paths
             real_paths = [os.path.realpath(str(path)) for path in self._includes]
-            netlist += join_lines(real_paths, prefix='.include ')  + '\n'
+            netlist += join_lines(real_paths, prefix='.include ') + os.linesep
         if self._global_nodes:
-            netlist += '.global ' + join_list(self._global_nodes) + '\n'
+            netlist += '.global ' + join_list(self._global_nodes) + os.linesep
         if self._parameters:
-            netlist += join_lines(self._parameters, prefix='.param ') + '\n'
+            netlist += join_lines(self._parameters, prefix='.param ') + os.linesep
         if self._subcircuits:
             netlist += join_lines(self.subcircuit_iterator())
         netlist += super().__str__()
@@ -899,7 +899,7 @@ class Circuit(Netlist):
 
     def str_end(self):
 
-        return str(self) + '.end\n'
+        return str(self) + '.end' + os.linesep
 
     ##############################################
 
@@ -917,7 +917,7 @@ class Circuit(Netlist):
             simulator = kwargs['simulator']
             del kwargs['simulator']
         else:
-            simulator = 'subprocess'
+            simulator = CircuitSimulator.DEFAULT_SIMULATOR_MODE
         if simulator == 'subprocess':
             return SubprocessCircuitSimulator(self, *args, **kwargs)
         elif simulator == 'shared':

@@ -28,6 +28,8 @@
 
 ####################################################################################################
 
+import os
+
 import numpy as np
 
 ####################################################################################################
@@ -177,7 +179,7 @@ class Analysis:
 
     ##############################################
 
-    def __getitem__(self, name):
+    def _get_item(self, name):
 
         if name in self.nodes:
             return self.nodes[name]
@@ -190,12 +192,31 @@ class Analysis:
 
     ##############################################
 
+    def __getitem__(self, name):
+
+        try:
+            return self._get_item(name)
+        except IndexError:
+            return self._get_item(name.lower())
+
+    ##############################################
+
+    @staticmethod
+    def _format_dict(d):
+
+        return os.linesep.join([' '*2 + str(x) for x in d])
+
+    ##############################################
+
     def __getattr__(self, name):
 
         try:
             return self.__getitem__(name)
         except IndexError:
-            raise AttributeError(name)
+            raise AttributeError(name + os.linesep +
+                                 'Nodes :' + os.linesep + self._format_dict(self.nodes) + os.linesep +
+                                 'Branches :' + os.linesep + self._format_dict(self.branches) + os.linesep +
+                                 'Elements :' + os.linesep + self._format_dict(self.elements))
 
 ####################################################################################################
 
