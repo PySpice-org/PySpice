@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- Python -*-
 
 ####################################################################################################
@@ -30,17 +30,9 @@ import sys
 
 ####################################################################################################
 
-for topic in (
-        'diode',
-        'electricity',
-        'filter',
-        'operational-amplifier',
-        'passive',
-        'power-supplies',
-        'resistor',
-        'transformer',
-        'transistor',
-        ):
+examples_path = os.path.dirname(__file__)
+
+for topic in os.listdir(examples_path):
     python_files = glob.glob(os.path.join(os.path.dirname(__file__), topic, '*.py'))
     for file_name in python_files:
         if file_name.islower():
@@ -48,9 +40,3 @@ for topic in (
             subprocess.call(('python', file_name))
             print('To continue press Enter')
             rc = sys.stdin.readline().strip()
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################
