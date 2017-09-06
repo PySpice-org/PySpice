@@ -144,6 +144,8 @@ V1.0.0
 ------
 
  * Bump version to v1.0.0 since it just works!
+ * Support Windows platform using Ngspice shared mode
+ * Fixed shared mode
  * Fixed and completed Spice parser : tested on example's libraries
 
 V0.4.2

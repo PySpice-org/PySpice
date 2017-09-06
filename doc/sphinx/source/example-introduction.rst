@@ -33,13 +33,16 @@ Some links to learn about Python programming and Scientific Framework:
  How to Run these Examples
 ---------------------------
 
-Linux is the best platform to work with PySpice. Indeed it is easier to get NgSpice running and to
-install a Python environment.
-
 There are several ways to run the examples: as a script from the console, in the |IPython|_
 interactive environment or in a web browser using a IPython Notebook. Each of them has their
 advantages and drawbacks.  A script is best when we want to work on a file using an editor, and an
 interactive environment is best when we want to play with code interactively.
+
+On Windows, you have to set an environment so as to find the Spice libraries.
+
+.. code-block:: sh
+
+SET PySpice_example_path=C:/Users/John/PySpice/examples
 
 To run an example from the console, execute this command:
 
