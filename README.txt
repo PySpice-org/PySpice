@@ -3,16 +3,14 @@
 .. include:: project-links.txt
 .. include:: abbreviation.txt
 
-=========
- PySpice
-=========
+=============================================================================
+ PySpice : Simulate Electronic Circuit using Python and the Ngspice Simulator
+=============================================================================
 
 |Pypi License|
 |Pypi Python Version|
 
 |Pypi Version|
-
------
 
 Overview
 ========
