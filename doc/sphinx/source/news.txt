@@ -1,8 +1,6 @@
 .. -*- Mode: rst -*-
 
-======
- News
-======
+.. no title here
 
 V1.0.0
 ------

@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
-<title></title>
+<title>PySpice</title>
 <style type="text/css">
 
 /*
@@ -360,8 +360,8 @@ ul.auto-toc {
 </style>
 </head>
 <body>
-<div class="document">
-
+<div class="document" id="pyspice">
+<h1 class="title">PySpice</h1>
 
 <!-- -*- Mode: rst -*- -->
 <!-- -*- Mode: rst -*- -->
@@ -380,18 +380,50 @@ ul.auto-toc {
 <!-- End -->
 <!-- -*- Mode: rst -*- -->
 <!-- End -->
-<div class="section" id="pyspice">
-<h1>PySpice</h1>
-<p>Developed by <a class="reference external" href="http://fabrice-salvaire.fr">Fabrice Salvaire</a>.</p>
-<p>The official PySpice Home Page is located at <a class="reference external" href="https://pyspice.fabrice-salvaire.fr">https://pyspice.fabrice-salvaire.fr</a></p>
-<p><a class="reference external" href="https://www.slideshare.net/PoleSystematicParisRegion/pyparis2017-circuit-simulation-using-python-by-fabrice-salvaire">PyParis2017 / Circuit Simulation using Python, by Fabrice Salvaire</a>
-: talk given at the <a class="reference external" href="http://pyparis.org/">PyParis 2017</a> conference
-(<a class="reference external" href="https://pyspice.fabrice-salvaire.fr/pyparis-2017-talk.pdf">PDF file</a>)</p>
 <p><a class="reference external" href="https://pypi.python.org/pypi/PySpice"><object data="https://img.shields.io/pypi/l/PySpice.svg" type="image/svg+xml">PySpice license</object></a>
 <a class="reference external" href="https://pypi.python.org/pypi/PySpice"><object data="https://img.shields.io/pypi/pyversions/PySpice.svg" type="image/svg+xml">PySpice python version</object></a></p>
 <p><a class="reference external" href="https://pypi.python.org/pypi/PySpice"><object data="https://img.shields.io/pypi/v/PySpice.svg" type="image/svg+xml">PySpice last version</object></a></p>
 <hr class="docutils" />
+<div class="section" id="overview">
+<h1>Overview</h1>
+<div class="section" id="what-is-pyspice">
+<h2>What is PySpice ?</h2>
+<p>In short PySpice is an open source Python module which interface <a class="reference external" href="http://python.org">Python</a> and the famous <a class="reference external" href="https://en.wikipedia.org/wiki/SPICE">Spice</a> circuit simulator.</p>
+<p>Mainly it permits:</p>
+<blockquote>
+<ul class="simple">
+<li>to define a circuit, so called netlist,</li>
+<li>to perform a simulation using <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a>,</li>
+<li>to analyse the output using <a class="reference external" href="http://www.numpy.org">Numpy</a> and <a class="reference external" href="http://matplotlib.org">Matplotlib</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="where-is-the-documentation">
+<h2>Where is the Documentation ?</h2>
+<p>The documentation is available on the <a class="reference external" href="https://pyspice.fabrice-salvaire.fr">PySpice Home Page</a>.</p>
+</div>
+<div class="section" id="how-to-install-it">
+<h2>How to install it ?</h2>
+<p>Look at this <a class="reference external" href="https://pyspice.fabrice-salvaire.fr/installation.html">page</a>.</p>
+</div>
+</div>
+<div class="section" id="credits">
+<h1>Credits</h1>
+<p>Authors: <a class="reference external" href="http://fabrice-salvaire.fr">Fabrice Salvaire</a></p>
+</div>
+<div class="section" id="news">
+<h1>News</h1>
 <!-- -*- Mode: rst -*- -->
+<!-- no title here -->
+<div class="section" id="v1-0-0">
+<h2>V1.0.0</h2>
+<blockquote>
+<ul class="simple">
+<li>Bump version to v1.0.0 since it just works!</li>
+<li>Fixed and completed Spice parser : tested on example's libraries</li>
+</ul>
+</blockquote>
+</div>
 <div class="section" id="v0-4-2">
 <h2>V0.4.2</h2>
 <blockquote>
@@ -403,14 +435,23 @@ ul.auto-toc {
 <div class="section" id="v0-4-0">
 <h2>V0.4.0</h2>
 <blockquote>
-<ul class="simple">
-<li>Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size.</li>
-<li>Improved documentation generator: Implemented <code>format</code> for RST content and Tikz figure.</li>
-<li>Improved unit support: It implements now the International System of Units.
+<ul>
+<li><p class="first">Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size.</p>
+</li>
+<li><p class="first">Improved documentation generator: Implemented <code>format</code> for RST content and Tikz figure.</p>
+</li>
+<li><div class="first system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;stdin&gt;</tt>, line 97); <em><a href="#id1">backlink</a></em></p>
+<p>Duplicate explicit target name: &quot;page&quot;.</p>
+</div>
+<p>Improved unit support: It implements now the International System of Units.
 And we can now use unit helper like <code>u_mV</code> or compute the value of <code>1.2&#64;u_kΩ / 2&#64;u_mA</code>.
-The relevant documentation is on this <a class="reference external" href="api/PySpice/Unit.html">page</a>.</li>
-<li>Added the Simulation instance to the Analysis class.</li>
-<li>Refactored simulation parameters as classes.</li>
+The relevant documentation is on this <a class="reference external" href="api/PySpice/Unit.html">page</a>.</p>
+</li>
+<li><p class="first">Added the Simulation instance to the Analysis class.</p>
+</li>
+<li><p class="first">Refactored simulation parameters as classes.</p>
+</li>
 </ul>
 </blockquote>
 </div>
@@ -439,171 +480,6 @@ The relevant documentation is on this <a class="reference external" href="api/Py
 to define the circuit.  The program <em>cir2py</em> translates a circuit file to Python.</li>
 </ul>
 </blockquote>
-<!-- End -->
-<!-- -*- Mode: rst -*- -->
-<p>PySpice is a <a class="reference external" href="http://python.org">Python</a> 3 library which interplay with Berkeley SPICE, the industrial circuit
-simulator reference.</p>
-<p>SPICE (Simulation Program with Integrated Circuit Emphasis) was developed at the Electronics
-Research Laboratory of the University of California, Berkeley in 1973 by Laurence Nagel with
-direction from his research advisor, Prof. Donald Pederson. Then Spice emerged as an industrial
-standard through its descendants and is still the reference 40 years later.</p>
-<p>PySpice is born as a personal project to relearn electronics where circuit simulation is a part of
-this goal. Since I use the Python language every day, I quickly feel the need to plug SPICE and Python.</p>
-<p>The aim of PySpice is to address several needs:</p>
-<blockquote>
-<ul class="simple">
-<li>SPICE language is fine to describe circuits, but it lacks a real language for circuit
-steering. By contrast Python is a powerful high level, oriented object and dynamic language which
-is perfectly suited for steering and reusing circuit. But it comes at the price its more general
-syntax is less fluent than SPICE for circuit description.</li>
-<li>Ngspice provides some extension to Berkeley SPICE for data analysis, but its interactive
-environment or TCL module are now outdated. By contrast Python has scientific framework like
-<a class="reference external" href="http://www.numpy.org">Numpy</a> and <a class="reference external" href="http://matplotlib.org">Matplotlib</a> that compete with Matlab.</li>
-<li>Ngspice source code is derived from Berkeley SPICE and thus has a very old basis. Moreover the
-sources are poorly documented. So it is really difficult to understand how it works and modify
-it. PySpice could serve to easily experiment extension.</li>
-</ul>
-</blockquote>
-<p>As opposite to other SPICE derivatives, PySpice focus on programming and not on graphical user
-interface. Thus it doesn't feature a schematic capture editor and we cannot pickup a node or an
-element and plot the associated waveform.  Moreover we can notice the <a class="reference external" href="http://www.modelica.org">Modelica</a> language treats
-diagrams as annotations.  A choice which I consider judicious.  Thus we can imagine to follow the
-same principle and extend PySpice later.</p>
-</div>
-</div>
-<div class="section" id="features">
-<h1>Features</h1>
-<!-- -*- Mode: rst -*- -->
-<p>The main features of PySpice are:</p>
-<blockquote>
-<ul class="simple">
-<li>actually PySpice only supports <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a></li>
-<li>an oriented-object API to describe circuit in a way similar to SPICE</li>
-<li>a library and model manager that index recursively a directory</li>
-<li>an (experimental) SPICE netlist parser.  <a class="reference external" href="http://www.kicad-pcb.org">Kicad</a> can be used as schematic editor to simplify the
-netlist writing.</li>
-<li>a circuit can be simulated using a subprocess (aka server mode) or using the NgSpice shared library,
-NgSpice vectors are converted to Numpy array</li>
-<li>the NgSpice shared library permits to plug voltage/current sources from Python to NgSpice and vice versa.</li>
-<li>some data analysis add-ons</li>
-</ul>
-</blockquote>
-<p>Since PySpice is born with a learning goal, many examples are provided with the sources.  These
-examples could serve as learning materials. A tool to generate an HTML and PDF documentation is
-included in the <em>tools</em> directory. This tool could be extended to generate IPython Notebook as well.</p>
-<!-- * an incomplete SPICE parser (mainly used for the library and model indexer)
-
-* a circuit can be simulated using a subprocess (aka server mode) or using the NgSpice shared
-  library, NgSpice vectors are converted to Numpy array the NgSpice shared library permits to interact
-  with the simulator and provides Python callback for external voltage and current source
-
-* implement a SPICE to Python converted using the parser. It could be used for the following
-  workflow: quick circuit sketching using  > SPICE netlist > spice2python > PySpice which
-  could help for complex circuit. -->
-<!-- end -->
-</div>
-<div class="section" id="planned-features">
-<h1>Planned Features</h1>
-<p>These features are planned in the future:</p>
-<blockquote>
-<ul class="simple">
-<li>implement a basic simulator featuring passive element like resistor, capacitor and inductor.</li>
-<li>implement a Modelica backend. <a class="reference external" href="http://www.modelica.org">Modelica</a> is a very interesting solution for transient analysis.</li>
-</ul>
-</blockquote>
-</div>
-<div class="section" id="advertisements">
-<h1>Advertisements</h1>
-<p>Users should be aware of these advertisements.</p>
-<!-- .. Warning:: The API is quite unstable until now. Some efforts is made to have a smooth API. -->
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Ngspice and PySpice are provided without any warranty. Thus you must use it with care
-for real design. Best is to cross check the simulation using an industrial grade
-simulator.</p>
-</div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Simulation is a design tool and not a perfect description of the real world.</p>
-</div>
-<!-- End -->
-<!-- -*- Mode: rst -*- -->
-</div>
-<div class="section" id="installation">
-<span id="installation-page"></span><h1>Installation</h1>
-<p>The installation of PySpice by itself is quite simple. However it will be easier to get the
-dependencies on Linux.</p>
-<div class="section" id="dependencies">
-<h2>Dependencies</h2>
-<p>PySpice requires the following dependencies:</p>
-<blockquote>
-<ul class="simple">
-<li><a class="reference external" href="http://python.org">Python</a> 3</li>
-<li><a class="reference external" href="http://www.numpy.org">Numpy</a></li>
-<li><a class="reference external" href="http://matplotlib.org">Matplotlib</a></li>
-<li><a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a></li>
-<li><a class="reference external" href="http://cffi.readthedocs.org/en/latest/">CFFI</a> (only required for Ngspice shared)</li>
-</ul>
-</blockquote>
-<p>Also it is recommanded to have these Python modules:</p>
-<blockquote>
-<ul class="simple">
-<li><a class="reference external" href="http://ipython.org">IPython</a></li>
-</ul>
-</blockquote>
-<!-- * pip -->
-<!-- * virtualenv -->
-<p>To generate the documentation, you will need in addition:</p>
-<blockquote>
-<ul class="simple">
-<li><a class="reference external" href="http://sphinx-doc.org">Sphinx</a></li>
-<li>circuit_macros and a LaTeX environment</li>
-</ul>
-</blockquote>
-</div>
-<div class="section" id="ngspice-compilation">
-<h2>Ngspice Compilation</h2>
-<p>Usually Ngspice is available as a package on the most popular Linux distributions. But I recommend
-to <strong>check the compilation options</strong> before to use it extensively. For example the Fedora package
-enables too many experimental codes that have side effects. The recommended way to compile Ngspice
-is given in the manual and in the <tt class="docutils literal">INSTALLATION</tt> file. Ngspice is an example of complex software
-where we should not enable everything without care.</p>
-<!-- :file:`INSTALLATION` -->
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Compilation option <strong>--enable-ndev</strong> is known to broke the server mode.</p>
-</div>
-</div>
-<div class="section" id="installation-from-pypi-repository">
-<h2>Installation from PyPi Repository</h2>
-<p>PySpice is available on the Python Packages <a class="reference external" href="https://pypi.python.org/pypi">PyPI</a> repository at <a class="reference external" href="https://pypi.python.org/pypi/PySpice">https://pypi.python.org/pypi/PySpice</a></p>
-<p>Run this command in the console to install the latest release:</p>
-<pre class="code sh literal-block">
-pip install PySpice
-</pre>
-</div>
-<div class="section" id="how-to-get-the-examples">
-<h2>How to get the Examples</h2>
-<p>Examples are not installed by <tt class="docutils literal">pip</tt> or <tt class="docutils literal">setup.pip</tt>. The installation process only install
-PySpice on your Python environment.</p>
-<p><strong>You have to download the PySpice archive or clone the Git repository to get the examples.</strong> See &quot;Installation from Source&quot;.</p>
-</div>
-<div class="section" id="installation-from-source">
-<h2>Installation from Source</h2>
-<p>The PySpice source code is hosted at <a class="reference external" href="https://github.com/FabriceSalvaire/PySpice">https://github.com/FabriceSalvaire/PySpice</a></p>
-<!-- add link to pages ... -->
-<p>You have to solution to get the source code, the first one is to clone the repository, but if you
-are not familiar with Git then you can simply download an archive either from the PySpice Pypi page
-(at the bottom) or the GitHub page (see clone or download button).</p>
-<p>To clone the Git repository, run this command in a console:</p>
-<pre class="code sh literal-block">
-git clone git&#64;github.com:FabriceSalvaire/PySpice.git
-</pre>
-<p>Then to build and install PySpice run these commands:</p>
-<pre class="code sh literal-block">
-python setup.py build
-python setup.py install
-</pre>
 <!-- End -->
 <!-- End -->
 </div>

@@ -12,6 +12,10 @@
 
 .. include:: overview.txt
 
+======
+ News
+======
+
 .. include:: news.txt
 
 ===================
