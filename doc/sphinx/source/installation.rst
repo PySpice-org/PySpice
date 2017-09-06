@@ -15,7 +15,7 @@ On Windows
 Firstly, you have to install Ngspice for Windows from this `page
 <http://ngspice.sourceforge.net/download.html>`_.  Download this archive `ngspice 64 bit devel
 <http://ngspice.sourceforge.net/experimental/ngspice-26plus-scope-inpcom-6-64.7z>`_ and unzip the
-files in *C:\Program Files\Spice64*.
+files in **C:\\Program Files\\Spice64**.
 
 Secondly, you have to install the `Anaconda Distribution <https://www.anaconda.com/download/>`_.
 
@@ -66,7 +66,7 @@ To clone the Git repository, run this command in a console:
 
 .. code-block:: sh
 
-  git clone git@github.com:FabriceSalvaire/PySpice.git
+  git clone https://github.com/FabriceSalvaire/PySpice.git
 
 Then to build and install PySpice run these commands:
 
