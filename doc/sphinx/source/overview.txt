@@ -41,6 +41,11 @@ How PySpice can be used for learning ?
 
   | cf. supra for the documentation generator features
 
+What are the platforms supported by PySpice ?
+---------------------------------------------
+
+PySpice runs on Linux, Windows 64-bit and Mac OSx.
+
 How to install PySpice ?
 ------------------------
 

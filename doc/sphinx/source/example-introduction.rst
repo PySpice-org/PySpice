@@ -38,37 +38,46 @@ interactive environment or in a web browser using a IPython Notebook. Each of th
 advantages and drawbacks.  A script is best when we want to work on a file using an editor, and an
 interactive environment is best when we want to play with code interactively.
 
-On Windows, you have to set an environment so as to find the Spice libraries.
+You have to set an environment so as to find the Spice libraries.
+
+On Linux, use this shell command:
 
 .. code-block:: sh
 
-SET PySpice_example_path=C:/Users/John/PySpice/examples
+   export PySpice_source_path=${PWD}
+   export PySpice_examples_path=${PySpice_source_path}/examples
+
+On Windows, use this command:
+
+.. code-block:: sh
+
+    SET PySpice_example_path=C:/Users/John/PySpice/examples
 
 To run an example from the console, execute this command:
 
 .. code-block:: sh
 
-  python examples/.../foo.py
+    python examples/.../foo.py
 
 To start the interactive IPython environment, execute one of these commands:
 
 .. code-block:: sh
 
-  ipython --matplotlib       # enable matplotlib integration
-  ipython --matplotlib-qt    # enable matplotlib integration with qt4 backend
-  ipython qtconsole          # start the qtconsole GUI application
+    ipython --matplotlib       # enable matplotlib integration
+    ipython --matplotlib-qt    # enable matplotlib integration with qt4 backend
+    ipython qtconsole          # start the qtconsole GUI application
 
 then run an example using the magic command:
 
 .. code-block:: py
 
- %run examples/../foo.py
+    %run examples/../foo.py
 
 To start the IPython notebook in your web browser:
 
 .. code-block:: sh
 
-  ipython notebook
+    ipython notebook
 
 When we use IPython notebook, it is convenient to use a matplotlib backend that outputs the graphics
 embedded in the notebook file. To activate this backend, somewhere in the beginning on the notebook,
@@ -76,7 +85,7 @@ you must add:
 
 .. code-block:: py
 
-  %matplotlib inline
+    %matplotlib inline
 
 Then you can copy-paste code blocks and execute them.
 
