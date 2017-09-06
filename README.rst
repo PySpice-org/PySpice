@@ -126,7 +126,7 @@ The documentation is available on the |PySpiceHomePage|_.
 How to install it ?
 -------------------
 
-Look at this `page <https://pyspice.fabrice-salvaire.fr/installation.html>`_.
+Look at the `installation <https://pyspice.fabrice-salvaire.fr/installation.html>`_ section in the documentation.
 
 Credits
 =======
