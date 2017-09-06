@@ -2,6 +2,12 @@
 
 .. no title here
 
+V1.1.0
+------
+
+ * Enhanced shared mode
+ * Shared mode is now set as default on Linux
+
 V1.0.0
 ------
 
@@ -14,7 +20,6 @@ V0.4.2
 ------
 
  * Fixed Spice parser for lower case device prefix.
-
 
 V0.4.0
 ------

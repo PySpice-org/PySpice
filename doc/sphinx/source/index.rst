@@ -6,17 +6,11 @@
 
    <br/>
 
-######################################################
- Simulate Electronic Circuit using Python and Ngspice
-######################################################
+###################################################################
+ Simulate Electronic Circuit using Python and the Ngspice Simulator
+###################################################################
 
 .. include:: overview.txt
-
-======
- News
-======
-
-.. include:: news.txt
 
 ===================
  Table of Contents
@@ -26,6 +20,7 @@
   :maxdepth: 3
   :numbered:
 
+  news.rst
   installation.rst
   faq.rst
   example-introduction.rst

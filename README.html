@@ -388,15 +388,24 @@ ul.auto-toc {
 <h1>Overview</h1>
 <div class="section" id="what-is-pyspice">
 <h2>What is PySpice ?</h2>
-<p>In short PySpice is an open source Python module which interface <a class="reference external" href="http://python.org">Python</a> and the famous <a class="reference external" href="https://en.wikipedia.org/wiki/SPICE">Spice</a> circuit simulator.</p>
-<p>Mainly it permits:</p>
-<blockquote>
+<p>PySpice is a Python module which interface <a class="reference external" href="http://python.org">Python</a> and the <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a> circuit
+simulator.</p>
+</div>
+<div class="section" id="what-are-the-main-features">
+<h2>What are the main features ?</h2>
 <ul class="simple">
-<li>to define a circuit, so called netlist,</li>
-<li>to perform a simulation using <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a>,</li>
-<li>to analyse the output using <a class="reference external" href="http://www.numpy.org">Numpy</a> and <a class="reference external" href="http://matplotlib.org">Matplotlib</a></li>
+<li>licensed under <strong>GPLv3</strong> therms</li>
+<li>support <strong>Linux</strong>, <strong>Windows</strong> and Mac <strong>OS X</strong> platforms</li>
+<li>implement an <strong>Ngspice shared library binding</strong> using CFFI which support external sources</li>
+<li>implement (partial) <strong>SPICE netlist parser</strong></li>
+<li>implement an <strong>Oriented Object API</strong> to define circuit</li>
+<li>export simulation output to <a class="reference external" href="http://www.numpy.org">Numpy</a> arrays</li>
+<li>plot using <a class="reference external" href="http://matplotlib.org">Matplotlib</a></li>
+<li>handle <strong>units</strong></li>
+<li>work with <strong>Kicad schematic editor</strong></li>
+<li>implement a <strong>documentation generator</strong></li>
+<li>provides many <strong>examples</strong></li>
 </ul>
-</blockquote>
 </div>
 <div class="section" id="where-is-the-documentation">
 <h2>Where is the Documentation ?</h2>
@@ -415,6 +424,15 @@ ul.auto-toc {
 <h1>News</h1>
 <!-- -*- Mode: rst -*- -->
 <!-- no title here -->
+<div class="section" id="v1-1-0">
+<h2>V1.1.0</h2>
+<blockquote>
+<ul class="simple">
+<li>Enhanced shared mode</li>
+<li>Shared mode is now set as default on Linux</li>
+</ul>
+</blockquote>
+</div>
 <div class="section" id="v1-0-0">
 <h2>V1.0.0</h2>
 <blockquote>

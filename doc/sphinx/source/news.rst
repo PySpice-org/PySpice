@@ -1,0 +1,5 @@
+======
+ News
+======
+
+.. include:: news.txt

@@ -7,14 +7,15 @@
 What is PySpice ?
 -----------------
 
-In short PySpice is an open source Python module which interface |Python|_ and the famous `Spice
-<https://en.wikipedia.org/wiki/SPICE>`_ circuit simulator.
+In short PySpice is an open source Python module which interface |Python|_ and the |Ngspice|_
+circuit simulator, which is a clone of the famous `Spice <https://en.wikipedia.org/wiki/SPICE>`_
+circuit simulator.
 
 Mainly it permits:
 
  * to define a circuit, so called netlist,
  * to perform a simulation using |Ngspice|_,
- * to analyse the output using |Numpy|_, |Matplotlib|_, ...
+ * to analyse the output using |Numpy|_ and |Matplotlib|_.
 
 Is there some papers or talks about PySpice ?
 ---------------------------------------------
@@ -44,7 +45,7 @@ How PySpice can be used for learning ?
 What are the platforms supported by PySpice ?
 ---------------------------------------------
 
-PySpice runs on Linux, Windows 64-bit and Mac OSx.
+PySpice runs on Linux, Windows 64-bit and Mac OS X.
 
 How to install PySpice ?
 ------------------------

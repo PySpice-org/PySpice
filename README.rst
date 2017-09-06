@@ -109,14 +109,23 @@ Overview
 What is PySpice ?
 -----------------
 
-In short PySpice is an open source Python module which interface |Python|_ and the famous `Spice
-<https://en.wikipedia.org/wiki/SPICE>`_ circuit simulator.
+PySpice is a Python module which interface |Python|_ and the |Ngspice|_ circuit
+simulator.
 
-Mainly it permits:
+What are the main features ?
+----------------------------
 
- * to define a circuit, so called netlist,
- * to perform a simulation using |Ngspice|_,
- * to analyse the output using |Numpy|_ and |Matplotlib|_
+* licensed under **GPLv3** therms
+* support **Linux**, **Windows** and Mac **OS X** platforms
+* implement an **Ngspice shared library binding** using CFFI which support external sources
+* implement (partial) **SPICE netlist parser**
+* implement an **Oriented Object API** to define circuit
+* export simulation output to |Numpy|_ arrays
+* plot using |Matplotlib|_
+* handle **units**
+* work with **Kicad schematic editor**
+* implement a **documentation generator**
+* provides many **examples**
 
 Where is the Documentation ?
 ----------------------------
@@ -140,6 +149,12 @@ News
 
 .. no title here
 
+V1.1.0
+------
+
+ * Enhanced shared mode
+ * Shared mode is now set as default on Linux
+
 V1.0.0
 ------
 
@@ -152,7 +167,6 @@ V0.4.2
 ------
 
  * Fixed Spice parser for lower case device prefix.
-
 
 V0.4.0
 ------
