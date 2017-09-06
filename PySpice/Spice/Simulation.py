@@ -692,8 +692,8 @@ class CircuitSimulator(CircuitSimulation):
 if ConfigInstall.OS.on_windows:
     _mode = 'shared'
 else:
-    # _mode = 'shared'
-    _mode = 'subprocess'
+    _mode = 'shared'
+    # _mode = 'subprocess'
 CircuitSimulator.DEFAULT_SIMULATOR_MODE = _mode
 
 ####################################################################################################
@@ -756,27 +756,21 @@ class NgSpiceSharedCircuitSimulator(CircuitSimulator):
 
     ##############################################
 
+    @property
+    def ngspice(self):
+        return self._ngspice_shared
+
+    ##############################################
+
     def _run(self, analysis_method, *args, **kwargs):
 
         super()._run(analysis_method, *args, **kwargs)
 
+        self._ngspice_shared.destroy()
         self._ngspice_shared.load_circuit(str(self))
         self._ngspice_shared.run()
         self._logger.debug(str(self._ngspice_shared.plot_names))
         self.reset_analysis()
-
-        # if analysis_method == 'operating_point':
-        #     plot_name = 'op1'
-        # elif analysis_method == 'dc':
-        #     plot_name = 'dc1'
-        # elif analysis_method == 'dc_sensitivity':
-        #     plot_name = 'sens1'
-        # elif analysis_method == 'ac':
-        #     plot_name = 'ac1'
-        # elif analysis_method == 'transient':
-        #     plot_name = 'tran1'
-        # else:
-        #     raise NotImplementedError
 
         plot_name = self._ngspice_shared.last_plot
 
