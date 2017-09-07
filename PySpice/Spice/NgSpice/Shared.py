@@ -123,7 +123,9 @@ class Vector:
     @property
     def simplified_name(self):
 
-        if self.is_branch_current():
+        if self.is_voltage_node() and self.name.startswith('V('):
+            return self.name[2:-1]
+        elif self.is_branch_current():
             # return self.name.replace('#branch', '')
             return self.name[:-7]
         else:
