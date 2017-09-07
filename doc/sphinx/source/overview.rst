@@ -1,4 +1,7 @@
-.. -*- Mode: rst -*-
+.. include:: abbreviation.txt
+.. include:: project-links.txt
+
+.. _overview-page:
 
 ==========
  Overview
@@ -16,6 +19,11 @@ Mainly it permits:
  * to define a circuit, so called netlist,
  * to perform a simulation using |Ngspice|_,
  * to analyse the output using |Numpy|_ and |Matplotlib|_.
+
+How is licensed PySpice ?
+-------------------------
+
+PySpice is licensed under `GPLv3 <https://www.gnu.org/licenses/quick-guide-gplv3.en.html>`_ therms.
 
 Is there some papers or talks about PySpice ?
 ---------------------------------------------
@@ -125,6 +133,13 @@ How is defined netlist ?
  * Netlist is defined using an oriented object API,
  * But PySpice can also work with Spice netlist and import netlist from a schematic editor like |Kicad|_.
 
+Can I run Ngspice using interpreter commands ?
+----------------------------------------------
+
+Thanks to the Ngspice shared library binding, you are not tied to the Oriented Object API of
+PySpice.  You can run Ngspice as you did before and just upload the simulation output as Numpy
+arrays.  For an example, look at the Ngspice shared examples.
+
 How are handled Spice libraries ?
 ---------------------------------
 
@@ -193,19 +208,3 @@ The documentation generator features:
 
 Somehow, it is similar to an `Jupyter notebook <https://ipython.org/notebook.html>`_, but it works
 differently and provides specific features.
-
-What are the planned features ?
--------------------------------
-
-These features are planned in the future:
-
-* Improve the analyse experience.
-
-Some other ideas are:
-
-* Implement a Modelica backend. |Modelica|_ is a very interesting solution for transient analysis.
-
-The implementation of a simulator in Python is not planned since it would be too challenging to
-release a full featured and proved simulator. However you could look at the project `Ahkab
-<https://ahkab.github.io/ahkab>`_ which aims to implement such Python based simulator.  Notice any
-of the projects like Ngspice or Ahkab are compliant with industrial quality assurance processes.

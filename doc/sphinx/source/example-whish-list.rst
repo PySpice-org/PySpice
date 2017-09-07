@@ -1,3 +1,5 @@
+.. _exemple-wish-list-page:
+
 ===================
  Example Wish List
 ===================

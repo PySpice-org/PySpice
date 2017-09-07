@@ -1,6 +1,6 @@
-.. _reference-manual-page:
-
 .. include:: abbreviation.txt
+
+.. _reference-manual-page:
 
 ===================
  API Documentation

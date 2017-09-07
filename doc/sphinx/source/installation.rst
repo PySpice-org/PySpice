@@ -1,9 +1,7 @@
-.. -*- Mode: rst -*-
-
-.. _installation-page:
-
 .. include:: project-links.txt
 .. include:: abbreviation.txt
+
+.. _installation-page:
 
 ==============
  Installation
@@ -112,5 +110,3 @@ where we should not enable everything without care.
 .. warning::
 
   Compilation option **--enable-ndev** is known to broke the server mode.
-
-.. End

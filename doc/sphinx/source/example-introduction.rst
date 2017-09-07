@@ -1,10 +1,10 @@
-.. _example-introduction-page:
-
 .. include:: abbreviation.txt
 
-======================
- Example Introduction
-======================
+.. _example-introduction-page:
+
+==============================
+ Introduction to the Examples
+==============================
 
 This section gives an overview of the use of PySpice by means of examples inspired from typical
 circuits, which can also serve as learning materials.
