@@ -9,7 +9,7 @@
 	.spacer {height: 30px}
 
         .reduced-width {
-	    width: 800px
+	    max-width: 800px
         }
 
         .row {clear: both}
