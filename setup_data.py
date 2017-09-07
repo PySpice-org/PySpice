@@ -77,7 +77,7 @@ except FileNotFoundError:
 
 setup_dict = dict(
     name='PySpice',
-    version='1.1.0',
+    version='1.1.1',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='Simulate electronic circuit using Python and the Ngspice simulator',
