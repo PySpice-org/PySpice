@@ -41,11 +41,13 @@ def setup_logging(application_name='PySpice',
         # Fixme: \033 is not interpreted in YAML
         formatter_config = logging_config['formatters']['ansi']['format']
         logging_config['formatters']['ansi']['format'] = formatter_config.replace('<ESC>', '\033')
-        if ConfigInstall.OS.on_windows:
-            formatter = 'simple'
-        else:
-            formatter = 'ansi'
+
+    if ConfigInstall.OS.on_windows:
+        formatter = 'simple'
+    else:
+        formatter = 'ansi'
     logging_config['handlers']['console']['formatter'] = formatter
+
     logging.config.dictConfig(logging_config)
 
     logger = logging.getLogger(application_name)

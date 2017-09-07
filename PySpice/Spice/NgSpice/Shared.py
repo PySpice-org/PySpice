@@ -48,7 +48,8 @@ the shared library by worker as explained in the manual.
 
 import logging
 import os
-import time
+import platform
+# import time
 
 import numpy as np
 
