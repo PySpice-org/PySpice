@@ -1,5 +1,8 @@
 .. _roadmap-page:
 
+.. include:: abbreviation.txt
+.. include:: project-links.txt
+
 =========
  Roadmap
 =========
@@ -7,6 +10,10 @@
 V1.2
 ----
 
+* Support `Xyce <https://xyce.sandia.gov>`_ simulator.  Xyce is an open source, SPICE-compatible,
+  high-performance analog circuit simulator, capable of solving extremely large circuit problems
+  developed at Sandia National Laboratories.  Xyce will make PySpice suitable for industry a
+  research use.
 * Improve unit : rebase unit to Numpy array (ongoing)
 
 .. What are the planned features ?
