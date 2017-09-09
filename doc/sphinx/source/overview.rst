@@ -21,7 +21,7 @@ It permits:
  * analysis of the output using |Numpy|_ and |Matplotlib|_.
 
 How is PySpice licensed?
--------------------------
+------------------------
 
 PySpice is licensed under the `GPLv3 <https://www.gnu.org/licenses/quick-guide-gplv3.en.html>`_.
 
@@ -50,7 +50,7 @@ How can PySpice be used for learning ?
 
   | cf. supra for the documentation generator features
 
-Whiche platforms are supported by PySpice ?
+Which platforms are supported by PySpice ?
 -------------------------------------------
 
 PySpice runs on Linux, Windows 64-bit and Mac OS X.
@@ -113,7 +113,7 @@ What are the benefits of PySpice over Ngspice ?
   | Which supersede tools like TclSpice.
 
 How PySpice is interfaced with Ngspice ?
---------------------------------------
+----------------------------------------
 
  * PySpice can parse a Spice netlist and generate the equivalent Python code, or instantiate it directly.
  * PySpice can generate a Spice netlist.
@@ -169,7 +169,7 @@ PySpice, generate a wrong simulation, or produce bugs.
 *Note that Ngspice is not distributed with PySpice !*
 
 Which flavours of Spice are supported ?
---------------------------------------
+---------------------------------------
 
 Up to now PySpice only support Ngspice. But PySpice could support easily any simulator providing an
 API similar to Ngspice.
@@ -185,7 +185,7 @@ Users should be aware of these disclaimers:
   | Best is to cross-check the simulation using an industrial grade simulator.
 
  * Ngspice is not compliant with industrial quality assurance processes.
- 
+
  * Simulation is a design tool and not a perfect description of the real world.
 
 What are the features of the documentation generator ?
