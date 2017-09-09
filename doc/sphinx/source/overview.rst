@@ -10,7 +10,7 @@
 What is PySpice ?
 -----------------
 
-In short PySpice is an open source Python module which provides a  |Python|_ interface to the |Ngspice|_
+PySpice is an open source Python module which provides a  |Python|_ interface to the |Ngspice|_
 circuit simulator, which is a clone of the famous `Spice <https://en.wikipedia.org/wiki/SPICE>`_
 circuit simulator.
 
@@ -28,7 +28,7 @@ PySpice is licensed under the `GPLv3 <https://www.gnu.org/licenses/quick-guide-g
 Are there some papers or talks about PySpice ?
 ----------------------------------------------
 
-You can watch this talk `Circuit Simulation using Python
+You can watch `Circuit Simulation using Python
 <https://www.slideshare.net/PoleSystematicParisRegion/pyparis2017-circuit-simulation-using-python-by-fabrice-salvaire>`_
 given at the `PyParis 2017 <http://pyparis.org/>`_ conference (`PDF file
 <https://pyspice.fabrice-salvaire.fr/pyparis-2017-talk.pdf>`_)
@@ -36,7 +36,7 @@ given at the `PyParis 2017 <http://pyparis.org/>`_ conference (`PDF file
 Going further with PySpice
 --------------------------
 
-The best way to know what you can do with PySpice and to learn it, is to look at the examples:
+The best way to know what you can do with PySpice, and to learn it, is to look at the examples:
 
  * :ref:`Examples <examples-page>`
  * :ref:`PySpice Reference Manual <reference-manual-page>`
