@@ -1087,6 +1087,10 @@ if ConfigInstall.OS.on_windows:
     NgSpiceShared.NGSPICE_PATH = ngspice_path
 
     _path = os.path.join(ngspice_path, 'bin_dll', 'ngspice{}.dll')
-else:
+elif ConfigInstall.OS.on_osx:
+    _path = 'libngspice{}.dylib'
+elif ConfigInstall.OS.on_linux:
     _path = 'libngspice{}.so'
+else:
+    raise NotImplementedError
 NgSpiceShared.LIBRARY_PATH= _path
