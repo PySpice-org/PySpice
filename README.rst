@@ -57,6 +57,9 @@
 .. |Ngspice| replace:: Ngspice
 .. _Ngspice: http://ngspice.sourceforge.net
 
+.. |Xyce| replace:: Xyce
+.. _Xyce: https://xyce.sandia.gov
+
 .. |Python| replace:: Python
 .. _Python: http://python.org
 
@@ -92,9 +95,9 @@
 
 .. End
 
-=============================================================================
- PySpice : Simulate Electronic Circuit using Python and the Ngspice Simulator
-=============================================================================
+=====================================================================================
+ PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
+=====================================================================================
 
 |Pypi License|
 |Pypi Python Version|
@@ -107,14 +110,20 @@ Overview
 What is PySpice ?
 -----------------
 
-PySpice is a Python module which interface |Python|_ and the |Ngspice|_ circuit
-simulator.
+PySpice is a Python module which interface |Python|_ to the |Ngspice|_ and |Xyce|_ circuit
+simulators.
+
+Where is the Documentation ?
+----------------------------
+
+The documentation is available on the |PySpiceHomePage|_.
 
 What are the main features ?
 ----------------------------
 
-* licensed under **GPLv3** therms
+* support Ngspice and Xyce circuit simulators
 * support **Linux**, **Windows** and Mac **OS X** platforms
+* licensed under **GPLv3** therms
 * implement an **Ngspice shared library binding** using CFFI which support external sources
 * implement (partial) **SPICE netlist parser**
 * implement an **Oriented Object API** to define circuit
@@ -124,11 +133,6 @@ What are the main features ?
 * work with **Kicad schematic editor**
 * implement a **documentation generator**
 * provides many **examples**
-
-Where is the Documentation ?
-----------------------------
-
-The documentation is available on the |PySpiceHomePage|_.
 
 How to install it ?
 -------------------
@@ -145,10 +149,20 @@ News
 
 .. -*- Mode: rst -*-
 
+
 .. no title here
 
-V1.1.0
-------
+V1.2.0 (dev release)
+--------------------
+
+ * Initial support of the |Xyce|_ simulator.  Xyce is an open source, SPICE-compatible,
+   high-performance analog circuit simulator, capable of solving extremely large circuit problems
+   developed at Sandia National Laboratories.  Xyce will make PySpice suitable for industry a
+   research use.
+ * Fixed OSX support
+
+V1.1.0 (stable release)
+-----------------------
 
  * Enhanced shared mode
  * Shared mode is now set as default on Linux

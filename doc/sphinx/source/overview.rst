@@ -10,14 +10,17 @@
 What is PySpice ?
 -----------------
 
-PySpice is an open source Python module which provides a  |Python|_ interface to the |Ngspice|_
-circuit simulator, which is a clone of the famous `Spice <https://en.wikipedia.org/wiki/SPICE>`_
-circuit simulator.
+PySpice is an open source Python module which provides a |Python|_ interface to the |Ngspice|_ and
+|Xyce|_ circuit simulators.
+
+|Ngspice|_ is a fork of the famous `SPICE <https://en.wikipedia.org/wiki/SPICE>`_ circuit simulator,
+while |Xyce|_ is a SPICE compatible simulator developed by the `Sandia National Laboratories
+<http://www.sandia.gov>`_.
 
 It permits:
 
  * definition of a circuit, through a netlist,
- * simulation using |Ngspice|_,
+ * simulation using |Ngspice|_ and |Xyce|_,
  * analysis of the output using |Numpy|_ and |Matplotlib|_.
 
 How is PySpice licensed?
@@ -63,7 +66,7 @@ The procedure to install PySpice is described in the :ref:`Installation Manual <
 How does PySpice differ from simulator like LTspice ?
 -----------------------------------------------------
 
- * PySpice and Ngspice are `Free Software <https://en.wikipedia.org/wiki/Free_software>`_ and thus open source,
+ * PySpice, Ngspice and Xyce are `Free Software <https://en.wikipedia.org/wiki/Free_software>`_ and thus open source,
  * PySpice doesn't feature a schematic editor (*) or GUI, but,
  * It has the power of Python for data analysis,
  * And thus provide modern data analysis tools.
@@ -100,8 +103,8 @@ Is is possible to use both approaches all together ? The technical answer is, 'y
 can'. For example the Modelica language uses a concept of annotations to describe the schema.  A
 schematic editor like Kicad could be updated to interact closely with PySpice.
 
-What are the benefits of PySpice over Ngspice ?
------------------------------------------------
+What are the benefits of PySpice over Ngspice / Xyce ?
+------------------------------------------------------
 
  * You can steer your netlist and simulation using Python.
 
@@ -126,6 +129,11 @@ When using *shared* mode
  * PySpice permits defining the external voltage and current source in Python (or even in C).
  * PySpice permits getting and sending data to the simulator during the simulation process.
  * |CFFI|_ is used to interface C to Python.
+
+How PySpice is interfaced with Xyce ?
+-------------------------------------
+
+Actually, PySpice run Xyce as a subprocess and read the raw output.
 
 How is the netlist defined ?
 ----------------------------
@@ -168,11 +176,17 @@ PySpice, generate a wrong simulation, or produce bugs.
 
 *Note that Ngspice is not distributed with PySpice !*
 
-Which flavours of Spice are supported ?
+Which version of Xyce is required ?
+-----------------------------------
+
+You should use the latest version provided by Sandia.
+
+Which flavours of SPICE are supported ?
 ---------------------------------------
 
-Up to now PySpice only support Ngspice. But PySpice could support easily any simulator providing an
-API similar to Ngspice.
+Up to now PySpice only support Ngspice and Xyce.
+
+But PySpice could support easily any simulator providing an API similar to Ngspice.
 
 What else should you be aware of ?
 ----------------------------------

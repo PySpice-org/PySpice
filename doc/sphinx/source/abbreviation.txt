@@ -3,6 +3,9 @@
 .. |Ngspice| replace:: Ngspice
 .. _Ngspice: http://ngspice.sourceforge.net
 
+.. |Xyce| replace:: Xyce
+.. _Xyce: https://xyce.sandia.gov
+
 .. |Python| replace:: Python
 .. _Python: http://python.org
 

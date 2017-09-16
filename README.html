@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
-<title>PySpice : Simulate Electronic Circuit using Python and the Ngspice Simulator</title>
+<title>PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators</title>
 <style type="text/css">
 
 /*
@@ -360,8 +360,8 @@ ul.auto-toc {
 </style>
 </head>
 <body>
-<div class="document" id="pyspice-simulate-electronic-circuit-using-python-and-the-ngspice-simulator">
-<h1 class="title">PySpice : Simulate Electronic Circuit using Python and the Ngspice Simulator</h1>
+<div class="document" id="pyspice-simulate-electronic-circuit-using-python-and-the-ngspice-xyce-simulators">
+<h1 class="title">PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators</h1>
 
 <!-- -*- Mode: rst -*- -->
 <!-- -*- Mode: rst -*- -->
@@ -387,14 +387,19 @@ ul.auto-toc {
 <h1>Overview</h1>
 <div class="section" id="what-is-pyspice">
 <h2>What is PySpice ?</h2>
-<p>PySpice is a Python module which interface <a class="reference external" href="http://python.org">Python</a> and the <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a> circuit
-simulator.</p>
+<p>PySpice is a Python module which interface <a class="reference external" href="http://python.org">Python</a> to the <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a> and <a class="reference external" href="https://xyce.sandia.gov">Xyce</a> circuit
+simulators.</p>
+</div>
+<div class="section" id="where-is-the-documentation">
+<h2>Where is the Documentation ?</h2>
+<p>The documentation is available on the <a class="reference external" href="https://pyspice.fabrice-salvaire.fr">PySpice Home Page</a>.</p>
 </div>
 <div class="section" id="what-are-the-main-features">
 <h2>What are the main features ?</h2>
 <ul class="simple">
-<li>licensed under <strong>GPLv3</strong> therms</li>
+<li>support Ngspice and Xyce circuit simulators</li>
 <li>support <strong>Linux</strong>, <strong>Windows</strong> and Mac <strong>OS X</strong> platforms</li>
+<li>licensed under <strong>GPLv3</strong> therms</li>
 <li>implement an <strong>Ngspice shared library binding</strong> using CFFI which support external sources</li>
 <li>implement (partial) <strong>SPICE netlist parser</strong></li>
 <li>implement an <strong>Oriented Object API</strong> to define circuit</li>
@@ -405,10 +410,6 @@ simulator.</p>
 <li>implement a <strong>documentation generator</strong></li>
 <li>provides many <strong>examples</strong></li>
 </ul>
-</div>
-<div class="section" id="where-is-the-documentation">
-<h2>Where is the Documentation ?</h2>
-<p>The documentation is available on the <a class="reference external" href="https://pyspice.fabrice-salvaire.fr">PySpice Home Page</a>.</p>
 </div>
 <div class="section" id="how-to-install-it">
 <h2>How to install it ?</h2>
@@ -423,8 +424,20 @@ simulator.</p>
 <h1>News</h1>
 <!-- -*- Mode: rst -*- -->
 <!-- no title here -->
-<div class="section" id="v1-1-0">
-<h2>V1.1.0</h2>
+<div class="section" id="v1-2-0-dev-release">
+<h2>V1.2.0 (dev release)</h2>
+<blockquote>
+<ul class="simple">
+<li>Initial support of the <a class="reference external" href="https://xyce.sandia.gov">Xyce</a> simulator.  Xyce is an open source, SPICE-compatible,
+high-performance analog circuit simulator, capable of solving extremely large circuit problems
+developed at Sandia National Laboratories.  Xyce will make PySpice suitable for industry a
+research use.</li>
+<li>Fixed OSX support</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="v1-1-0-stable-release">
+<h2>V1.1.0 (stable release)</h2>
 <blockquote>
 <ul class="simple">
 <li>Enhanced shared mode</li>
