@@ -77,12 +77,9 @@ class SpiceServer:
 
     ##############################################
 
-    def __init__(self, spice_command=None):
+    def __init__(self, **kwargs):
 
-        if spice_command is not None:
-            self._spice_command = spice_command
-        else:
-            self._spice_command = self.SPICE_COMMAND
+        self._spice_command = kwargs.get('spice_command', self.SPICE_COMMAND)
 
     ##############################################
 

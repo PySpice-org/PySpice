@@ -1,7 +1,7 @@
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
-# Copyright (C) 2014 Fabrice Salvaire
+# Copyright (C) 2017 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ Time, node voltages and source branch currents:
 
 ####################################################################################################
 
-from ..Unit import u_Degree, U_V, U_A, U_s, U_Hz
+from PySpice.Unit import u_Degree, U_V, U_A, U_s, U_Hz
 
 ####################################################################################################
 
@@ -96,9 +96,9 @@ import numpy as np
 
 ####################################################################################################
 
-from ..Probe.WaveForm import (OperatingPoint, SensitivityAnalysis,
-                              DcAnalysis, AcAnalysis, TransientAnalysis,
-                              WaveForm)
+from PySpice.Probe.WaveForm import (OperatingPoint, SensitivityAnalysis,
+                                    DcAnalysis, AcAnalysis, TransientAnalysis,
+                                    WaveForm)
 
 ####################################################################################################
 
@@ -140,13 +140,15 @@ class Variable:
     ##############################################
 
     def is_voltage_node(self):
-        return self.name.startswith('v(')
+
+        name = self.name.lower()
+        return name.startswith('v(') or not self.is_branch_current()
 
     ##############################################
 
     def is_branch_current(self):
-        # source branch current
-        return self.name.startswith('i(')
+
+        return self.name.endswith('#branch')
 
     ##############################################
 
@@ -165,8 +167,14 @@ class Variable:
     @property
     def simplified_name(self):
 
-        if self.is_voltage_node() or self.is_branch_current():
-            return self.name[2:-1]
+        name = self.name
+        if len(name) > 1 and name[1] == '(':
+            return name[2:-1]
+        elif name.endswith('#branch'):
+            return name[:-7]
+        elif '#' in name:
+            # Xyce change name of type "output_plus" to "OUTPUT#PLUS"
+            return name.replace('#', '_')
         else:
             return self.name
 
@@ -236,11 +244,9 @@ class RawFile:
 
     ##############################################
 
-    def __init__(self, stdout, number_of_points):
+    def __init__(self, output):
 
-        self.number_of_points = number_of_points
-
-        raw_data = self._read_header(stdout)
+        raw_data = self._read_header(output)
         self._read_variable_data(raw_data)
         # self._to_analysis()
 
@@ -277,34 +283,27 @@ class RawFile:
 
     ##############################################
 
-    def _read_header(self, stdout):
+    def _read_header(self, output):
 
         """ Parse the header """
 
         binary_line = b'Binary:' + os.linesep.encode('ascii')
-        binary_location = stdout.find(binary_line)
+        binary_location = output.find(binary_line)
         if binary_location < 0:
             raise NameError('Cannot locate binary data')
         raw_data_start = binary_location + len(binary_line)
-        # self._logger.debug(os.linesep + stdout[:raw_data_start].decode('utf-8'))
-        header_lines = stdout[:binary_location].splitlines()
-        raw_data = stdout[raw_data_start:]
+        self._logger.debug(os.linesep + output[:raw_data_start].decode('utf-8'))
+        header_lines = output[:binary_location].splitlines()
+        raw_data = output[raw_data_start:]
         header_line_iterator = iter(header_lines)
 
-        self.circuit_name = self._read_header_field_line(header_line_iterator, 'Circuit')
-        self.temperature, self.nominal_temperature = self._read_temperature_line(header_line_iterator)
-        self.warnings = [self._read_header_field_line(header_line_iterator, 'Warning')
-                         for i in range(stdout.count(b'Warning'))]
-        for warning in self.warnings:
-            self._logger.warn(warning)
         self.title = self._read_header_field_line(header_line_iterator, 'Title')
         self.date = self._read_header_field_line(header_line_iterator, 'Date')
         self.plot_name = self._read_header_field_line(header_line_iterator, 'Plotname')
         self.flags = self._read_header_field_line(header_line_iterator, 'Flags')
         self.number_of_variables = int(self._read_header_field_line(header_line_iterator, 'No. Variables'))
-        self._read_header_field_line(header_line_iterator, 'No. Points')
-        self._read_header_field_line(header_line_iterator, 'Variables', has_value=False)
-        self._read_header_field_line(header_line_iterator, 'No. of Data Columns ')
+        self.number_of_points = int(self._read_header_field_line(header_line_iterator, 'No. Points'))
+        self._read_header_field_line(header_line_iterator, 'Variables')
         self.variables = {}
         for i in range(self.number_of_variables):
             line = (next(header_line_iterator)).decode('utf-8')
@@ -369,27 +368,6 @@ class RawFile:
 
     ##############################################
 
-    def _read_temperature_line(self, header_line_iterator):
-
-        # Doing analysis at TEMP = 25.000000 and TNOM = 25.000000
-
-        line = self._read_header_line(header_line_iterator, 'Doing analysis at TEMP')
-        pattern1 = 'TEMP = '
-        pattern2 = ' and TNOM = '
-        pos1 = line.find(pattern1)
-        pos2 = line.find(pattern2)
-        if pos1 != -1 and pos2 != -1:
-            part1 = line[pos1+len(pattern1):pos2]
-            part2 = line[pos2+len(pattern2):].strip()
-            temperature = u_Degree(float(part1))
-            nominal_temperature = u_Degree(float(part2))
-        else:
-            temperature = None
-            nominal_temperature = None
-        return temperature, nominal_temperature
-
-    ##############################################
-
     def _read_variable_data(self, raw_data):
 
         """ Read the raw data and set the variable values. """
@@ -419,8 +397,8 @@ class RawFile:
         """ Ngspice return lower case names. This method fixes the case of the variable names. """
 
         circuit = self.circuit
-        element_translation = {element.lower():element for element in circuit.element_names()}
-        node_translation = {node.lower():node for node in circuit.node_names()}
+        element_translation = {element.upper():element for element in circuit.element_names()}
+        node_translation = {node.upper():node for node in circuit.node_names()}
         for variable in self.variables.values():
             variable.fix_case(element_translation, node_translation)
 
@@ -492,12 +470,9 @@ class RawFile:
 
     def _to_dc_analysis(self):
 
-        if 'v(v-sweep)' in self.variables:
-            sweep_variable = self.variables['v(v-sweep)']
-        elif 'v(i-sweep)' in self.variables:
-            sweep_variable = self.variables['v(i-sweep)']
+        if 'sweep' in self.variables:
+            sweep_variable = self.variables['sweep']
         else:
-            #
             raise NotImplementedError
         sweep = sweep_variable.to_waveform()
         return DcAnalysis(

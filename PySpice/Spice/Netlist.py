@@ -103,7 +103,7 @@ from ..Tools.StringTools import join_lines, join_list, join_dict
 from .ElementParameter import (ParameterDescriptor,
                                PositionalElementParameter,
                                FlagParameter, KeyValueParameter)
-from .Simulation import CircuitSimulator, SubprocessCircuitSimulator, NgSpiceSharedCircuitSimulator
+from .Simulation import CircuitSimulator
 
 ####################################################################################################
 
@@ -877,15 +877,12 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def __str__(self):
+    def str(self, simulator=None):
 
         """Return the formatted desk."""
 
         netlist = '.title {}'.format(self.title) + os.linesep
-        if self._includes:
-            # ngspice don't like // in path, thus ensure we write real paths
-            real_paths = [os.path.realpath(str(path)) for path in self._includes]
-            netlist += join_lines(real_paths, prefix='.include ') + os.linesep
+        netlist += self._str_include(simulator)
         if self._global_nodes:
             netlist += '.global ' + join_list(self._global_nodes) + os.linesep
         if self._parameters:
@@ -897,6 +894,31 @@ class Circuit(Netlist):
 
     ##############################################
 
+    def _str_include(self, simulator=None):
+
+        if self._includes:
+            # ngspice don't like // in path, thus ensure we write real paths
+            real_paths = []
+            for path in self._includes:
+                path = os.path.realpath(str(path))
+                if simulator:
+                    path_flavour = path + '@' + simulator
+                    if os.path.exists(path_flavour):
+                        path = path_flavour
+                real_paths.append(path)
+
+            return join_lines(real_paths, prefix='.include ') + os.linesep
+        else:
+            return ''
+
+    ##############################################
+
+    def __str__(self):
+
+        return self.str(simulator=None)
+
+    ##############################################
+
     def str_end(self):
 
         return str(self) + '.end' + os.linesep
@@ -905,22 +927,4 @@ class Circuit(Netlist):
 
     def simulator(self, *args, **kwargs):
 
-        """Return a :obj:`PySpice.Spice.Simulation.SubprocessCircuitSimulator` or
-        :obj:`PySpice.Spice.Simulation.NgSpiceSharedCircuitSimulator` instance depending of the
-        value of the *simulator* parameter: ``subprocess`` or ``shared``, respectively. If this
-        parameter is not specified then a subprocess simulator is returned.
-
-        """
-
-        simulator = kwargs.get('simulator', 'subprocess')
-        if 'simulator' in kwargs:
-            simulator = kwargs['simulator']
-            del kwargs['simulator']
-        else:
-            simulator = CircuitSimulator.DEFAULT_SIMULATOR_MODE
-        if simulator == 'subprocess':
-            return SubprocessCircuitSimulator(self, *args, **kwargs)
-        elif simulator == 'shared':
-            return NgSpiceSharedCircuitSimulator(self, *args, **kwargs)
-        else:
-            return ValueError('Unknown simulator type')
+        return CircuitSimulator.factory(self, *args, **kwargs)

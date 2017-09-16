@@ -22,16 +22,19 @@ import os
 
 ####################################################################################################
 
-from ..Unit.Unit import UnitValue
+from PySpice.Unit.Unit import UnitValue
 
 ####################################################################################################
 
-def str_spice(obj):
+def str_spice(obj, unit=True):
 
     """Convert an object to a Spice compatible string."""
 
     if isinstance(obj, UnitValue):
-        return obj.str_spice()
+        if unit:
+            return obj.str_spice()
+        else: # Fixme: ok ???
+            return obj.str(spice=False, space=False, unit=False)
     else:
         return str(obj)
 

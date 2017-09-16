@@ -31,8 +31,6 @@ import os
 from ..Config import ConfigInstall
 from ..Tools.StringTools import join_list, join_dict, str_spice
 from ..Unit import Unit, as_V, as_A, as_s, as_Hz, as_Degree, u_Degree
-from .NgSpice.Shared import NgSpiceShared
-from .Server import SpiceServer
 
 ####################################################################################################
 
@@ -312,11 +310,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def __init__(self, circuit,
-                 temperature=27, # u_Degree()
-                 nominal_temperature=27,
-                 pipe=True,
-                ):
+    def __init__(self, circuit, **kwargs):
 
         self._circuit = circuit
 
@@ -325,12 +319,8 @@ class CircuitSimulation:
         self._saved_nodes = ()
         self._analyses = {}
 
-        self.temperature = temperature
-        self.nominal_temperature = nominal_temperature
-
-        if pipe:
-            self.options('NOINIT')
-            self.options(filetype='binary')
+        self.temperature = kwargs.get('temperature', u_Degree(27))
+        self.nominal_temperature = kwargs.get('nominal_temperature', u_Degree(27))
 
     ##############################################
 
@@ -612,15 +602,29 @@ class CircuitSimulation:
 
     ##############################################
 
-    def __str__(self):
+    def str_options(self, unit=True):
 
-        netlist = str(self._circuit)
+        # Fixme: use cls settings ???
+        if unit:
+            _str = str_spice
+        else:
+            _str = lambda x: str_spice(x, unit)
+
+        netlist = ''
         if self.options:
             for key, value in self._options.items():
                 if value is not None:
-                    netlist += '.options {} = {}'.format(key, str_spice(value)) + os.linesep
+                    netlist += '.options {} = {}'.format(key, _str(value)) + os.linesep
                 else:
                     netlist += '.options {}'.format(key) + os.linesep
+        return netlist
+
+    ##############################################
+
+    def __str__(self):
+
+        netlist = self._circuit.str(simulator=self.SIMULATOR)
+        netlist += self.str_options()
         if self.initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
         if self._saved_nodes:
@@ -644,6 +648,44 @@ class CircuitSimulator(CircuitSimulation):
     _logger = _module_logger.getChild('CircuitSimulator')
 
     DEFAULT_SIMULATOR_MODE = None
+
+
+    ##############################################
+
+    @classmethod
+    def factory(cls, circuit, *args, **kwargs):
+
+        """Return a :obj:`PySpice.Spice.Simulation.SubprocessCircuitSimulator` or
+        :obj:`PySpice.Spice.Simulation.NgSpiceSharedCircuitSimulator` instance depending of the
+        value of the *simulator* parameter: ``subprocess`` or ``shared``, respectively. If this
+        parameter is not specified then a subprocess simulator is returned.
+
+        """
+
+        if 'simulator' in kwargs:
+            simulator = kwargs['simulator']
+            del kwargs['simulator']
+        else:
+            simulator = cls.DEFAULT_SIMULATOR
+
+        sub_cls = None
+        if simulator in ('ngspice-subprocess', 'ngspice-shared'):
+            if simulator == 'ngspice-subprocess':
+                from .NgSpice.Simulation import NgSpiceSubprocessCircuitSimulator
+                sub_cls = NgSpiceSubprocessCircuitSimulator
+            elif simulator == 'ngspice-shared':
+                from .NgSpice.Simulation import NgSpiceSharedCircuitSimulator
+                sub_cls = NgSpiceSharedCircuitSimulator
+        elif simulator in ('xyce-serial', 'xyce-parallel'):
+            from .Xyce.Simulation import XyceCircuitSimulator
+            sub_cls = XyceCircuitSimulator
+            if simulator == 'xyce-parallel':
+                kwargs['parallel'] = True
+
+        if sub_cls is not None:
+            return sub_cls(circuit, *args, **kwargs)
+        else:
+            raise ValueError('Unknown simulator type')
 
     ##############################################
 
@@ -688,90 +730,14 @@ class CircuitSimulator(CircuitSimulation):
 
         return self._run('transient', *args, **kwargs)
 
+####################################################################################################
 
 if ConfigInstall.OS.on_windows:
-    _mode = 'shared'
+    _simulator = 'ngspice-shared'
 else:
-    _mode = 'shared'
-    # _mode = 'subprocess'
-CircuitSimulator.DEFAULT_SIMULATOR_MODE = _mode
+    # _simulator = 'ngspice-shared'
+    # _simulator = 'ngspice-subprocess'
+    _simulator = 'xyce-serial'
+# Fixme: check ngspice
+CircuitSimulator.DEFAULT_SIMULATOR = _simulator
 
-####################################################################################################
-
-class SubprocessCircuitSimulator(CircuitSimulator):
-
-    _logger = _module_logger.getChild('SubprocessCircuitSimulator')
-
-    ##############################################
-
-    def __init__(self, circuit,
-                 temperature=27,
-                 nominal_temperature=27,
-                 spice_command=None,
-                ):
-
-        # Fixme: kwargs
-
-        super().__init__(circuit, temperature, nominal_temperature, pipe=True)
-
-        self._spice_server = SpiceServer(spice_command=spice_command)
-
-    ##############################################
-
-    def _run(self, analysis_method, *args, **kwargs):
-
-        super()._run(analysis_method, *args, **kwargs)
-
-        raw_file = self._spice_server(str(self))
-        self.reset_analysis()
-        raw_file.simulation = self
-
-        # for field in raw_file.variables:
-        #     print field
-
-        return raw_file.to_analysis()
-
-####################################################################################################
-
-class NgSpiceSharedCircuitSimulator(CircuitSimulator):
-
-    _logger = _module_logger.getChild('NgSpiceSharedCircuitSimulator')
-
-    ##############################################
-
-    def __init__(self, circuit,
-                 temperature=27,
-                 nominal_temperature=27,
-                 ngspice_shared=None,
-                ):
-
-        # Fixme: kwargs
-
-        super().__init__(circuit, temperature, nominal_temperature, pipe=False)
-
-        if ngspice_shared is None:
-            self._ngspice_shared = NgSpiceShared.new_instance()
-        else:
-            self._ngspice_shared = ngspice_shared
-
-    ##############################################
-
-    @property
-    def ngspice(self):
-        return self._ngspice_shared
-
-    ##############################################
-
-    def _run(self, analysis_method, *args, **kwargs):
-
-        super()._run(analysis_method, *args, **kwargs)
-
-        self._ngspice_shared.destroy()
-        self._ngspice_shared.load_circuit(str(self))
-        self._ngspice_shared.run()
-        self._logger.debug(str(self._ngspice_shared.plot_names))
-        self.reset_analysis()
-
-        plot_name = self._ngspice_shared.last_plot
-
-        return self._ngspice_shared.plot(self, plot_name).to_analysis()

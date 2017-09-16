@@ -29,6 +29,7 @@ for node in (analysis['in'], analysis.out): # .in is invalid !
     print('Node {}: {} V'.format(str(node), float(node)))
 #o#
 
+# Fixme: Xyce sensitivity analysis
 analysis = simulator.dc_sensitivity('v(out)')
 for element in analysis.elements.values():
     print(element, float(element))

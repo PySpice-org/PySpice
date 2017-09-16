@@ -103,6 +103,7 @@ circuit.X('D1', '1N4148', 'out', circuit.gnd)
 
 #!# We simulate the circuit at these temperatures: 0, 25 and 100 °C.
 
+# Fixme: Xyce ???
 temperatures = [0, 25, 100]@u_Degree
 analyses = {}
 for temperature in temperatures:

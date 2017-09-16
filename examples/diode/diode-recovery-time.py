@@ -49,6 +49,7 @@ ac_amplitude = 100@u_mV
 
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
+# Fixme: Xyce: Device model BAV21: Illegal parameter(s) given for level 1 diode: IKF
 source = circuit.V('input', 'in', circuit.gnd, dc_offset)
 circuit.R(1, 'in', 'out', 1@u_kΩ)
 circuit.D('1', 'out', circuit.gnd, model='BAV21')

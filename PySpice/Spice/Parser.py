@@ -472,7 +472,7 @@ class Element(Statement):
         for i in to_delete:
             del self._parameters[i]
 
-        self._logger.debug(os.linesep + self.__repr__())
+        # self._logger.debug(os.linesep + self.__repr__())
 
     ##############################################
 
