@@ -35,12 +35,18 @@ if sys.version_info < (3,):
 if sys.version_info < (3,4):
     print('WARNING: PySpice could require Python 3.4 ...', file=sys.stderr)
 
+####################################################################################################
+
+# Fixme: could check for ngspice, Xyce, libngspice.so etc.
+
+# check a simulator is installed
+# try:
+#     rc = subprocess.check_call(('ngspice', '--version'), stdout=sys.stderr)
+# except FileNotFoundError:
+#     sys.stderr.write('\n\nWarning: You must install ngspice\n\n')
+
+####################################################################################################
+
 exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
 
 setup(**setup_dict)
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

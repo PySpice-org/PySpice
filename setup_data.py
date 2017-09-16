@@ -65,19 +65,16 @@ def read_readme(file_name):
 
 ####################################################################################################
 
-long_description = read_readme('README.txt')
+if not __file__.endswith('conf.py'):
+    long_description = read_readme('README.txt')
+else:
+    long_description = ''
 
 ####################################################################################################
 
-# check NgSpice is installed
-try:
-    rc = subprocess.check_call(('ngspice', '--version'), stdout=sys.stderr)
-except FileNotFoundError:
-    sys.stderr.write('\n\nWarning: You must install ngspice\n\n')
-
 setup_dict = dict(
     name='PySpice',
-    version='1.1.1',
+    version='1.2',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='Simulate electronic circuit using Python and the Ngspice simulator',
@@ -120,9 +117,3 @@ setup_dict = dict(
         'scipy',
     ],
 )
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################
