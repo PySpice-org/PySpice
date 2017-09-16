@@ -65,7 +65,7 @@ amplitude = 10@u_V
 frequency = 50@u_Hz
 ngspice_shared = MyNgSpiceShared(amplitude=amplitude, frequency=frequency, send_data=False)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25,
-                              simulator='shared', ngspice_shared=ngspice_shared)
+                              simulator='ngspice-shared', ngspice_shared=ngspice_shared)
 period = float(frequency.period)
 analysis = simulator.transient(step_time=period/200, end_time=period*2)
 

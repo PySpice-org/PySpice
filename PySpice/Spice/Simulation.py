@@ -735,9 +735,10 @@ class CircuitSimulator(CircuitSimulation):
 if ConfigInstall.OS.on_windows:
     _simulator = 'ngspice-shared'
 else:
-    # _simulator = 'ngspice-shared'
     # _simulator = 'ngspice-subprocess'
-    _simulator = 'xyce-serial'
+    _simulator = 'ngspice-shared'
+    # _simulator = 'xyce-serial'
+    # _simulator = 'xyce-parallel'
 # Fixme: check ngspice
 CircuitSimulator.DEFAULT_SIMULATOR = _simulator
 
