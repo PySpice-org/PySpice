@@ -91,6 +91,7 @@ setup_dict = dict(
               'PySpice.Probe',
               'PySpice.Spice',
               'PySpice.Spice.NgSpice',
+              'PySpice.Spice.Xyce',
               'PySpice.Tools',
               'PySpice.Unit',
           ],
