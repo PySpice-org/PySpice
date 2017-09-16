@@ -36,3 +36,21 @@ How to set the Ngspice path ?
 If the setting doesn't match your environment, then you have to set manually the attribute
 :attr:`PySpice.Spice.Server.SpiceServer.SPICE_COMMAND`. This value can be passed as argument as
 well, see API documentation.
+
+Is ground node required ?
+-------------------------
+
+**Yes**, according to Ngspice manual, each circuit has to have a ground node (gnd or 0)!
+
+Is Xyce 100% compatible with SPICE ?
+------------------------------------
+
+**No**, you have to read the user guide and reference manual to learn what are the actual differences!
+
+In particular, the device models provided by vendors could need to be adapted for Xyce.
+
+Notice, you can add the suffix **@xyce** to a *.lib* or *.mod* file in order to have a special
+version for Xyce, for example *BAV21.lib@xyce*.  The PySpice Library Manager will include this
+special version if it found one that correspond to the simulator used for the current simulation.
+
+PySpice will try to incrementally provide a generic interface in the future.
