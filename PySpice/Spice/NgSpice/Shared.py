@@ -471,14 +471,14 @@ class NgSpiceShared:
     def _send_data(data, number_of_vectors, ngspice_id, user_data):
         """Callback to send back actual vector data"""
         self = ffi.from_handle(user_data)
-        self._logger.debug('ngspice_id-{} send_data [{}]'.format(ngspice_id, data.vecindex))
+        # self._logger.debug('ngspice_id-{} send_data [{}]'.format(ngspice_id, data.vecindex))
         actual_vector_values = {}
         for i in range(int(number_of_vectors)):
             actual_vector_value = data.vecsa[i]
             vector_name = ffi_string_utf8(actual_vector_value.name)
             value = complex(actual_vector_value.creal, actual_vector_value.cimag)
             actual_vector_values[vector_name] = value
-            self._logger.debug('    Vector: {} {}'.format(vector_name, value))
+            # self._logger.debug('    Vector: {} {}'.format(vector_name, value))
         return self.send_data(actual_vector_values, number_of_vectors, ngspice_id)
 
     ##############################################
@@ -487,11 +487,11 @@ class NgSpiceShared:
     def _send_init_data(data,  ngspice_id, user_data):
         """Callback to send back initialization vector data"""
         self = ffi.from_handle(user_data)
-        if self._logger.isEnabledFor(logging.DEBUG):
-            self._logger.debug('ngspice_id-{} send_init_data'.format(ngspice_id))
-            number_of_vectors = data.veccount
-            for i in range(number_of_vectors):
-                self._logger.debug('  Vector: ' + ffi_string_utf8(data.vecs[i].vecname))
+        # if self._logger.isEnabledFor(logging.DEBUG):
+        #     self._logger.debug('ngspice_id-{} send_init_data'.format(ngspice_id))
+        #     number_of_vectors = data.veccount
+        #     for i in range(number_of_vectors):
+        #         self._logger.debug('  Vector: ' + ffi_string_utf8(data.vecs[i].vecname))
         return self.send_init_data(data, ngspice_id) # Fixme: should be a Python object
 
     ##############################################
@@ -530,7 +530,7 @@ class NgSpiceShared:
 
     def send_stat(self, message, ngspice_id):
         """ Reimplement this callback in a subclass to process statistic messages from the simulator. """
-        self._logger.debug('ngspice-{} send_stat {}'.format(ngspice_id, message))
+        # self._logger.debug('ngspice-{} send_stat {}'.format(ngspice_id, message))
         return 0
 
     ##############################################
@@ -1048,11 +1048,11 @@ class NgSpiceShared:
                 vector_info = self._ngspice_shared.ngGet_Vec_Info(name.encode('utf8'))
                 vector_type = self.SIMULATION_TYPE[vector_info.v_type]
                 length = vector_info.v_length
-                self._logger.debug("vector[{}] {} type {} flags {} length {}".format(i,
-                                                                                     vector_name,
-                                                                                     vector_type,
-                                                                                     self._flags_to_str(vector_info.v_flags),
-                                                                                     length))
+                # self._logger.debug("vector[{}] {} type {} flags {} length {}".format(i,
+                #                                                                      vector_name,
+                #                                                                      vector_type,
+                #                                                                      self._flags_to_str(vector_info.v_flags),
+                #                                                                      length))
                 if vector_info.v_compdata == ffi.NULL:
                     # for k in xrange(length):
                     #     print("  [{}] {}".format(k, vector_info.v_realdata[k]))
