@@ -373,10 +373,10 @@ class SubCircuitStatement(Statement):
 
     ##############################################
 
-    def build(self, circuit):
+    def build(self, ground=0):
 
         subcircuit = SubCircuit(self._name, self._nodes)
-        SpiceParser.build_netlist(subcircuit, self._statements)
+        SpiceParser._build_circuit(subcircuit, self._statements, ground)
         return subcircuit
 
 ####################################################################################################
@@ -487,16 +487,23 @@ class Element(Statement):
 
         return 'Element {0._prefix} {0._name} {0._nodes} {0._parameters} {0._dict_parameters}'.format(self)
 
+    ##############################################
+
+    def translate_ground_node(self, ground):
+
+        nodes = []
+        for node in self._nodes:
+            if str(node) == str(ground):
+                node = 0
+            nodes.append(node)
+
+        return nodes
 
     ##############################################
 
     def to_python(self, netlist_name, ground=0):
 
-        nodes = []
-        for node in self._nodes:
-            if str(node) == ground:
-                node = 0
-            nodes.append(node)
+        nodes = self.translate_ground_node(ground)
         args = [self._name]
         if self._prefix != 'X':
             args += nodes + self._parameters
@@ -511,11 +518,7 @@ class Element(Statement):
     def build(self, circuit, ground=0):
 
         factory = getattr(circuit, self.factory.alias)
-        nodes = []
-        for node in self._nodes:
-            if str(node) == ground:
-                node = 0
-            nodes.append(node)
+        nodes = self.translate_ground_node(ground)
         if self._prefix != 'X':
             args = nodes + self._parameters
         else: # != Spice
@@ -804,27 +807,33 @@ class SpiceParser:
     ##############################################
 
     @staticmethod
-    def build_netlist(netlist, statements):
+    def _build_circuit(circuit, statements, ground):
 
         for statement in statements:
             if isinstance(statement, Include):
-                netlist.include(str(statement))
+                circuit.include(str(statement))
 
         for statement in statements:
             if isinstance(statement, Element):
-                statement.build(netlist, netlist.gnd)
+                statement.build(circuit, ground)
             elif isinstance(statement, Model):
-                statement.build(netlist)
+                statement.build(circuit)
             elif isinstance(statement, SubCircuit):
-                subcircuit = statement.build()
-                netlist.subcircuit(subcircuit)
+                subcircuit = statement.build(ground) # Fixme: ok ???
+                circuit.subcircuit(subcircuit)
 
     ##############################################
 
     def build_circuit(self, ground=0):
 
+        """Build a :class:`Circuit` instance.
+
+        Use the *ground* parameter to specify the node which must be translated to 0 (SPICE ground node).
+
+        """
+
         circuit = Circuit(str(self._title))
-        self.build_netlist(circuit, self._statements)
+        self._build_circuit(circuit, self._statements, ground)
         return circuit
 
     ##############################################
