@@ -116,6 +116,20 @@ How to contribute to the project
 
 Technical reference material, for classes, methods, APIs, commands.
 
+.. rst-class:: column column2
+
+:ref:`how-to-refer-page`
+========================
+
+Guidelines to cite PySpice
+
+.. rst-class:: column column2
+
+:ref:`donate-page`
+==================
+
+If you want to donate to the project or need a more professional support.
+
 .. raw:: html
 
    </div>
@@ -149,7 +163,7 @@ Technical reference material, for classes, methods, APIs, commands.
   reference-manual.rst
   development.rst
   how-to-refer.rst
-  how-to-help.rst
+  donate.rst
   on-the-web.rst
   related-projects.rst
   bibliography.rst

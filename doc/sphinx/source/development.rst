@@ -1,7 +1,7 @@
 .. _development-page:
 
 =========================
- Development & community
+ Development & Community
 =========================
 
 PySpice is an open-source project, and relies on its community of users to keep getting better.

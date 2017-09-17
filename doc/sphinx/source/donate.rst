@@ -1,4 +1,4 @@
-.. _how-to-help-page:
+.. _donate-page:
 
 =======================
  How to Help Further ?

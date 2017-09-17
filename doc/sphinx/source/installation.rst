@@ -81,7 +81,7 @@ commands to install the stable or devel branch:
 
   pip install git+https://github.com/FabriceSalvaire/PySpice
 
-  pip install git+https://github.com/FabriceSalvaire/PySpice@dev
+  pip install git+https://github.com/FabriceSalvaire/PySpice@devel
 
 Installation from Source
 ------------------------

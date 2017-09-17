@@ -42,6 +42,24 @@ Is ground node required ?
 
 **Yes**, according to Ngspice manual, each circuit has to have a ground node (gnd or 0)!
 
+How to set the simulator ?
+--------------------------
+
+You can set globally the default simulator using the attribute :attr:`PySpice.Spice.Simulation.CircuitSimulator.DEFAULT_SIMULATOR`.
+
+Else you can set the simulator per simulation using the `simulator` option:
+
+.. code:: py
+
+   simulator = circuit.simulator(simulator='...')
+
+Actually, theses simulators are available:
+
+ * `ngspice-subprocess`
+ * `ngspice-shared`
+ * `xyce-serial`
+ * `xyce-parallel`
+
 Is Xyce 100% compatible with SPICE ?
 ------------------------------------
 
