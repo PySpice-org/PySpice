@@ -647,8 +647,7 @@ class CircuitSimulator(CircuitSimulation):
 
     _logger = _module_logger.getChild('CircuitSimulator')
 
-    DEFAULT_SIMULATOR_MODE = None
-
+    DEFAULT_SIMULATOR = None
 
     ##############################################
 
