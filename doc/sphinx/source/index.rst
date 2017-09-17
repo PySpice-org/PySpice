@@ -140,6 +140,7 @@ Technical reference material, for classes, methods, APIs, commands.
   news.rst
   roadmap.rst
   installation.rst
+  simulators.rst
   faq.rst
   example-introduction.rst
   examples/index.rst
@@ -147,6 +148,9 @@ Technical reference material, for classes, methods, APIs, commands.
   design-notes.rst
   reference-manual.rst
   development.rst
+  how-to-refer.rst
+  how-to-help.rst
+  on-the-web.rst
   related-projects.rst
   bibliography.rst
 

@@ -23,3 +23,8 @@ As an open source project, anyone is welcome to contribute in whatever form they
 * Propose improvements
 * Implement missing features
 * Provides additional examples
+
+Contributors
+------------
+
+The list of contributors is available at https://github.com/FabriceSalvaire/PySpice/graphs/contributors

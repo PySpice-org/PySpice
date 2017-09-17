@@ -23,8 +23,8 @@ It permits:
  * simulation using |Ngspice|_ and |Xyce|_,
  * analysis of the output using |Numpy|_ and |Matplotlib|_.
 
-How is PySpice licensed?
-------------------------
+How is PySpice licensed ?
+-------------------------
 
 PySpice is licensed under the `GPLv3 <https://www.gnu.org/licenses/quick-guide-gplv3.en.html>`_.
 
@@ -54,7 +54,7 @@ How can PySpice be used for learning ?
   | cf. supra for the documentation generator features
 
 Which platforms are supported by PySpice ?
--------------------------------------------
+------------------------------------------
 
 PySpice runs on Linux, Windows 64-bit and Mac OS X.
 
@@ -74,8 +74,8 @@ How does PySpice differ from simulator like LTspice ?
 
 (*) However you can export netlist from Kicad to PySpice.
 
-How can a non-GUI simulator be helpful?
----------------------------------------
+How can a non-GUI simulator be helpful ?
+----------------------------------------
 
 It is often not easy to write a netlist, and a tool like a schematic editor can help to
 visualise the circuit.  Tools like Circuit_macros and Tikz are complex and
@@ -115,7 +115,7 @@ What are the benefits of PySpice over Ngspice / Xyce ?
 
   | Which supersede tools like TclSpice.
 
-How PySpice is interfaced with Ngspice ?
+How is PySpice interfaced with Ngspice ?
 ----------------------------------------
 
  * PySpice can parse a Spice netlist and generate the equivalent Python code, or instantiate it directly.
@@ -130,7 +130,7 @@ When using *shared* mode
  * PySpice permits getting and sending data to the simulator during the simulation process.
  * |CFFI|_ is used to interface C to Python.
 
-How PySpice is interfaced with Xyce ?
+How is PySpice interfaced with Xyce ?
 -------------------------------------
 
 Actually, PySpice run Xyce as a subprocess and read the raw output.
@@ -148,8 +148,8 @@ Thanks to the Ngspice shared library binding, you are not tied to the object-ori
 PySpice.  You can run Ngspice as you did before and just upload the simulation output as Numpy
 arrays.  For an example, look at the Ngspice shared examples.
 
-How are Spice libraries handled?
---------------------------------
+How are Spice libraries handled ?
+---------------------------------
 
  * PySpice features a library manager that scan a path for library files.
  * Libraries can be included as is using the *include* directive.
