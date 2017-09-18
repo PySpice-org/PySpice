@@ -7,6 +7,8 @@
  Installation
 ==============
 
+**Note to Packagers: Please don't create PySpice package (Pipy do the job)**
+
 On Windows
 ----------
 
