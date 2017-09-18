@@ -8,7 +8,7 @@ PySpice is an open-source project, and relies on its community of users to keep 
 
 PySpice source code and issues are managed on `Github <https://github.com/FabriceSalvaire/PySpice>`_.
 
-**Note to Packagers: Please don't create PySpice package (Pipy do the job)**
+**Note to Packagers: Please don't create PySpice package (PiPY do the job)**
 
 How you can help ?
 ------------------
