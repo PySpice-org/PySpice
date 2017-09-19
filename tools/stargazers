@@ -12,8 +12,10 @@ import matplotlib.pyplot as plt
 
 ####################################################################################################
 
-with (open(os.path.expanduser('~/.github-token'))) as f:
-    token = f.read()
+token_path = os.path.expanduser('~/.github-token')
+with open(token_path, 'r') as f:
+    token = f.readline().strip()
+# token = ''
 
 github = Github(login_or_token=token)
 
@@ -25,9 +27,15 @@ repo = github.get_repo('FabriceSalvaire/PySpice')
 
 datetimes = [stargazer.starred_at for stargazer in repo.get_stargazers_with_dates()]
 dates = matplotlib.dates.date2num(datetimes)
-print(dates)
 
 counts = range(1, len(dates) +1)
-plt.grid()
-plt.plot_date(dates, counts, 'o-')
-plt.show()
+
+figure = plt.figure(1, (20, 10))
+axe = plt.subplot(111)
+
+axe.grid()
+axe.plot_date(dates, counts, 'o-')
+axe.set_title('Star count over time')
+axe.set_ylim(0, (counts[-1] // 10) * 10 + 10)
+plt.savefig('doc/sphinx/source/_static/stargazer.png', bbox_inches='tight')
+# plt.show()
