@@ -1078,12 +1078,13 @@ class NgSpiceShared:
 
 if ConfigInstall.OS.on_windows:
     drive = os.getenv('SystemDrive') or 'C:'
+    root = drive + os.sep
 
     ngspice_dirname = 'Spice'
     if platform.architecture()[0] == '64bit':
         ngspice_dirname += '64'
 
-    ngspice_path = os.path.join(drive, 'Program Files', ngspice_dirname)
+    ngspice_path = os.path.join(root, 'Program Files', ngspice_dirname)
     NgSpiceShared.NGSPICE_PATH = ngspice_path
 
     _path = os.path.join(ngspice_path, 'bin_dll', 'ngspice{}.dll')
