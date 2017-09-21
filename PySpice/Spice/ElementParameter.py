@@ -391,3 +391,14 @@ class IntKeyParameter(KeyValueParameter):
 
     def validate(self, value):
         return int(value)
+
+####################################################################################################
+
+# class ModelKeyParameter(KeyValueParameter):
+# 
+#     """This class implements a model key parameter. """
+# 
+#     ##############################################
+# 
+#     def validate(self, value):
+#         return str(value)

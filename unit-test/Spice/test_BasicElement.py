@@ -25,7 +25,7 @@ import unittest
 ####################################################################################################
 
 from PySpice.Spice.BasicElement import *
-from PySpice.Unit.Units import *
+from PySpice.Unit import *
 
 ####################################################################################################
 
@@ -55,6 +55,9 @@ class TestBasicElement(unittest.TestCase):
         self._test_spice_declaration(Resistor('1', 'n1', 'n2', kilo(1),
                                               noisy=False),
                                      'R1 n1 n2 1k')
+
+        self._test_spice_declaration(XSpiceElement('1', 'cap', '1', '0'),
+                                     'A1 1 0 cap')
 
 ####################################################################################################
 

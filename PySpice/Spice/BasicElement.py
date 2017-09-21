@@ -120,6 +120,7 @@ from .ElementParameter import (
     InitialStatePositionalParameter,
     IntKeyParameter,
     ModelPositionalParameter,
+    # ModelKeyParameter,
     )
 
 ####################################################################################################
@@ -1481,3 +1482,219 @@ class TransmissionLine(TwoPortElement):
                          output_node_plus, output_node_minus,
                          input_node_plus, input_node_minus, # Fixme: inverted inputs
                          *args, **kwargs)
+
+####################################################################################################
+
+class LossyTransmission(NPinElement):
+
+    """This class implements lossy transmission lines.
+
+    Spice syntax::
+
+        OXXXXXXX n1 n2 n3 n4 model
+
+    Attributes:
+
+      :attr:`model`
+
+    .note : As opposite to Spice, the model is specified before the nodes so as to act as
+    `*args`.
+
+    """
+
+    alias = 'O'
+    prefix = 'O'
+
+    # Fixme: How to pass model ???
+    model = ModelPositionalParameter(position=0, key_parameter=False)
+
+    ##############################################
+
+    def __init__(self, name, model, *nodes):
+
+        pins = [Pin(self, None, node) for node in nodes]
+
+        super().__init__(name, pins, model)
+
+####################################################################################################
+
+class CoupledMulticonductorLine(NPinElement):
+
+    """This class implements coupled multiconductor lines.
+
+    Spice syntax::
+
+        PXXXXXXX NI1 NI2 ... NIX GND1 NO1 NO2 ... NOX GND2 model <len=length>
+
+    Attributes:
+
+      :attr:`model`
+
+      :attr:`length`
+         alias `len`
+         length of the line in meters
+
+    .note : As opposite to Spice, the model is specified before the nodes so as to act as
+    `*args`.
+
+    """
+
+    alias = 'P'
+    prefix = 'P'
+
+    # Fixme: How to pass model ???
+    model = ModelPositionalParameter(position=0, key_parameter=False)
+    length = FloatKeyParameter('len', unit=U_m)
+
+    ##############################################
+
+    def __init__(self, name, model, *nodes):
+
+        pins = [Pin(self, None, node) for node in nodes]
+
+        super().__init__(name, pins, model)
+
+####################################################################################################
+
+class UniformDistributedRCLine(NPinElement):
+
+    """This class implements uniform distributed RC lines.
+
+    Spice syntax::
+
+        UXXXXXXX n1 n2 n3 model l=length <n=number_of_lumps>
+
+    Attributes:
+
+      :attr:`model`
+
+      :attr:`length`
+         alias `l`
+         length of the RC line in meters
+
+      :attr:`number_of_lumps`
+         alias `n`
+
+    .note : As opposite to Spice, the model is specified before the nodes so as to act as
+    `*args`.
+
+    """
+
+    alias = 'U'
+    prefix = 'U'
+
+    # Fixme: How to pass model ???
+    model = ModelPositionalParameter(position=0, key_parameter=False)
+    length = FloatKeyParameter('l', unit=U_m)
+    number_of_lumps = IntKeyParameter('m')
+
+    ##############################################
+
+    def __init__(self, name, model, *nodes):
+
+        pins = [Pin(self, None, node) for node in nodes]
+
+        super().__init__(name, pins, model)
+
+####################################################################################################
+
+class SingleLossyTransmissionLine(NPinElement):
+
+    """This class implements single lossy transmission lines.
+
+    Spice syntax::
+
+        YXXXXXXX N1 0 N2 0 model <len=length>
+
+    Attributes:
+
+      :attr:`model`
+
+      :attr:`length`
+         alias `len`
+         length of the line in meters
+
+    .note : As opposite to Spice, the model is specified before the nodes so as to act as
+    `*args`.
+
+    """
+
+    alias = 'Y'
+    prefix = 'Y'
+
+    # Fixme: How to pass model ???
+    model = ModelPositionalParameter(position=0, key_parameter=False)
+    length = FloatKeyParameter('len', unit=U_m)
+
+    ##############################################
+
+    def __init__(self, name, model, *nodes):
+
+        pins = [Pin(self, None, node) for node in nodes]
+
+        super().__init__(name, pins, model)
+
+####################################################################################################
+
+class XSpiceElement(NPinElement):
+
+    """This class implements a sub-circuit.
+
+    Spice syntax::
+
+        AXXXXXXX <%v ,%i ,%vd ,%id ,%g,%gd ,%h,%hd , or %d>
+        + <[> <~><%v ,%i ,%vd ,%id ,%g,%gd ,%h,%hd , or %d>
+        + <NIN1 or +NIN1 -NIN1 or "null">
+        + <~>...< NIN2 .. <]> >
+        + <%v ,%i ,%vd ,%id ,%g,%gd ,%h,%hd ,%d or %vnam >
+        + <[> <~><%v ,%i ,%vd ,%id ,%g,%gd ,%h,%hd ,
+        or %d>< NOUT1 or +NOUT1 -NOUT1 >
+        + <~>...< NOUT2 .. <]>>
+        + MODELNAME
+
+        . MODEL MODELNAME MODELTYPE
+        + <( PARAMNAME1 = <[> VAL1 <VAL2 ... <]>> PARAMNAME2 ..>)>
+
+    Attributes:
+
+      :attr:`model`
+
+    .note : As opposite to Spice, the model is specified before the nodes so as to act as
+    `*args`.
+
+    .. warning:: Partially implemented.
+    """
+
+    alias = 'A'
+    prefix = 'A'
+
+    # Fixme: How to pass model ???
+    # Fixme: require a key
+    # model = ModelKeyParameter()
+    model = ModelPositionalParameter(position=0, key_parameter=False)
+
+    ##############################################
+
+    def __init__(self, name, model, *nodes):
+
+        pins = [Pin(self, None, node) for node in nodes]
+
+        super().__init__(name, pins, model)
+
+####################################################################################################
+
+class GSSElement(NPinElement):
+
+    """This class implements GSS device.
+
+    .. warning:: Not implemented.
+    """
+
+    alias = 'N'
+    prefix = 'N'
+
+    ##############################################
+
+    def __init__(self):
+
+        raise NotImplementedError
