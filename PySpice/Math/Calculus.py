@@ -87,7 +87,7 @@ def get_finite_difference_coefficients(derivative_order, accuracy_order, grid_ty
         raise ValueError("Wrong accuracy order")
 
     if grid_type == 'centred':
-        window_size = accuracy_order / 2
+        window_size = accuracy_order // 2
         grid = list(range(-window_size, window_size +1))
     elif grid_type == 'forward':
         grid = list(range(derivative_order + accuracy_order))
