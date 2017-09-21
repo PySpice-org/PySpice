@@ -41,14 +41,27 @@ def str_spice(obj, unit=True):
 ####################################################################################################
 
 def join_lines(items, prefix=''):
-    return os.linesep.join([prefix + str(item) for item in items if item is not None])
+    return os.linesep.join([prefix + str(item)
+                            for item in items
+                            if item is not None]) # Fixme: and item
 
 ####################################################################################################
 
 def join_list(items):
-    return ' '.join([str_spice(item) for item in items if item is not None])
+    # return ' '.join([str_spice(item)
+    #                  for item in items
+    #                  if item is not None and str_spice(item)])
+    values = []
+    for item in items:
+        if item is not None:
+            str_value = str_spice(item)
+            if str_value:
+                values.append(str_value)
+    return ' '.join(values)
 
 ####################################################################################################
 
 def join_dict(d):
-    return ' '.join(["{}={}".format(key, str_spice(value)) for key, value in d.items() if value is not None])
+    return ' '.join(["{}={}".format(key, str_spice(value))
+                     for key, value in d.items()
+                     if value is not None])
