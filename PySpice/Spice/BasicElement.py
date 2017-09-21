@@ -129,7 +129,9 @@ class SubCircuitElement(NPinElement):
 
     """This class implements a sub-circuit.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         XYYYYYY node1 node2 ... subcircuit_name parameter1=value1 ...
 
@@ -137,8 +139,7 @@ class SubCircuitElement(NPinElement):
 
       :attr:`subcircuit_name`
 
-    .. note : As opposite to Spice, the circuit's name is specified before the nodes so as to act as
-    `*args`.
+    .. note:: As opposite to Spice, the circuit's name is specified before the nodes so as to act as `*args`.
 
     """
 
@@ -182,7 +183,9 @@ class Resistor(TwoPinElement):
 
     """This class implements a resistor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         RXXXXXXX n+ n- value <ac=val> <m=val> <scale=val> <temp=val> <dtemp=val> <noisy=0|1>
 
@@ -238,7 +241,9 @@ class SemiconductorResistor(TwoPinElement):
 
     """This class implements a Semiconductor resistor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         RXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <temp=val> <dtemp=val> m=<val> <ac=val> <scale=val> <noisy=0|1>
 
@@ -313,7 +318,9 @@ class BehavioralResistor(TwoPinElement):
 
     """This class implements a behavioral resistor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         RXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
         Rxxxxxxx n+ n- R='expression' <tc1=value> <tc2=value>
@@ -347,7 +354,9 @@ class Capacitor(TwoPinElement):
 
     """This class implements a capacitor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         CXXXXXXX n+ n- <value> <mname> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
 
@@ -404,7 +413,9 @@ class SemiconductorCapacitor(TwoPinElement):
 
     """This class implements a semiconductor capacitor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         CXXXXXXX n+ n- <value> <mname> <l=length> <w=width> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
 
@@ -473,7 +484,9 @@ class BehavioralCapacitor(TwoPinElement):
 
     """This class implements a behavioral capacitor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         CXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
         CXXXXXXX n+ n- C='expression' <tc1=value> <tc2=value>
@@ -507,7 +520,9 @@ class Inductor(TwoPinElement):
 
     """This class implements an inductor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         LYYYYYYY n+ n- <value> <mname> <nt=val> <m=val> <scale=val> <temp=val> <dtemp=val> <ic=init_condition>
 
@@ -567,7 +582,9 @@ class BehavioralInductor(TwoPinElement):
 
     """This class implements a behavioral inductor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         LXXXXXXX n+ n- 'expression' <tc1=value> <tc2=value>
         LXXXXXXX n+ n- L='expression' <tc1=value> <tc2=value>
@@ -601,7 +618,9 @@ class CoupledInductor(AnyPinElement):
 
     """This class implementss a coupled (mutual) inductors.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         KXXXXXXX LYYYYYYY LZZZZZZZ value
 
@@ -639,7 +658,9 @@ class VoltageControlledSwitch(TwoPortElement):
 
     """This class implements a voltage controlled switch.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         SXXXXXXX n+ n- nc+ nc- model <on> <off>
 
@@ -669,7 +690,9 @@ class CurrentControlledSwitch(TwoPinElement):
 
     """This class implements a current controlled switch.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         WYYYYYYY n+ n- vname model <on> <off>
 
@@ -704,7 +727,9 @@ class VoltageSource(TwoPinElement):
 
     """This class implements an independent sources for voltage.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         VXXXXXXX n+ n- <<dc> dc/tran value> <ac <acmag <acphase>>> <distof1 <f1mag <f1phase>>> <distof2 <f2mag <f2phase>>>
 
@@ -728,7 +753,9 @@ class CurrentSource(TwoPinElement):
 
     """This class implements an independent sources for current.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
        IYYYYYYY n+ n- <<dc> dc/tran value> <ac <acmag <acphase>>> <distof1 <f1mag <f1phase>>> <distof2 <f2mag <f2phase>>>
 
@@ -752,7 +779,9 @@ class VoltageControlledVoltageSource(TwoPortElement):
 
     """This class implements a linear voltage-controlled voltage sources (VCVS).
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         EXXXXXXX n+ n- nc+ nc- value
 
@@ -775,7 +804,9 @@ class CurrentControlledCurrentSource(TwoPinElement):
 
     """This class implements a linear current-controlled current sources (CCCS).
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
        FXXXXXXX n+ n- vname value
 
@@ -803,7 +834,9 @@ class VoltageControlledCurrentSource(TwoPortElement):
 
     .. warning:: partially implemented
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         Gxxx n+ n- nc+ nc- value
         Gxxx n+ n- value={expr}
@@ -830,7 +863,9 @@ class CurrentControlledVoltageSource(TwoPinElement):
 
     """This class implements a linear current-controlled voltage sources (ccvs).
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         HXXXXXXX n+ n- vname value
 
@@ -856,7 +891,9 @@ class BehavioralSource(TwoPinElement):
 
     """This class implements a behavioral source.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         BXXXXXXX n+ n- <i=expr> <v=expr> <tc1=value> <tc2=value> <temp=value> <dtemp=value>
 
@@ -912,7 +949,9 @@ class NonLinearVoltageSource(TwoPinElement):
 
     .. warning:: partially implemented
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         Exxx n+ n- vol='expr'
         Exxx n+ n- value={expr}
@@ -959,7 +998,9 @@ class Diode(TwoPinElement):
 
     """This class implements a junction diode.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         DXXXXXXX n+ n- mname <area=val> <m=val> <pj=val> <off> <ic=vd> <temp=val> <dtemp=val>
 
@@ -1022,7 +1063,9 @@ class BipolarJunctionTransistor(NPinElement):
 
     """This class implements a bipolar junction transistor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
          QXXXXXXX nc nb ne <ns> mname <area=val> <areac=val> <areab=val> <m=val> <off> <ic=vbe,vce> <temp=val> <dtemp=val>
 
@@ -1135,7 +1178,9 @@ class JunctionFieldEffectTransistor(ThreePinElement):
 
     """This class implements a bipolar junction transistor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
          JXXXXXXX nd ng ns mname <area> <off> <ic=vds,vgs> <temp=t>
 
@@ -1214,7 +1259,9 @@ class Mesfet(ThreePinElement):
 
     """This class implements a Metal Semiconductor Field Effect Transistor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
          ZXXXXXXX nd ng ns mname <area> <off> <ic=vds,vgs>
 
@@ -1287,7 +1334,9 @@ class Mosfet(FourPinElement):
 
     """This class implements a Metal Oxide Field Effect Transistor.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
          MXXXXXXX nd ng ns nb mname <m=val> <l=val> <w=val>
          + <ad=val> <as=val> <pd=val> <ps=val> <nrd=val>
@@ -1424,7 +1473,9 @@ class TransmissionLine(TwoPortElement):
 
     """This class implements a lossless transmission line.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         TXXXXXXX N1 N2 N3 N4 Z0=VALUE <TD=VALUE> <F=FREQ <NL=NRMLEN>>
 
@@ -1489,7 +1540,9 @@ class LossyTransmission(NPinElement):
 
     """This class implements lossy transmission lines.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         OXXXXXXX n1 n2 n3 n4 model
 
@@ -1497,8 +1550,7 @@ class LossyTransmission(NPinElement):
 
       :attr:`model`
 
-    .. note : As opposite to Spice, the model is specified before the nodes so as to act as
-    `*args`.
+    .. note:: As opposite to Spice, the model is specified before the nodes so as to act as `*args`.
 
     """
 
@@ -1522,7 +1574,9 @@ class CoupledMulticonductorLine(NPinElement):
 
     """This class implements coupled multiconductor lines.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         PXXXXXXX NI1 NI2 ... NIX GND1 NO1 NO2 ... NOX GND2 model <len=length>
 
@@ -1534,8 +1588,7 @@ class CoupledMulticonductorLine(NPinElement):
          alias `len`
          length of the line in meters
 
-    .. note : As opposite to Spice, the model is specified before the nodes so as to act as
-    `*args`.
+    .. note:: As opposite to Spice, the model is specified before the nodes so as to act as `*args`.
 
     """
 
@@ -1560,7 +1613,9 @@ class UniformDistributedRCLine(NPinElement):
 
     """This class implements uniform distributed RC lines.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         UXXXXXXX n1 n2 n3 model l=length <n=number_of_lumps>
 
@@ -1575,8 +1630,7 @@ class UniformDistributedRCLine(NPinElement):
       :attr:`number_of_lumps`
          alias `n`
 
-    .. note : As opposite to Spice, the model is specified before the nodes so as to act as
-    `*args`.
+    .. note:: As opposite to Spice, the model is specified before the nodes so as to act as `*args`.
 
     """
 
@@ -1602,7 +1656,9 @@ class SingleLossyTransmissionLine(NPinElement):
 
     """This class implements single lossy transmission lines.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         YXXXXXXX N1 0 N2 0 model <len=length>
 
@@ -1614,8 +1670,7 @@ class SingleLossyTransmissionLine(NPinElement):
          alias `len`
          length of the line in meters
 
-    .. note : As opposite to Spice, the model is specified before the nodes so as to act as
-    `*args`.
+    .. note:: As opposite to Spice, the model is specified before the nodes so as to act as `*args`.
 
     """
 
@@ -1640,7 +1695,9 @@ class XSpiceElement(NPinElement):
 
     """This class implements a sub-circuit.
 
-    Spice syntax::
+    Spice syntax:
+
+    .. code-block:: none
 
         AXXXXXXX <%v ,%i ,%vd ,%id ,%g,%gd ,%h,%hd , or %d>
         + <[> <~><%v ,%i ,%vd ,%id ,%g,%gd ,%h,%hd , or %d>
@@ -1659,8 +1716,7 @@ class XSpiceElement(NPinElement):
 
       :attr:`model`
 
-    .. note : As opposite to Spice, the model is specified before the nodes so as to act as
-    `*args`.
+    .. note:: As opposite to Spice, the model is specified before the nodes so as to act as `*args`.
 
     .. warning:: Partially implemented.
     """
