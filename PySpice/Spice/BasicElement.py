@@ -137,7 +137,7 @@ class SubCircuitElement(NPinElement):
 
       :attr:`subcircuit_name`
 
-    ..note : As opposite to Spice, the circuit's name is specified before the nodes so as to act as
+    .. note : As opposite to Spice, the circuit's name is specified before the nodes so as to act as
     `*args`.
 
     """
@@ -1497,7 +1497,7 @@ class LossyTransmission(NPinElement):
 
       :attr:`model`
 
-    ..note : As opposite to Spice, the model is specified before the nodes so as to act as
+    .. note : As opposite to Spice, the model is specified before the nodes so as to act as
     `*args`.
 
     """
@@ -1534,7 +1534,7 @@ class CoupledMulticonductorLine(NPinElement):
          alias `len`
          length of the line in meters
 
-    ..note : As opposite to Spice, the model is specified before the nodes so as to act as
+    .. note : As opposite to Spice, the model is specified before the nodes so as to act as
     `*args`.
 
     """
@@ -1575,7 +1575,7 @@ class UniformDistributedRCLine(NPinElement):
       :attr:`number_of_lumps`
          alias `n`
 
-    ..note : As opposite to Spice, the model is specified before the nodes so as to act as
+    .. note : As opposite to Spice, the model is specified before the nodes so as to act as
     `*args`.
 
     """
@@ -1614,7 +1614,7 @@ class SingleLossyTransmissionLine(NPinElement):
          alias `len`
          length of the line in meters
 
-    ..note : As opposite to Spice, the model is specified before the nodes so as to act as
+    .. note : As opposite to Spice, the model is specified before the nodes so as to act as
     `*args`.
 
     """
@@ -1659,7 +1659,7 @@ class XSpiceElement(NPinElement):
 
       :attr:`model`
 
-    ..note : As opposite to Spice, the model is specified before the nodes so as to act as
+    .. note : As opposite to Spice, the model is specified before the nodes so as to act as
     `*args`.
 
     .. warning:: Partially implemented.
