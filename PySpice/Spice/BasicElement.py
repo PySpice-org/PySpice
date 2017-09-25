@@ -832,7 +832,7 @@ class VoltageControlledCurrentSource(TwoPortElement):
 
     """This class implements a linear voltage-controlled current sources (VCCS).
 
-    .. warning:: partially implemented
+    .. warning:: Partially implemented
 
     Spice syntax:
 
@@ -947,7 +947,7 @@ class NonLinearVoltageSource(TwoPinElement):
 
     """This class implements a non linear voltage source.
 
-    .. warning:: partially implemented
+    .. warning:: Partially implemented
 
     Spice syntax:
 
@@ -1743,7 +1743,7 @@ class GSSElement(NPinElement):
 
     """This class implements GSS device.
 
-    .. warning:: Not implemented.
+    .. warning:: Not implemented
     """
 
     alias = 'N'
