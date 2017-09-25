@@ -105,7 +105,11 @@
 |Pypi Version|
 
 * Quick Link to `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
+<<<<<<< HEAD
 * Quick Link to `Level Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
+=======
+* Quick Link to `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
+>>>>>>> master
 
 Overview
 ========
