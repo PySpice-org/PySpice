@@ -368,13 +368,16 @@ class Element(metaclass=ElementParameterMetaClass):
 
         self._name = str(name)
         self._pins = list(pins) # Fixme: pins is not a ordered dict, cf. property
+        self.raw_spice = ''
 
         # self._parameters = list(args)
 
         for parameter, value in zip(self._parameters_from_args, args):
             setattr(self, parameter.attribute_name, value)
         for key, value in kwargs.items():
-            if key in self._positional_parameters or self._optional_parameters:
+            if key == 'raw_spice':
+                self.raw_spice = value
+            elif key in self._positional_parameters or self._optional_parameters:
                 setattr(self, key, value)
 
     ##############################################
@@ -451,7 +454,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     def __str__(self):
         """ Return the SPICE element definition. """
-        return join_list((self.format_node_names(), self.format_spice_parameters()))
+        return join_list((self.format_node_names(), self.format_spice_parameters(), self.raw_spice))
 
 ####################################################################################################
 
@@ -615,6 +618,7 @@ class Netlist:
         self._dirty = True
         # self._nodes = set()
         self._nodes = {}
+        self.raw_spice = ''
 
         # self._graph = networkx.Graph()
 
@@ -642,9 +646,33 @@ class Netlist:
 
         """ Return the formatted list of element and model definitions. """
 
-        netlist = join_lines(self.element_iterator()) + os.linesep
+        netlist = self._str_elements()
+        netlist += self._str_models()
+        netlist += self._str_raw_spice()
+        return netlist
+
+    ##############################################
+
+    def _str_elements(self):
+
+        return join_lines(self.element_iterator()) + os.linesep
+
+    ##############################################
+
+    def _str_models(self):
+
         if self._models:
-            netlist += join_lines(self.model_iterator()) + os.linesep
+            return join_lines(self.model_iterator()) + os.linesep
+        else:
+            return ''
+
+    ##############################################
+
+    def _str_raw_spice(self):
+
+        netlist = self.raw_spice
+        if netlist and not netlist.endswith(os.linesep):
+            netlist += os.linesep
         return netlist
 
     ##############################################

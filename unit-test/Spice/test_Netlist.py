@@ -86,7 +86,7 @@ class TestCircuit(TestNetlist):
 
     ##############################################
 
-    def test(self):
+    def test_basic(self):
 
         spice_declaration = """
 .title Voltage Divider
@@ -117,6 +117,24 @@ R2 out 0 1kOhm
         self.assertEqual(circuit.R1.minus.node, 'out')
 
         # .global .param .include .model
+
+    ##############################################
+
+    def test_raw_spice(self):
+
+        spice_declaration = """
+.title Voltage Divider
+Vinput in 0 10V
+R1 in out 9kOhm
+R2 out 0 1kOhm
+"""
+# .end
+
+        circuit = Circuit('Voltage Divider')
+        circuit.V('input', 'in', circuit.gnd, '10V')
+        circuit.R(1, 'in', 'out', raw_spice='9kOhm')
+        circuit.raw_spice += 'R2 out 0 1kOhm'
+        self._test_spice_declaration(circuit, spice_declaration)
 
 ####################################################################################################
 
