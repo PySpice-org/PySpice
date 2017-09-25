@@ -104,6 +104,9 @@
 
 |Pypi Version|
 
+* Quick Link to `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
+* Quick Link to `Level Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
+
 Overview
 ========
 
@@ -160,6 +163,14 @@ V1.2.0 (dev release)
    developed at Sandia National Laboratories.  Xyce will make PySpice suitable for industry a
    research use.
  * Fixed OSX support
+ * Implemented partially `A` XSPICE device
+ * Implemented missing transmission line devices
+ * Implemented high level current sources
+ * Implemented raw spice pass through (see `User FAQ </faq.html>`_)
+ * Implemented check for missing ground node
+ * Improved SPICE parser
+
+.. :ref:`user-faq-page`
 
 V1.1.0 (stable release)
 -----------------------
