@@ -881,20 +881,23 @@ class Circuit(Netlist):
 
         """Return the formatted desk."""
 
-        netlist = '.title {}'.format(self.title) + os.linesep
-        netlist += self._str_include(simulator)
-        if self._global_nodes:
-            netlist += '.global ' + join_list(self._global_nodes) + os.linesep
-        if self._parameters:
-            netlist += join_lines(self._parameters, prefix='.param ') + os.linesep
-        if self._subcircuits:
-            netlist += join_lines(self.subcircuit_iterator())
+        netlist = self._str_title()
+        netlist += self._str_includes(simulator)
+        netlist += self._str_globals()
+        netlist += self._str_parameters()
+        netlist += self._str_subcircuits()
         netlist += super().__str__()
         return netlist
 
     ##############################################
 
-    def _str_include(self, simulator=None):
+    def _str_title(self):
+
+        return '.title {}'.format(self.title) + os.linesep
+
+    ##############################################
+
+    def _str_includes(self, simulator=None):
 
         if self._includes:
             # ngspice don't like // in path, thus ensure we write real paths
@@ -908,6 +911,33 @@ class Circuit(Netlist):
                 real_paths.append(path)
 
             return join_lines(real_paths, prefix='.include ') + os.linesep
+        else:
+            return ''
+
+    ##############################################
+
+    def _str_globals(self):
+
+        if self._global_nodes:
+            return '.global ' + join_list(self._global_nodes) + os.linesep
+        else:
+            return ''
+
+    ##############################################
+
+    def _str_parameters(self):
+
+        if self._parameters:
+            return join_lines(self._parameters, prefix='.param ') + os.linesep
+        else:
+            return ''
+
+    ##############################################
+
+    def _str_subcircuits(self):
+
+        if self._subcircuits:
+            return join_lines(self.subcircuit_iterator())
         else:
             return ''
 
