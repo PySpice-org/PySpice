@@ -587,6 +587,12 @@ class Node:
 
     ##############################################
 
+    @property
+    def is_ground_node(self):
+        return self._name in ('0', 'gnd')
+
+    ##############################################
+
     def add_element(self, element):
         self._elements.add(element)
 
@@ -603,7 +609,7 @@ class Netlist:
 
     def __init__(self):
 
-        self._ground = None
+        self._ground = None # Fixme: gnd = 0
         self._elements = OrderedDict() # to keep the declaration order
         self._models = {}
         self._dirty = True
@@ -689,6 +695,16 @@ class Netlist:
                         node = self._nodes[node_name]
                     node.add_element(element)
         return list(self._nodes.values())
+
+
+    ##############################################
+
+    def has_ground_node(self):
+
+        for node in self.nodes:
+            if node.is_ground_node:
+                return True
+        return False
 
     ##############################################
 
@@ -809,14 +825,15 @@ class Circuit(Netlist):
 
     """
 
-    # .lib
-    # .func
-    # .csparam
+    # Fixme:
+    #   .lib
+    #   .func
+    #   .csparam
 
     ##############################################
 
     def __init__(self, title,
-                 ground=0,
+                 ground=0, # Fixme: gnd = 0
                  global_nodes=(),
              ):
 
@@ -880,6 +897,9 @@ class Circuit(Netlist):
     def str(self, simulator=None):
 
         """Return the formatted desk."""
+
+        if not self.has_ground_node():
+            raise NameError("Circuit don't have ground node")
 
         netlist = self._str_title()
         netlist += self._str_includes(simulator)
