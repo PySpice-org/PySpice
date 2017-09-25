@@ -377,7 +377,7 @@ class Element(metaclass=ElementParameterMetaClass):
         for key, value in kwargs.items():
             if key == 'raw_spice':
                 self.raw_spice = value
-            elif key in self._positional_parameters or self._optional_parameters:
+            elif key in self._positional_parameters or key in self._optional_parameters:
                 setattr(self, key, value)
 
     ##############################################
