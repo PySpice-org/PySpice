@@ -47,6 +47,11 @@ and maintained**.  To install the Ngspice shared library, you can use my `Ngspic
 
 The RPM sources are available on `Pagure.io <https://pagure.io/copr-ngspice>`_
 
+If you are not able to install the Ngspice shared library easily on your system, but you can install
+the Ngspice program, then you can use the "subprocess" mode in replacement of the "shared" mode.  In
+this case, you have to set globally the default simulator using the attribute
+:attr:`PySpice.Spice.Simulation.CircuitSimulator.DEFAULT_SIMULATOR` to `ngspice-subprocess`.
+
 Then you can install PySpice using *pip* or from source. See supra.
 
 On OSX
