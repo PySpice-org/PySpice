@@ -22,6 +22,31 @@ first one, is to use the ASCII alternative: :code:`u_kOhm` or :code:`u_uV.`.  Th
 define macros on your favourite editor.  The last one, is to customise your keyboard settings (If
 your on Linux look at https://www.x.org/wiki/XKB/).
 
+Is ground node required ?
+-------------------------
+
+**Yes**, according to Ngspice manual, each circuit has to have a ground node (gnd or 0)!
+
+How to pass raw spice command ?
+-------------------------------
+
+If the API don't yet implement a SPICE command, then you can pass raw SPICE commands using:
+
+.. code-block:: py3
+
+    circuit.raw_spice  = '...'
+    circuit.raw_spice += '...'
+
+and raw parameters using:
+
+.. code-block:: py3
+
+    r1 = circuit.R('1', 1, 0, raw_spice='...')
+    r1.raw_spice  = '...'
+    r1.raw_spice += '...'
+
+.. warning:: However the API must be aware of the nodes in order to retrieve data from the simulation output.
+
 How to set the Ngspice library path ?
 -------------------------------------
 
@@ -36,11 +61,6 @@ How to set the Ngspice path ?
 If the setting doesn't match your environment, then you have to set manually the attribute
 :attr:`PySpice.Spice.Server.SpiceServer.SPICE_COMMAND`. This value can be passed as argument as
 well, see API documentation.
-
-Is ground node required ?
--------------------------
-
-**Yes**, according to Ngspice manual, each circuit has to have a ground node (gnd or 0)!
 
 How to set the simulator ?
 --------------------------
