@@ -112,7 +112,6 @@ class UnitValueShorcut:
         return self._unit_power.new_value(other)
 
     ##############################################
-
     def __call__(self, other):
 
         """self(other)"""
@@ -195,11 +194,14 @@ def _build_unit_prefix_shortcut(unit, unit_prefix):
     name = 'u_' + str(unit_prefix) + unit.unit_suffix
     if unit.__class__ == _SiUnits.Hertz:
         value_ctor = FrequencyValue
+        values_ctor = None # Fixme:
     elif unit.__class__ == _SiUnits.Second:
         value_ctor = PeriodValue
+        values_ctor = None # Fixme:
     else:
         value_ctor = _Unit.UnitValue
-    unit_power = _Unit.UnitPower(unit, unit_prefix, value_ctor)
+        values_ctor = _Unit.UnitValues
+    unit_power = _Unit.UnitPower(unit, unit_prefix, value_ctor, values_ctor)
     _Unit.UnitPower.register(unit_power)
     shortcut = UnitValueShorcut(unit_power)
     define_shortcut(name, shortcut)

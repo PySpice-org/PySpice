@@ -35,6 +35,8 @@ import collections
 import math
 # import numbers
 
+import numpy as np
+
 ####################################################################################################
 
 _module_logger = logging.getLogger(__name__)
@@ -653,6 +655,7 @@ class UnitPower:
     __unit_power_map__ = {}
 
     __value_ctor__ = None
+    __values_ctor__ = None
 
     ##############################################
 
@@ -698,7 +701,7 @@ class UnitPower:
 
     ##############################################
 
-    def __init__(self, unit=None, power=None, value_ctor=None):
+    def __init__(self, unit=None, power=None, value_ctor=None, values_ctor=None):
 
         if unit is None:
             self._unit = Unit()
@@ -713,6 +716,11 @@ class UnitPower:
             self._value_ctor = self.__value_ctor__
         else:
             self._value_ctor = value_ctor
+
+        if values_ctor is None:
+            self._values_ctor = self.__values_ctor__
+        else:
+            self._values_ctor = values_ctor
 
     ##############################################
 
@@ -821,7 +829,9 @@ class UnitPower:
 
     def new_value(self, value):
 
-        if isinstance(value, collections.Iterable):
+        if isinstance(value, np.ndarray):
+            return self._values_ctor.from_ndarray(value, self)
+        elif isinstance(value, collections.Iterable):
             return [self._value_ctor(self, x) for x in value]
         else:
             return self._value_ctor(self, value)
@@ -1422,6 +1432,347 @@ class UnitValue: # numbers.Real
 
 ####################################################################################################
 
+class UnitValues(np.ndarray):
+
+    """This class implements a Numpy array with an unit and a power (prefix).
+
+    """
+
+    _logger = _module_logger.getChild('UnitValues')
+
+    # https://docs.scipy.org/doc/numpy-1.13.0/reference/arrays.ndarray.html
+
+    ##############################################
+
+    @classmethod
+    def from_ndarray(cls, array, unit_power):
+
+        obj = array.view(UnitValues)
+        obj._unit_power = unit_power
+        return obj
+
+    ##############################################
+
+    def __new__(cls,
+                unit_power,
+                shape, dtype=float, buffer=None, offset=0, strides=None, order=None):
+
+        # Called for explicit constructor
+        #  obj = UnitValues(unit_power, shape)
+
+        # cls._logger.info(str((cls, unit_power, shape, dtype, buffer, offset, strides, order)))
+
+        obj = super(UnitValues, cls).__new__(cls, shape, dtype, buffer, offset, strides, order)
+        # obj = np.asarray(input_array).view(cls)
+
+        obj._unit_power = unit_power
+
+        return obj
+
+    ##############################################
+
+    def __array_finalize__(self, obj):
+
+        # self._logger.info('\n  {}'.format(obj))
+
+        # self is a new object resulting from ndarray.__new__(UnitValues, ...)
+        # therefore it only has attributes that the ndarray.__new__ constructor gave it
+        # i.e. those of a standard ndarray.
+
+        # We could have got to the ndarray.__new__ call in 3 ways:
+
+        # From an explicit constructor - e.g. UnitValues():
+        #    obj is None
+        #    we are in the middle of the UnitValues.__new__ constructor
+
+        if obj is None:
+            return
+
+        # From view casting - e.g arr.view(UnitValues):
+        #    obj is arr
+        #    type(obj) can be UnitValues
+
+        # From new-from-template - e.g infoarr[:3]
+        #    type(obj) is UnitValues
+
+        self._unit_power = getattr(obj, '_unit_power', None) # Fixme: None
+
+    ##############################################
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+
+        # https://docs.scipy.org/doc/numpy-1.13.0/reference/ufuncs.html
+
+        # - "ufunc" is the ufunc object that was called
+        # - "method" is a string indicating how the ufunc was called, either
+        #       "__call__" to indicate it was called directly,
+        #       or one of its "ufuncs.methods": "reduce", "accumulate",  "reduceat", "outer", or "at".
+        # - "inputs" is a tuple of the input arguments to the ufunc
+        # - "kwargs" contains any optional or keyword arguments passed to the function.
+        #    This includes any *out* arguments, which are always contained in a tuple.
+
+        # ufunc.reduce(a[, axis, dtype, out, keepdims])     Reduces a‘s dimension by one, by applying ufunc along one axis.
+        # ufunc.accumulate(array[, axis, dtype, out, ...])  Accumulate the result of applying the operator to all elements.
+        # ufunc.reduceat(a, indices[, axis, dtype, out])    Performs a (local) reduce with specified slices over a single axis.
+        # ufunc.outer(A, B, **kwargs)                       Apply the ufunc op to all pairs (a, b) with a in A and b in B.
+        # ufunc.at(a, indices[, b])                         Performs unbuffered in place operation on operand ‘a’ for elements specified by ‘indices’.
+
+        self._logger.info(
+            '\n  self={}\n  ufunc={}\n  method={}\n  inputs={}\n  kwargs={}'
+            .format(self, ufunc, method, inputs, kwargs))
+
+        # ufunc=<ufunc 'multiply'>
+        # method=__call__
+        # inputs=(UnitValues(mV, [0 1 2 3 4 5 6 7 8 9]), 2)
+
+        # ufunc=<ufunc 'sin'>
+        # method=__call__
+        # inputs=(UnitValues(mV, [0 1 2 3 4 5 6 7 8 9]),)
+        # kwargs={}
+
+        # ufunc=<ufunc 'add'>
+        # method=__call__
+        # inputs=(UnitValues(mV, [0 1 2 3 4 5 6 7 8 9]), UnitValues(mV, [0 1 2 3 4 5 6 7 8 9]))
+
+        unit_power = self._unit_power
+
+        # Cast inputs to ndarray
+        args = []
+        if ufunc in (np.add, np.subtract):
+            args.append(self.as_ndarray())
+            other = inputs[1]
+            if isinstance(other, UnitValues):
+                self._check_unit(other)
+                args.append(self._convert_value(other).as_ndarray())
+            else:
+                raise ValueError
+        elif ufunc == np.multiply:
+            other = inputs[1]
+            if isinstance(other, UnitValues):
+                equivalent_unit = self.unit.mul(other.unit, True)
+                unit_power = UnitPower.from_unit_power(equivalent_unit)
+                args.append(self.as_ndarray(True))
+                args.append(other.as_ndarray(True))
+            else:
+                args.append(self.as_ndarray())
+                args.append(other)
+        elif ufunc in (np.divide, np.true_divide, np.floor_divide):
+            other = inputs[1]
+            if isinstance(other, UnitValues):
+                unit_power = self.unit.div(other.unit, True)
+                args.append(self.as_ndarray(True))
+                args.append(other.as_ndarray(True))
+            elif isinstance(other, UnitValue):
+                unit_power = self.unit.div(other.unit, True)
+                args.append(self.as_ndarray(True))
+                args.append(float(other))
+            else:
+                args.append(self.as_ndarray())
+                args.append(other)
+        else:
+            for input_ in inputs:
+                if isinstance(input_, UnitValues):
+                    args.append(input_.as_ndarray())
+                else:
+                    args.append(input_)
+
+        # Cast outputs to ndarray
+        outputs = kwargs.pop('out', None)
+        if outputs:
+            out_args = []
+            for output in outputs:
+                if isinstance(output, UnitValues):
+                    out_args.append(output.as_ndarray())
+                else:
+                    out_args.append(output)
+            kwargs['out'] = tuple(out_args)
+        else:
+            outputs = (None,) * ufunc.nout
+
+        # Call ufunc
+        print((ufunc, method, args, kwargs))
+        results = super(UnitValues, self).__array_ufunc__(ufunc, method, *args, **kwargs)
+        if results is NotImplemented:
+            return NotImplemented
+
+        # ensure results is a tuple
+        if ufunc.nout == 1:
+            results = (results,)
+
+        # Cast results
+        results = tuple((UnitValues.from_ndarray(np.asarray(result), unit_power) if output is None else output)
+                        for result, output in zip(results, outputs))
+
+        # list or scalar
+        return results[0] if len(results) == 1 else results
+
+    ##############################################
+
+#   def __array_wrap__(self, out_array, context=None):
+#
+#       self._logger.info('\n  self={}\n  out_array={}\n  context={}'.format(self, out_array, context))
+#
+#       return super(UnitValues, self).__array_wrap__(out_array, context)
+
+    ##############################################
+
+    def as_ndarray(self, scale=False):
+
+        array = self.view(np.ndarray)
+        if scale:
+            return array * self.scale
+        else:
+            return array
+
+    ##############################################
+
+    def __getitem__(self, _slice):
+
+        value = super(UnitValues, self).__getitem__(_slice)
+
+        if isinstance(value, UnitValue):
+            return value
+        else:
+            return self._unit_power.new_value(value)
+
+    ##############################################
+
+    def __setitem__(self, _slice, value):
+
+        if isinstance(value, UnitValue):
+            self._check_unit(value)
+            value = self._convert_value(value).value
+        elif isinstance(value, UnitValues):
+            self._check_unit(value)
+            value = self._convert_value(value)
+
+        super(UnitValues, self).__setitem__(_slice, value)
+
+    ##############################################
+
+    def __contains__(self, value):
+
+        raise NotImplementedError
+
+    ##############################################
+
+    def __repr__(self):
+
+        # return repr(self.as_ndarray())
+        return '{}({})'.format(self.__class__.__name__, str(self))
+
+    ##############################################
+
+    @property
+    def unit_power(self):
+        return self._unit_power
+
+    @property
+    def unit(self):
+        return self._unit_power.unit
+
+    @property
+    def power(self):
+        return self._unit_power.power
+
+    @property
+    def scale(self):
+        return self._unit_power.power.scale
+
+    ##############################################
+
+    def is_same_unit(self, other):
+
+        return self._unit_power.is_same_unit(other.unit_power)
+
+    ##############################################
+
+    def _check_unit(self, other):
+
+        if not self.is_same_unit(other):
+            raise UnitError
+
+    ##############################################
+
+    def is_same_power(self, other):
+
+        return self._unit_power.is_same_power(other.unit_power)
+
+    ##############################################
+
+    def __eq__(self, other):
+
+        """self == other"""
+
+        if isinstance(other, UnitValues):
+            return self.is_same_unit(other) and self.as_ndarray() == other.as_ndarray()
+        else:
+            raise ValueError
+
+    ##############################################
+
+    def _convert_value(self, other):
+
+        """Convert the value of other to the power of self."""
+
+        self._check_unit(other)
+        if self.is_same_power(other):
+            return other
+        else:
+            return other * (other.scale / self.scale) # for numerical precision
+
+    ##############################################
+
+    def __str__(self):
+
+        return str(self.as_ndarray()) + '@' + str(self._unit_power)
+
+    ##############################################
+
+    def inverse(self):
+
+        equivalent_unit = self.unit.inverse(unit_power=True)
+        inverse_value = 1. / np.as_ndarray(True)
+
+        return self.from_ndarray(inverse_value, equivalent_unit)
+
+    ##############################################
+
+    def get_unit_power(self, power=0):
+
+        unit_power = UnitPower.from_unit_power(self.unit, power)
+        if unit_power is not None:
+            return unit_power
+        else:
+            raise NameError("Unit power not found for {} and power {}".format(self, power))
+
+    ##############################################
+
+    def convert(self, unit_power):
+
+        """Convert the value to another power."""
+
+        self._unit_power.check_unit(unit_power)
+        if self._unit_power.is_same_power(unit_power):
+            return self
+        else:
+            value = self.as_ndarray(True) / unit_power.scale
+            return unit_power.new_value(value)
+
+    ##############################################
+
+    def convert_to_power(self, power=0):
+
+        """Convert the value to another power."""
+
+        value = self.as_ndarray(True)
+        if power != 0:
+            value /= 10**power
+
+        return self.get_unit_power(power).new_value(value)
+
+####################################################################################################
+
 # Reset
 UnitPower.__value_ctor__ = UnitValue
 
@@ -1445,6 +1796,7 @@ class FrequencyMixin:
     @property
     def pulsation(self):
         r""" Return the pulsation :math:`\omega = 2\pi f`. """
+        # Fixme: UnitValues
         return float(self * 2 * math.pi)
 
 ####################################################################################################
