@@ -88,7 +88,7 @@ dynamic_resistance = ((quiescent_points[ 0]['quiescent_voltage'] -
 
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
-circuit.Sinusoidal('input', 'in', circuit.gnd,
+circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd,
                    dc_offset=dc_offset, offset=dc_offset,
                    amplitude=ac_amplitude)
 R = circuit.R(1, 'in', 'out', 1@u_kΩ)
@@ -127,11 +127,11 @@ frequency = 1@u_MHz
 
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
-# source = circuit.Sinusoidal('input', 'in', circuit.gnd,
+# source = circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd,
 #                             dc_offset=dc_offset, offset=dc_offset,
 #                             amplitude=ac_amplitude,
 #                             frequency=frequency)
-source = circuit.Pulse('input', 'in', circuit.gnd,
+source = circuit.PulseVoltageSource('input', 'in', circuit.gnd,
                        initial_value=dc_offset-ac_amplitude, pulsed_value=dc_offset+ac_amplitude,
                        pulse_width=frequency.period/2, period=frequency.period)
 circuit.R(1, 'in', 'out', 1@u_kΩ)

@@ -30,7 +30,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 circuit = Circuit('Voltage Multiplier')
 circuit.include(spice_library['1N4148'])
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10@u_V, frequency=50@u_Hz)
+source = circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=10@u_V, frequency=50@u_Hz)
 
 multiplier = 5
 for i in range(multiplier):

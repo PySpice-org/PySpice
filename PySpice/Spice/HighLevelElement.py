@@ -22,20 +22,18 @@
 
 """ This module implements high level elements built on top of Spice elements. """
 
-# Fixme: these waveforms can be current sources as well
-
 ####################################################################################################
 
 from ..Math import rms_to_amplitude, amplitude_to_rms
 from ..Tools.StringTools import join_list, join_dict, str_spice
 from ..Unit import as_s, as_V, as_A, as_Hz
-from .BasicElement import VoltageSource
+from .BasicElement import VoltageSource, CurrentSource
 
 ####################################################################################################
 
-class Sinusoidal(VoltageSource):
+class SinusoidalMixin:
 
-    r""" This class implements a sinusoidal waveform.
+    """This class implements a sinusoidal waveform.
 
     +------+----------------+---------------+-------+
     | Name + Parameter      + Default Value + Units |
@@ -82,12 +80,10 @@ class Sinusoidal(VoltageSource):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus,
+    def __init__(self,
                  dc_offset=0,
                  offset=0, amplitude=1, frequency=50,
                  delay=0, damping_factor=0):
-
-        super().__init__(name, node_plus, node_minus)
 
         self.dc_offset = as_V(dc_offset)
         self.offset = as_V(offset)
@@ -120,19 +116,7 @@ class Sinusoidal(VoltageSource):
 
 ####################################################################################################
 
-class AcLine(Sinusoidal):
-
-    ##############################################
-
-    def __init__(self, name, node_plus, node_minus, rms_voltage=230, frequency=50):
-
-        super().__init__(name, node_plus, node_minus,
-                         amplitude=rms_to_amplitude(rms_voltage),
-                         frequency=frequency)
-
-####################################################################################################
-
-class Pulse(VoltageSource):
+class PulseMixin:
 
     """This class implements a pulse waveform.
 
@@ -155,10 +139,14 @@ class Pulse(VoltageSource):
     +--------+---------------+---------------+-------+
     | Period + period        + Tstop         + sec   |
     +--------+---------------+---------------+-------+
+    | Phase  + phase         + 0.0           + sec   |
+    +--------+---------------+---------------+-------+
+
+    Phase is only possible when XSPICE is enabled
 
     Spice Syntax::
 
-        PULSE ( V1 V2 Td Tr Tf Pw Period )
+        PULSE ( V1 V2 Td Tr Tf Pw Period Phase )
 
     A single pulse so specified is described by the following table:
 
@@ -191,6 +179,8 @@ class Pulse(VoltageSource):
 
       :attr:`period`
 
+      :attr:`phase`
+
       :attr:`pulse_width`
 
       :attr:`pulsed_value`
@@ -201,16 +191,15 @@ class Pulse(VoltageSource):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus,
+    def __init__(self,
                  initial_value, pulsed_value,
                  pulse_width, period,
-                 delay_time=0, rise_time=0, fall_time=0):
+                 delay_time=0, rise_time=0, fall_time=0,
+                 phase=None):
 
         # Fixme: default
         #  rise_time, fall_time = Tstep
         #  pulse_width, period = Tstop
-
-        super().__init__(name, node_plus, node_minus)
 
         self.initial_value = as_V(initial_value)
         self.pulsed_value = as_V(pulsed_value)
@@ -219,6 +208,12 @@ class Pulse(VoltageSource):
         self.fall_time = as_s(fall_time)
         self.pulse_width = as_s(pulse_width)
         self.period = as_s(period) # Fixme: protect by setter?
+
+        # XSPICE
+        if phase is not None:
+            self.phase = as_s(phase)
+        else:
+            self.phase = None
 
         # # Fixme: to func?
         # # Check parameters
@@ -244,12 +239,13 @@ class Pulse(VoltageSource):
         # Fixme: to func?
         return ('PULSE(' +
                 join_list((self.initial_value, self.pulsed_value, self.delay_time,
-                           self.rise_time, self.fall_time, self.pulse_width, self.period)) +
+                           self.rise_time, self.fall_time, self.pulse_width, self.period,
+                           self.phase)) +
                 ')')
 
 ####################################################################################################
 
-class Exponential(VoltageSource):
+class ExponentialMixin:
 
     r"""This class implements a Exponential waveform.
 
@@ -293,15 +289,12 @@ class Exponential(VoltageSource):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus,
+    def __init__(self,
                  initial_value, pulsed_value,
                  rise_delay_time=.0, rise_time_constant=None,
-                 fall_delay_time=None, fall_time_constant=None,
-             ):
+                 fall_delay_time=None, fall_time_constant=None):
 
         # Fixme: default
-
-        super().__init__(name, node_plus, node_minus)
 
         self.initial_value = as_V(initial_value)
         self.pulsed_value = as_V(pulsed_value)
@@ -324,7 +317,7 @@ class Exponential(VoltageSource):
 
 ####################################################################################################
 
-class PieceWiseLinear(VoltageSource):
+class PieceWiseLinearMixin:
 
     r"""This class implements a Piece-Wise Linear waveform.
 
@@ -346,14 +339,9 @@ class PieceWiseLinear(VoltageSource):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus,
-                 values,
-                 repeate_time=0, delay_time=.0,
-             ):
+    def __init__(self, values, repeate_time=0, delay_time=.0):
 
         # Fixme: default
-
-        super().__init__(name, node_plus, node_minus)
 
         self.values = [as_V(x) for x in values]
         self.repeate_time = as_s(repeate_time)
@@ -371,7 +359,7 @@ class PieceWiseLinear(VoltageSource):
 
 ####################################################################################################
 
-class SingleFrequencyFM(VoltageSource):
+class SingleFrequencyFMMixin:
 
     r"""This class implements a Single-Frequency FM waveform.
 
@@ -403,10 +391,7 @@ class SingleFrequencyFM(VoltageSource):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus,
-                 offset, amplitude, carrier_frequency, modulation_index, signal_frequency):
-
-        super().__init__(name, node_plus, node_minus)
+    def __init__(self, offset, amplitude, carrier_frequency, modulation_index, signal_frequency):
 
         self.offset = as_V(offset)
         self.amplitude = as_V(amplitude)
@@ -426,7 +411,7 @@ class SingleFrequencyFM(VoltageSource):
 
 ####################################################################################################
 
-class AmplitudeModulated(VoltageSource):
+class AmplitudeModulatedMixin:
 
     r"""This class implements a Amplitude Modulated source.
 
@@ -458,12 +443,9 @@ class AmplitudeModulated(VoltageSource):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus,
-                 offset, amplitude, modulating_frequency, carrier_frequency, signal_delay):
+    def __init__(self, offset, amplitude, modulating_frequency, carrier_frequency, signal_delay):
 
         # Fixme: default
-
-        super().__init__(name, node_plus, node_minus)
 
         self.offset = as_V(offset)
         self.amplitude = as_V(amplitude)
@@ -483,7 +465,7 @@ class AmplitudeModulated(VoltageSource):
 
 ####################################################################################################
 
-class RandomVoltage(VoltageSource):
+class RandomMixin:
 
     r"""This class implements a Random Voltage source.
 
@@ -519,12 +501,9 @@ class RandomVoltage(VoltageSource):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus,
-                 random_type, duration=0, time_delay=0, parameter1=1, parameter2=0):
+    def __init__(self, random_type, duration=0, time_delay=0, parameter1=1, parameter2=0):
 
         # Fixme: random_type and parameters
-
-        super().__init__(name, node_plus, node_minus)
 
         self.random_type = random_type
         self.duration = as_s(duration)
@@ -552,3 +531,309 @@ class RandomVoltage(VoltageSource):
                 join_list((random_type, self.duration, self.time_delay,
                            self.parameter1, self.parameter2)) +
                 ')')
+
+####################################################################################################
+
+class SinusoidalVoltageSource(VoltageSource, SinusoidalMixin):
+
+    r"""This class implements a sinusoidal waveform voltage source.
+
+    See :class:`SinusoidalMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        VoltageSource.__init__(self, name, node_plus, node_minus)
+        SinusoidalMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = SinusoidalMixin.format_spice_parameters
+
+####################################################################################################
+
+class SinusoidalCurrentSource(CurrentSource, SinusoidalMixin):
+
+    r"""This class implements a sinusoidal waveform current source.
+
+    See :class:`SinusoidalMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        CurrentSource.__init__(self, name, node_plus, node_minus)
+        SinusoidalMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = SinusoidalMixin.format_spice_parameters
+
+####################################################################################################
+
+class AcLine(SinusoidalVoltageSource):
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, rms_voltage=230, frequency=50):
+
+        super().__init__(name, node_plus, node_minus,
+                         amplitude=rms_to_amplitude(rms_voltage),
+                         frequency=frequency)
+
+####################################################################################################
+
+class PulseVoltageSource(VoltageSource, PulseMixin):
+
+    r"""This class implements a pulse waveform voltage source.
+
+    See :class:`PulseMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        VoltageSource.__init__(self, name, node_plus, node_minus)
+        PulseMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = PulseMixin.format_spice_parameters
+
+####################################################################################################
+
+class PulseCurrentSource(CurrentSource, PulseMixin):
+
+    r"""This class implements a pulse waveform current source.
+
+    See :class:`PulseMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        CurrentSource.__init__(self, name, node_plus, node_minus)
+        PulseMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = PulseMixin.format_spice_parameters
+
+####################################################################################################
+
+class ExponentialVoltageSource(VoltageSource, ExponentialMixin):
+
+    r"""This class implements a exponential waveform voltage source.
+
+    See :class:`ExponentialMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        VoltageSource.__init__(self, name, node_plus, node_minus)
+        ExponentialMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = ExponentialMixin.format_spice_parameters
+
+####################################################################################################
+
+class ExponentialCurrentSource(CurrentSource, ExponentialMixin):
+
+    r"""This class implements a exponential waveform current source.
+
+    See :class:`ExponentialMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        CurrentSource.__init__(self, name, node_plus, node_minus)
+        ExponentialMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = ExponentialMixin.format_spice_parameters
+
+####################################################################################################
+
+class PieceWiseLinearVoltageSource(VoltageSource, PieceWiseLinearMixin):
+
+    r"""This class implements a piece wise linear waveform voltage source.
+
+    See :class:`PieceWiseLinearMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        VoltageSource.__init__(self, name, node_plus, node_minus)
+        PieceWiseLinearMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = PieceWiseLinearMixin.format_spice_parameters
+
+####################################################################################################
+
+class PieceWiseLinearCurrentSource(CurrentSource, PieceWiseLinearMixin):
+
+    r"""This class implements a piece wise linear waveform current source.
+
+    See :class:`PieceWiseLinearMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        CurrentSource.__init__(self, name, node_plus, node_minus)
+        PieceWiseLinearMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = PieceWiseLinearMixin.format_spice_parameters
+
+####################################################################################################
+
+class SingleFrequencyFMVoltageSource(VoltageSource, SingleFrequencyFMMixin):
+
+    r"""This class implements a single frequency FM waveform voltage source.
+
+    See :class:`SingleFrequencyFMMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        VoltageSource.__init__(self, name, node_plus, node_minus)
+        SingleFrequencyFMMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = SingleFrequencyFMMixin.format_spice_parameters
+
+####################################################################################################
+
+class SingleFrequencyFMCurrentSource(CurrentSource, SingleFrequencyFMMixin):
+
+    r"""This class implements a single frequency FM waveform current source.
+
+    See :class:`SingleFrequencyFMMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        CurrentSource.__init__(self, name, node_plus, node_minus)
+        SingleFrequencyFMMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = SingleFrequencyFMMixin.format_spice_parameters
+
+####################################################################################################
+
+class AmplitudeModulatedVoltageSource(VoltageSource, AmplitudeModulatedMixin):
+
+    r"""This class implements a amplitude modulated waveform voltage source.
+
+    See :class:`AmplitudeModulatedMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        VoltageSource.__init__(self, name, node_plus, node_minus)
+        AmplitudeModulatedMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = AmplitudeModulatedMixin.format_spice_parameters
+
+####################################################################################################
+
+class AmplitudeModulatedCurrentSource(CurrentSource, AmplitudeModulatedMixin):
+
+    r"""This class implements a amplitude modulated waveform current source.
+
+    See :class:`AmplitudeModulatedMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        CurrentSource.__init__(self, name, node_plus, node_minus)
+        AmplitudeModulatedMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = AmplitudeModulatedMixin.format_spice_parameters
+
+####################################################################################################
+
+class RandomVoltageVoltageSource(VoltageSource, RandomMixin):
+
+    r"""This class implements a random waveform voltage source.
+
+    See :class:`RandomMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        VoltageSource.__init__(self, name, node_plus, node_minus)
+        RandomMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = RandomMixin.format_spice_parameters
+
+####################################################################################################
+
+class RandomCurrentSource(CurrentSource, RandomMixin):
+
+    r"""This class implements a random waveform current source.
+
+    See :class:`RandomMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+
+        CurrentSource.__init__(self, name, node_plus, node_minus)
+        RandomMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = RandomMixin.format_spice_parameters

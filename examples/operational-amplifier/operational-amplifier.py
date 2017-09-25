@@ -23,7 +23,7 @@ from OperationalAmplifier import BasicOperationalAmplifier
 circuit = Circuit('Operational Amplifier')
 
 # AC 1 PWL(0US 0V  0.01US 1V)
-circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=1@u_V)
+circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=1@u_V)
 circuit.subcircuit(BasicOperationalAmplifier())
 circuit.X('op', 'BasicOperationalAmplifier', 'in', circuit.gnd, 'out')
 circuit.R('load', 'out', circuit.gnd, 470@u_Ω)

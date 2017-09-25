@@ -20,7 +20,7 @@ from PySpice.Unit import *
 #!# We will drive the transmission line with a pulse source and use a standard 50 Ω load.
 
 circuit = Circuit('Transmission Line')
-circuit.Pulse('pulse', 'input', circuit.gnd, 0@u_V, 1@u_V, 1@u_ns, 1@u_us)
+circuit.PulseVoltageSource('pulse', 'input', circuit.gnd, 0@u_V, 1@u_V, 1@u_ns, 1@u_us)
 circuit.TransmissionLine('delay', 'input', circuit.gnd, 'output',
                          circuit.gnd, impedance=50, time_delay=40e-9)
 circuit.R('load', 'output', circuit.gnd, 50@u_Ω)

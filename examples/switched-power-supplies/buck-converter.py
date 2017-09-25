@@ -83,14 +83,14 @@ circuit.C('in', 'in', circuit.gnd, Cin)
 
 # Fixme: out drop from 12V to 4V
 # circuit.VCS('switch', 'gate', circuit.gnd, 'in', 'source', model='Switch', initial_state='off')
-# circuit.Pulse('pulse', 'gate', circuit.gnd, 0@u_V, Vin, duty_cycle, period)
+# circuit.PulseVoltageSource('pulse', 'gate', circuit.gnd, 0@u_V, Vin, duty_cycle, period)
 # circuit.model('Switch', 'SW', ron=1@u_mΩ, roff=10@u_MΩ)
 
 # Fixme: Vgate => Vout ???
 circuit.X('Q', 'irf150', 'in', 'gate', 'source')
-# circuit.Pulse('pulse', 'gate', 'source', 0@u_V, Vin, duty_cycle, period)
+# circuit.PulseVoltageSource('pulse', 'gate', 'source', 0@u_V, Vin, duty_cycle, period)
 circuit.R('gate', 'gate', 'clock', 1@u_Ω)
-circuit.Pulse('pulse', 'clock', circuit.gnd, 0@u_V, 2.*Vin, duty_cycle, period)
+circuit.PulseVoltageSource('pulse', 'clock', circuit.gnd, 0@u_V, 2.*Vin, duty_cycle, period)
 
 circuit.X('D', '1N5822', circuit.gnd, 'source')
 circuit.L(1, 'source', 1, L)

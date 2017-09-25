@@ -37,8 +37,8 @@ from RingModulator import RingModulator
 
 circuit = Circuit('Ring Modulator')
 
-modulator = circuit.Sinusoidal('modulator', 'in', circuit.gnd, amplitude=1@u_V, frequency=1@u_kHz)
-carrier = circuit.Sinusoidal('carrier', 'carrier', circuit.gnd, amplitude=10@u_V, frequency=100@u_kHz)
+modulator = circuit.SinusoidalVoltageSource('modulator', 'in', circuit.gnd, amplitude=1@u_V, frequency=1@u_kHz)
+carrier = circuit.SinusoidalVoltageSource('carrier', 'carrier', circuit.gnd, amplitude=10@u_V, frequency=100@u_kHz)
 circuit.R('in', 'in', 1, 50@u_Ω)
 circuit.R('carrier', 'carrier', 2, 50@u_Ω)
 

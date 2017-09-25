@@ -38,7 +38,7 @@ pulse_width = period / 2
 circuit = Circuit('Relay')
 
 # circuit.V('digital', 'Vdigital', circuit.gnd, 5@u_V)
-circuit.Pulse('clock', 'clock', circuit.gnd, 0@u_V, 5@u_V, pulse_width, period, rise_time=5@u_ms, fall_time=5@u_ms)
+circuit.PulseVoltageSource('clock', 'clock', circuit.gnd, 0@u_V, 5@u_V, pulse_width, period, rise_time=5@u_ms, fall_time=5@u_ms)
 circuit.R('base', 'clock', 'base', 100@u_Ω)
 circuit.BJT(1, 'collector', 'base', circuit.gnd, 'bjt') # Q is mapped to BJT !
 circuit.model('bjt', 'npn', bf=80, cjc=pico(5), rb=100)

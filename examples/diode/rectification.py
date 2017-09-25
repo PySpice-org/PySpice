@@ -31,7 +31,7 @@ figure1 = plt.figure(1, (20, 10))
 
 circuit = Circuit('half-wave rectification')
 circuit.include(spice_library['1N4148'])
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10@u_V, frequency=50@u_Hz)
+source = circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=10@u_V, frequency=50@u_Hz)
 circuit.X('D1', '1N4148', 'in', 'output')
 circuit.R('load', 'output', circuit.gnd, 100@u_Ω)
 
@@ -71,7 +71,7 @@ plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 circuit = Circuit('half-wave rectification')
 circuit.include(spice_library['1N4148'])
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10, frequency=50)
+source = circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=10, frequency=50)
 circuit.X('D1', '1N4148', 'in', 'output_plus')
 circuit.R('load', 'output_plus', 'output_minus', 100@u_Ω)
 circuit.X('D2', '1N4148', 'output_minus', circuit.gnd)
@@ -126,7 +126,7 @@ else:
     node_230 = 'node_230'
     node_115 = circuit.gnd
     amplitude = 230@u_V
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=amplitude, frequency=50) # Fixme: rms
+source = circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=amplitude, frequency=50) # Fixme: rms
 circuit.X('D1', '1N4148', 'in', 'output_plus')
 circuit.X('D3', '1N4148', node_230, 'output_plus')
 circuit.X('D2', '1N4148', 'output_minus', node_230)
