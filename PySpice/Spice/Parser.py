@@ -552,29 +552,9 @@ class Line:
 
     def __init__(self, line, line_range, end_of_line_comment):
 
-        line = str(line)
+        self._end_of_line_comment = end_of_line_comment
 
-        if line.startswith('*'):
-            self._is_comment = True
-            text = ''
-            comment = line[1:].strip()
-        else:
-            self._is_comment = False
-            # remove end of line comment
-            location = -1
-            for marker in end_of_line_comment:
-                _location = line.find(marker)
-                if _location != -1:
-                    if location == -1:
-                        location = _location
-                    else:
-                        location = min(_location, location)
-            if location != -1:
-                text = line[:location].strip()
-                comment = line[location:].strip()
-            else:
-                text = line
-                comment = ''
+        text, comment, self._is_comment = self._split_comment(line)
 
         self._text = text
         self._comment = comment
@@ -600,6 +580,50 @@ class Line:
     def is_comment(self):
 
         return self._is_comment
+
+    ##############################################
+
+    def _split_comment(self, line):
+
+        line = str(line)
+
+        if line.startswith('*'):
+            is_comment = True
+            text = ''
+            comment = line[1:].strip()
+        else:
+            is_comment = False
+            # remove end of line comment
+            location = -1
+            for marker in self._end_of_line_comment:
+                _location = line.find(marker)
+                if _location != -1:
+                    if location == -1:
+                        location = _location
+                    else:
+                        location = min(_location, location)
+            if location != -1:
+                text = line[:location].strip()
+                comment = line[location:].strip()
+            else:
+                text = line
+                comment = ''
+
+        return text, comment, is_comment
+
+    ##############################################
+
+    def append(self, line):
+
+        text, comment, is_comment = self._split_comment(line)
+
+        if text:
+            self._text += text
+        if comment:
+            self._comment += ' // ' + comment
+
+        _slice = self._line_range
+        self._line_range = slice(_slice.start, _slice.stop + 1)
 
     ##############################################
 
@@ -794,25 +818,17 @@ class SpiceParser:
         A line starting with "+" continues the preceding line.
         """
 
-        # Fixme: better using lines[-1] ?
         lines = []
-        current_line = ''
-        current_line_index = None
+        current_line = None
         for line_index, line in enumerate(raw_lines):
-            line = line.strip()
-            if not line:
-                continue
-            elif line.startswith('+'):
-                current_line += ' ' + line[1:].strip()
+            if line.startswith('+'):
+                current_line.append(line[1:])
             else:
-                if current_line:
-                    _slice = slice(current_line_index, line_index)
-                    lines.append(Line(current_line, _slice, self._end_of_line_comment))
-                current_line = line.strip()
-                current_line_index = line_index
-        if current_line:
-            _slice = slice(current_line_index, len(raw_lines))
-            lines.append(Line(current_line, _slice, self._end_of_line_comment))
+                line = line.strip()
+                if line:
+                    _slice = slice(line_index, line_index +1)
+                    current_line = Line(line, _slice, self._end_of_line_comment)
+                    lines.append(current_line)
 
         return lines
 
@@ -838,8 +854,8 @@ class SpiceParser:
         sub_circuit = None
         scope = statements
         for line in lines[1:]:
+            print('>', repr(line))
             text = str(line)
-            # print('>', repr(line))
             lower_case_text = text.lower() # !
             if line.is_comment:
                 scope.append(Comment(line))
