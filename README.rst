@@ -169,6 +169,7 @@ V1.2.0 (dev release)
  * Implemented raw spice pass through (see `User FAQ </faq.html>`_)
  * Implemented check for missing ground node
  * Improved SPICE parser
+ * Added Numpy array support to unit
 
 .. :ref:`user-faq-page`
 
