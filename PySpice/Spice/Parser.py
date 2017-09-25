@@ -854,7 +854,7 @@ class SpiceParser:
         sub_circuit = None
         scope = statements
         for line in lines[1:]:
-            print('>', repr(line))
+            # print('>', repr(line))
             text = str(line)
             lower_case_text = text.lower() # !
             if line.is_comment:
