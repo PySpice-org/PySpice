@@ -22,6 +22,11 @@ first one, is to use the ASCII alternative: :code:`u_kOhm` or :code:`u_uV.`.  Th
 define macros on your favourite editor.  The last one, is to customise your keyboard settings (If
 your on Linux look at https://www.x.org/wiki/XKB/).
 
+Is unit API well tested ?
+-------------------------
+
+**Unit API is an ongoing work.  You must use it with caution since it can be buggy or incomplete.**
+
 Is ground node required ?
 -------------------------
 
