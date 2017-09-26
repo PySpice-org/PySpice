@@ -279,10 +279,12 @@ class Model(Statement):
         kwarg_start = text.find('(')
         kwarg_stop = text.find(')')
         if kwarg_start == -1 or kwarg_stop == -1:
-            raise ParseError("Bar model")
-
-        self._name, self._model_type = text[:kwarg_start].split()
-        self._parameters = Line.get_kwarg(text[kwarg_start+1:kwarg_stop])
+            # raise ParseError("Bad model: {}".format(line))
+            parts, self._parameters = line.split_line('.model')
+            self._name, self._model_type = parts
+        else:
+            self._name, self._model_type = text[:kwarg_start].split()
+            self._parameters = Line.get_kwarg(text[kwarg_start+1:kwarg_stop])
 
     ##############################################
 
@@ -618,6 +620,8 @@ class Line:
         text, comment, is_comment = self._split_comment(line)
 
         if text:
+            if not self._text.endswith(' ') or text.startswith(' '):
+                self._text += ' '
             self._text += text
         if comment:
             self._comment += ' // ' + comment
@@ -712,9 +716,12 @@ class Line:
 
         parts = []
         for part in text.split():
-            if '=' in part:
+            if '=' in part and part != '=':
                 left, right = [x for x in part.split('=')]
-                parts += [left, '=', right]
+                parts.append(left)
+                parts.append('=')
+                if right:
+                    parts.append(right)
             else:
                 parts.append(part)
 
@@ -726,7 +733,7 @@ class Line:
                 dict_parameters[key] = value
                 i += 3
             else:
-                raise ParseError("Bad kwarg")
+                raise ParseError("Bad kwarg: {}".format(text))
 
         return dict_parameters
 
@@ -751,9 +758,12 @@ class Line:
 
         parts = []
         for part in text.split():
-            if '=' in part:
+            if '=' in part and part != '=':
                 left, right = [x for x in part.split('=')]
-                parts += [left, '=', right]
+                parts.append(left)
+                parts.append('=')
+                if right:
+                    parts.append(right)
             else:
                 parts.append(part)
 
@@ -820,15 +830,18 @@ class SpiceParser:
 
         lines = []
         current_line = None
-        for line_index, line in enumerate(raw_lines):
-            if line.startswith('+'):
-                current_line.append(line[1:])
+        for line_index, line_string in enumerate(raw_lines):
+            if line_string.startswith('+'):
+                current_line.append(line_string[1:].strip('\r\n'))
             else:
-                line = line.strip()
-                if line:
+                line_string = line_string.strip('\r\n')
+                if line_string:
                     _slice = slice(line_index, line_index +1)
-                    current_line = Line(line, _slice, self._end_of_line_comment)
-                    lines.append(current_line)
+                    line = Line(line_string, _slice, self._end_of_line_comment)
+                    lines.append(line)
+                    # handle case with comment before line continuation
+                    if not line_string.startswith('*'):
+                        current_line = line
 
         return lines
 
