@@ -113,7 +113,7 @@ _module_logger = logging.getLogger(__name__)
 
 class DeviceModel:
 
-    """ This class implements a device model.
+    """This class implements a device model.
 
     Ngspice model types:
 
@@ -193,6 +193,7 @@ class Pin:
 
     """This class implements a pin of an element. It stores a reference to the element, the name of the
     pin and the node.
+
     """
 
     _logger = _module_logger.getChild('Pin')
@@ -253,7 +254,7 @@ class Pin:
 
 class ElementParameterMetaClass(type):
 
-    """ Metaclass to implements the element parameter machinery. """
+    """Metaclass to implements the element parameter machinery."""
 
     __classes__ = {}
 
@@ -345,9 +346,10 @@ class ElementParameterMetaClass(type):
 
 class Element(metaclass=ElementParameterMetaClass):
 
-    """ This class implements a base class for an element.
+    """This class implements a base class for an element.
 
     It use a metaclass machinery for the declaration of the parameters.
+
     """
 
     # These attributes are defined in subclasses or via the metaclass.
@@ -470,7 +472,7 @@ class AnyPinElement(Element):
 
 class TwoPinElement(Element):
 
-    """ This class implements a base class for a two-pin element. """
+    """This class implements a base class for a two-pin element."""
 
     # dipole
 
@@ -510,9 +512,10 @@ class FourPinElement(Element):
 
 class TwoPortElement(Element):
 
-    """ This class implements a base class for a two-port element.
+    """This class implements a base class for a two-port element.
 
     .. warning:: As opposite to Spice, the input nodes are specified before the output nodes.
+
     """
 
     _number_of_pins = 4
@@ -562,7 +565,9 @@ class TwoPortElement(Element):
 class Node:
 
     """This class implements a node in the circuit. It stores a reference to the elements connected to
-    the node."""
+    the node.
+
+    """
 
     # Fixme: but not directly to the pins!
 
@@ -603,9 +608,10 @@ class Node:
 
 class Netlist:
 
-    """ This class implements a base class for a netlist.
+    """This class implements a base class for a netlist.
 
-    .. note:: This class is completed at running time with elements.
+    .. note:: This class is completed with element shortcuts when the module is loaded.
+
     """
 
     ##############################################
@@ -615,9 +621,9 @@ class Netlist:
         self._ground = None # Fixme: gnd = 0
 
         self._elements = OrderedDict() # to keep the declaration order
-        self._models = {}
-        # self._nodes = set()
         self._nodes = {}
+        # self._nodes = set()
+        self._models = {}
         self._subcircuits = {}
 
         self.raw_spice = ''
@@ -634,6 +640,40 @@ class Netlist:
 
     ##############################################
 
+    def __getitem__(self, attribute_name):
+
+        if attribute_name in self._elements:
+            return self._elements[attribute_name]
+        elif attribute_name in self._models:
+            return self._models[attribute_name]
+        elif attribute_name in self._nodes:
+            return attribute_name
+        else:
+            raise IndexError(attribute_name)
+
+    ##############################################
+
+    def __getattr__(self, attribute_name):
+
+        try:
+            return self.__getitem__(attribute_name)
+        except IndexError:
+            raise AttributeError(attribute_name)
+
+    ##############################################
+
+    def _add_element(self, element):
+
+        """Add an element."""
+
+        if element.name not in self._elements:
+            self._elements[element.name] = element
+            self._dirty = True
+        else:
+            raise NameError("Element name {} is already defined".format(element.name))
+
+    ##############################################
+
     def element_iterator(self):
 
         return iter(self._elements.values())
@@ -646,9 +686,61 @@ class Netlist:
 
     ##############################################
 
+    @property
+    def nodes(self):
+
+        """Return the nodes."""
+
+        if self._dirty:
+            # nodes = set()
+            # for element in self.element_iterator():
+            #     nodes |= set(element.nodes)
+            # if self._ground is not None:
+            #     nodes -= set((self._ground,))
+            # self._nodes = nodes
+            self._nodes.clear()
+            for element in self.element_iterator():
+                for node_name in element.nodes:
+                    if node_name not in self._nodes:
+                        node = Node(node_name)
+                        self._nodes[node_name] = node
+                    else:
+                        node = self._nodes[node_name]
+                    node.add_element(element)
+        return list(self._nodes.values())
+
+    ##############################################
+
+    def node_names(self):
+
+        return [node.name for node in self.nodes]
+
+    ##############################################
+
+    def has_ground_node(self):
+
+        for node in self.nodes:
+            if node.is_ground_node:
+                return True
+        return False
+
+    ##############################################
+
     def model_iterator(self):
 
         return iter(self._models.values())
+
+    ##############################################
+
+    def model(self, name, modele_type, **parameters):
+
+        """Add a model."""
+
+        model = DeviceModel(name, modele_type, **parameters)
+        if model.name not in self._models:
+            self._models[model.name] = model
+        else:
+            raise NameError("Model name {} is already defined".format(name))
 
     ##############################################
 
@@ -673,8 +765,8 @@ class Netlist:
         """ Return the formatted list of element and model definitions. """
 
         netlist = self._str_elements()
-        netlist += self._str_subcircuits()
         netlist += self._str_models()
+        netlist += self._str_subcircuits()
         netlist += self._str_raw_spice()
         return netlist
 
@@ -710,93 +802,6 @@ class Netlist:
         if netlist and not netlist.endswith(os.linesep):
             netlist += os.linesep
         return netlist
-
-    ##############################################
-
-    def _add_element(self, element):
-
-        """Add an element."""
-
-        if element.name not in self._elements:
-            self._elements[element.name] = element
-            self._dirty = True
-        else:
-            raise NameError("Element name {} is already defined".format(element.name))
-
-    ##############################################
-
-    def model(self, name, modele_type, **parameters):
-
-        """Add a model."""
-
-        model = DeviceModel(name, modele_type, **parameters)
-        if model.name not in self._models:
-            self._models[model.name] = model
-        else:
-            raise NameError("Model name {} is already defined".format(name))
-
-    ##############################################
-
-    @property
-    def nodes(self):
-
-        """Return the nodes."""
-
-        if self._dirty:
-            # nodes = set()
-            # for element in self.element_iterator():
-            #     nodes |= set(element.nodes)
-            # if self._ground is not None:
-            #     nodes -= set((self._ground,))
-            # self._nodes = nodes
-            self._nodes.clear()
-            for element in self.element_iterator():
-                for node_name in element.nodes:
-                    if node_name not in self._nodes:
-                        node = Node(node_name)
-                        self._nodes[node_name] = node
-                    else:
-                        node = self._nodes[node_name]
-                    node.add_element(element)
-        return list(self._nodes.values())
-
-
-    ##############################################
-
-    def has_ground_node(self):
-
-        for node in self.nodes:
-            if node.is_ground_node:
-                return True
-        return False
-
-    ##############################################
-
-    def node_names(self):
-
-        return [node.name for node in self.nodes]
-
-    ##############################################
-
-    def __getitem__(self, attribute_name):
-
-        if attribute_name in self._elements:
-            return self._elements[attribute_name]
-        elif attribute_name in self._models:
-            return self._models[attribute_name]
-        elif attribute_name in self._nodes:
-            return attribute_name
-        else:
-            raise IndexError(attribute_name)
-
-    ##############################################
-
-    def __getattr__(self, attribute_name):
-
-        try:
-            return self.__getitem__(attribute_name)
-        except IndexError:
-            raise AttributeError(attribute_name)
 
 ####################################################################################################
 
