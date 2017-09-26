@@ -613,14 +613,24 @@ class Netlist:
     def __init__(self):
 
         self._ground = None # Fixme: gnd = 0
+
         self._elements = OrderedDict() # to keep the declaration order
         self._models = {}
-        self._dirty = True
         # self._nodes = set()
         self._nodes = {}
+        self._subcircuits = {}
+
         self.raw_spice = ''
 
+        self._dirty = True
+
         # self._graph = networkx.Graph()
+
+    ##############################################
+
+    @property
+    def gnd(self):
+        return self._ground
 
     ##############################################
 
@@ -642,11 +652,28 @@ class Netlist:
 
     ##############################################
 
+    def subcircuit(self, subcircuit):
+
+        """Add a sub-circuit."""
+
+        self._subcircuits[str(subcircuit.name)] = subcircuit
+
+    ##############################################
+
+    def subcircuit_iterator(self):
+
+        """Return a sub-circuit iterator."""
+
+        return iter(self._subcircuits.values())
+
+    ##############################################
+
     def __str__(self):
 
         """ Return the formatted list of element and model definitions. """
 
         netlist = self._str_elements()
+        netlist += self._str_subcircuits()
         netlist += self._str_models()
         netlist += self._str_raw_spice()
         return netlist
@@ -663,6 +690,15 @@ class Netlist:
 
         if self._models:
             return join_lines(self.model_iterator()) + os.linesep
+        else:
+            return ''
+
+    ##############################################
+
+    def _str_subcircuits(self):
+
+        if self._subcircuits:
+            return join_lines(self.subcircuit_iterator())
         else:
             return ''
 
@@ -828,8 +864,6 @@ class SubCircuit(Netlist):
 
 class SubCircuitFactory(SubCircuit):
 
-    # Fixme : versus SubCircuit
-
     __name__ = None
     __nodes__ = None
 
@@ -853,11 +887,6 @@ class Circuit(Netlist):
 
     """
 
-    # Fixme:
-    #   .lib
-    #   .func
-    #   .csparam
-
     ##############################################
 
     def __init__(self, title,
@@ -872,18 +901,12 @@ class Circuit(Netlist):
         self._global_nodes = set(global_nodes) # .global
         self._includes = [] # .include
         self._parameters = {} # .param
-        self._subcircuits = {}
 
         # Fixme: not implemented
-        #  .func
         #  .csparam
+        #  .func
         #  .if
-
-    ##############################################
-
-    @property
-    def gnd(self):
-        return self._ground
+        #  .lib
 
     ##############################################
 
@@ -906,22 +929,6 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def subcircuit(self, subcircuit):
-
-        """Add a sub-circuit."""
-
-        self._subcircuits[str(subcircuit.name)] = subcircuit
-
-    ##############################################
-
-    def subcircuit_iterator(self):
-
-        """Return a sub-circuit iterator."""
-
-        return iter(self._subcircuits.values())
-
-    ##############################################
-
     def str(self, simulator=None):
 
         """Return the formatted desk."""
@@ -933,7 +940,6 @@ class Circuit(Netlist):
         netlist += self._str_includes(simulator)
         netlist += self._str_globals()
         netlist += self._str_parameters()
-        netlist += self._str_subcircuits()
         netlist += super().__str__()
         return netlist
 
@@ -977,15 +983,6 @@ class Circuit(Netlist):
 
         if self._parameters:
             return join_lines(self._parameters, prefix='.param ') + os.linesep
-        else:
-            return ''
-
-    ##############################################
-
-    def _str_subcircuits(self):
-
-        if self._subcircuits:
-            return join_lines(self.subcircuit_iterator())
         else:
             return ''
 
