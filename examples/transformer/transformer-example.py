@@ -27,6 +27,8 @@ from PySpice.Unit import *
 
 from Transformer import Transformer
 
+#i# Transformer.py
+
 ####################################################################################################
 
 circuit = Circuit('Transformer')

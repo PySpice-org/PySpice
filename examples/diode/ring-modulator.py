@@ -34,6 +34,8 @@ spice_library = SpiceLibrary(libraries_path)
 
 from RingModulator import RingModulator
 
+#i# RingModulator.py
+
 ####################################################################################################
 
 circuit = Circuit('Ring Modulator')

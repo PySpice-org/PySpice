@@ -18,6 +18,8 @@ from PySpice.Unit import *
 
 from OperationalAmplifier import BasicOperationalAmplifier
 
+#i# OperationalAmplifier.py
+
 ####################################################################################################
 
 circuit = Circuit('Operational Amplifier')

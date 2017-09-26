@@ -34,6 +34,8 @@ spice_library = SpiceLibrary(libraries_path)
 
 from HP54501A import HP54501A
 
+#i# HP54501A.py
+
 ####################################################################################################
 
 circuit = Circuit('HP54501A CEM')
