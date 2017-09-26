@@ -640,7 +640,7 @@ class CoupledInductor(AnyPinElement):
 
     """
 
-    alias = 'CoupledInductor'
+    alias = 'K'
     prefix = 'K'
 
     inductor1 = ElementNamePositionalParameter(position=0, key_parameter=False)
@@ -682,7 +682,8 @@ class VoltageControlledSwitch(TwoPortElement):
 
     """
 
-    alias = 'VCS'
+    alias = 'S'
+    long_alias = 'VCS'
     prefix = 'S'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
@@ -718,7 +719,8 @@ class CurrentControlledSwitch(TwoPinElement):
 
     """
 
-    alias = 'CCS'
+    alias = 'W'
+    long_alias = 'CCS'
     prefix = 'W'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=True)
@@ -860,7 +862,8 @@ class CurrentControlledCurrentSource(TwoPinElement):
 
     """
 
-    alias = 'CCCS'
+    alias = 'F'
+    long_alias = 'CCCS'
     prefix = 'F'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
@@ -889,7 +892,8 @@ class CurrentControlledVoltageSource(TwoPinElement):
 
     """
 
-    alias = 'CCVS'
+    alias = 'H'
+    long_alias = 'CCVS'
     prefix = 'H'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
@@ -945,7 +949,7 @@ class BehavioralSource(TwoPinElement):
 
     """
 
-    alias = 'BehavioralSource'
+    alias = 'B'
     prefix = 'B'
 
     current_expression = ExpressionKeyParameter('i')
@@ -1168,7 +1172,8 @@ class BipolarJunctionTransistor(NPinElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    alias = 'BJT'
+    alias = 'Q'
+    long_alias = 'BJT'
     prefix = 'Q'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
@@ -1269,7 +1274,8 @@ class JunctionFieldEffectTransistor(ThreePinElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    alias = 'JFET'
+    alias = 'J'
+    long_alias = 'JFET'
     prefix = 'J'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
@@ -1349,7 +1355,8 @@ class Mesfet(ThreePinElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    alias = 'MESFET'
+    alias = 'Z'
+    long_alias = 'MESFET'
     prefix = 'Z'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
@@ -1476,7 +1483,8 @@ class Mosfet(FourPinElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    alias = 'MOSFET'
+    alias = 'M'
+    long_alias = 'MOSFET'
     prefix = 'M'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)

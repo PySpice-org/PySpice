@@ -20,9 +20,15 @@
 
 ####################################################################################################
 
+import logging
+
 from . import BasicElement
 from . import HighLevelElement
 from .Netlist import Netlist, ElementParameterMetaClass
+
+####################################################################################################
+
+_module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
@@ -52,9 +58,18 @@ for element_class in spice_elements + high_level_elements:
             return element
         return function
 
-    if element_class in spice_elements and hasattr(element_class, 'alias'):
-        function_name = element_class.alias
-    else:
-        function_name = element_class.__name__
+    func = _make_function(element_class)
 
-    setattr(Netlist, function_name, _make_function(element_class))
+    def _set(name):
+        # _module_logger.debug("Add device shortcut {} for class {}".format(name, element_class))
+        setattr(Netlist, name, func)
+
+    _set(element_class.__name__)
+
+    if element_class in spice_elements:
+        if hasattr(element_class, 'alias'):
+            _set(element_class.alias)
+        if hasattr(element_class, 'long_alias'):
+            _set(element_class.long_alias)
+
+
