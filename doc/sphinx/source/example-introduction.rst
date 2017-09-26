@@ -38,21 +38,6 @@ interactive environment or in a web browser using a IPython Notebook. Each of th
 advantages and drawbacks.  A script is best when we want to work on a file using an editor, and an
 interactive environment is best when we want to play with code interactively.
 
-You have to set an environment so as to find the Spice libraries.
-
-On Linux, use this shell command:
-
-.. code-block:: sh
-
-   export PySpice_source_path=${PWD}
-   export PySpice_examples_path=${PySpice_source_path}/examples
-
-On Windows, use this command:
-
-.. code-block:: sh
-
-    SET PySpice_example_path=C:/Users/John/PySpice/examples
-
 To run an example from the console, execute this command:
 
 .. code-block:: sh
