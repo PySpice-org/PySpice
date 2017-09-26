@@ -84,6 +84,7 @@ setup_dict = dict(
     scripts=['bin/cir2py'],
     packages=['PySpice', # Fixme:
               'PySpice.Config',
+              'PySpice.Doc',
               'PySpice.Logging',
               'PySpice.Math',
               'PySpice.Physics',

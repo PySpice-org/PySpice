@@ -9,7 +9,7 @@
 import argparse
 import os
 
-import CircuitMacrosGenerator as CircuitMacrosGenerator
+import PySpice.Doc.CircuitMacrosGenerator as CircuitMacrosGenerator
 
 ####################################################################################################
 

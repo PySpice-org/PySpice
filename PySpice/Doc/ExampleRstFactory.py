@@ -32,8 +32,8 @@ import tempfile
 
 ####################################################################################################
 
-import CircuitMacrosGenerator
-import TikzGenerator
+from . import CircuitMacrosGenerator
+from . import TikzGenerator
 
 ####################################################################################################
 
@@ -658,8 +658,8 @@ class Example:
         # tmp_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir(), prefix='PySpice-', suffix='.py', mode='w')
         tmp_file = tempfile.NamedTemporaryFile(dir=working_directory,
                                                prefix='__example_rst_factory__', suffix='.py', mode='w')
-        tmp_file.write('import ExampleRstFactory\n')
-        tmp_file.write('from ExampleRstFactory import save_figure\n')
+        tmp_file.write('from PySpice.Doc import ExampleRstFactory\n')
+        tmp_file.write('from PySpice.Doc.ExampleRstFactory import save_figure\n')
         tmp_file.write('ExampleRstFactory.FIGURE_DIRECTORY = "{}"\n'.format(self._topic.rst_path))
         tmp_file.write('\n')
         for chunck in self._chuncks:

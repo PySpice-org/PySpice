@@ -32,7 +32,7 @@ import argparse
 
 ####################################################################################################
 
-from ExampleRstFactory import ExampleRstFactory
+from PySpice.Doc.ExampleRstFactory import ExampleRstFactory
 
 ####################################################################################################
 #
