@@ -10,7 +10,7 @@ V1.2.0 (development release)
 
  * Initial support of the |Xyce|_ simulator.  Xyce is an open source, SPICE-compatible,
    high-performance analog circuit simulator, capable of solving extremely large circuit problems
-   developed at Sandia National Laboratories.  Xyce will make PySpice suitable for industry a
+   developed at Sandia National Laboratories.  Xyce will make PySpice suitable for industry and
    research use.
  * Fixed OSX support
  * Implemented partially `A` XSPICE device
