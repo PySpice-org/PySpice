@@ -294,16 +294,20 @@ class NgSpiceShared:
 
     _logger = _module_logger.getChild('NgSpiceShared')
 
+    # Fixme: check Ngspice version
+    # cf. ngspice-27/include/ngspice/sim.h
     SIMULATION_TYPE = EnumFactory('SimulationType', (
         'no_type',
         'time',
         'frequency',
         'voltage',
         'current',
-        'output_noise_density',
-        'output_noise',
-        'input_noise_density',
-        'input_noise',
+        'voltage_density',
+        'current_density',
+        'sqr_voltage_density',
+        'sqr_current_density',
+        'sqr_voltage',
+        'sqr_current',
         'pole',
         'zero',
         's_parameter',
@@ -315,7 +319,8 @@ class NgSpiceShared:
         'phase',
         'db',
         'capacitance',
-        'charge'))
+        'charge',
+    ))
 
     NGSPICE_PATH = None
     LIBRARY_PATH = None
