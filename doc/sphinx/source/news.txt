@@ -21,6 +21,9 @@ V1.2.0 (dev release)
  * Implemented check for missing ground node
  * Improved SPICE parser
  * Added Numpy array support to unit
+ * Splitted G device
+ * Fixed device shortcuts in `Netlist` class
+ * Fixed subcircuit nesting
 
 .. :ref:`user-faq-page`
 

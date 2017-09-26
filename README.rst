@@ -166,10 +166,14 @@ V1.2.0 (dev release)
  * Implemented partially `A` XSPICE device
  * Implemented missing transmission line devices
  * Implemented high level current sources
+   **Notice: Some class were renamed!**
  * Implemented raw spice pass through (see `User FAQ </faq.html>`_)
  * Implemented check for missing ground node
  * Improved SPICE parser
  * Added Numpy array support to unit
+ * Splitted G device
+ * Fixed device shortcuts in `Netlist` class
+ * Fixed subcircuit nesting
 
 .. :ref:`user-faq-page`
 
