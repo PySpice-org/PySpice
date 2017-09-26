@@ -178,6 +178,10 @@ class SubCircuitElement(NPinElement):
         return spice_parameters
 
 ####################################################################################################
+#
+# Elementary devices: Resistor, Capacitor, Inductor, Switch (VCSw/CCSw)
+#
+####################################################################################################
 
 class Resistor(TwoPinElement):
 
@@ -722,6 +726,10 @@ class CurrentControlledSwitch(TwoPinElement):
     initial_state = InitialStatePositionalParameter(position=2, key_parameter=True)
 
 ####################################################################################################
+#
+# Voltage and Current Sources
+#
+####################################################################################################
 
 class VoltageSource(TwoPinElement):
 
@@ -775,6 +783,35 @@ class CurrentSource(TwoPinElement):
 
 ####################################################################################################
 
+class VoltageControlledCurrentSource(TwoPortElement):
+
+    """This class implements a linear voltage-controlled current sources (VCCS).
+
+    Spice syntax:
+
+    .. code-block:: none
+
+        Gxxx n+ n- nc+ nc- value <m=val>
+
+    Keyword Parameters:
+
+      :attr:`multiplier`
+         alias `m`
+
+    Attributes:
+
+      :attr:`transconductance`
+
+    """
+
+    alias = 'VCCS'
+    prefix = 'G'
+
+    transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
+    multiplier = IntKeyParameter('m')
+
+####################################################################################################
+
 class VoltageControlledVoltageSource(TwoPortElement):
 
     """This class implements a linear voltage-controlled voltage sources (VCVS).
@@ -808,9 +845,12 @@ class CurrentControlledCurrentSource(TwoPinElement):
 
     .. code-block:: none
 
-       FXXXXXXX n+ n- vname value
+       FXXXXXXX n+ n- vname value <m=val>
 
     Keyword Parameters:
+
+      :attr:`multiplier`
+         alias `m`
 
     Attributes:
 
@@ -825,43 +865,13 @@ class CurrentControlledCurrentSource(TwoPinElement):
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
     current_gain = ExpressionPositionalParameter(position=1, key_parameter=False)
-
-####################################################################################################
-
-class VoltageControlledCurrentSource(TwoPortElement):
-
-    """This class implements a linear voltage-controlled current sources (VCCS).
-
-    .. warning:: Partially implemented
-
-    Spice syntax:
-
-    .. code-block:: none
-
-        Gxxx n+ n- nc+ nc- value
-        Gxxx n+ n- value={expr}
-        Gxxx n1 n2 TABLE {expression}=(x0,y0) (x1,y1) (x2,y2)
-        Gxxx n+ n- ( POLY (nd) ) nc1+ nc1- ( nc2+ nc2- ... ) p0 ( p1 ... )
-        Laplace
-
-    Keyword Parameters:
-
-    Attributes:
-
-      :attr:`transconductance`
-
-    """
-
-    alias = 'VCCS'
-    prefix = 'G'
-
-    transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
+    multiplier = IntKeyParameter('m')
 
 ####################################################################################################
 
 class CurrentControlledVoltageSource(TwoPinElement):
 
-    """This class implements a linear current-controlled voltage sources (ccvs).
+    """This class implements a linear current-controlled voltage sources (CCVS).
 
     Spice syntax:
 
@@ -885,6 +895,10 @@ class CurrentControlledVoltageSource(TwoPinElement):
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
     transresistance = ExpressionPositionalParameter(position=1, key_parameter=False)
 
+####################################################################################################
+#
+# Non-Linear Dependent Sources (Behavioral Sources)
+#
 ####################################################################################################
 
 class BehavioralSource(TwoPinElement):
@@ -945,7 +959,7 @@ class BehavioralSource(TwoPinElement):
 
 class NonLinearVoltageSource(TwoPinElement):
 
-    """This class implements a non linear voltage source.
+    """This class implements a non-linear voltage source.
 
     .. warning:: Partially implemented
 
@@ -992,6 +1006,40 @@ class NonLinearVoltageSource(TwoPinElement):
             spice_element += ' TABLE {%s} = %s' % (self.expression, join_list(table))
         return spice_element
 
+####################################################################################################
+
+class NonLinearCurrentSource(TwoPortElement):
+
+    """This class implements a non-linear current sources.
+
+    .. warning:: Partially implemented
+
+    Spice syntax:
+
+    .. code-block:: none
+
+        Gxxx n+ n- value={expr}
+        Gxxx n1 n2 TABLE {expression}=(x0,y0) (x1,y1) (x2,y2)
+        Gxxx n+ n- ( POLY (nd) ) nc1+ nc1- ( nc2+ nc2- ... ) p0 ( p1 ... )
+        Laplace
+
+    Keyword Parameters:
+
+    Attributes:
+
+      :attr:`transconductance`
+
+    """
+
+    alias = 'NonLinearCurrentSource'
+    prefix = 'G'
+
+    transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
+
+####################################################################################################
+#
+# Diode
+#
 ####################################################################################################
 
 class Diode(TwoPinElement):
@@ -1057,6 +1105,10 @@ class Diode(TwoPinElement):
     temperature = FloatKeyParameter('temp', unit=U_Degree)
     device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
 
+####################################################################################################
+#
+# BJTs
+#
 ####################################################################################################
 
 class BipolarJunctionTransistor(NPinElement):
@@ -1173,6 +1225,10 @@ class BipolarJunctionTransistor(NPinElement):
             return None
 
 ####################################################################################################
+#
+# JFETs
+#
+####################################################################################################
 
 class JunctionFieldEffectTransistor(ThreePinElement):
 
@@ -1254,6 +1310,10 @@ class JunctionFieldEffectTransistor(ThreePinElement):
         return self.pins[2]
 
 ####################################################################################################
+#
+# MESFETs
+#
+####################################################################################################
 
 class Mesfet(ThreePinElement):
 
@@ -1328,6 +1388,10 @@ class Mesfet(ThreePinElement):
     def source(self):
         return self.pins[2]
 
+####################################################################################################
+#
+# MOSFETs
+#
 ####################################################################################################
 
 class Mosfet(FourPinElement):
@@ -1467,6 +1531,10 @@ class Mosfet(FourPinElement):
     def substrate(self):
         return self.pins[3]
 
+####################################################################################################
+#
+# Transmission Lines
+#
 ####################################################################################################
 
 class TransmissionLine(TwoPortElement):
@@ -1690,6 +1758,10 @@ class SingleLossyTransmissionLine(NPinElement):
         super().__init__(name, pins, model)
 
 ####################################################################################################
+#
+# XSPICE
+#
+####################################################################################################
 
 class XSpiceElement(NPinElement):
 
@@ -1737,6 +1809,10 @@ class XSpiceElement(NPinElement):
 
         super().__init__(name, pins, model)
 
+####################################################################################################
+#
+# GSS
+#
 ####################################################################################################
 
 class GSSElement(NPinElement):
