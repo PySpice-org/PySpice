@@ -33,7 +33,7 @@ circuit1 = Circuit('Four double-pole Low-Pass RLC Filter')
 inductance = 10@u_mH
 capacitance = 1@u_uF
 
-circuit1.Sinusoidal('input', 'in', circuit1.gnd, amplitude=1@u_V)
+circuit1.SinusoidalVoltageSource('input', 'in', circuit1.gnd, amplitude=1@u_V)
 #?# pulse 0 5 10 ms
 # Q = .5
 circuit1.R(1, 'in', 1, 200@u_Ω)
@@ -101,7 +101,7 @@ for axe in axes:
 
 circuit2 = Circuit('Pass-Band RLC Filter')
 
-circuit2.Sinusoidal('input', 'in', circuit2.gnd, amplitude=1@u_V)
+circuit2.SinusoidalVoltageSource('input', 'in', circuit2.gnd, amplitude=1@u_V)
 circuit2.L(1, 'in', 2, inductance)
 circuit2.C(1, 2, 'out', capacitance)
 circuit2.R(1, 'out', circuit2.gnd, 25@u_Ω)
