@@ -76,6 +76,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Doc.ExampleTools import find_libraries
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Unit import *
@@ -83,7 +84,7 @@ from PySpice.Physics.SemiConductor import ShockleyDiode
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
+libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
