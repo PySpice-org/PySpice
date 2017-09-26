@@ -20,7 +20,7 @@
 #
 ####################################################################################################
 
-""" This module implements high level elements built on top of Spice elements. """
+"""This module implements high level elements built on top of Spice elements."""
 
 ####################################################################################################
 
@@ -33,7 +33,7 @@ from .BasicElement import VoltageSource, CurrentSource
 
 class SinusoidalMixin:
 
-    """This class implements a sinusoidal waveform.
+    r"""This class implements a sinusoidal waveform.
 
     +------+----------------+---------------+-------+
     | Name + Parameter      + Default Value + Units |
