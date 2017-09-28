@@ -101,11 +101,7 @@ See Ngspice documentation for details.
 
 from ..Tools.StringTools import join_list, str_spice
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
-from .Netlist import (Pin,
-                      AnyPinElement,
-                      TwoPinElement, ThreePinElement, FourPinElement,
-                      NPinElement,
-                      TwoPortElement)
+from .Netlist import (AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
 from .ElementParameter import (
     # KeyValueParameter,
     BoolKeyParameter,
@@ -120,8 +116,17 @@ from .ElementParameter import (
     InitialStatePositionalParameter,
     IntKeyParameter,
     ModelPositionalParameter,
-    # ModelKeyParameter,
     )
+
+####################################################################################################
+
+class DipoleElement(FixedPinElement):
+    """This class implements a base class for dipole element."""
+    __pins__ = ('plus', 'minus')
+
+class TwoPortElement(FixedPinElement):
+    """This class implements a base class for two-port element."""
+    __pins__ = ('output_plus', 'output_minus', 'input_plus', 'input_minus')
 
 ####################################################################################################
 
@@ -143,8 +148,8 @@ class SubCircuitElement(NPinElement):
 
     """
 
-    alias = 'X'
-    prefix = 'X'
+    __alias__ = 'X'
+    __prefix__ = 'X'
 
     subcircuit_name = ElementNamePositionalParameter(position=0, key_parameter=False)
 
@@ -152,9 +157,7 @@ class SubCircuitElement(NPinElement):
 
     def __init__(self, name, subcircuit_name, *nodes, **parameters):
 
-        pins = [Pin(self, None, node) for node in nodes]
-
-        super().__init__(name, pins, subcircuit_name)
+        super().__init__(name, nodes, subcircuit_name)
 
         self.parameters = parameters
 
@@ -183,7 +186,7 @@ class SubCircuitElement(NPinElement):
 #
 ####################################################################################################
 
-class Resistor(TwoPinElement):
+class Resistor(DipoleElement):
 
     """This class implements a resistor.
 
@@ -228,8 +231,8 @@ class Resistor(TwoPinElement):
 
     """
 
-    alias = 'R'
-    prefix = 'R'
+    __alias__ = 'R'
+    __prefix__ = 'R'
 
     resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
     ac = FloatKeyParameter('ac', unit=U_Ω)
@@ -241,7 +244,7 @@ class Resistor(TwoPinElement):
 
 ####################################################################################################
 
-class SemiconductorResistor(TwoPinElement):
+class SemiconductorResistor(DipoleElement):
 
     """This class implements a Semiconductor resistor.
 
@@ -300,8 +303,8 @@ class SemiconductorResistor(TwoPinElement):
 
     """
 
-    alias = 'SemiconductorResistor'
-    prefix = 'R'
+    __alias__ = 'SemiconductorResistor'
+    __prefix__ = 'R'
 
     resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -316,7 +319,7 @@ class SemiconductorResistor(TwoPinElement):
 
 ####################################################################################################
 
-class BehavioralResistor(TwoPinElement):
+class BehavioralResistor(DipoleElement):
 
     # Behavioral / Behavioural
 
@@ -345,8 +348,8 @@ class BehavioralResistor(TwoPinElement):
 
     """
 
-    alias = 'BehavioralResistor'
-    prefix = 'R'
+    __alias__ = 'BehavioralResistor'
+    __prefix__ = 'R'
 
     resistance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -354,7 +357,7 @@ class BehavioralResistor(TwoPinElement):
 
 ####################################################################################################
 
-class Capacitor(TwoPinElement):
+class Capacitor(DipoleElement):
 
     """This class implements a capacitor.
 
@@ -400,8 +403,8 @@ class Capacitor(TwoPinElement):
 
     """
 
-    alias = 'C'
-    prefix = 'C'
+    __alias__ = 'C'
+    __prefix__ = 'C'
 
     capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_F)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -413,7 +416,7 @@ class Capacitor(TwoPinElement):
 
 ####################################################################################################
 
-class SemiconductorCapacitor(TwoPinElement):
+class SemiconductorCapacitor(DipoleElement):
 
     """This class implements a semiconductor capacitor.
 
@@ -469,8 +472,8 @@ class SemiconductorCapacitor(TwoPinElement):
 
     """
 
-    alias = 'SemiconductorCapacitor'
-    prefix = 'C'
+    __alias__ = 'SemiconductorCapacitor'
+    __prefix__ = 'C'
 
     capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_F)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -484,7 +487,7 @@ class SemiconductorCapacitor(TwoPinElement):
 
 ####################################################################################################
 
-class BehavioralCapacitor(TwoPinElement):
+class BehavioralCapacitor(DipoleElement):
 
     """This class implements a behavioral capacitor.
 
@@ -511,8 +514,8 @@ class BehavioralCapacitor(TwoPinElement):
 
     """
 
-    alias = 'BehavioralCapacitor'
-    prefix = 'C'
+    __alias__ = 'BehavioralCapacitor'
+    __prefix__ = 'C'
 
     capacitance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -520,7 +523,7 @@ class BehavioralCapacitor(TwoPinElement):
 
 ####################################################################################################
 
-class Inductor(TwoPinElement):
+class Inductor(DipoleElement):
 
     """This class implements an inductor.
 
@@ -568,8 +571,8 @@ class Inductor(TwoPinElement):
 
     """
 
-    alias = 'L'
-    prefix = 'L'
+    __alias__ = 'L'
+    __prefix__ = 'L'
 
     inductance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_H)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -582,7 +585,7 @@ class Inductor(TwoPinElement):
 
 ####################################################################################################
 
-class BehavioralInductor(TwoPinElement):
+class BehavioralInductor(DipoleElement):
 
     """This class implements a behavioral inductor.
 
@@ -609,8 +612,8 @@ class BehavioralInductor(TwoPinElement):
 
     """
 
-    alias = 'BehavioralInductor'
-    prefix = 'L'
+    __alias__ = 'BehavioralInductor'
+    __prefix__ = 'L'
 
     inductance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -640,8 +643,8 @@ class CoupledInductor(AnyPinElement):
 
     """
 
-    alias = 'K'
-    prefix = 'K'
+    __alias__ = 'K'
+    __prefix__ = 'K'
 
     inductor1 = ElementNamePositionalParameter(position=0, key_parameter=False)
     inductor2 = ElementNamePositionalParameter(position=1, key_parameter=False)
@@ -649,12 +652,11 @@ class CoupledInductor(AnyPinElement):
 
  ##############################################
 
-    def __init__(self, name, inductor_name1, inductor_name2, coupling_factor):
+    def __init__(self, name, *args, **kwargs):
 
-        # Fixme: any pins here
-        super().__init__(name, (),
-                                              inductor_name1, inductor_name2, coupling_factor)
-        self._inductor_names = (inductor_name1, inductor_name2)
+        super().__init__(name, *args, **kwargs)
+
+        self._inductors = (self.inductor1, self.inductor2)
 
 ####################################################################################################
 
@@ -682,16 +684,16 @@ class VoltageControlledSwitch(TwoPortElement):
 
     """
 
-    alias = 'S'
-    long_alias = 'VCS'
-    prefix = 'S'
+    __alias__ = 'S'
+    __long__alias__ = 'VCS'
+    __prefix__ = 'S'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     initial_state = InitialStatePositionalParameter(position=1, key_parameter=True)
 
 ####################################################################################################
 
-class CurrentControlledSwitch(TwoPinElement):
+class CurrentControlledSwitch(DipoleElement):
 
     """This class implements a current controlled switch.
 
@@ -719,9 +721,9 @@ class CurrentControlledSwitch(TwoPinElement):
 
     """
 
-    alias = 'W'
-    long_alias = 'CCS'
-    prefix = 'W'
+    __alias__ = 'W'
+    __long__alias__ = 'CCS'
+    __prefix__ = 'W'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=True)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -733,7 +735,7 @@ class CurrentControlledSwitch(TwoPinElement):
 #
 ####################################################################################################
 
-class VoltageSource(TwoPinElement):
+class VoltageSource(DipoleElement):
 
     """This class implements an independent sources for voltage.
 
@@ -751,15 +753,15 @@ class VoltageSource(TwoPinElement):
 
     """
 
-    alias = 'V'
-    prefix = 'V'
+    __alias__ = 'V'
+    __prefix__ = 'V'
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_V)
 
 ####################################################################################################
 
-class CurrentSource(TwoPinElement):
+class CurrentSource(DipoleElement):
 
     """This class implements an independent sources for current.
 
@@ -777,8 +779,8 @@ class CurrentSource(TwoPinElement):
 
     """
 
-    alias = 'I'
-    prefix = 'I'
+    __alias__ = 'I'
+    __prefix__ = 'I'
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_A)
@@ -806,8 +808,8 @@ class VoltageControlledCurrentSource(TwoPortElement):
 
     """
 
-    alias = 'VCCS'
-    prefix = 'G'
+    __alias__ = 'VCCS'
+    __prefix__ = 'G'
 
     transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
     multiplier = IntKeyParameter('m')
@@ -832,14 +834,14 @@ class VoltageControlledVoltageSource(TwoPortElement):
 
     """
 
-    alias = 'VCVS'
-    prefix = 'E'
+    __alias__ = 'VCVS'
+    __prefix__ = 'E'
 
     voltage_gain = ExpressionPositionalParameter(position=0, key_parameter=False)
 
 ####################################################################################################
 
-class CurrentControlledCurrentSource(TwoPinElement):
+class CurrentControlledCurrentSource(DipoleElement):
 
     """This class implements a linear current-controlled current sources (CCCS).
 
@@ -862,9 +864,9 @@ class CurrentControlledCurrentSource(TwoPinElement):
 
     """
 
-    alias = 'F'
-    long_alias = 'CCCS'
-    prefix = 'F'
+    __alias__ = 'F'
+    __long__alias__ = 'CCCS'
+    __prefix__ = 'F'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
     current_gain = ExpressionPositionalParameter(position=1, key_parameter=False)
@@ -872,7 +874,7 @@ class CurrentControlledCurrentSource(TwoPinElement):
 
 ####################################################################################################
 
-class CurrentControlledVoltageSource(TwoPinElement):
+class CurrentControlledVoltageSource(DipoleElement):
 
     """This class implements a linear current-controlled voltage sources (CCVS).
 
@@ -892,9 +894,9 @@ class CurrentControlledVoltageSource(TwoPinElement):
 
     """
 
-    alias = 'H'
-    long_alias = 'CCVS'
-    prefix = 'H'
+    __alias__ = 'H'
+    __long__alias__ = 'CCVS'
+    __prefix__ = 'H'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
     transresistance = ExpressionPositionalParameter(position=1, key_parameter=False)
@@ -905,7 +907,7 @@ class CurrentControlledVoltageSource(TwoPinElement):
 #
 ####################################################################################################
 
-class BehavioralSource(TwoPinElement):
+class BehavioralSource(DipoleElement):
 
     """This class implements a behavioral source.
 
@@ -949,8 +951,8 @@ class BehavioralSource(TwoPinElement):
 
     """
 
-    alias = 'B'
-    prefix = 'B'
+    __alias__ = 'B'
+    __prefix__ = 'B'
 
     current_expression = ExpressionKeyParameter('i')
     voltage_expression = ExpressionKeyParameter('v')
@@ -961,7 +963,7 @@ class BehavioralSource(TwoPinElement):
 
 ####################################################################################################
 
-class NonLinearVoltageSource(TwoPinElement):
+class NonLinearVoltageSource(DipoleElement):
 
     """This class implements a non-linear voltage source.
 
@@ -983,20 +985,17 @@ class NonLinearVoltageSource(TwoPinElement):
 
     """
 
-    alias = 'NonLinearVoltageSource'
-    prefix = 'E'
+    __alias__ = 'NonLinearVoltageSource'
+    __prefix__ = 'E'
 
     ##############################################
 
-    def __init__(self, name,
-                 node_plus, node_minus,
-                 expression=None,
-                 table=None):
+    def __init__(self, name, *args, **kwargs):
 
-        super().__init__(name, node_plus, node_minus)
+        super().__init__(name, *args, **kwargs)
 
-        self.expression = expression
-        self.table = table
+        self.expression = kwargs.get('expression', None)
+        self.table = kwargs.get('table', None)
 
     ##############################################
 
@@ -1012,7 +1011,7 @@ class NonLinearVoltageSource(TwoPinElement):
 
 ####################################################################################################
 
-class NonLinearCurrentSource(TwoPortElement):
+class NonLinearCurrentSource(DipoleElement):
 
     """This class implements a non-linear current sources.
 
@@ -1035,8 +1034,8 @@ class NonLinearCurrentSource(TwoPortElement):
 
     """
 
-    alias = 'NonLinearCurrentSource'
-    prefix = 'G'
+    __alias__ = 'NonLinearCurrentSource'
+    __prefix__ = 'G'
 
     transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
 
@@ -1046,7 +1045,7 @@ class NonLinearCurrentSource(TwoPortElement):
 #
 ####################################################################################################
 
-class Diode(TwoPinElement):
+class Diode(FixedPinElement):
 
     """This class implements a junction diode.
 
@@ -1097,8 +1096,9 @@ class Diode(TwoPinElement):
 
     """
 
-    alias = 'D'
-    prefix = 'D'
+    __alias__ = 'D'
+    __prefix__ = 'D'
+    __pins__ = (('cathode', 'plus'), ('anode', 'minus'))
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1115,7 +1115,7 @@ class Diode(TwoPinElement):
 #
 ####################################################################################################
 
-class BipolarJunctionTransistor(NPinElement):
+class BipolarJunctionTransistor(FixedPinElement):
 
     """This class implements a bipolar junction transistor.
 
@@ -1172,9 +1172,10 @@ class BipolarJunctionTransistor(NPinElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    alias = 'Q'
-    long_alias = 'BJT'
-    prefix = 'Q'
+    __alias__ = 'Q'
+    __long__alias__ = 'BJT'
+    __prefix__ = 'Q'
+    __pins__ = ('collector', 'base', 'emitter', OptionalPin('substrate'))
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1186,56 +1187,16 @@ class BipolarJunctionTransistor(NPinElement):
     temperature = FloatKeyParameter('temp', unit=U_Degree)
     device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
 
-    ##############################################
-
-    def __init__(self, name,
-                 collector_node, base_node, emitter_node,
-                 substrate_node=None, # default is ground
-                 **kwargs):
-
-        pins = [Pin(self, 'collector', collector_node),
-                Pin(self, 'base', base_node),
-                Pin(self, 'emitter', emitter_node),]
-        if substrate_node is not None:
-            self._substrate_pin = Pin(self, 'substrate', substrate_node)
-            pins.append(self._substrate_pin)
-
-        super().__init__(name, pins, **kwargs)
-
-    ##############################################
-
-    @property
-    def collector(self):
-        return self.pins[0]
-
-    ##############################################
-
-    @property
-    def base(self):
-        return self.pins[1]
-
-    ##############################################
-
-    @property
-    def emitter(self):
-        return self.pins[2]
-
-    ##############################################
-
-    @property
-    def substrate(self):
-        try:
-            return self.pins[3]
-        except IndexError:
-            return None
-
 ####################################################################################################
 #
 # JFETs
 #
 ####################################################################################################
 
-class JunctionFieldEffectTransistor(ThreePinElement):
+class JfetElement(FixedPinElement):
+    __pins__ = ('drain', 'gate', 'source')
+
+class JunctionFieldEffectTransistor(JfetElement):
 
     """This class implements a bipolar junction transistor.
 
@@ -1274,9 +1235,9 @@ class JunctionFieldEffectTransistor(ThreePinElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    alias = 'J'
-    long_alias = 'JFET'
-    prefix = 'J'
+    __alias__ = 'J'
+    __long__alias__ = 'JFET'
+    __prefix__ = 'J'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1285,43 +1246,13 @@ class JunctionFieldEffectTransistor(ThreePinElement):
     ic = FloatPairKeyParameter('ic')
     temperature = FloatKeyParameter('temp', unit=U_Degree)
 
-    ##############################################
-
-    def __init__(self, name,
-                 drain_node, gate_node, source_node,
-                 **kwargs):
-
-        pins = [Pin(self, 'drain', drain_node),
-                Pin(self, 'gate', gate_node),
-                Pin(self, 'source', source_node),]
-
-        super().__init__(name, pins, **kwargs)
-
-    ##############################################
-
-    @property
-    def drain(self):
-        return self.pins[0]
-
-    ##############################################
-
-    @property
-    def gate(self):
-        return self.pins[1]
-
-    ##############################################
-
-    @property
-    def source(self):
-        return self.pins[2]
-
 ####################################################################################################
 #
 # MESFETs
 #
 ####################################################################################################
 
-class Mesfet(ThreePinElement):
+class Mesfet(JfetElement):
 
     """This class implements a Metal Semiconductor Field Effect Transistor.
 
@@ -1355,9 +1286,9 @@ class Mesfet(ThreePinElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    alias = 'Z'
-    long_alias = 'MESFET'
-    prefix = 'Z'
+    __alias__ = 'Z'
+    __long__alias__ = 'MESFET'
+    __prefix__ = 'Z'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1365,43 +1296,13 @@ class Mesfet(ThreePinElement):
     off = FlagParameter('off')
     ic = FloatPairKeyParameter('ic')
 
-    ##############################################
-
-    def __init__(self, name,
-                 drain_node, gate_node, source_node,
-                 **kwargs):
-
-        pins = [Pin(self, 'drain', drain_node),
-                Pin(self, 'gate', gate_node),
-                Pin(self, 'source', source_node),]
-
-        super().__init__(name, pins, **kwargs)
-
-    ##############################################
-
-    @property
-    def drain(self):
-        return self.pins[0]
-
-    ##############################################
-
-    @property
-    def gate(self):
-        return self.pins[1]
-
-    ##############################################
-
-    @property
-    def source(self):
-        return self.pins[2]
-
 ####################################################################################################
 #
 # MOSFETs
 #
 ####################################################################################################
 
-class Mosfet(FourPinElement):
+class Mosfet(FixedPinElement):
 
     """This class implements a Metal Oxide Field Effect Transistor.
 
@@ -1483,9 +1384,10 @@ class Mosfet(FourPinElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    alias = 'M'
-    long_alias = 'MOSFET'
-    prefix = 'M'
+    __alias__ = 'M'
+    __long__alias__ = 'MOSFET'
+    __prefix__ = 'M'
+    __pins__ = ('drain', 'gate', 'source', ('bulk', 'substrate'))
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     multiplier = IntKeyParameter('m')
@@ -1501,51 +1403,13 @@ class Mosfet(FourPinElement):
     ic = FloatTripletKeyParameter('ic')
     temperature = FloatKeyParameter('temp', unit=U_Degree)
 
-    ##############################################
-
-    def __init__(self, name,
-                 drain_node, gate_node, source_node, substrate_node,
-                 **kwargs):
-
-        pins = [Pin(self, 'drain', drain_node),
-                Pin(self, 'gate', gate_node),
-                Pin(self, 'source', source_node),
-                Pin(self, 'substrate', substrate_node), # bulk
-        ]
-
-        super().__init__(name, pins, **kwargs)
-
-    ##############################################
-
-    @property
-    def drain(self):
-        return self.pins[0]
-
-    ##############################################
-
-    @property
-    def gate(self):
-        return self.pins[1]
-
-    ##############################################
-
-    @property
-    def source(self):
-        return self.pins[2]
-
-    ##############################################
-
-    @property
-    def substrate(self):
-        return self.pins[3]
-
 ####################################################################################################
 #
 # Transmission Lines
 #
 ####################################################################################################
 
-class TransmissionLine(TwoPortElement):
+class LosslessTransmissionLine(TwoPortElement):
 
     """This class implements a lossless transmission line.
 
@@ -1585,8 +1449,8 @@ class TransmissionLine(TwoPortElement):
 
     """
 
-    alias = 'TransmissionLine'
-    prefix = 'T'
+    __alias__ = 'TransmissionLine'
+    __prefix__ = 'T'
 
     impedance = FloatKeyParameter('Z0', default=50, unit=U_Ω)
     time_delay = FloatKeyParameter('TD', unit=U_s)
@@ -1595,24 +1459,18 @@ class TransmissionLine(TwoPortElement):
 
     ##############################################
 
-    def __init__(self, name,
-                 input_node_plus, input_node_minus,
-                 output_node_plus, output_node_minus,
-                 *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):
 
         # check: ^ xor, & bitwise and
         if not (('time_delay' in kwargs) ^
                 (('frequency' in kwargs) & ('normalized_length' in kwargs))):
             raise NameError('Either TD or F, NL must be specified')
 
-        super().__init__(name,
-                         output_node_plus, output_node_minus,
-                         input_node_plus, input_node_minus, # Fixme: inverted inputs
-                         *args, **kwargs)
+        super().__init__(name, *args, **kwargs)
 
 ####################################################################################################
 
-class LossyTransmission(NPinElement):
+class LossyTransmission(TwoPortElement):
 
     """This class implements lossy transmission lines.
 
@@ -1630,19 +1488,10 @@ class LossyTransmission(NPinElement):
 
     """
 
-    alias = 'O'
-    prefix = 'O'
+    __alias__ = 'O'
+    __prefix__ = 'O'
 
-    # Fixme: How to pass model ???
-    model = ModelPositionalParameter(position=0, key_parameter=False)
-
-    ##############################################
-
-    def __init__(self, name, model, *nodes):
-
-        pins = [Pin(self, None, node) for node in nodes]
-
-        super().__init__(name, pins, model)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
 
 ####################################################################################################
 
@@ -1668,24 +1517,15 @@ class CoupledMulticonductorLine(NPinElement):
 
     """
 
-    alias = 'P'
-    prefix = 'P'
+    __alias__ = 'P'
+    __prefix__ = 'P'
 
-    # Fixme: How to pass model ???
-    model = ModelPositionalParameter(position=0, key_parameter=False)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('len', unit=U_m)
-
-    ##############################################
-
-    def __init__(self, name, model, *nodes):
-
-        pins = [Pin(self, None, node) for node in nodes]
-
-        super().__init__(name, pins, model)
 
 ####################################################################################################
 
-class UniformDistributedRCLine(NPinElement):
+class UniformDistributedRCLine(FixedPinElement):
 
     """This class implements uniform distributed RC lines.
 
@@ -1710,25 +1550,19 @@ class UniformDistributedRCLine(NPinElement):
 
     """
 
-    alias = 'U'
-    prefix = 'U'
+    __alias__ = 'U'
+    __prefix__ = 'U'
+    __pins__ = ('output', 'input', 'capacitance_node')
 
-    # Fixme: How to pass model ???
-    model = ModelPositionalParameter(position=0, key_parameter=False)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
     number_of_lumps = IntKeyParameter('m')
 
-    ##############################################
-
-    def __init__(self, name, model, *nodes):
-
-        pins = [Pin(self, None, node) for node in nodes]
-
-        super().__init__(name, pins, model)
-
 ####################################################################################################
 
-class SingleLossyTransmissionLine(NPinElement):
+class SingleLossyTransmissionLine(TwoPortElement):
+
+    # Fixme: special TwoPortElement
 
     """This class implements single lossy transmission lines.
 
@@ -1750,20 +1584,11 @@ class SingleLossyTransmissionLine(NPinElement):
 
     """
 
-    alias = 'Y'
-    prefix = 'Y'
+    __alias__ = 'Y'
+    __prefix__ = 'Y'
 
-    # Fixme: How to pass model ???
-    model = ModelPositionalParameter(position=0, key_parameter=False)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('len', unit=U_m)
-
-    ##############################################
-
-    def __init__(self, name, model, *nodes):
-
-        pins = [Pin(self, None, node) for node in nodes]
-
-        super().__init__(name, pins, model)
 
 ####################################################################################################
 #
@@ -1801,21 +1626,10 @@ class XSpiceElement(NPinElement):
     .. warning:: Partially implemented.
     """
 
-    alias = 'A'
-    prefix = 'A'
+    __alias__ = 'A'
+    __prefix__ = 'A'
 
-    # Fixme: How to pass model ???
-    # Fixme: require a key
-    # model = ModelKeyParameter()
-    model = ModelPositionalParameter(position=0, key_parameter=False)
-
-    ##############################################
-
-    def __init__(self, name, model, *nodes):
-
-        pins = [Pin(self, None, node) for node in nodes]
-
-        super().__init__(name, pins, model)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
 
 ####################################################################################################
 #
@@ -1830,8 +1644,8 @@ class GSSElement(NPinElement):
     .. warning:: Not implemented
     """
 
-    alias = 'N'
-    prefix = 'N'
+    __alias__ = 'N'
+    __prefix__ = 'N'
 
     ##############################################
 

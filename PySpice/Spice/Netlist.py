@@ -57,10 +57,10 @@ The circuit attribute :attr:`gnd` represents the ground of the circuit or subcir
 
 We can get an element or a model using its name using these two possibilities::
 
-    circuit['R1'] # dictionnary style
+    circuit['R1'] # dictionary style
     circuit.R1    # attribute style
 
-The dictionnary style always works, but the attribute only works if it complies with the Python
+The dictionary style always works, but the attribute only works if it complies with the Python
 syntax, i.e. the element or model name is a valide attribute name (identifier), i.e. starting by a
 letter and not a keyword like 'in', cf. `Python Language Reference
 <https://docs.python.org/2/reference/lexical_analysis.html>`_.
@@ -74,19 +74,6 @@ To simulate the circuit, we must create a simulator instance using the :meth:`Ci
     simulator = circuit.simulator()
 
 """
-
-####################################################################################################
-#
-# Graph:
-#   dipole
-#   n-pole: transistor (be, bc) ?
-#
-# circuit -> element -> node
-#   circuit.Q1.b
-#   Element -> ElementQ
-#   use prefix?
-#
-####################################################################################################
 
 ####################################################################################################
 
@@ -189,7 +176,51 @@ class DeviceModel:
 
 ####################################################################################################
 
-class Pin:
+class PinDefinition:
+
+    """This class defines a pin of an element."""
+
+    ##############################################
+
+    def __init__(self, position, name=None, alias=None, optional=False):
+
+        self._position = position
+        self._name = name
+        self._alias = alias
+        self._optional = optional
+
+    ##############################################
+
+    @property
+    def position(self):
+        return self._position
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def alias(self):
+        return self._alias
+
+    @property
+    def optional(self):
+        return self._optional
+
+####################################################################################################
+
+class OptionalPin:
+
+    def __init__(self, name):
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+
+####################################################################################################
+
+class Pin(PinDefinition):
 
     """This class implements a pin of an element. It stores a reference to the element, the name of the
     pin and the node.
@@ -200,13 +231,14 @@ class Pin:
 
     ##############################################
 
-    def __init__(self, element, name, node):
+    def __init__(self, element, pin_definition, node):
 
         if keyword.iskeyword(node):
-            self._logger.warning("Node {} is a Python keyword".format(node))
+            self._logger.warning("Node '{}' is a Python keyword".format(node))
+
+        super().__init__(pin_definition.position, pin_definition.name, pin_definition.alias)
 
         self._element = element
-        self._name = name
         self._node = node # Fixme: name, not a Node instance, cf. Netlist.nodes
 
     ##############################################
@@ -214,14 +246,6 @@ class Pin:
     @property
     def element(self):
         return self._element
-
-    ##############################################
-
-    @property
-    def name(self):
-        return self._name
-
-    ##############################################
 
     @property
     def node(self):
@@ -254,18 +278,36 @@ class Pin:
 
 class ElementParameterMetaClass(type):
 
-    """Metaclass to implements the element parameter machinery."""
+    # Metaclass to implements the element node and parameter machinery.
 
+    """Metaclass to customise the element classes when they are created and to register SPICE prefix.
+
+    Element classes are of type :class:`ElementParameterMetaClass` instead of :class:`type`
+
+    .. code-block:: none
+
+        class Resistor(metaclass=ElementParameterMetaClass):
+
+        <=>
+
+        Resistor = ElementParameterMetaClass('Foo', ...)
+
+    """
+
+     #: Dictionary for SPICE prefix -> [cls,]
     __classes__ = {}
 
     ##############################################
 
-    def __new__(cls, class_name, base_classes, attributes):
+    def __new__(meta_cls, class_name, base_classes, namespace):
+
+        # __new__ is called for the creation of a class depending of this metaclass, i.e. at module loading
+        # It customises the namespace of the new class
 
         # Collect positional and optional parameters from class attribute dict
         positional_parameters = {}
         parameters = {}
-        for attribute_name, obj in attributes.items():
+        for attribute_name, obj in namespace.items():
             if isinstance(obj, ParameterDescriptor):
                 obj.attribute_name = attribute_name
                 if isinstance(obj, PositionalElementParameter):
@@ -276,71 +318,124 @@ class ElementParameterMetaClass(type):
                 #     raise NotImplementedError
                 d[attribute_name] = obj
 
-        # Build dictionnary : attribute_name -> parameter
-        attributes['_positional_parameters'] = OrderedDict(sorted(list(positional_parameters.items()),
-                                                                  key=lambda t: t[1].position))
+        # Dictionary for positional parameters : attribute_name -> parameter
+        namespace['__positional_parameters__'] = OrderedDict(
+            sorted(list(positional_parameters.items()), key=lambda t: t[1]))
 
-        # optional parameter order is not required for SPICE, but for unit test
-        attributes['_optional_parameters'] = OrderedDict(sorted(list(parameters.items()), key=lambda t: t[0]))
+        # Dictionary for optional parameters
+        #   order is not required for SPICE, but for unit test
+        namespace['__optional_parameters__'] = OrderedDict(
+            sorted(list(parameters.items()), key=lambda t: t[0]))
 
         # Positional parameter array
-        attributes['_parameters_from_args'] = [parameter
-                                               for parameter in sorted(positional_parameters.values())
-                                               if not parameter.key_parameter]
+        namespace['__parameters_from_args__'] = [
+            parameter
+            for parameter in sorted(positional_parameters.values())
+            if not parameter.key_parameter]
 
-        # Implement alias for parameters
-        attributes['_spice_to_parameters'] = {parameter.spice_name:parameter
-                                              for parameter in attributes['_optional_parameters'].values()}
-        for parameter in attributes['_spice_to_parameters'].values():
-            if (parameter.spice_name in attributes
+        # Implement alias for parameters: spice name -> parameter
+        namespace['__spice_to_parameters__'] = {
+            parameter.spice_name:parameter
+            for parameter in namespace['__optional_parameters__'].values()}
+        for parameter in namespace['__spice_to_parameters__'].values():
+            if (parameter.spice_name in namespace
                 and parameter.spice_name != parameter.attribute_name):
-                _module_logger.error('Spice parameter "{}" clash with attributes'.format(parameter.spice_name))
+                _module_logger.error("Spice parameter '{}' clash with namespace".format(parameter.spice_name))
 
-        return super().__new__(cls, class_name, base_classes, attributes)
+        # Initialise pins
+
+        def make_pin_getter(position):
+            def getter(self):
+                return self._pins[position]
+            return getter
+
+        def make_optional_pin_getter(position):
+            def getter(self):
+                return self._pins[position] if position < len(self._pins) else None
+            return getter
+
+        if '__pins__' in namespace and namespace['__pins__'] is not None:
+            number_of_optional_pins = 0
+            pins = []
+            for position, pin_definition in enumerate(namespace['__pins__']):
+                # ensure pin_definition is a tuple
+                if isinstance(pin_definition, OptionalPin):
+                    optional = True
+                    number_of_optional_pins += 1
+                    pin_definition = (pin_definition.name,)
+                    pin_getter = make_optional_pin_getter(position)
+                else:
+                    optional = False
+                    pin_getter = make_pin_getter(position)
+                if not isinstance(pin_definition, tuple):
+                    pin_definition = (pin_definition,)
+                for name in pin_definition:
+                    # Check for name clash
+                    if name in namespace:
+                        raise NameError("Pin {} of element {} clashes with another attribute".format(name, class_name))
+                    # Add a pin getter in element class
+                    namespace[name] = property(pin_getter)
+                # Add pin
+                pin = PinDefinition(position, *pin_definition, optional=optional)
+                pins.append(pin)
+            namespace['__pins__'] = pins
+            namespace['__number_of_optional_pins__'] = number_of_optional_pins
+        else:
+            _module_logger.warning("{} don't define a __pins__ attribute".format(class_name))
+
+        return type.__new__(meta_cls, class_name, base_classes, namespace)
 
     ##############################################
 
-    def __init__(cls, class_name, base_classes, attributes):
+    def __init__(meta_cls, class_name, base_classes, namespace):
 
-        type.__init__(cls, class_name, base_classes, attributes)
+        # __init__ is called after the class is created (__new__)
+
+        type.__init__(meta_cls, class_name, base_classes, namespace)
 
         # Collect basic element classes
-        if 'prefix' in attributes:
-            prefix = attributes['prefix']
+        if '__prefix__' in namespace:
+            prefix = namespace['__prefix__']
             if prefix is not None:
                 classes = ElementParameterMetaClass.__classes__
                 if prefix in classes:
-                    classes[prefix].append(cls)
+                    classes[prefix].append(meta_cls)
                 else:
-                    classes[prefix] = [cls]
+                    classes[prefix] = [meta_cls]
 
     ##############################################
 
-    # Notes: These properties are only accessible from the class object, e.g. instance.__class__
+    # Note: These properties are only available from the class object
+    #       e.g. Resistor.number_of_pins or Resistor.__class__.number_of_pins
 
     @property
     def number_of_pins(cls):
-        return cls._number_of_pins
+        #! Fixme: many pins ???
+        number_of_pins = len(cls.__pins__)
+        if cls.__number_of_optional_pins__:
+            return slice(number_of_pins - cls.__number_of_optional_pins__, number_of_pins +1)
+        else:
+            return number_of_pins
 
     @property
     def number_of_positional_parameters(cls):
-        return len(cls._positional_parameters)
+        return len(cls.__positional_parameters__)
 
     @property
     def positional_parameters(cls):
-        return cls._positional_parameters
+        return cls.__positional_parameters__
 
     @property
     def optional_parameters(cls):
-        return cls._optional_parameters
+        return cls.__optional_parameters__
 
     @property
     def parameters_from_args(cls):
-        return cls._parameters_from_args
+        return cls.__parameters_from_args__
 
     @property
     def spice_to_parameters(cls):
-        return cls._spice_to_parameters
+        return cls.__spice_to_parameters__
 
 ####################################################################################################
 
@@ -352,41 +447,42 @@ class Element(metaclass=ElementParameterMetaClass):
 
     """
 
-    # These attributes are defined in subclasses or via the metaclass.
-    _number_of_pins = None
-    _positional_parameters = None
-    _optional_parameters = None
-    _parameters_from_args = None
-    _spice_to_parameters = None
-
-    # Fixme: _prefix
+    # These class attributes are defined in subclasses or via the metaclass.
+    __pins__ = None
+    __positional_parameters__ = None
+    __optional_parameters__ = None
+    __parameters_from_args__ = None
+    __spice_to_parameters__ = None
 
     #: SPICE element prefix
-    prefix = None
+    __prefix__ = None
 
     ##############################################
 
     def __init__(self, name, pins, *args, **kwargs):
 
         self._name = str(name)
-        self._pins = list(pins) # Fixme: pins is not a ordered dict, cf. property
+        self._pins = pins
         self.raw_spice = ''
 
-        # self._parameters = list(args)
-
-        for parameter, value in zip(self._parameters_from_args, args):
+        # Process remaining args
+        if len(self.__parameters_from_args__) < len(args):
+            raise NameError("Number of args mismatch")
+        for parameter, value in zip(self.__parameters_from_args__, args):
             setattr(self, parameter.attribute_name, value)
+
+        # Process kwargs
         for key, value in kwargs.items():
             if key == 'raw_spice':
                 self.raw_spice = value
-            elif key in self._positional_parameters or key in self._optional_parameters:
+            elif key in self.__positional_parameters__ or key in self.__optional_parameters__:
                 setattr(self, key, value)
 
     ##############################################
 
     @property
     def name(self):
-        return self.prefix + self._name
+        return self.__prefix__ + self._name
 
     @property
     def pins(self):
@@ -408,8 +504,8 @@ class Element(metaclass=ElementParameterMetaClass):
     def __setattr__(self, name, value):
 
         # Implement alias for parameters
-        if name in self._spice_to_parameters:
-            parameter = self._spice_to_parameters[name]
+        if name in self.__spice_to_parameters__:
+            parameter = self.__spice_to_parameters__[name]
             object.__setattr__(self, parameter.attribute_name, value)
         else:
             object.__setattr__(self, name, value)
@@ -419,8 +515,8 @@ class Element(metaclass=ElementParameterMetaClass):
     def __getattr__(self, name):
 
         # Implement alias for parameters
-        if name in self._spice_to_parameters:
-            parameter = self._spice_to_parameters[name]
+        if name in self.__spice_to_parameters__:
+            parameter = self.__spice_to_parameters__[name]
             return object.__getattribute__(self, parameter.attribute_name)
         else:
             raise AttributeError(name)
@@ -435,7 +531,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     def parameter_iterator(self):
         """ This iterator returns the parameter in the right order. """
-        for parameter_dict in self._positional_parameters, self._optional_parameters:
+        for parameter_dict in self.__positional_parameters__, self.__optional_parameters__:
             for parameter in parameter_dict.values():
                 if parameter.nonzero(self):
                     yield parameter
@@ -460,105 +556,68 @@ class Element(metaclass=ElementParameterMetaClass):
 
 ####################################################################################################
 
-class NPinElement(Element):
-    pass
-
-####################################################################################################
-
 class AnyPinElement(Element):
-    _number_of_pins = 0
 
-####################################################################################################
-
-class TwoPinElement(Element):
-
-    """This class implements a base class for a two-pin element."""
-
-    # dipole
-
-    _number_of_pins = 2
+    __pins__ = ()
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):
 
-        pins = (Pin(self, 'plus', node_plus), Pin(self, 'minus', node_minus))
+        super().__init__(name, (), *args, **kwargs)
+
+####################################################################################################
+
+class FixedPinElement(Element):
+
+    ##############################################
+
+    def __init__(self, name, *args, **kwargs):
+
+        # Process nodes
+        # Usage: if pins are passed using keywords then args must be empty
+        #        optional pins are passed as keyword
+        pins = []
+        number_of_args = len(args)
+        if number_of_args:
+            expected_number_of_pins = self.__class__.number_of_pins # Fixme:
+            if isinstance(expected_number_of_pins, slice):
+                expected_number_of_pins = expected_number_of_pins.start
+            if number_of_args < expected_number_of_pins:
+                raise NameError("Incomplete node list for element {}".format(self.name))
+            else:
+                nodes = args[:expected_number_of_pins]
+                args = args[expected_number_of_pins:]
+                for pin_definition, node in zip(self.__pins__, nodes):
+                    pins.append(Pin(self, pin_definition, node))
+        else:
+            for pin_definition in self.__pins__:
+                if pin_definition.name in kwargs:
+                    node = kwargs[pin_definition.name]
+                elif pin_definition.alias is not None and pin_definition.alias in kwargs:
+                    node = kwargs[pin_definition.alias]
+                elif pin_definition.optional:
+                    continue
+                else:
+                    raise NameError("Node '{}' is missing for element {}".format(pin_definition.name, self.name))
+                pins.append(Pin(self, pin_definition, node))
 
         super().__init__(name, pins, *args, **kwargs)
 
-    ##############################################
-
-    @property
-    def plus(self):
-        return self.pins[0]
-
-    ##############################################
-
-    @property
-    def minus(self):
-        return self.pins[1]
-
 ####################################################################################################
 
-class ThreePinElement(Element):
-    _number_of_pins = 3
+class NPinElement(Element):
 
-####################################################################################################
-
-class FourPinElement(Element):
-    _number_of_pins = 4
-
-####################################################################################################
-
-class TwoPortElement(Element):
-
-    """This class implements a base class for a two-port element.
-
-    .. warning:: As opposite to Spice, the input nodes are specified before the output nodes.
-
-    """
-
-    _number_of_pins = 4
+    __pins__ = '*'
 
     ##############################################
 
-    # Fixme: Why the order the inverted ?
+    def __init__(self, name, nodes, *args, **kwargs):
 
-    def __init__(self, name,
-                 input_node_plus, input_node_minus,
-                 output_node_plus, output_node_minus,
-                 *args, **kwargs):
-
-        pins = (Pin(self, 'output_plus', output_node_plus),
-                Pin(self, 'output_minus', output_node_minus),
-                Pin(self, 'input_plus', input_node_plus),
-                Pin(self, 'input_minus', input_node_minus))
+        pins = [Pin(self, PinDefinition(position), node)
+                for position, node in enumerate(nodes)]
 
         super().__init__(name, pins, *args, **kwargs)
-
-    ##############################################
-
-    @property
-    def output_plus(self):
-        return self.pins[0]
-
-    ##############################################
-
-    @property
-    def output_minus(self):
-        return self.pins[1]
-
-    ##############################################
-
-    @property
-    def input_plus(self):
-        return self.pins[2]
-
-    ##############################################
-
-    @property
-    def input_minus(self):
-        return self.pins[3]
 
 ####################################################################################################
 

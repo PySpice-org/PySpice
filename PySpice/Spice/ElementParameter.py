@@ -18,7 +18,9 @@
 #
 ####################################################################################################
 
-"""This modules implements the machinery to define element's parameters as descriptor."""
+"""This modules implements the machinery to define element's parameters as descriptors.
+
+"""
 
 ####################################################################################################
 
@@ -391,14 +393,3 @@ class IntKeyParameter(KeyValueParameter):
 
     def validate(self, value):
         return int(value)
-
-####################################################################################################
-
-# class ModelKeyParameter(KeyValueParameter):
-#
-#     """This class implements a model key parameter. """
-#
-#     ##############################################
-#
-#     def validate(self, value):
-#         return str(value)

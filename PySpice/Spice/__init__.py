@@ -36,7 +36,7 @@ def _get_elements(module):
     element_classes = []
     for item  in module.__dict__.values():
         if (type(item) is ElementParameterMetaClass
-            and item.prefix is not None
+            and item.__prefix__ is not None
            ):
             element_classes.append(item)
     return element_classes
@@ -67,9 +67,9 @@ for element_class in spice_elements + high_level_elements:
     _set(element_class.__name__)
 
     if element_class in spice_elements:
-        if hasattr(element_class, 'alias'):
-            _set(element_class.alias)
-        if hasattr(element_class, 'long_alias'):
-            _set(element_class.long_alias)
+        if hasattr(element_class, '__alias__'):
+            _set(element_class.__alias__)
+        if hasattr(element_class, '__long_alias__'):
+            _set(element_class.__long_alias__)
 
 
