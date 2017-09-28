@@ -47,10 +47,10 @@ Vbase = circuit.V('base', '1', circuit.gnd, 1@u_V)
 circuit.R('base', 1, 'base', 1@u_kΩ)
 Vcollector = circuit.V('collector', '2', circuit.gnd, 0@u_V)
 circuit.R('collector', 2, 'collector', 1@u_kΩ)
-# circuit.BJT(1, 'collector', 'base', circuit.gnd, 'generic')
+# circuit.BJT(1, 'collector', 'base', circuit.gnd, model='generic')
 # circuit.model('generic', 'npn')
 circuit.include(spice_library['2n2222a'])
-circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
+circuit.BJT(1, 'collector', 'base', circuit.gnd, model='2n2222a')
 
 #!# We plot the base-emitter diode curve :math:`Ib = f(Vbe)` using a DC sweep simulation.
 

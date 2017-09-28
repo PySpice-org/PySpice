@@ -41,7 +41,7 @@ circuit = Circuit('Relay')
 # circuit.V('digital', 'Vdigital', circuit.gnd, 5@u_V)
 circuit.PulseVoltageSource('clock', 'clock', circuit.gnd, 0@u_V, 5@u_V, pulse_width, period, rise_time=5@u_ms, fall_time=5@u_ms)
 circuit.R('base', 'clock', 'base', 100@u_Ω)
-circuit.BJT(1, 'collector', 'base', circuit.gnd, 'bjt') # Q is mapped to BJT !
+circuit.BJT(1, 'collector', 'base', circuit.gnd, model='bjt') # Q is mapped to BJT !
 circuit.model('bjt', 'npn', bf=80, cjc=pico(5), rb=100)
 circuit.V('analog', 'VccAnalog', circuit.gnd, 8@u_V)
 circuit.R('relay', 'VccAnalog', 1, 50@u_Ω)

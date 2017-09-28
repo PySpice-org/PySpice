@@ -21,8 +21,8 @@ from PySpice.Unit import *
 
 circuit = Circuit('Transmission Line')
 circuit.PulseVoltageSource('pulse', 'input', circuit.gnd, 0@u_V, 1@u_V, 1@u_ns, 1@u_us)
-circuit.TransmissionLine('delay', 'input', circuit.gnd, 'output',
-                         circuit.gnd, impedance=50, time_delay=40e-9)
+circuit.LosslessTransmissionLine('delay', 'output', circuit.gnd, 'input', circuit.gnd,
+                                 impedance=50, time_delay=40e-9)
 circuit.R('load', 'output', circuit.gnd, 50@u_Ω)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
