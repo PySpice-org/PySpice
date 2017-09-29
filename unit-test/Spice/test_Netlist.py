@@ -24,6 +24,9 @@ import unittest
 
 ####################################################################################################
 
+import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
+
 from PySpice.Spice.Netlist import *
 from PySpice.Unit import *
 

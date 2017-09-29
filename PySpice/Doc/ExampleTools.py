@@ -23,6 +23,8 @@
 import os
 import sys
 
+from PySpice.Tools.Path import parent_directory_of
+
 ####################################################################################################
 
 def find_libraries():
@@ -30,6 +32,6 @@ def find_libraries():
     # os.path.join(os.environ['PySpice_examples_path'], 'libraries')
 
     python_file = sys.argv[0]
-    examples_root = os.path.dirname(os.path.dirname(python_file))
+    examples_root = parent_directory_of(python_file, step=2)
 
     return os.path.join(examples_root, 'libraries')
