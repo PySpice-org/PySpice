@@ -155,8 +155,8 @@ def define_shortcut(name, shortcut) :
 def _build_prefix_shortcut(unit_prefix):
     unit_cls_name = unit_prefix.__class__.__name__
     name = unit_cls_name.lower()
-    unit_power = _Unit.UnitPower(power=unit_prefix)
-    _Unit.UnitPower.register(unit_power)
+    unit_power = _Unit.PrefixedUnit(power=unit_prefix)
+    _Unit.PrefixedUnit.register(unit_power)
     shortcut = lambda value: _Unit.UnitValue(unit_power, value)
     define_shortcut(name, shortcut)
 
@@ -201,8 +201,8 @@ def _build_unit_prefix_shortcut(unit, unit_prefix):
     else:
         value_ctor = _Unit.UnitValue
         values_ctor = _Unit.UnitValues
-    unit_power = _Unit.UnitPower(unit, unit_prefix, value_ctor, values_ctor)
-    _Unit.UnitPower.register(unit_power)
+    unit_power = _Unit.PrefixedUnit(unit, unit_prefix, value_ctor, values_ctor)
+    _Unit.PrefixedUnit.register(unit_power)
     shortcut = UnitValueShorcut(unit_power)
     define_shortcut(name, shortcut)
 

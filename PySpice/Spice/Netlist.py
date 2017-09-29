@@ -594,8 +594,10 @@ class FixedPinElement(Element):
             for pin_definition in self.__pins__:
                 if pin_definition.name in kwargs:
                     node = kwargs[pin_definition.name]
+                    del kwargs[pin_definition.name]
                 elif pin_definition.alias is not None and pin_definition.alias in kwargs:
                     node = kwargs[pin_definition.alias]
+                    del kwargs[pin_definition.alias]
                 elif pin_definition.optional:
                     continue
                 else:
@@ -613,6 +615,8 @@ class NPinElement(Element):
     ##############################################
 
     def __init__(self, name, nodes, *args, **kwargs):
+
+        #! Fixme: check could be broken
 
         pins = [Pin(self, PinDefinition(position), node)
                 for position, node in enumerate(nodes)]

@@ -51,7 +51,7 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_unit_prefix(self):
 
         # for unit_prefix in UnitPrefixMetaclass.prefix_iter():
@@ -63,14 +63,14 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_unit_prefix_shortcut(self):
 
         self.assertEqual(micro(1).power.power, -6)
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_si_derived_unit(self):
 
         self.assertEqual(SiDerivedUnit().is_unit_less(), True)
@@ -98,7 +98,7 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_units(self):
 
         self.assertEqual(float(kilo(1)), 1000.)
@@ -134,7 +134,7 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_float_cast(self):
 
         self.assertEqual(kilo(1) + 2, 1002.)
@@ -154,7 +154,7 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_unit_str(self):
 
         self.assertEqual(str(u_kHz(123.4)), '123.4 kHz')
@@ -171,7 +171,7 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_canonisation(self):
 
         self._test_canonise(unit_value(-.0009), '-900.0u')
@@ -190,7 +190,7 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_unit_conversion(self):
 
         # for units in UnitMetaclass.__hash_map__.values():
@@ -205,18 +205,18 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_validation(self):
 
         self.assertEqual(as_Hz(50), u_Hz(50))
         self.assertEqual(as_Hz(u_kHz(100)), u_kHz(100))
-        self.assertEqual(as_Hz(u_kHz(100)).unit_power.power.power, 3) # Fixme: API ...
+        self.assertEqual(as_Hz(u_kHz(100)).prefixed_unit.power.power, 3) # Fixme: API ...
         with self.assertRaises(UnitError):
             as_Hz(u_A(1))
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_frequency_mixin(self):
 
         self.assertEqual(Frequency(50).period, u_s(1/50.))
@@ -228,7 +228,7 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_list_ctor(self):
 
         self.assertEqual(u_mV((1, 2)), [u_mV(x) for x in range(1, 3)])
@@ -237,7 +237,7 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    @unittest.skip('')
+    # @unittest.skip('')
     def test_matmul_syntax(self):
 
         self.assertEqual(1@u_kΩ, 1000.)
