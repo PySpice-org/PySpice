@@ -683,7 +683,7 @@ class VoltageControlledSwitch(TwoPortElement):
     """
 
     __alias__ = 'S'
-    __long__alias__ = 'VCS'
+    __long_alias__ = 'VCS'
     __prefix__ = 'S'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
@@ -720,7 +720,7 @@ class CurrentControlledSwitch(DipoleElement):
     """
 
     __alias__ = 'W'
-    __long__alias__ = 'CCS'
+    __long_alias__ = 'CCS'
     __prefix__ = 'W'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=True)
@@ -863,7 +863,7 @@ class CurrentControlledCurrentSource(DipoleElement):
     """
 
     __alias__ = 'F'
-    __long__alias__ = 'CCCS'
+    __long_alias__ = 'CCCS'
     __prefix__ = 'F'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
@@ -893,7 +893,7 @@ class CurrentControlledVoltageSource(DipoleElement):
     """
 
     __alias__ = 'H'
-    __long__alias__ = 'CCVS'
+    __long_alias__ = 'CCVS'
     __prefix__ = 'H'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
@@ -1171,7 +1171,7 @@ class BipolarJunctionTransistor(FixedPinElement):
     # Fixme: off doesn't fit in kwargs !
 
     __alias__ = 'Q'
-    __long__alias__ = 'BJT'
+    __long_alias__ = 'BJT'
     __prefix__ = 'Q'
     __pins__ = ('collector', 'base', 'emitter', OptionalPin('substrate'))
 
@@ -1234,7 +1234,7 @@ class JunctionFieldEffectTransistor(JfetElement):
     # Fixme: off doesn't fit in kwargs !
 
     __alias__ = 'J'
-    __long__alias__ = 'JFET'
+    __long_alias__ = 'JFET'
     __prefix__ = 'J'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
@@ -1285,7 +1285,7 @@ class Mesfet(JfetElement):
     # Fixme: off doesn't fit in kwargs !
 
     __alias__ = 'Z'
-    __long__alias__ = 'MESFET'
+    __long_alias__ = 'MESFET'
     __prefix__ = 'Z'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
@@ -1383,7 +1383,7 @@ class Mosfet(FixedPinElement):
     # Fixme: off doesn't fit in kwargs !
 
     __alias__ = 'M'
-    __long__alias__ = 'MOSFET'
+    __long_alias__ = 'MOSFET'
     __prefix__ = 'M'
     __pins__ = ('drain', 'gate', 'source', ('bulk', 'substrate'))
 
