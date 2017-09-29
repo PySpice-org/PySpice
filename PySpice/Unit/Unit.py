@@ -39,6 +39,10 @@ import numpy as np
 
 ####################################################################################################
 
+from PySpice.Tools.EnumFactory import EnumFactory
+
+####################################################################################################
+
 _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
@@ -185,7 +189,7 @@ _zero_power = UnitPrefixMetaclass.get(0)
 
 class SiDerivedUnit:
 
-    """This class implements an unit defined as powers of SI base units.
+    """This class implements a unit defined as powers of SI base units.
     """
 
     # SI base units
@@ -297,7 +301,7 @@ class SiDerivedUnit:
     ##############################################
 
     # @property
-    def is_anonymous(self):
+    def is_unit_less(self):
 
         return self._hash == '0'*len(self.__base_units__)
 
@@ -305,7 +309,7 @@ class SiDerivedUnit:
 
     def __bool__(self):
 
-        return not self.is_anonymous()
+        return not self.is_unit_less()
 
     ##############################################
 
@@ -365,11 +369,35 @@ class SiDerivedUnit:
 
     ##############################################
 
-    def inverse(self):
+    def power(self, value):
 
-        powers = {unit: -self._powers[unit]
+        powers = {unit: self._powers[unit] * value
                   for unit in self.__base_units__}
         return self.__class__(powers=powers)
+
+    ##############################################
+
+    def reciprocal(self):
+
+        return self.power(-1)
+
+    ##############################################
+
+    def sqrt(self):
+
+        return self.power(1/2)
+
+    ##############################################
+
+    def square(self):
+
+        return self.power(2)
+
+    ##############################################
+
+    def cbrt(self):
+
+        return self.power(1/3)
 
 ####################################################################################################
 
@@ -441,6 +469,12 @@ class UnitMetaclass(type):
     @classmethod
     def from_si_unit(meta, si_unit, unique=True):
 
+        # Fixme:
+        #  - handle power of units
+        #      unit -> numpy vector, divide and test for identical factor
+        #      define unit, format as V^2
+        #  - complex unit
+
         units = meta.__hash_map__.get(si_unit.hash, None)
         if unique and units is not None:
             if len(units) > 1:
@@ -463,7 +497,7 @@ class UnitError(ValueError):
 
 class Unit(metaclass=UnitMetaclass):
 
-    """This class implements an unit.
+    """This class implements a unit.
     """
 
     __unit_name__ = ''
@@ -515,8 +549,8 @@ class Unit(metaclass=UnitMetaclass):
     ##############################################
 
     @property
-    def is_anonymous(self):
-        return self._si_unit.is_anonymous()
+    def is_unit_less(self):
+        return self._si_unit.is_unit_less()
 
     ##############################################
 
@@ -577,23 +611,51 @@ class Unit(metaclass=UnitMetaclass):
 
     ##############################################
 
-    def mul(self, other, unit_power=False):
+    def multiply(self, other, unit_power=False):
 
         si_unit = self._si_unit * other.si_unit
         return self._equivalent_unit_or_power(si_unit, unit_power)
 
     ##############################################
 
-    def div(self, other, unit_power=False):
+    def divide(self, other, unit_power=False):
 
         si_unit = self._si_unit / other.si_unit
         return self._equivalent_unit_or_power(si_unit, unit_power)
 
     ##############################################
 
-    def inverse(self, unit_power=False):
+    def power(self, exponent, unit_power=False):
 
-        si_unit = self._si_unit.inverse()
+        si_unit = self._si_unit.power(exponent)
+        return self._equivalent_unit_or_power(si_unit, unit_power)
+
+    ##############################################
+
+    def reciprocal(self, unit_power=False):
+
+        si_unit = self._si_unit.reciprocal()
+        return self._equivalent_unit_or_power(si_unit, unit_power)
+
+    ##############################################
+
+    def sqrt(self, unit_power=False):
+
+        si_unit = self._si_unit.sqrt()
+        return self._equivalent_unit_or_power(si_unit, unit_power)
+
+    ##############################################
+
+    def square(self, unit_power=False):
+
+        si_unit = self._si_unit.square()
+        return self._equivalent_unit_or_power(si_unit, unit_power)
+
+    ##############################################
+
+    def cbrt(self, unit_power=False):
+
+        si_unit = self._si_unit.cbrt()
         return self._equivalent_unit_or_power(si_unit, unit_power)
 
     ##############################################
@@ -648,10 +710,10 @@ class SiBaseUnit(Unit):
 
 class UnitPower:
 
-    """This class implements an unit power.
+    """This class implements a prefixed unit.
     """
 
-    __unit_map__ = {} # Unit power singletons
+    __unit_map__ = {} # Prefixed unit singletons
     __unit_power_map__ = {}
 
     __value_ctor__ = None
@@ -745,8 +807,8 @@ class UnitPower:
     ##############################################
 
     @property
-    def is_anonymous(self):
-        return self._unit.is_anonymous
+    def is_unit_less(self):
+        return self._unit.is_unit_less
 
     ##############################################
 
@@ -840,7 +902,7 @@ class UnitPower:
 
 class UnitValue: # numbers.Real
 
-    """This class implements a value with an unit and a power (prefix).
+    """This class implements a value with a unit and a power (prefix).
 
     The value is not converted to float if the value is an int.
     """
@@ -1108,7 +1170,7 @@ class UnitValue: # numbers.Real
         """self * other"""
 
         if (isinstance(other, UnitValue)):
-            equivalent_unit = self.unit.mul(other.unit, True)
+            equivalent_unit = self.unit.multiply(other.unit, True)
             value = float(self) * float(other)
             return equivalent_unit.new_value(value)
         else:
@@ -1151,7 +1213,7 @@ class UnitValue: # numbers.Real
         """self // other """
 
         if (isinstance(other, UnitValue)):
-            equivalent_unit = self.unit.div(other.unit, True)
+            equivalent_unit = self.unit.divide(other.unit, True)
             value = float(self) // float(other)
             return equivalent_unit.new_value(value)
         else:
@@ -1193,7 +1255,7 @@ class UnitValue: # numbers.Real
         """self / other"""
 
         if (isinstance(other, UnitValue)):
-            equivalent_unit = self.unit.div(other.unit, True)
+            equivalent_unit = self.unit.divide(other.unit, True)
             value = float(self) / float(other)
             return equivalent_unit.new_value(value)
         else:
@@ -1355,12 +1417,12 @@ class UnitValue: # numbers.Real
 
     ##############################################
 
-    def inverse(self):
+    def reciprocal(self):
 
-        equivalent_unit = self.unit.inverse(unit_power=True)
-        inverse_value = 1. / float(self)
+        equivalent_unit = self.unit.reciprocal(unit_power=True)
+        reciprocal_value = 1. / float(self)
 
-        return equivalent_unit.new_value(inverse_value)
+        return equivalent_unit.new_value(reciprocal_value)
 
     ##############################################
 
@@ -1370,7 +1432,7 @@ class UnitValue: # numbers.Real
         if unit_power is not None:
             return unit_power
         else:
-            raise NameError("Unit power not found for {} and power {}".format(self, power))
+            raise NameError("Prefixed unit not found for {} and power {}".format(self, power))
 
     ##############################################
 
@@ -1434,13 +1496,124 @@ class UnitValue: # numbers.Real
 
 class UnitValues(np.ndarray):
 
-    """This class implements a Numpy array with an unit and a power (prefix).
+    """This class implements a Numpy array with a unit and a power (prefix).
 
     """
 
     _logger = _module_logger.getChild('UnitValues')
 
-    # https://docs.scipy.org/doc/numpy-1.13.0/reference/arrays.ndarray.html
+    CONVERSION = EnumFactory('ConversionType', (
+        'NOT_IMPLEMENTED',
+        'NO_CONVERSION',
+        'FLOAT',
+        'UNIT_MATCH',
+        'NEW_UNIT'
+        ))
+
+    # Reference_documentation:
+    #   https://docs.scipy.org/doc/numpy-1.13.0/reference/arrays.ndarray.html
+    #   https://docs.scipy.org/doc/numpy-1.13.0/reference/ufuncs.html
+    UFUNC_MAP = {
+        # Math operations
+        # --------------------------------------------------
+        np.add:          CONVERSION.UNIT_MATCH,
+        np.subtract:     CONVERSION.UNIT_MATCH,
+        np.multiply:     CONVERSION.NEW_UNIT,
+        np.divide:       CONVERSION.NEW_UNIT,
+        np.logaddexp:    CONVERSION.FLOAT,
+        np.logaddexp2:   CONVERSION.FLOAT,
+        np.true_divide:  CONVERSION.NEW_UNIT,
+        np.floor_divide: CONVERSION.NEW_UNIT,
+        np.negative:     CONVERSION.NO_CONVERSION,
+        np.positive:     CONVERSION.NO_CONVERSION,
+        np.power:        CONVERSION.NEW_UNIT,
+        np.remainder:    CONVERSION.NOT_IMPLEMENTED, # !
+        np.mod:          CONVERSION.NOT_IMPLEMENTED, # !
+        np.fmod:         CONVERSION.NOT_IMPLEMENTED, # !
+        np.divmod:       CONVERSION.NOT_IMPLEMENTED, # !
+        np.absolute:     CONVERSION.NOT_IMPLEMENTED, # ! ???
+        np.fabs:         CONVERSION.NO_CONVERSION,
+        np.rint:         CONVERSION.NO_CONVERSION,
+        np.sign:         CONVERSION.NO_CONVERSION,
+        np.heaviside:    CONVERSION.NOT_IMPLEMENTED, # !
+        np.conj:         CONVERSION.NOT_IMPLEMENTED, # !
+        np.exp:          CONVERSION.FLOAT,
+        np.exp2:         CONVERSION.FLOAT,
+        np.log:          CONVERSION.FLOAT,
+        np.log2:         CONVERSION.FLOAT,
+        np.log10:        CONVERSION.FLOAT,
+        np.expm1:        CONVERSION.FLOAT,
+        np.log1p:        CONVERSION.FLOAT,
+        np.sqrt:         CONVERSION.NEW_UNIT,
+        np.square:       CONVERSION.NEW_UNIT,
+        np.cbrt:         CONVERSION.NEW_UNIT,
+        np.reciprocal:   CONVERSION.NEW_UNIT,
+
+        # Trigonometric functions
+        # --------------------------------------------------
+        np.sin:     CONVERSION.FLOAT,
+        np.cos:     CONVERSION.FLOAT,
+        np.tan:     CONVERSION.FLOAT,
+        np.arcsin:  CONVERSION.FLOAT,
+        np.arccos:  CONVERSION.FLOAT,
+        np.arctan:  CONVERSION.FLOAT,
+        np.arctan2: CONVERSION.FLOAT,
+        np.hypot:   CONVERSION.FLOAT,
+        np.sinh:    CONVERSION.FLOAT,
+        np.cosh:    CONVERSION.FLOAT,
+        np.tanh:    CONVERSION.FLOAT,
+        np.arcsinh: CONVERSION.FLOAT,
+        np.arccosh: CONVERSION.FLOAT,
+        np.arctanh: CONVERSION.FLOAT,
+        np.deg2rad: CONVERSION.FLOAT,
+        np.rad2deg: CONVERSION.FLOAT,
+
+        # Bit-twiddling functions
+        # --------------------------------------------------
+        np.bitwise_and: CONVERSION.NOT_IMPLEMENTED, # Nonsense
+        np.bitwise_or:  CONVERSION.NOT_IMPLEMENTED, # Nonsense
+        np.bitwise_xor: CONVERSION.NOT_IMPLEMENTED, # Nonsense
+        np.invert:      CONVERSION.NOT_IMPLEMENTED, # Nonsense
+        np.left_shift:  CONVERSION.NOT_IMPLEMENTED, # Nonsense
+        np.right_shift: CONVERSION.NOT_IMPLEMENTED, # Nonsense
+
+        # Comparison functions
+        # --------------------------------------------------
+        np.greater:       CONVERSION.UNIT_MATCH,
+        np.greater_equal: CONVERSION.UNIT_MATCH,
+        np.less:          CONVERSION.UNIT_MATCH,
+        np.less_equal:    CONVERSION.UNIT_MATCH,
+        np.not_equal:     CONVERSION.UNIT_MATCH,
+        np.equal:         CONVERSION.UNIT_MATCH,
+
+        np.logical_and:   CONVERSION.UNIT_MATCH,
+        np.logical_or:    CONVERSION.UNIT_MATCH,
+        np.logical_xor:   CONVERSION.UNIT_MATCH,
+        np.logical_not:   CONVERSION.UNIT_MATCH,
+
+        np.maximum:       CONVERSION.UNIT_MATCH,
+        np.minimum:       CONVERSION.UNIT_MATCH,
+        np.fmax:          CONVERSION.UNIT_MATCH,
+        np.fmin:          CONVERSION.UNIT_MATCH,
+
+        # Floating functions
+        # --------------------------------------------------
+        np.isfinite:  CONVERSION.NOT_IMPLEMENTED, # ! _T
+        np.isinf:     CONVERSION.NOT_IMPLEMENTED, # ! _T
+        np.isnan:     CONVERSION.NOT_IMPLEMENTED, # ! _T
+        np.fabs:      CONVERSION.NOT_IMPLEMENTED, # ! _
+        np.signbit:   CONVERSION.NOT_IMPLEMENTED, # ! _T
+        np.copysign:  CONVERSION.NOT_IMPLEMENTED, # !
+        np.nextafter: CONVERSION.NOT_IMPLEMENTED, # !
+        np.spacing:   CONVERSION.NOT_IMPLEMENTED, # !
+        np.modf:      CONVERSION.NOT_IMPLEMENTED, # !
+        np.ldexp:     CONVERSION.NOT_IMPLEMENTED, # !
+        np.frexp:     CONVERSION.NOT_IMPLEMENTED, # !
+        np.fmod:      CONVERSION.NOT_IMPLEMENTED, # !
+        np.floor:     CONVERSION.NOT_IMPLEMENTED, # !
+        np.ceil:      CONVERSION.NO_CONVERSION,
+        np.trunc:     CONVERSION.NO_CONVERSION,
+    }
 
     ##############################################
 
@@ -1501,8 +1674,6 @@ class UnitValues(np.ndarray):
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
 
-        # https://docs.scipy.org/doc/numpy-1.13.0/reference/ufuncs.html
-
         # - "ufunc" is the ufunc object that was called
         # - "method" is a string indicating how the ufunc was called, either
         #       "__call__" to indicate it was called directly,
@@ -1536,9 +1707,19 @@ class UnitValues(np.ndarray):
 
         unit_power = self._unit_power
 
+        conversion = self.UFUNC_MAP[ufunc]
+        self._logger.info("Conversion for {} is {}".format(ufunc, conversion))
+
         # Cast inputs to ndarray
         args = []
-        if ufunc in (np.add, np.subtract):
+        if conversion in (self.CONVERSION.FLOAT, self.CONVERSION.NO_CONVERSION):
+            if conversion == self.CONVERSION.FLOAT and not unit_power.is_unit_less:
+                raise ValueError("Must be unit less")
+            args = [( input_.as_ndarray() if isinstance(input_, UnitValues) else input_ )
+                    for input_ in inputs]
+        #
+        elif conversion == self.CONVERSION.UNIT_MATCH:
+            # len(inputs) == 2
             args.append(self.as_ndarray())
             other = inputs[1]
             if isinstance(other, UnitValues):
@@ -1546,35 +1727,48 @@ class UnitValues(np.ndarray):
                 args.append(self._convert_value(other).as_ndarray())
             else:
                 raise ValueError
-        elif ufunc == np.multiply:
-            other = inputs[1]
-            if isinstance(other, UnitValues):
-                equivalent_unit = self.unit.mul(other.unit, True)
-                unit_power = UnitPower.from_unit_power(equivalent_unit)
-                args.append(self.as_ndarray(True))
-                args.append(other.as_ndarray(True))
-            else:
-                args.append(self.as_ndarray())
-                args.append(other)
-        elif ufunc in (np.divide, np.true_divide, np.floor_divide):
-            other = inputs[1]
-            if isinstance(other, UnitValues):
-                unit_power = self.unit.div(other.unit, True)
-                args.append(self.as_ndarray(True))
-                args.append(other.as_ndarray(True))
-            elif isinstance(other, UnitValue):
-                unit_power = self.unit.div(other.unit, True)
-                args.append(self.as_ndarray(True))
-                args.append(float(other))
-            else:
-                args.append(self.as_ndarray())
-                args.append(other)
-        else:
-            for input_ in inputs:
-                if isinstance(input_, UnitValues):
-                    args.append(input_.as_ndarray())
+        #
+        elif conversion == self.CONVERSION.NEW_UNIT:
+            if len(inputs) == 1:
+                if ufunc == np.sqrt:
+                    unit_power = self.unit.sqrt(True)
+                elif ufunc == np.square:
+                    unit_power = self.unit.square(True)
+                elif ufunc == np.cbrt:
+                    unit_power = self.unit.cbrt(True)
+                elif ufunc == np.reciprocal:
+                    unit_power = self.unit.reciprocal(True)
                 else:
-                    args.append(input_)
+                    raise NotImplementedError
+                args.append(self.as_ndarray())
+            elif len(inputs) == 2:
+                other = inputs[1]
+                if isinstance(other, (UnitValues, UnitValue)):
+                    if ufunc == np.multiply:
+                        unit_power = self.unit.multiply(other.unit, True)
+                    elif ufunc in (np.divide, np.true_divide, np.floor_divide):
+                        unit_power = self.unit.divide(other.unit, True)
+                    else:
+                        raise NotImplementedError
+                    args.append(self.as_ndarray(True))
+                    if isinstance(other, UnitValue):
+                        args.append(float(other))
+                    else:
+                        args.append(other.as_ndarray(True))
+                elif ufunc in (np.multiply, np.divide, np.true_divide, np.floor_divide, np.power):
+                    if ufunc == np.power:
+                        unit_power = self.unit.power(other, True)
+                    args.append(self.as_ndarray())
+                    args.append(other)
+                else:
+                    raise NotImplementedError
+            else:
+                raise NotImplementedError
+        #
+        else: # self.CONVERSION.NOT_IMPLEMENTED
+            raise NotImplementedError
+
+        self._logger.info("Output unit is {}".format(unit_power))
 
         # Cast outputs to ndarray
         outputs = kwargs.pop('out', None)
@@ -1590,7 +1784,6 @@ class UnitValues(np.ndarray):
             outputs = (None,) * ufunc.nout
 
         # Call ufunc
-        print((ufunc, method, args, kwargs))
         results = super(UnitValues, self).__array_ufunc__(ufunc, method, *args, **kwargs)
         if results is NotImplemented:
             return NotImplemented
@@ -1600,8 +1793,13 @@ class UnitValues(np.ndarray):
             results = (results,)
 
         # Cast results
-        results = tuple((UnitValues.from_ndarray(np.asarray(result), unit_power) if output is None else output)
-                        for result, output in zip(results, outputs))
+        if conversion == self.CONVERSION.FLOAT:
+            # Fixme: ok ???
+            results = tuple(( result if output is None else output )
+                            for result, output in zip(results, outputs))
+        else:
+            results = tuple(( UnitValues.from_ndarray(np.asarray(result), unit_power) if output is None else output )
+                            for result, output in zip(results, outputs))
 
         # list or scalar
         return results[0] if len(results) == 1 else results
@@ -1729,12 +1927,12 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def inverse(self):
+    def reciprocal(self):
 
-        equivalent_unit = self.unit.inverse(unit_power=True)
-        inverse_value = 1. / np.as_ndarray(True)
+        equivalent_unit = self.unit.reciprocal(unit_power=True)
+        reciprocal_value = 1. / np.as_ndarray(True)
 
-        return self.from_ndarray(inverse_value, equivalent_unit)
+        return self.from_ndarray(reciprocal_value, equivalent_unit)
 
     ##############################################
 
@@ -1744,7 +1942,7 @@ class UnitValues(np.ndarray):
         if unit_power is not None:
             return unit_power
         else:
-            raise NameError("Unit power not found for {} and power {}".format(self, power))
+            raise NameError("Prefixed unit not found for {} and power {}".format(self, power))
 
     ##############################################
 
@@ -1789,7 +1987,7 @@ class FrequencyMixin:
     @property
     def period(self):
         r""" Return the period :math:`T = \frac{1}{f}`. """
-        return self.inverse()
+        return self.reciprocal()
 
     ##############################################
 
@@ -1810,7 +2008,7 @@ class PeriodMixin:
     @property
     def frequency(self):
         r""" Return the period :math:`f = \frac{1}{T}`. """
-        return self.inverse()
+        return self.reciprocal()
 
     ##############################################
 

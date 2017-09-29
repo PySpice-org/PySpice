@@ -73,7 +73,7 @@ class TestUnits(unittest.TestCase):
     @unittest.skip('')
     def test_si_derived_unit(self):
 
-        self.assertEqual(SiDerivedUnit().is_anonymous(), True)
+        self.assertEqual(SiDerivedUnit().is_unit_less(), True)
         self.assertEqual(bool(SiDerivedUnit()), False)
 
         si_power1 = SiDerivedUnit('m')
@@ -87,7 +87,7 @@ class TestUnits(unittest.TestCase):
         self.assertEqual(si_power1.is_base_unit(), True)
         self.assertEqual((si_power1 * si_power2).is_base_unit(), False)
 
-        self.assertEqual(si_power1.inverse(), SiDerivedUnit(powers={'m': -1}))
+        self.assertEqual(si_power1.reciprocal(), SiDerivedUnit(powers={'m': -1}))
         self.assertEqual(si_power1 * si_power2, SiDerivedUnit(powers={'m': 1, 's': 1}))
         self.assertEqual(si_power1 / si_power2, SiDerivedUnit(powers={'m': 1, 's': -1}))
 
@@ -130,7 +130,7 @@ class TestUnits(unittest.TestCase):
         self.assertTrue(kilo(2) > kilo(1))
         self.assertTrue(kilo(1) >= kilo(1))
 
-        self.assertEqual(kilo(2).inverse(), 1/2000.)
+        self.assertEqual(kilo(2).reciprocal(), 1/2000.)
 
     ##############################################
 
@@ -199,9 +199,9 @@ class TestUnits(unittest.TestCase):
         self.assertEqual(u_V(10) / u_A(2), u_Ω(5))
         self.assertEqual(u_Ω(5) * u_A(2), u_V(10))
 
-        self.assertEqual(u_ms(20).inverse(), u_Hz(50))
-        self.assertEqual(u_Hz(50).inverse(), u_ms(20))
-        self.assertEqual(u_Hz(50).inverse(), u_ms(20))
+        self.assertEqual(u_ms(20).reciprocal(), u_Hz(50))
+        self.assertEqual(u_Hz(50).reciprocal(), u_ms(20))
+        self.assertEqual(u_Hz(50).reciprocal(), u_ms(20))
 
     ##############################################
 
@@ -257,16 +257,16 @@ class TestUnits(unittest.TestCase):
     # @unittest.skip('')
     def test_numpy_units(self):
 
-        array = np.arange(10)
-        array1 = u_mV(array)
-        true_array = array / 1000
+        np_array1 = np.arange(10)
+        array1 = u_mV(np_array1)
+        np_true_array1 = np_array1 / 1000
         print(array1)
-        self._test_unit_values(array1, true_array)
+        self._test_unit_values(array1, np_true_array1)
 
         _slice = slice(1, 5)
         view1 = array1[_slice]
         print(view1)
-        self._test_unit_values(view1, true_array[_slice])
+        self._test_unit_values(view1, np_true_array1[_slice])
 
         scalar1 = array1[1]
         print(scalar1)
@@ -278,30 +278,48 @@ class TestUnits(unittest.TestCase):
         self.assertEqual(array1[1], scalar2)
         array1[1] = scalar1
 
+        # negative
         array = - array1
         print(array)
-        self._test_unit_values(array, - true_array)
+        self._test_unit_values(array, - np_true_array1)
 
+        # multiply scalar
         array = array1 * 2
         print(array)
-        self._test_unit_values(array, true_array * 2)
+        self._test_unit_values(array, np_true_array1 * 2)
 
         # array = np.sin(array1)
         # print(array)
-        # self._test_unit_values(array, np.sin(true_array))
+        # self._test_unit_values(array, np.sin(np_true_array1))
 
+        # add
         array = array1 + array1
         print(array)
-        self._test_unit_values(array, true_array * 2)
+        self._test_unit_values(array, np_true_array1 * 2)
 
+        # subtract
         array -= array1
         print(array)
-        self._test_unit_values(array, true_array)
+        self._test_unit_values(array, np_true_array1)
 
+        # divide scalar
         array = array1 / u_kΩ(10)
         print(array)
         self.assertEqual(array.unit, u_A(0).unit)
-        self._test_unit_values(array, true_array / 10**4)
+        self._test_unit_values(array, np_true_array1 / 10**4)
+
+        # square
+        array = np.square(array1)
+        print(array)
+        self.assertEqual(array.unit, u_V(0).unit.square())
+        self._test_unit_values(array, np.square(np_array1))
+
+        # power
+        power = 5
+        array = np.power(array1, power)
+        print(array)
+        self.assertEqual(array.unit, u_V(0).unit.power(power))
+        self._test_unit_values(array, np.power(np_array1, power))
 
 ####################################################################################################
 
