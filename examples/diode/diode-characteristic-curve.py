@@ -151,7 +151,7 @@ axe.set_ylim(-500, 750) # Fixme: round
 axe.yaxis.set_major_formatter(formatter)
 Vd = analyses[25].out
 # compute scale for reverse and forward region
-forward_region = Vd >= 0
+forward_region = Vd >= 0@u_V
 reverse_region = np.invert(forward_region)
 scale =  reverse_region*1e11 + forward_region*1e3
 #?# check temperature
