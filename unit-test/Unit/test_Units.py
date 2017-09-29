@@ -45,12 +45,6 @@ class TestUnits(unittest.TestCase):
 
     ##############################################
 
-    def __init__(self, method_name):
-
-        super().__init__(method_name)
-
-    ##############################################
-
     # @unittest.skip('')
     def test_unit_prefix(self):
 

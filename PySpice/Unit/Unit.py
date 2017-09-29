@@ -1507,6 +1507,7 @@ class UnitValues(np.ndarray):
         'NO_CONVERSION',
         'FLOAT',
         'UNIT_MATCH',
+        'UNIT_MATCH_NO_OUT_CAST',
         'NEW_UNIT'
         ))
 
@@ -1580,12 +1581,12 @@ class UnitValues(np.ndarray):
 
         # Comparison functions
         # --------------------------------------------------
-        np.greater:       CONVERSION.UNIT_MATCH,
-        np.greater_equal: CONVERSION.UNIT_MATCH,
-        np.less:          CONVERSION.UNIT_MATCH,
-        np.less_equal:    CONVERSION.UNIT_MATCH,
-        np.not_equal:     CONVERSION.UNIT_MATCH,
-        np.equal:         CONVERSION.UNIT_MATCH,
+        np.greater:       CONVERSION.UNIT_MATCH_NO_OUT_CAST,
+        np.greater_equal: CONVERSION.UNIT_MATCH_NO_OUT_CAST,
+        np.less:          CONVERSION.UNIT_MATCH_NO_OUT_CAST,
+        np.less_equal:    CONVERSION.UNIT_MATCH_NO_OUT_CAST,
+        np.not_equal:     CONVERSION.UNIT_MATCH_NO_OUT_CAST,
+        np.equal:         CONVERSION.UNIT_MATCH_NO_OUT_CAST,
 
         np.logical_and:   CONVERSION.UNIT_MATCH,
         np.logical_or:    CONVERSION.UNIT_MATCH,
@@ -1721,22 +1722,27 @@ class UnitValues(np.ndarray):
         args = []
         if conversion in (self.CONVERSION.FLOAT, self.CONVERSION.NO_CONVERSION):
             if conversion == self.CONVERSION.FLOAT and not prefixed_unit.is_unit_less:
-                raise ValueError("Must be unit less")
-            args = [( input_.as_ndarray() if isinstance(input_, UnitValues) else input_ )
+                # raise ValueError("Must be unit less")
+                self._logger.warning("Should be unit less")
+            args = [( input_.as_ndarray(True) if isinstance(input_, UnitValues) else input_ )
                     for input_ in inputs]
         #
-        elif conversion == self.CONVERSION.UNIT_MATCH:
+        elif conversion in (self.CONVERSION.UNIT_MATCH, self.CONVERSION.UNIT_MATCH_NO_OUT_CAST):
             # len(inputs) == 2
-            args.append(self.as_ndarray())
             other = inputs[1]
-            if isinstance(other, UnitValues):
+            if isinstance(other, (UnitValues, UnitValue)):
                 self._check_unit(other)
-                args.append(self._convert_value(other).as_ndarray())
+                args.append(self.as_ndarray())
+                nd_other = self._convert_value(other)
+                if isinstance(other, UnitValues):
+                    nd_other = nd_other.as_ndarray()
+                args.append(nd_other)
             else:
                 raise ValueError
         #
         elif conversion == self.CONVERSION.NEW_UNIT:
             if len(inputs) == 1:
+                #! Fixme: power
                 if ufunc == np.sqrt:
                     prefixed_unit = self.unit.sqrt(True)
                 elif ufunc == np.square:
@@ -1747,7 +1753,7 @@ class UnitValues(np.ndarray):
                     prefixed_unit = self.unit.reciprocal(True)
                 else:
                     raise NotImplementedError
-                args.append(self.as_ndarray())
+                args.append(self.as_ndarray(True))
             elif len(inputs) == 2:
                 other = inputs[1]
                 if isinstance(other, (UnitValues, UnitValue)):
@@ -1800,7 +1806,7 @@ class UnitValues(np.ndarray):
             results = (results,)
 
         # Cast results
-        if conversion == self.CONVERSION.FLOAT:
+        if conversion in (self.CONVERSION.FLOAT, self.CONVERSION.UNIT_MATCH_NO_OUT_CAST):
             # Fixme: ok ???
             results = tuple(( result if output is None else output )
                             for result, output in zip(results, outputs))
@@ -1835,7 +1841,7 @@ class UnitValues(np.ndarray):
 
         value = super(UnitValues, self).__getitem__(_slice)
 
-        if isinstance(value, UnitValue):
+        if isinstance(value, UnitValue): # slice
             return value
         else:
             return self._prefixed_unit.new_value(value)
