@@ -167,15 +167,21 @@ V1.2.0 (development release)
  * Implemented partially `A` XSPICE device
  * Implemented missing transmission line devices
  * Implemented high level current sources
-   **Notice: Some class were renamed!**
+   **Notice: Some classes were renamed !**
  * Implemented node kwarg e.g. :code:`circuit.Q(1, base=1, collector=2, emitter=3, model='npn')`
  * Implemented raw spice pass through (see `User FAQ </faq.html>`_)
  * Implemented check for missing ground node
  * Improved SPICE parser
- * Added Numpy array support to unit
- * Fixed node order so as to not confuse users **Now PySpice matches SPICE order for two ports elements**
+ * Improved unit support:
+
+   * Implemented unit prefix cast `U_μV(U_mV(1))` to easily convert values
+   * Added `U_mV`, ... shortcuts
+   * Added Numpy array support to unit, see `UnitValues` **Notice: this new feature could be buggy !!!**
+   * Rebased `WaveForm` to `UnitValues`
+
+ * Fixed node order so as to not confuse users **Now PySpice matches SPICE order for two ports elements !**
  * Fixed device shortcuts in `Netlist` class
- * Fixed model for BJT **Notice: it must be passed as kwarg**
+ * Fixed model kwarg for BJT **Notice: it must be passed exclusively as kwarg !**
  * Fixed subcircuit nesting
 
 .. :ref:`user-faq-page`
