@@ -36,7 +36,7 @@ A shortcut is defined to check an unit value match a particular unit, e.g. :func
 shortcuts return the value if the unit match else it raises the exception *UnitError*.
 
 A shortcut is defined to access each unit, e.g. :func:`U_V`, :func:`U_A`, :func:`U_s`, :func:`U_Hz`,
-:func:`U_Ω`, :func:`U_F`, :func:`U_H.`
+:func:`U_Ω`, :func:`U_F`, :func:`U_H.`, as well as for prefixes e.g. :func:`U_mV`.
 
 Some shortcuts have Unicode and ASCII variants:
 
@@ -101,17 +101,18 @@ class UnitValueShorcut:
 
     ##############################################
 
-    def __init__(self, unit_power):
+    def __init__(self, prefixed_unit):
 
-        self._unit_power = unit_power
+        self._prefixed_unit = prefixed_unit
 
     ##############################################
 
     def _new_value(self, other):
 
-        return self._unit_power.new_value(other)
+        return self._prefixed_unit.new_value(other)
 
     ##############################################
+
     def __call__(self, other):
 
         """self(other)"""
@@ -155,9 +156,9 @@ def define_shortcut(name, shortcut) :
 def _build_prefix_shortcut(unit_prefix):
     unit_cls_name = unit_prefix.__class__.__name__
     name = unit_cls_name.lower()
-    unit_power = _Unit.PrefixedUnit(power=unit_prefix)
-    _Unit.PrefixedUnit.register(unit_power)
-    shortcut = lambda value: _Unit.UnitValue(unit_power, value)
+    prefixed_unit = _Unit.PrefixedUnit(power=unit_prefix)
+    _Unit.PrefixedUnit.register(prefixed_unit)
+    shortcut = lambda value: _Unit.UnitValue(prefixed_unit, value)
     define_shortcut(name, shortcut)
 
 for unit_prefix in _Unit.UnitPrefixMetaclass.prefix_iter():
@@ -201,9 +202,10 @@ def _build_unit_prefix_shortcut(unit, unit_prefix):
     else:
         value_ctor = _Unit.UnitValue
         values_ctor = _Unit.UnitValues
-    unit_power = _Unit.PrefixedUnit(unit, unit_prefix, value_ctor, values_ctor)
-    _Unit.PrefixedUnit.register(unit_power)
-    shortcut = UnitValueShorcut(unit_power)
+    prefixed_unit = _Unit.PrefixedUnit(unit, unit_prefix, value_ctor, values_ctor)
+    _Unit.PrefixedUnit.register(prefixed_unit)
+    define_shortcut('U' + name[1:], prefixed_unit)
+    shortcut = UnitValueShorcut(prefixed_unit)
     define_shortcut(name, shortcut)
 
 def _build_unit_shortcut(unit):
