@@ -28,6 +28,8 @@ from PySpice.Unit.Unit import UnitValue
 
 def str_spice(obj, unit=True):
 
+    # Fixme: right place ???
+
     """Convert an object to a Spice compatible string."""
 
     if isinstance(obj, UnitValue):
