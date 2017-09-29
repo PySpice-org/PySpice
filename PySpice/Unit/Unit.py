@@ -826,7 +826,7 @@ class PrefixedUnit:
     def check_unit(self, other):
 
         if not self.is_same_unit(other):
-            raise UnitError
+            raise UnitError('{} versus {}'.format(self, other))
 
     ##############################################
 
@@ -1629,6 +1629,9 @@ class UnitValues(np.ndarray):
 
         obj = array.view(UnitValues)
         obj._prefixed_unit = prefixed_unit
+
+        if isinstance(array, UnitValues):
+            return array.convert(prefixed_unit)
 
         return obj
 
