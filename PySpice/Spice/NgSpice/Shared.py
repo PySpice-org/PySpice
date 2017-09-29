@@ -60,6 +60,10 @@ ffi = FFI()
 
 ####################################################################################################
 
+from PySpice.Unit import u_V, u_A, u_s, u_Hz
+
+####################################################################################################
+
 _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
@@ -96,56 +100,41 @@ class Vector:
 
     def __init__(self, name, type_, data):
 
-        self.name = str(name)
-        self.type = type_
-        self.data = data
+        self._name = str(name)
+        self._type = type_
+        self._data = data
+        self._unit = NgSpiceShared.__type_to_unit__[type_]
 
     ##############################################
 
     def __repr__(self):
 
-        return 'variable: {0.name} {0.type}'.format(self)
+        return 'variable: {0._name} {0._type}'.format(self)
 
     ##############################################
 
     def is_voltage_node(self):
 
-        return self.type == NgSpiceShared.SIMULATION_TYPE.voltage
+        return self._type == NgSpiceShared.SIMULATION_TYPE.voltage
 
     ##############################################
 
     def is_branch_current(self):
 
-        return self.type == NgSpiceShared.SIMULATION_TYPE.current
+        return self._type == NgSpiceShared.SIMULATION_TYPE.current
 
     ##############################################
 
     @property
     def simplified_name(self):
 
-        if self.is_voltage_node() and self.name.startswith('V('):
-            return self.name[2:-1]
+        if self.is_voltage_node() and self._name.startswith('V('):
+            return self._name[2:-1]
         elif self.is_branch_current():
-            # return self.name.replace('#branch', '')
-            return self.name[:-7]
+            # return self._name.replace('#branch', '')
+            return self._name[:-7]
         else:
-            return self.name
-
-    ##############################################
-
-    @property
-    def unit(self):
-
-        if self.type == NgSpiceShared.SIMULATION_TYPE.voltage:
-            return 'V'
-        elif self.type == NgSpiceShared.SIMULATION_TYPE.current:
-            return 'A'
-        elif self.type == NgSpiceShared.SIMULATION_TYPE.time:
-            return 's'
-        elif self.type == NgSpiceShared.SIMULATION_TYPE.frequency:
-            return 'Hz'
-        else:
-            return ''
+            return self._name
 
     ##############################################
 
@@ -153,13 +142,13 @@ class Vector:
 
         """ Return a :obj:`PySpice.Probe.WaveForm` instance. """
 
-        data = self.data
+        data = self._data
         if to_real:
             data = data.real
         if to_float:
             data = float(data[0])
 
-        return WaveForm(self.simplified_name, self.unit, data, abscissa=abscissa)
+        return WaveForm.from_unit_values(self.simplified_name, self._unit(data), abscissa=abscissa)
 
 ####################################################################################################
 
@@ -321,6 +310,13 @@ class NgSpiceShared:
         'capacitance',
         'charge',
     ))
+
+    __type_to_unit__ = {
+        SIMULATION_TYPE.time: u_s,
+        SIMULATION_TYPE.voltage: u_V,
+        SIMULATION_TYPE.current: u_A,
+        SIMULATION_TYPE.frequency: u_Hz,
+    }
 
     NGSPICE_PATH = None
     LIBRARY_PATH = None

@@ -29,7 +29,7 @@ import os
 
 ####################################################################################################
 
-from PySpice.Unit import u_Degree, U_V, U_A, U_s, U_Hz
+from PySpice.Unit import u_Degree, u_V, u_A, u_s, u_Hz
 
 ####################################################################################################
 
@@ -116,7 +116,7 @@ class VariableAbc:
         if to_float:
             data = float(data[0])
 
-        return WaveForm(self.simplified_name, self.unit, data, abscissa=abscissa)
+        return WaveForm(self.simplified_name, self.unit(data), abscissa=abscissa)
 
 ####################################################################################################
 
@@ -150,10 +150,10 @@ class RawFileAbc:
     ##############################################
 
     __name_to_unit__ = {
-        'time': U_s,
-        'voltage': U_V,
-        'current': U_A,
-        'frequency': U_Hz,
+        'time': u_s,
+        'voltage': u_V,
+        'current': u_A,
+        'frequency': u_Hz,
     }
 
     ##############################################

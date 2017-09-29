@@ -20,21 +20,28 @@
 
 ####################################################################################################
 
-# Fixme: self._
-
 """This module implements classes to handle analysis output.
 
 """
 
 ####################################################################################################
 
+import logging
 import os
 
 import numpy as np
 
 ####################################################################################################
 
-class WaveForm(np.ndarray):
+_module_logger = logging.getLogger(__name__)
+
+####################################################################################################
+
+from PySpice.Unit.Unit import UnitValues
+
+####################################################################################################
+
+class WaveForm(UnitValues):
 
     """This class implements waveform on top of a Numpy Array.
 
@@ -51,16 +58,32 @@ class WaveForm(np.ndarray):
 
     """
 
+    _logger = _module_logger.getChild('WaveForm')
+
     ##############################################
 
-    def __new__(cls, name, unit, data, title=None, abscissa=None):
+    @classmethod
+    def from_unit_values(cls, name, array, title=None, abscissa=None):
 
-        obj = np.asarray(data).view(cls)
+        obj = cls(name, array.prefixed_unit, array.shape, title=title, abscissa=abscissa)
+        obj[...] = array[...]
 
-        obj.name = str(name)
-        obj.unit = unit
-        obj.title = title # str(title)
-        obj.abscissa = abscissa
+        return obj
+
+    ##############################################
+
+    def __new__(cls, name, prefixed_unit,
+                shape, dtype=float, buffer=None, offset=0, strides=None, order=None,
+                title=None, abscissa=None):
+
+        # cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
+
+        obj = super(WaveForm, cls).__new__(cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)
+        # obj = np.asarray(data).view(cls)
+
+        obj._name = str(name)
+        obj._title = title # str(title)
+        obj._abscissa = abscissa
 
         return obj
 
@@ -68,34 +91,58 @@ class WaveForm(np.ndarray):
 
     def __array_finalize__(self, obj):
 
+        # self._logger.info('\n  {}'.format(obj))
+
+        # Fixme: ??? else _prefixed_unit is not set
+        super().__array_finalize__(obj)
+
         if obj is None:
             return
 
-        self.name = getattr(obj, 'name', None)
-        self.unit = getattr(obj, 'unit', None)
-        self.title = getattr(obj, 'title', None)
-        self.abscissa = getattr(obj, 'abscissa', None)
+        self._name = getattr(obj, 'name', None)
+        self._title = getattr(obj, 'title', None)
+        self._abscissa = getattr(obj, 'abscissa', None)
+
+    ##############################################
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def abscissa(self):
+        return self._abscissa
+
+    @property
+    def title(self):
+        return self._title
+
+    @title.setter
+    def title(self, value):
+        self._title = value
 
     ##############################################
 
     def __repr__(self):
 
-        return 'variable {0.name} [{0.unit}]'.format(self)
+        return '{0.__class__.__name__} {0._name} {1}'.format(self, super().__str__())
 
     ##############################################
 
     def __str__(self):
 
-        if self.title is not None:
-            return self.title
+        if self._title is not None:
+            return self._title
         else:
-            return '{0.name} [{0.unit}]'.format(self)
+            return self._name
 
     ##############################################
 
     def str_data(self):
 
-        return super().__repr__()
+        # Fixme: ok ???
+
+        return repr(self.as_ndarray())
 
 ####################################################################################################
 
@@ -166,9 +213,9 @@ class Analysis:
 
         self._simulation = simulation
         # Fixme: to func?
-        self.nodes = {waveform.name:waveform for waveform in nodes}
-        self.branches = {waveform.name:waveform for waveform in branches}
-        self.elements = {waveform.name:waveform for waveform in elements}
+        self._nodes = {waveform.name:waveform for waveform in nodes}
+        self._branches = {waveform.name:waveform for waveform in branches}
+        self._elements = {waveform.name:waveform for waveform in elements}
 
     ##############################################
 
@@ -177,16 +224,28 @@ class Analysis:
         """Return the simulation instance"""
         return self._simulation
 
-    ##############################################
+    @property
+    def nodes(self):
+        return self._nodes
+
+    @property
+    def branches(self):
+        return self._branches
+
+    @property
+    def elements(self):
+        return self._elements
+
+   ##############################################
 
     def _get_item(self, name):
 
-        if name in self.nodes:
-            return self.nodes[name]
-        elif name in self.branches:
-            return self.branches[name]
-        elif name in self.elements:
-            return self.elements[name]
+        if name in self._nodes:
+            return self._nodes[name]
+        elif name in self._branches:
+            return self._branches[name]
+        elif name in self._elements:
+            return self._elements[name]
         else:
             raise IndexError(name)
 
@@ -214,9 +273,9 @@ class Analysis:
             return self.__getitem__(name)
         except IndexError:
             raise AttributeError(name + os.linesep +
-                                 'Nodes :' + os.linesep + self._format_dict(self.nodes) + os.linesep +
-                                 'Branches :' + os.linesep + self._format_dict(self.branches) + os.linesep +
-                                 'Elements :' + os.linesep + self._format_dict(self.elements))
+                                 'Nodes :' + os.linesep + self._format_dict(self._nodes) + os.linesep +
+                                 'Branches :' + os.linesep + self._format_dict(self._branches) + os.linesep +
+                                 'Elements :' + os.linesep + self._format_dict(self._elements))
 
 ####################################################################################################
 
