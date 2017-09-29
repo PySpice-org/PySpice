@@ -72,10 +72,10 @@ axe1.set_ylabel('Ib [mA]')
 circuit = Circuit('Transistor')
 Ibase = circuit.I('base', circuit.gnd, 'base', 10@u_uA) # take care to the orientation
 Vcollector = circuit.V('collector', 'collector', circuit.gnd, 5)
-# circuit.BJT(1, 'collector', 'base', circuit.gnd, 'generic')
+# circuit.BJT(1, 'collector', 'base', circuit.gnd, model='generic')
 # circuit.model('generic', 'npn')
 circuit.include(spice_library['2n2222a'])
-circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
+circuit.BJT(1, 'collector', 'base', circuit.gnd, model='2n2222a')
 
 # Fixme: ngspice doesn't support multi-sweep ???
 #   it works in interactive mode
