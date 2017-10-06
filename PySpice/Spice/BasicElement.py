@@ -157,6 +157,7 @@ class SubCircuitElement(NPinElement):
 
         super().__init__(name, nodes, subcircuit_name)
 
+        # Fixme: match parameters to subcircuit
         self.parameters = parameters
 
         # Fixme: investigate

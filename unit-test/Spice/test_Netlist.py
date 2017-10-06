@@ -102,7 +102,7 @@ R2 out 0 1kOhm
         circuit = Circuit('Voltage Divider')
         circuit.V('input', 'in', circuit.gnd, '10V')
         circuit.R(1, 'in', 'out', 9@u_kΩ)
-        circuit.R(2, 'out', circuit.gnd, 1@u_kΩ)
+        circuit.R(2, circuit.out, circuit.gnd, 1@u_kΩ) # out node is defined
         self._test_spice_declaration(circuit, spice_declaration)
 
         circuit = VoltageDividerCircuit()
@@ -110,16 +110,45 @@ R2 out 0 1kOhm
 
         self._test_nodes(circuit, (0, 'in', 'out'))
 
+        self.assertTrue(circuit.R1.minus.node is circuit.out)
+
+        self.assertEqual(str(circuit.R1.plus.node), 'in')
+        self.assertEqual(str(circuit.R1.minus.node), 'out')
+
+        self.assertEqual(str(circuit['in']), 'in')
+        self.assertEqual(str(circuit['out']), 'out')
+        self.assertEqual(str(circuit.out), 'out')
+
+        # for pin in circuit.out:
+        #     print(pin)
+
+        self.assertEqual(circuit.out.pins, set((circuit.R1.minus, circuit.R2.plus)))
+
         self.assertEqual(circuit.R1.resistance, 9@u_kΩ)
         self.assertEqual(circuit['R2'].resistance, 1@u_kΩ)
 
         circuit.R1.resistance = 10@u_kΩ
         self._test_spice_declaration(circuit, spice_declaration.replace('9k', '10k'))
 
-        self.assertEqual(circuit.R1.plus.node, 'in')
-        self.assertEqual(circuit.R1.minus.node, 'out')
-
         # .global .param .include .model
+
+    ##############################################
+
+    def test_ground_node(self):
+
+        circuit = Circuit('')
+        circuit.V('input', 'in', circuit.gnd, '10V')
+        circuit.R(1, 'in', 'out', 9@u_kΩ)
+        circuit.R(2, 'out', circuit.gnd, 1@u_kΩ)
+
+        self.assertTrue(circuit.has_ground_node())
+
+        circuit = Circuit('')
+        circuit.V('input', 'in', 'fake_ground', '10V')
+        circuit.R(1, 'in', 'out', 9@u_kΩ)
+        circuit.R(2, 'out', 'fake_ground', 1@u_kΩ)
+
+        self.assertFalse(circuit.has_ground_node())
 
     ##############################################
 

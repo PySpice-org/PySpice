@@ -33,8 +33,8 @@ is translated to Python like this:
 
 .. code-block:: python3
 
-    circuit = Circuit('Voltage Divider')
-    circuit.V('input', 'in', circuit.gnd, 10)
+    circuit = Circuit('Voltage Divider') 
+   circuit.V('input', 'in', circuit.gnd, 10)
     circuit.R(1, 'in', 'out', kilo(9))
     circuit.R(2, 'out', circuit.gnd, kilo(1))
 
@@ -156,11 +156,21 @@ class DeviceModel:
     def name(self):
         return self._name
 
-    ##############################################
-
     @property
     def model_type(self):
         return self._model_type
+
+    @property
+    def parameters(self):
+        return self._parameters.keys()
+
+    ##############################################
+
+    def __getitem__(self, name):
+
+        return self._parameters[name]
+
+    # Fixme: __getattr__
 
     ##############################################
 
@@ -172,7 +182,7 @@ class DeviceModel:
 
     def __str__(self):
 
-        return ".model {} {} ({})".format(self._name, self._model_type, join_dict(self._parameters))
+        return ".model {0._name} {0._model_type} ({1})".format(self, join_dict(self._parameters))
 
 ####################################################################################################
 
@@ -233,13 +243,12 @@ class Pin(PinDefinition):
 
     def __init__(self, element, pin_definition, node):
 
-        if keyword.iskeyword(node):
-            self._logger.warning("Node '{}' is a Python keyword".format(node))
-
         super().__init__(pin_definition.position, pin_definition.name, pin_definition.alias)
 
         self._element = element
-        self._node = node # Fixme: name, not a Node instance, cf. Netlist.nodes
+        self._node = node
+
+        node.connect(self)
 
     ##############################################
 
@@ -459,10 +468,10 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
-    def __init__(self, name, pins, *args, **kwargs):
+    def __init__(self, netlist, name, *args, **kwargs):
 
+        self._netlist = netlist
         self._name = str(name)
-        self._pins = pins
         self.raw_spice = ''
 
         # Process remaining args
@@ -478,7 +487,14 @@ class Element(metaclass=ElementParameterMetaClass):
             elif key in self.__positional_parameters__ or key in self.__optional_parameters__:
                 setattr(self, key, value)
 
+        self._pins = ()
+        netlist._add_element(self)
+
     ##############################################
+
+    @property
+    def netlist(self):
+        return self._netlist
 
     @property
     def name(self):
@@ -530,6 +546,7 @@ class Element(metaclass=ElementParameterMetaClass):
     ##############################################
 
     def parameter_iterator(self):
+        # Fixme: .parameters ???
         """ This iterator returns the parameter in the right order. """
         for parameter_dict in self.__positional_parameters__, self.__optional_parameters__:
             for parameter in parameter_dict.values():
@@ -560,24 +577,18 @@ class AnyPinElement(Element):
 
     __pins__ = ()
 
-    ##############################################
-
-    def __init__(self, name, *args, **kwargs):
-
-        super().__init__(name, (), *args, **kwargs)
-
 ####################################################################################################
 
 class FixedPinElement(Element):
 
     ##############################################
 
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, netlist, name, *args, **kwargs):
 
-        # Process nodes
+        # Get nodes
         # Usage: if pins are passed using keywords then args must be empty
         #        optional pins are passed as keyword
-        pins = []
+        pin_definition_nodes = []
         number_of_args = len(args)
         if number_of_args:
             expected_number_of_pins = self.__class__.number_of_pins # Fixme:
@@ -588,8 +599,7 @@ class FixedPinElement(Element):
             else:
                 nodes = args[:expected_number_of_pins]
                 args = args[expected_number_of_pins:]
-                for pin_definition, node in zip(self.__pins__, nodes):
-                    pins.append(Pin(self, pin_definition, node))
+                pin_definition_nodes = zip(self.__pins__, nodes)
         else:
             for pin_definition in self.__pins__:
                 if pin_definition.name in kwargs:
@@ -602,9 +612,12 @@ class FixedPinElement(Element):
                     continue
                 else:
                     raise NameError("Node '{}' is missing for element {}".format(pin_definition.name, self.name))
-                pins.append(Pin(self, pin_definition, node))
+                pin_definition_nodes.append(pin_definition, node)
 
-        super().__init__(name, pins, *args, **kwargs)
+        super().__init__(netlist, name, *args, **kwargs)
+
+        self._pins = [Pin(self, pin_definition, netlist.get_node(node, True))
+                      for pin_definition, node in pin_definition_nodes]
 
 ####################################################################################################
 
@@ -614,47 +627,64 @@ class NPinElement(Element):
 
     ##############################################
 
-    def __init__(self, name, nodes, *args, **kwargs):
+    def __init__(self, netlist, name, *args, **kwargs):
 
-        #! Fixme: check could be broken
+        nodes = args
 
-        pins = [Pin(self, PinDefinition(position), node)
-                for position, node in enumerate(nodes)]
+        super().__init__(netlist, name, **kwargs)
 
-        super().__init__(name, pins, *args, **kwargs)
+        self._pins = [Pin(self, PinDefinition(position), netlist.get_node(node, True))
+                      for position, node in enumerate(nodes)]
 
 ####################################################################################################
 
 class Node:
 
-    """This class implements a node in the circuit. It stores a reference to the elements connected to
+    """This class implements a node in the circuit. It stores a reference to the pins connected to
     the node.
 
     """
 
-    # Fixme: but not directly to the pins!
+    _logger = _module_logger.getChild('Node')
 
     ##############################################
 
-    def __init__(self, name):
+    def __init__(self, netlist, name):
 
+        if keyword.iskeyword(name):
+            self._logger.warning("Node name '{}' is a Python keyword".format(name))
+
+        self._netlist = netlist
         self._name = str(name)
-        self._elements = set()
+
+        self._pins = set()
 
     ##############################################
 
     def __repr__(self):
         return 'Node {}'.format(self._name)
 
+    def __str__(self):
+        return self._name
+
     ##############################################
+
+    @property
+    def netlist(self):
+        return self._netlist
 
     @property
     def name(self):
         return self._name
 
+    @name.setter
+    def name(self, value):
+        self._netlist._update_node_name(self, value) # update nodes dict
+        self._name = value
+
     @property
-    def elements(self):
-        return self._elements
+    def pins(self):
+        return self._pins
 
     ##############################################
 
@@ -664,8 +694,28 @@ class Node:
 
     ##############################################
 
-    def add_element(self, element):
-        self._elements.add(element)
+    def __bool__(self):
+        return bool(self._pins)
+
+    ##############################################
+
+    def __iter__(self):
+        return iter(self._pins)
+
+    ##############################################
+
+    def connect(self, pin):
+
+        if pin not in self._pins:
+            self._pins.add(pin)
+        else:
+            raise ValueError("Pin {} is already connected to node {}".format(pin, self))
+
+    ##############################################
+
+    def disconnect(self, pin):
+
+        self._pins.remove(pin)
 
 ####################################################################################################
 
@@ -681,17 +731,15 @@ class Netlist:
 
     def __init__(self):
 
-        self._ground = None # Fixme: gnd = 0
+        self._ground_name = 0
+        self._nodes = {}
+        self._ground_node = self._add_node(self._ground_name)
 
         self._elements = OrderedDict() # to keep the declaration order
-        self._nodes = {}
-        # self._nodes = set()
         self._models = {}
         self._subcircuits = {}
 
         self.raw_spice = ''
-
-        self._dirty = True
 
         # self._graph = networkx.Graph()
 
@@ -701,6 +749,38 @@ class Netlist:
     def gnd(self):
         return self._ground
 
+    @property
+    def nodes(self):
+        return self._nodes.values()
+
+    @property
+    def node_names(self):
+        return self._nodes.keys()
+
+    @property
+    def elements(self):
+        return self._elements.values()
+
+    @property
+    def element_names(self):
+        return self._elements.keys()
+
+    @property
+    def models(self):
+        return self._models.values()
+
+    @property
+    def model_names(self):
+        return self._models.keys()
+
+    @property
+    def subcircuits(self):
+        return self._subcircuits.values()
+
+    @property
+    def subcircuit_names(self):
+        return self._subcircuits.keys()
+
     ##############################################
 
     def __getitem__(self, attribute_name):
@@ -709,10 +789,11 @@ class Netlist:
             return self._elements[attribute_name]
         elif attribute_name in self._models:
             return self._models[attribute_name]
+        # Fixme: subcircuits
         elif attribute_name in self._nodes:
-            return attribute_name
+            return self._nodes[attribute_name]
         else:
-            raise IndexError(attribute_name)
+            raise IndexError(attribute_name) # KeyError
 
     ##############################################
 
@@ -725,73 +806,58 @@ class Netlist:
 
     ##############################################
 
+    def _add_node(self, node_name):
+
+        node_name = str(node_name)
+        if node_name not in self._nodes:
+            node = Node(self, node_name)
+            self._nodes[node_name] = node
+            return node
+        else:
+            raise ValueError("Node {} is already defined".format(node_name))
+
+    ##############################################
+
+    def _update_node_name(self, node, new_name):
+
+        if node.name not in self._nodes:
+            # should not happen
+            raise ValueError("Unknown node")
+
+        del self._nodes[node.name]
+        self._nodes[new_name] = node
+
+    ##############################################
+
+    def get_node(self, node, create=False):
+
+        if isinstance(node, Node):
+            return node
+        else:
+            str_node = str(node)
+            if str_node in self._nodes:
+                return self._nodes[str_node]
+            elif create:
+                return self._add_node(str_node)
+            else:
+                raise KeyError("Node {} doesn't exists".format(node))
+
+    ##############################################
+
+    def has_ground_node(self):
+
+        return bool(self._ground_node)
+
+    ##############################################
+
     def _add_element(self, element):
 
         """Add an element."""
 
         if element.name not in self._elements:
             self._elements[element.name] = element
-            self._dirty = True
         else:
             raise NameError("Element name {} is already defined".format(element.name))
-
-    ##############################################
-
-    def element_iterator(self):
-
-        return iter(self._elements.values())
-
-    ##############################################
-
-    def element_names(self):
-
-        return [element.name for element in self.element_iterator()]
-
-    ##############################################
-
-    @property
-    def nodes(self):
-
-        """Return the nodes."""
-
-        if self._dirty:
-            # nodes = set()
-            # for element in self.element_iterator():
-            #     nodes |= set(element.nodes)
-            # if self._ground is not None:
-            #     nodes -= set((self._ground,))
-            # self._nodes = nodes
-            self._nodes.clear()
-            for element in self.element_iterator():
-                for node_name in element.nodes:
-                    if node_name not in self._nodes:
-                        node = Node(node_name)
-                        self._nodes[node_name] = node
-                    else:
-                        node = self._nodes[node_name]
-                    node.add_element(element)
-        return list(self._nodes.values())
-
-    ##############################################
-
-    def node_names(self):
-
-        return [node.name for node in self.nodes]
-
-    ##############################################
-
-    def has_ground_node(self):
-
-        for node in self.nodes:
-            if node.is_ground_node:
-                return True
-        return False
-
-    ##############################################
-
-    def model_iterator(self):
-
-        return iter(self._models.values())
 
     ##############################################
 
@@ -815,14 +881,6 @@ class Netlist:
 
     ##############################################
 
-    def subcircuit_iterator(self):
-
-        """Return a sub-circuit iterator."""
-
-        return iter(self._subcircuits.values())
-
-    ##############################################
-
     def __str__(self):
 
         """ Return the formatted list of element and model definitions. """
@@ -837,14 +895,14 @@ class Netlist:
 
     def _str_elements(self):
 
-        return join_lines(self.element_iterator()) + os.linesep
+        return join_lines(self.elements) + os.linesep
 
     ##############################################
 
     def _str_models(self):
 
         if self._models:
-            return join_lines(self.model_iterator()) + os.linesep
+            return join_lines(self.models) + os.linesep
         else:
             return ''
 
@@ -853,7 +911,7 @@ class Netlist:
     def _str_subcircuits(self):
 
         if self._subcircuits:
-            return join_lines(self.subcircuit_iterator())
+            return join_lines(self.subcircuit)
         else:
             return ''
 
@@ -876,24 +934,30 @@ class SubCircuit(Netlist):
 
     def __init__(self, name, *nodes, **kwargs):
 
+        if len(set(nodes)) != len(nodes):
+            raise ValueError("Duplicated nodes in {}".format(nodes))
+
         super().__init__()
 
-        self.name = str(name)
-        self._external_nodes = list(nodes)
+        self._name = str(name)
+        self._external_nodes = nodes
+
         # Fixme: ok ?
         self._ground = kwargs.get('ground', 0)
         if 'ground' in kwargs:
             del kwargs['ground']
+
         self._parameters = kwargs
 
     ##############################################
 
     @property
-    def gnd(self):
-        """ Local ground """
-        return self._ground
+    def name(self):
+        return self._name
 
-    ##############################################
+    @property
+    def external_nodes(self):
+        return self._external_nodes
 
     @property
     def parameters(self):
@@ -906,9 +970,9 @@ class SubCircuit(Netlist):
 
         """Check for dangling nodes in the subcircuit."""
 
-        nodes = set(self._external_nodes)
+        nodes = self._external_nodes
         connected_nodes = set()
-        for element in self.element_iterator():
+        for element in self.elements:
             connected_nodes.add(nodes & element.nodes)
         not_connected_nodes = nodes - connected_nodes
         if not_connected_nodes:
@@ -923,9 +987,9 @@ class SubCircuit(Netlist):
         nodes = join_list(self._external_nodes)
         parameters = join_list(['{}={}'.format(key, value)
                                 for key, value in self._parameters.items()])
-        netlist = '.subckt ' + join_list((self.name, nodes, parameters)) + os.linesep
+        netlist = '.subckt ' + join_list((self._name, nodes, parameters)) + os.linesep
         netlist += super().__str__()
-        netlist += '.ends ' + self.name + os.linesep
+        netlist += '.ends ' + self._name + os.linesep
         return netlist
 
 ####################################################################################################

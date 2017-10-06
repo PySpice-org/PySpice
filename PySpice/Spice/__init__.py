@@ -53,9 +53,7 @@ for element_class in spice_elements + high_level_elements:
 
     def _make_function(element_class):
         def function(self, *args, **kwargs):
-            element = element_class(*args, **kwargs)
-            self._add_element(element)
-            return element
+            return element_class(self, *args, **kwargs)
         return function
 
     func = _make_function(element_class)
