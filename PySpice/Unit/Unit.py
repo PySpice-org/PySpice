@@ -1719,12 +1719,17 @@ class UnitValues(np.ndarray):
         prefixed_unit = self._prefixed_unit
 
         conversion = self.UFUNC_MAP[ufunc]
-        # self._logger.info("Conversion for {} is {}".format(ufunc, conversion))
+        self._logger.info("Conversion for {} is {}".format(ufunc, conversion))
 
         # Cast inputs to ndarray
         args = []
-        if conversion in (self.CONVERSION.FLOAT, self.CONVERSION.NO_CONVERSION):
-            if conversion == self.CONVERSION.FLOAT and not prefixed_unit.is_unit_less:
+        if conversion == self.CONVERSION.NO_CONVERSION:
+            # should be 1 arg
+            args = [( input_.as_ndarray(False) if isinstance(input_, UnitValues) else input_ )
+                    for input_ in inputs]
+        #
+        elif conversion == self.CONVERSION.FLOAT:
+            if not prefixed_unit.is_unit_less:
                 # raise ValueError("Must be unit less")
                 self._logger.warning("Should be unit less")
             args = [( input_.as_ndarray(True) if isinstance(input_, UnitValues) else input_ )

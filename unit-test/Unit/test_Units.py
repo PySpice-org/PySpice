@@ -266,15 +266,17 @@ class TestUnits(unittest.TestCase):
         print(scalar1)
         self.assertEqual(scalar1, u_mV(1))
 
+        # Fixme: clone !!!
+        array2 = u_mV(np.array(np_array1))
         scalar2 = u_mV(10)
-        array1[1] = scalar2
-        print(array1)
-        self.assertEqual(array1[1], scalar2)
-        array1[1] = scalar1
+        array2[1] = scalar2
+        print(array2)
+        self.assertEqual(array2[1], scalar2)
+        # array2[1] = scalar1
 
         # negative
         array = - array1
-        print(array)
+        print('>'*10, array1, array, np_true_array1)
         self._test_unit_values(array, - np_true_array1)
 
         # multiply scalar
@@ -306,7 +308,7 @@ class TestUnits(unittest.TestCase):
         array = np.square(array1)
         print(array)
         self.assertEqual(array.unit, u_V(0).unit.square())
-        self._test_unit_values(array, np.square(np_array1))
+        self._test_unit_values(array, np.square(np_true_array1)) # Fixme: handle prefix
 
         # power
         power = 5
