@@ -24,13 +24,22 @@ import logging
 import os
 import subprocess
 import shutil
+import sys
 import tempfile
 
 ####################################################################################################
 
-# home_path = os.getenv('HOME') # Unix only
-home_path = os.path.expanduser('~')
-_circuit_macros_path = os.path.join(home_path, 'texmf', 'Circuit_macros')
+_circuit_macros_path = os.getenv('PySpice_circuit_macros')
+
+if not _circuit_macros_path :
+    print("Please set envvar PySpice_circuit_macros as a valid directory for circuit macros")
+    sys.exit(1)
+
+if not os.path.isdir(_circuit_macros_path) or \
+   not os.path.isfile(os.path.join(_circuit_macros_path, 'pgf.m4')) or \
+   not os.path.isfile(os.path.join(_circuit_macros_path, 'libcct.m4')) :
+    print("%s is not a valid directory contaning pgf.m4 and libcct.m4 circuit macros" % _circuit_macros_path)
+    sys.exit(1)
 
 ####################################################################################################
 
