@@ -29,6 +29,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 import argparse
+import sys
 
 ####################################################################################################
 
@@ -56,6 +57,11 @@ argument_parser.add_argument('--force',
 args = argument_parser.parse_args()
 
 ####################################################################################################
+
+_version_info = sys.version_info
+_has_matmul = _version_info.major * 10 + _version_info.minor >= 35
+if not _has_matmul:
+    logger.warning("You must use python 3.5 to successfully run all the examples")
 
 examples_path = 'examples'
 rst_source_directory = 'doc/sphinx/source'
