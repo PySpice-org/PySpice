@@ -48,6 +48,7 @@ foo = 1
 #tz# diode.tex
 
 import matplotlib.pyplot as plt
+#h# plt.switch_backend("Agg")
 figure = plt.figure(1, (20, 10))
 
 # Insert a Matplotlib figure
