@@ -112,7 +112,7 @@ setup_dict = dict(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.5',
         ],
-    requires=[
+    install_requires=[
         'PyYAML',
         'cffi',
         'matplotlib',
