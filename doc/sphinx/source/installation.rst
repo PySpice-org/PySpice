@@ -56,7 +56,7 @@ The PySpice source code is hosted at |PySpice@github|
 
 .. add link to pages ...
 
-You have to solution to get the source code, the first one is to clone the repository, but if you
+You have two solution to get the source code, the first one is to clone the repository, but if you
 are not familiar with Git then you can simply download an archive either from the PySpice Pypi page
 (at the bottom) or the GitHub page (see clone or download button).
 
