@@ -91,6 +91,7 @@ setup_dict = dict(
               'PySpice.Plot',
               'PySpice.Probe',
               'PySpice.Spice',
+              'PySpice.Spice.Expression',
               'PySpice.Spice.NgSpice',
               'PySpice.Spice.Xyce',
               'PySpice.Tools',
@@ -116,6 +117,7 @@ setup_dict = dict(
         'cffi',
         'matplotlib',
         'numpy',
+        'ply',
         'scipy',
     ],
 )
