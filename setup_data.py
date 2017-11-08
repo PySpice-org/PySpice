@@ -77,7 +77,7 @@ except FileNotFoundError:
 
 setup_dict = dict(
     name='PySpice',
-    version='1.1.3',
+    version='1.1.4',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='Simulate electronic circuit using Python and the Ngspice simulator',
@@ -112,7 +112,7 @@ setup_dict = dict(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.5',
         ],
-    requires=[
+    install_requires=[
         'PyYAML',
         'cffi',
         'matplotlib',
