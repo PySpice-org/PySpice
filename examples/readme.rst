@@ -9,5 +9,3 @@
 The examples are classified by topics.
 
 .. here comes examples/examples.rst
-
-.. End

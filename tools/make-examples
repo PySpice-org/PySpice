@@ -8,7 +8,8 @@ echo
 echo Generate RST examples files
 # generate-rst-examples --skip-external-figure --skip-figure
 # PYTHONPATH=$PWD/examples/:${PYTHONPATH}
-generate-rst-examples # --force
+# PySpiceLogLevel=WARNING
+PySpiceLogLevel=ERROR generate-rst-examples # --force
 
 echo
 echo Run Sphinx
