@@ -54,46 +54,35 @@
 .. End
 .. -*- Mode: rst -*-
 
-.. |Ngspice| replace:: Ngspice
+.. _CFFI: http://cffi.readthedocs.org/en/latest/
+.. _Circuit_macros: http://ece.uwaterloo.ca/~aplevich/Circuit_macros
+.. _IPython: http://ipython.org
+.. _Kicad: http://www.kicad-pcb.org
+.. _Matplotlib: http://matplotlib.org
+.. _Modelica: http://www.modelica.org
 .. _Ngspice: http://ngspice.sourceforge.net
-
-.. |Xyce| replace:: Xyce
+.. _Numpy: http://www.numpy.org
+.. _PyPI: https://pypi.python.org/pypi
+.. _Pyterate: https://github.com/FabriceSalvaire/Pyterate
+.. _Python: http://python.org
+.. _Sphinx: http://sphinx-doc.org
+.. _Tikz: http://www.texample.net/tikz
 .. _Xyce: https://xyce.sandia.gov
 
-.. |Python| replace:: Python
-.. _Python: http://python.org
-
-.. |PyPI| replace:: PyPI
-.. _PyPI: https://pypi.python.org/pypi
-
-.. |Numpy| replace:: Numpy
-.. _Numpy: http://www.numpy.org
-
-.. |Matplotlib| replace:: Matplotlib
-.. _Matplotlib: http://matplotlib.org
-
 .. |CFFI| replace:: CFFI
-.. _CFFI: http://cffi.readthedocs.org/en/latest/
-
-.. |IPython| replace:: IPython
-.. _IPython: http://ipython.org
-
-.. |Sphinx| replace:: Sphinx
-.. _Sphinx: http://sphinx-doc.org
-
-.. |Modelica| replace:: Modelica
-.. _Modelica: http://www.modelica.org
-
-.. |Kicad| replace:: Kicad
-.. _Kicad: http://www.kicad-pcb.org
-
 .. |Circuit_macros| replace:: Circuit_macros
-.. _Circuit_macros: http://ece.uwaterloo.ca/~aplevich/Circuit_macros
-
+.. |IPython| replace:: IPython
+.. |Kicad| replace:: Kicad
+.. |Matplotlib| replace:: Matplotlib
+.. |Modelica| replace:: Modelica
+.. |Ngspice| replace:: Ngspice
+.. |Numpy| replace:: Numpy
+.. |PyPI| replace:: PyPI
+.. |Pyterate| replace:: Pyterate
+.. |Python| replace:: Python
+.. |Sphinx| replace:: Sphinx
 .. |Tikz| replace:: Tikz
-.. _Tikz: http://www.texample.net/tikz
-
-.. End
+.. |Xyce| replace:: Xyce
 
 =====================================================================================
  PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
@@ -183,6 +172,8 @@ V1.2.0 (development release)
  * Fixed device shortcuts in `Netlist` class
  * Fixed model kwarg for BJT **Notice: it must be passed exclusively as kwarg !**
  * Fixed subcircuit nesting
+ * Outsourced documentation generator to |Pyterate|_
+ * Updated `setup.py` for wheel
 
 .. :ref:`user-faq-page`
 

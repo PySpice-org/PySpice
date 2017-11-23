@@ -33,6 +33,8 @@ V1.2.0 (development release)
  * Fixed device shortcuts in `Netlist` class
  * Fixed model kwarg for BJT **Notice: it must be passed exclusively as kwarg !**
  * Fixed subcircuit nesting
+ * Outsourced documentation generator to |Pyterate|_
+ * Updated `setup.py` for wheel
 
 .. :ref:`user-faq-page`
 
