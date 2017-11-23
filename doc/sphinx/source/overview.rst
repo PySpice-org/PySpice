@@ -49,9 +49,10 @@ How can PySpice be used for learning ?
 --------------------------------------
 
  * PySpice comes with many examples covering several topics.
- * PySpice features a documentation generator which generates HTML or PDF documentation
 
-  | cf. supra for the documentation generator features
+.. * PySpice features a documentation generator which generates HTML or PDF documentation
+..
+..  | cf. supra for the documentation generator features
 
 Which platforms are supported by PySpice ?
 ------------------------------------------
@@ -96,7 +97,7 @@ Having discussed the main drawbacks, we will now look at the advantages:
  * If you work with an editor and a console in parallel, then you can easily and quickly change
    things, and rerun the simulation, e.g. comment out a diode or a capacitor to see what happen.  Using a
    GUI, this task would require many actions.
- * Thanks to tools like the documentation generator, you can enrich your simulation with text,
+ * Thanks to the tool |Pyterate|_, you can enrich your simulation with text,
    formulae and figures.
 
 Is is possible to use both approaches all together ? The technical answer is, 'yes we
@@ -201,19 +202,3 @@ Users should be aware of these disclaimers:
  * Ngspice is not compliant with industrial quality assurance processes.
 
  * Simulation is a design tool and not a perfect description of the real world.
-
-What are the features of the documentation generator ?
-------------------------------------------------------
-
-The documentation generator features:
-
- * intermixing of code, text, `LaTeX formulae <https://www.mathjax.org>`_, figures and plots
- * use the `reStructuredText <https://en.wikipedia.org/wiki/ReStructuredText>`_ syntax for text
- * use the |Sphinx|_ generator
- * embed computations in the text content
- * generation of circuit schematics using |Circuit_macros|_
- * generation of figures using |Tikz|_
- * generation of plots using |Matplotlib|_
-
-Somehow, it is similar to an `Jupyter notebook <https://ipython.org/notebook.html>`_, but it works
-differently and provides specific features.
