@@ -12,6 +12,8 @@ MANIFEST
 #
 ####################################################################################################
 #
+.tox/
+.cache/
 build/
 dist/
 doc/sphinx/build/
@@ -22,7 +24,6 @@ doc/sphinx/source/examples/
 #
 open-doc.sh
 rsync-vps.sh
-tools/upload-to-pypi
 tools/upload-www
 #
 ####################################################################################################
