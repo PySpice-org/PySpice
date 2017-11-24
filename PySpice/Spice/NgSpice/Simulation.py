@@ -63,8 +63,9 @@ class NgSpiceSubprocessCircuitSimulator(NgSpiceCircuitSimulator):
 
         super().__init__(circuit, pipe=True, **kwargs)
 
-        spice_command = kwargs.get('spice_command', None)
-        self._spice_server = SpiceServer(spice_command=spice_command)
+        # Fixme: to func ?
+        server_kwargs = {x:kwargs[x] for x in ('spice_command',) if x in kwargs}
+        self._spice_server = SpiceServer(**server_kwargs)
 
     ##############################################
 
