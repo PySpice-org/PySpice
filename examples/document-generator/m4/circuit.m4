@@ -1,1 +1,0 @@
-../../resistor/m4/resistor-bridge.m4
