@@ -647,7 +647,13 @@ class CircuitSimulator(CircuitSimulation):
 
     _logger = _module_logger.getChild('CircuitSimulator')
 
-    DEFAULT_SIMULATOR = None
+    if ConfigInstall.OS.on_windows:
+        DEFAULT_SIMULATOR = 'ngspice-shared'
+    else:
+        # DEFAULT_SIMULATOR = 'ngspice-subprocess'
+        DEFAULT_SIMULATOR = 'ngspice-shared'
+        # DEFAULT_SIMULATOR = 'xyce-serial'
+        # DEFAULT_SIMULATOR = 'xyce-parallel'
 
     ##############################################
 
@@ -728,16 +734,3 @@ class CircuitSimulator(CircuitSimulation):
     def transient(self, *args, **kwargs):
 
         return self._run('transient', *args, **kwargs)
-
-####################################################################################################
-
-if ConfigInstall.OS.on_windows:
-    _simulator = 'ngspice-shared'
-else:
-    # _simulator = 'ngspice-subprocess'
-    _simulator = 'ngspice-shared'
-    # _simulator = 'xyce-serial'
-    # _simulator = 'xyce-parallel'
-# Fixme: check ngspice
-CircuitSimulator.DEFAULT_SIMULATOR = _simulator
-
