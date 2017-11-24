@@ -97,7 +97,7 @@ See Ngspice documentation for details.
 
 ####################################################################################################
 
-from ..Tools.StringTools import join_list, str_spice
+from ..Tools.StringTools import str_spice, join_list, join_dict
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
 from .Netlist import (AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
 from .ElementParameter import (
@@ -153,9 +153,9 @@ class SubCircuitElement(NPinElement):
 
     ##############################################
 
-    def __init__(self, name, subcircuit_name, *nodes, **parameters):
+    def __init__(self, netlist, name, subcircuit_name, *nodes, **parameters):
 
-        super().__init__(name, nodes, subcircuit_name)
+        super().__init__(netlist, name, nodes, subcircuit_name)
 
         # Fixme: match parameters to subcircuit
         self.parameters = parameters
@@ -174,8 +174,7 @@ class SubCircuitElement(NPinElement):
 
         spice_parameters = super().format_spice_parameters()
         if self.parameters:
-            spice_parameters += ' ' + join_list(['{}={}'.format(key, str_spice(value))
-                                                 for key, value in self.parameters.items()])
+            spice_parameters += ' ' + join_dict(self.parameters)
 
         return spice_parameters
 

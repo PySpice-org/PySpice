@@ -390,7 +390,7 @@ class ElementParameterMetaClass(type):
             namespace['__pins__'] = pins
             namespace['__number_of_optional_pins__'] = number_of_optional_pins
         else:
-            _module_logger.warning("{} don't define a __pins__ attribute".format(class_name))
+            _module_logger.debug("{} don't define a __pins__ attribute".format(class_name))
 
         return type.__new__(meta_cls, class_name, base_classes, namespace)
 
@@ -627,11 +627,9 @@ class NPinElement(Element):
 
     ##############################################
 
-    def __init__(self, netlist, name, *args, **kwargs):
+    def __init__(self, netlist, name, nodes, *args, **kwargs):
 
-        nodes = args
-
-        super().__init__(netlist, name, **kwargs)
+        super().__init__(netlist, name, *args, **kwargs)
 
         self._pins = [Pin(self, PinDefinition(position), netlist.get_node(node, True))
                       for position, node in enumerate(nodes)]
@@ -735,9 +733,9 @@ class Netlist:
         self._nodes = {}
         self._ground_node = self._add_node(self._ground_name)
 
+        self._subcircuits = OrderedDict() # to keep the declaration order
         self._elements = OrderedDict() # to keep the declaration order
         self._models = {}
-        self._subcircuits = {}
 
         self.raw_spice = ''
 
@@ -885,10 +883,12 @@ class Netlist:
 
         """ Return the formatted list of element and model definitions. """
 
-        netlist = self._str_elements()
+        # Fixme: order ???
+        netlist = self._str_raw_spice()
+        netlist += self._str_subcircuits() # before elements
+        netlist += self._str_elements()
         netlist += self._str_models()
-        netlist += self._str_subcircuits()
-        netlist += self._str_raw_spice()
+
         return netlist
 
     ##############################################
@@ -911,7 +911,7 @@ class Netlist:
     def _str_subcircuits(self):
 
         if self._subcircuits:
-            return join_lines(self.subcircuit)
+            return join_lines(self.subcircuits)
         else:
             return ''
 

@@ -544,9 +544,9 @@ class SinusoidalVoltageSource(VoltageSource, SinusoidalMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        VoltageSource.__init__(self, name, node_plus, node_minus)
+        VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         SinusoidalMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -565,9 +565,9 @@ class SinusoidalCurrentSource(CurrentSource, SinusoidalMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        CurrentSource.__init__(self, name, node_plus, node_minus)
+        CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         SinusoidalMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -580,9 +580,9 @@ class AcLine(SinusoidalVoltageSource):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, rms_voltage=230, frequency=50):
+    def __init__(self, netlist, name, node_plus, node_minus, rms_voltage=230, frequency=50):
 
-        super().__init__(name, node_plus, node_minus,
+        super().__init__(netlist, name, node_plus, node_minus,
                          amplitude=rms_to_amplitude(rms_voltage),
                          frequency=frequency)
 
@@ -598,9 +598,9 @@ class PulseVoltageSource(VoltageSource, PulseMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        VoltageSource.__init__(self, name, node_plus, node_minus)
+        VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         PulseMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -619,9 +619,9 @@ class PulseCurrentSource(CurrentSource, PulseMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        CurrentSource.__init__(self, name, node_plus, node_minus)
+        CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         PulseMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -640,9 +640,9 @@ class ExponentialVoltageSource(VoltageSource, ExponentialMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        VoltageSource.__init__(self, name, node_plus, node_minus)
+        VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         ExponentialMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -661,9 +661,9 @@ class ExponentialCurrentSource(CurrentSource, ExponentialMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        CurrentSource.__init__(self, name, node_plus, node_minus)
+        CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         ExponentialMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -682,9 +682,9 @@ class PieceWiseLinearVoltageSource(VoltageSource, PieceWiseLinearMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        VoltageSource.__init__(self, name, node_plus, node_minus)
+        VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         PieceWiseLinearMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -703,9 +703,9 @@ class PieceWiseLinearCurrentSource(CurrentSource, PieceWiseLinearMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        CurrentSource.__init__(self, name, node_plus, node_minus)
+        CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         PieceWiseLinearMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -724,9 +724,9 @@ class SingleFrequencyFMVoltageSource(VoltageSource, SingleFrequencyFMMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        VoltageSource.__init__(self, name, node_plus, node_minus)
+        VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         SingleFrequencyFMMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -745,9 +745,9 @@ class SingleFrequencyFMCurrentSource(CurrentSource, SingleFrequencyFMMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        CurrentSource.__init__(self, name, node_plus, node_minus)
+        CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         SingleFrequencyFMMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -766,9 +766,9 @@ class AmplitudeModulatedVoltageSource(VoltageSource, AmplitudeModulatedMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        VoltageSource.__init__(self, name, node_plus, node_minus)
+        VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         AmplitudeModulatedMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -787,9 +787,9 @@ class AmplitudeModulatedCurrentSource(CurrentSource, AmplitudeModulatedMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        CurrentSource.__init__(self, name, node_plus, node_minus)
+        CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         AmplitudeModulatedMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -808,9 +808,9 @@ class RandomVoltageVoltageSource(VoltageSource, RandomMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        VoltageSource.__init__(self, name, node_plus, node_minus)
+        VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         RandomMixin.__init__(self, *args, **kwargs)
 
     ##############################################
@@ -829,9 +829,9 @@ class RandomCurrentSource(CurrentSource, RandomMixin):
 
     ##############################################
 
-    def __init__(self, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
 
-        CurrentSource.__init__(self, name, node_plus, node_minus)
+        CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         RandomMixin.__init__(self, *args, **kwargs)
 
     ##############################################
