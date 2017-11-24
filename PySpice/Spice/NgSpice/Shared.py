@@ -49,6 +49,7 @@ the shared library by worker as explained in the manual.
 import logging
 import os
 import platform
+import re
 # import time
 
 import numpy as np
@@ -379,7 +380,10 @@ class NgSpiceShared:
         else:
             library_prefix = '{}'.format(self._ngspice_id)
         library_path = self.LIBRARY_PATH.format(library_prefix)
+        self._logger.debug('Load {}'.format(library_path))
         self._ngspice_shared = ffi.dlopen(library_path)
+
+        # Note: cannot yet execute command
 
     ##############################################
 
@@ -421,6 +425,8 @@ class NgSpiceShared:
                                                     self_c)
         if rc:
             raise NameError("Ngspice_Init_Sync returned {}".format(rc))
+
+        self._get_version()
 
         # Prevent paging output of commands (hangs)
         self.set('nomoremode')
@@ -643,27 +649,51 @@ class NgSpiceShared:
 
     ##############################################
 
+    def _get_version(self):
+
+        self._ngspice_version = None
+        self._has_xspice = False
+        self._has_cider = False
+        self._extensions = []
+
+        output = self.exec_command('version -f')
+        for line in output.split('\n'):
+            match = re.match('\*\* ngspice\-(\d+)', line)
+            if match is not None:
+                self._ngspice_version = int(match.group(1))
+            # if '** XSPICE extensions included' in line:
+            if '** XSPICE' in line:
+                self._has_xspice = True
+                self._extensions.append('XSPICE')
+            # if '** CIDER 1.b1 (CODECS simulator) included' in line:
+            if 'CIDER' in line:
+                self._has_cider = True
+                self._extensions.append('CIDER')
+
+        self._logger.debug('Ngspice version {} with extensions: {}'.format(
+            self._ngspice_version,
+            ', '.join(self._extensions),
+        ))
+
+    ##############################################
+
+    @property
+    def ngspice_version(self):
+        return self._ngspice_version
+
+    @property
     def has_xspice(self):
+        """Return True if libngspice was compiled with XSpice support."""
+        return self._has_xspice
 
-        """Return True if libngspice was compiled with XSpice support
-
-        """
-
-        return '** XSPICE extensions included' in cmd('version -f')
-
-    ##############################################
-
+    @property
     def has_cider(self):
-
-        """Return True if libngspice was compiled with CIDER support
-
-        """
-
-        return '** CIDER 1.b1 (CODECS simulator) included' in cmd('version -f')
+        """Return True if libngspice was compiled with CIDER support."""
+        return self._has_cider
 
     ##############################################
 
-    def _alter(self, command, item, kwargs):
+    def _alter(self, command, device, kwargs):
 
         device_name = device.lower()
         for key, value in kwargs.items():
@@ -685,7 +715,7 @@ class NgSpiceShared:
 
         """Alter model parameters"""
 
-        self._alter('altermod', device, kwargs)
+        self._alter('altermod', model, kwargs)
 
     ##############################################
 
@@ -737,7 +767,7 @@ class NgSpiceShared:
 
     ##############################################
 
-    def source(file_path):
+    def source(self, file_path):
 
         """Read a ngspice input file"""
 
@@ -750,7 +780,7 @@ class NgSpiceShared:
         """Set any of the simulator variables."""
 
         for key, value in kwargs.items():
-            self.exec_command('option {} = {}'.format(command, key, value))
+            self.exec_command('option {} = {}'.format(key, value))
 
     ##############################################
 
@@ -861,7 +891,7 @@ class NgSpiceShared:
 
         """Run a fixed number of time-points"""
 
-        if step is not None:
+        if number_of_steps is not None:
             self.exec_command('step {}'.format(number_of_steps))
         else:
             self.exec_command('step')
