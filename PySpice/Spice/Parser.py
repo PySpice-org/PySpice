@@ -767,8 +767,12 @@ class SpiceParser:
                     # { expr } are allowed in .model lines and in device lines.
                     self._logger.warn(line)
             else:
-                element = Element(line)
-                scope.append(element)
+                try:
+                    element = Element(line)
+                    scope.append(element)
+                except:
+                    self._logger.warn('Failed parsing '+str(line))
+                    pass
 
         return statements
 
