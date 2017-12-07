@@ -198,3 +198,12 @@ The documentation generator will do these actions for each file:
  * generate the Matplotlib figure is the file as a more recent timestamp than the rst file
 
 At the end, the documentation generator generate a table of contents.
+
+Requirements:
+
+   - ``PySpice`` and ``PySpice/tools`` folders in python path. See ``setenv.sh`` or 
+     ``export PYTHONPATH="`pwd`:`pwd`/tools"``
+   - ``dpic``: https://ece.uwaterloo.ca/~aplevich/dpic/, https://en.wikipedia.org/wiki/Pic_language
+   - ``M4`` circuit macros: https://ctan.org/pkg/circuit-macros
+   - mupdf tools: ``pacman -S mupdf mupdf-tools`` or ``apt-get install mupdf mupdf-tools``
+

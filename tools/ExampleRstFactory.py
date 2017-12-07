@@ -680,6 +680,7 @@ class Example:
                                            cwd=working_directory,
                                            env=env)
                 rc = process.wait()
+                
                 if rc:
                     self._logger.error("Failed to run example " + self._path)
                     self._topic.factory.register_failure(self)
@@ -741,6 +742,8 @@ class Example:
         while i < number_of_lines:
             line = self._source[i]
             i += 1
+            if line.startswith('#!/') or line.startswith('#! /'):
+              continue
             remove_next_blanck_line = True
             if (line.startswith('#?#')
                 or line.startswith('#'*10)
@@ -870,8 +873,6 @@ class Example:
             f.write(template.format(filename=python_file_name))
             for chunck in self._chuncks:
                 f.write(str(chunck))
-
-            # f.write(self._output)
 
 ####################################################################################################
 
@@ -1034,6 +1035,8 @@ class Topic:
         if force or example:
             if make_figure:
                 example.make_figure()
+                if self.factory._example_failures and self.factory._example_failures[-1] == example:
+                    return
             example.make_rst()
         if make_circuit_figure:
             example.make_circuit_figure(force)
@@ -1199,6 +1202,19 @@ class ExampleRstFactory:
 
     ##############################################
 
+    def process_onedir(self, current_path, make_figure=True, make_circuit_figure=True, force=False):
+
+        """ Process one example """
+
+        relative_current_path = os.path.relpath(current_path, self._examples_path)
+        if relative_current_path == '.':
+            relative_current_path = ''
+        topic = Topic(self, relative_current_path)
+        self._topics[relative_current_path] = topic # collect the topics
+        topic.process_examples(make_figure, make_circuit_figure, force)
+        topic.make_toc(make_circuit_figure)
+
+    ##############################################
     def process_recursively(self, make_figure=True, make_circuit_figure=True, force=False):
 
         """ Process recursively the examples directory. """
@@ -1208,13 +1224,7 @@ class ExampleRstFactory:
         for current_path, sub_directories, files in os.walk(self._examples_path,
                                                             topdown=False,
                                                             followlinks=True):
-            relative_current_path = os.path.relpath(current_path, self._examples_path)
-            if relative_current_path == '.':
-                relative_current_path = ''
-            topic = Topic(self, relative_current_path)
-            self._topics[relative_current_path] = topic # collect the topics
-            topic.process_examples(make_figure, make_circuit_figure, force)
-            topic.make_toc(make_circuit_figure)
+            self.process_onedir(current_path, make_figure, make_circuit_figure, force)
 
         if self._example_failures:
             self._logger.warning("These examples failed:\n" +

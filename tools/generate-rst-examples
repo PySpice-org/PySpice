@@ -41,6 +41,11 @@ from ExampleRstFactory import ExampleRstFactory
 
 argument_parser = argparse.ArgumentParser(description='Generate Examples RST files')
 
+argument_parser.add_argument('--onedir',
+                             action='store', default=None,
+                             help="only generate one directory")
+
+
 argument_parser.add_argument('--skip-figure',
                              action='store_true', default=False,
                              help="Don't generate figures")
@@ -62,6 +67,11 @@ rst_source_directory = 'doc/sphinx/source'
 rst_example_directory = 'examples'
 
 rst_factory = ExampleRstFactory(examples_path, rst_source_directory, rst_example_directory)
-rst_factory.process_recursively(make_figure=not args.skip_figure,
+if args.onedir:
+    rst_factory.process_onedir(args.onedir,make_figure=not args.skip_figure,
+                                make_circuit_figure=not args.skip_circuit_figure,
+                                force=args.force)
+else:
+    rst_factory.process_recursively(make_figure=not args.skip_figure,
                                 make_circuit_figure=not args.skip_circuit_figure,
                                 force=args.force)
