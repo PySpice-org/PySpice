@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # A source code comment
 #?# A comment that must not appear in the documentation
 

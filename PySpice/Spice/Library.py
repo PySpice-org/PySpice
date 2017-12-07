@@ -20,6 +20,7 @@
 
 ####################################################################################################
 
+import os
 import logging
 
 ####################################################################################################
@@ -72,6 +73,17 @@ class SpiceLibrary:
                 elif spice_parser.is_only_model():
                     for model in spice_parser.models:
                         self._models[model.name] = path
+
+    ##############################################
+
+    @staticmethod
+    def env_or_relative_to(filename):
+        try:
+            libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
+        except KeyError:
+            libraries_path = os.path.join(os.path.abspath(filename).split('examples')[0],
+                'examples','libraries')
+        return libraries_path
 
     ##############################################
 

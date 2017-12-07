@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #!# This example shows how to simulate and plot the characteristic curve of a diode.
 #!#
 #!# Theory
@@ -63,8 +64,6 @@
 
 ####################################################################################################
 
-import os
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -83,11 +82,7 @@ from PySpice.Physics.SemiConductor import ShockleyDiode
 
 ####################################################################################################
 
-try:
-    libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
-except KeyError:
-    libraries_path = __file__.split('examples')[0]+'examples'
-spice_library = SpiceLibrary(libraries_path)
+spice_library = SpiceLibrary(SpiceLibrary.env_or_relative_to(__file__))
 
 ####################################################################################################
 

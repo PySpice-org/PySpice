@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #!# This example shows the simulation of a capacitor and an inductor.
 #!#
 #!# To go further, you can read these pages on Wikipedia: `RC circuit <https://en.wikipedia.org/wiki/RC_circuit>`_

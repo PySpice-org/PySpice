@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #!# This example shows the computation of the DC biases in a resistor bridge.
 
 ####################################################################################################

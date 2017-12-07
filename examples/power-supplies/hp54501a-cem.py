@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #!# ================
 #!#  CEM Simulation
 #!# ================
@@ -7,8 +8,6 @@
 # Fixme: retrieve PDF reference and complete
 
 ####################################################################################################
-
-import os
 
 import matplotlib.pyplot as plt
 
@@ -26,11 +25,7 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-try:
-    libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
-except KeyError:
-    libraries_path = __file__.split('examples')[0]+'examples'
-spice_library = SpiceLibrary(libraries_path)
+spice_library = SpiceLibrary(SpiceLibrary.env_or_relative_to(__file__))
 
 ####################################################################################################
 

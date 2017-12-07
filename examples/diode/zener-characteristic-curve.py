@@ -1,8 +1,7 @@
+#!/usr/bin/env python
 #!# This example shows how to simulate and plot the characteristic curve of a Zener diode.
 
 ####################################################################################################
-
-import os
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,8 +19,7 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
-spice_library = SpiceLibrary(libraries_path)
+spice_library = SpiceLibrary(SpiceLibrary.env_or_relative_to(__file__))
 
 ####################################################################################################
 

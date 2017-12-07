@@ -1,9 +1,8 @@
+#!/usr/bin/env python
 #!# This example depicts a voltage multiplier using diodes and capacitors.  To go further, you can
 #!# read this `page <http://en.wikipedia.org/wiki/Voltage_multiplier>`_ on Wikipedia.
 
 ####################################################################################################
-
-import os
 
 import matplotlib.pyplot as plt
 
@@ -21,11 +20,7 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-try:
-    libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
-except KeyError:
-    libraries_path = __file__.split('examples')[0]+'examples'
-spice_library = SpiceLibrary(libraries_path)
+spice_library = SpiceLibrary(SpiceLibrary.env_or_relative_to(__file__))
 
 ####################################################################################################
 
