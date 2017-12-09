@@ -48,8 +48,6 @@ How can PySpice be used for learning ?
  * PySpice comes with many examples covering several topics.
  * PySpice features a documentation generator which generates HTML or PDF documentation
 
-  | cf. supra for the documentation generator features
-
 Which platforms are supported by PySpice ?
 -------------------------------------------
 

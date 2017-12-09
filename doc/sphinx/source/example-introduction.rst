@@ -18,6 +18,8 @@ plots can require advanced Matplotlib skills.
 **Each example features a banner with a download icon just after the file name and a button (>>>) on
 the right to show the content of the file.**
 
+See the :ref:`dependencies` to run ``tools/make-examples``.
+
 ---------------------
  How to Learn Python
 ---------------------
@@ -38,7 +40,8 @@ interactive environment or in a web browser using a IPython Notebook. Each of th
 advantages and drawbacks.  A script is best when we want to work on a file using an editor, and an
 interactive environment is best when we want to play with code interactively.
 
-You have to set an environment so as to find the Spice libraries.
+The following definitions via environment variables are only needed
+if the arguments are different from those used here.
 
 On Linux, use this shell command:
 
@@ -51,7 +54,7 @@ On Windows, use this command:
 
 .. code-block:: sh
 
-    SET PySpice_example_path=C:/Users/John/PySpice/examples
+    SET PySpice_example_path=%HOME%/PySpice/examples
 
 To run an example from the console, execute this command:
 
@@ -79,7 +82,7 @@ To start the IPython notebook in your web browser:
 
     ipython notebook
 
-When we use IPython notebook, it is convenient to use a matplotlib backend that outputs the graphics
+When we use IPython notebook, it is convenient to use a Matplotlib backend that outputs the graphics
 embedded in the notebook file. To activate this backend, somewhere in the beginning on the notebook,
 you must add:
 
@@ -198,12 +201,4 @@ The documentation generator will do these actions for each file:
  * generate the Matplotlib figure is the file as a more recent timestamp than the rst file
 
 At the end, the documentation generator generate a table of contents.
-
-Requirements:
-
-   - ``PySpice`` and ``PySpice/tools`` folders in python path. See ``setenv.sh`` or 
-     ``export PYTHONPATH="`pwd`:`pwd`/tools"``
-   - ``dpic``: https://ece.uwaterloo.ca/~aplevich/dpic/, https://en.wikipedia.org/wiki/Pic_language
-   - ``M4`` circuit macros: https://ctan.org/pkg/circuit-macros
-   - mupdf tools: ``pacman -S mupdf mupdf-tools`` or ``apt-get install mupdf mupdf-tools``
 
