@@ -11,9 +11,9 @@ install:
 
 script:
    # fixme:
-   - python unit-test/Spice/test_BasicElement.py
+   # - python unit-test/Spice/test_BasicElement.py
    # - python unit-test/Spice/test_NetList.py # fail
-   python unit-test/Unit/test_Units.py
+   - python unit-test/Unit/test_Units.py
 
 ####################################################################################################
 #

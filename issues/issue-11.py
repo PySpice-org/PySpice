@@ -6,7 +6,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Spice.Netlist import Circuit, SubCircuit
-from PySpice.Unit.Units import *
+from PySpice.Unit.Unit import *
 
 ####################################################################################################
 

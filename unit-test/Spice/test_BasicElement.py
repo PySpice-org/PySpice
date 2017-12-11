@@ -25,7 +25,7 @@ import unittest
 ####################################################################################################
 
 from PySpice.Spice.BasicElement import *
-from PySpice.Unit.Units import *
+from PySpice.Unit.Unit import *
 
 ####################################################################################################
 
