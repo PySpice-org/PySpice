@@ -99,7 +99,7 @@ for element_type in ('capacitor', 'inductor'):
     plot(analysis['in'])
     plot(analysis['out'])
     # Fixme: resistor current, scale
-    plot((analysis['in'] - analysis.out)/float(circuit['R1'].resistance)*current_scale)
+    plot(((analysis['in'] - analysis.out)/circuit['R1'].resistance) * current_scale)
     axe.axvline(x=float(tau), color='red')
     axe.set_ylim(-11, 11)
     axe.set_xlabel('t [s]')

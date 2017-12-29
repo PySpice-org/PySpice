@@ -105,6 +105,18 @@ class WaveForm(UnitValues):
 
     ##############################################
 
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+
+        # Fixme: check abscissa
+
+        result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
+
+        # self._logger.info("result\n{}".format(result))
+
+        return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
+
+    ##############################################
+
     @property
     def name(self):
         return self._name

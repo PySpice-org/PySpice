@@ -56,6 +56,10 @@ class TestUnits(unittest.TestCase):
         array1 = u_mV(np_array1)
         np_true_array1 = np_array1 / 1000
 
+        np_array2 = np.arange(10, 20)
+        array2 = u_mV(np_array2)
+        np_true_array2 = np_array2 / 1000
+
         name = 'waveform1'
         waveform1 = WaveForm(name, array1.prefixed_unit, array1.shape)
         waveform1[...] = array1
@@ -69,6 +73,22 @@ class TestUnits(unittest.TestCase):
         self._test_unit_values(waveform1, np_true_array1)
         self.assertEqual(waveform1.prefixed_unit, U_mV)
         self.assertEqual(waveform1.name, name)
+
+        name = 'waveform2'
+        waveform2 = WaveForm.from_unit_values(name, array2)
+        print(repr(waveform2))
+        self._test_unit_values(waveform2, np_true_array2)
+        self.assertEqual(waveform2.prefixed_unit, U_mV)
+        self.assertEqual(waveform2.name, name)
+
+        waveform3 = waveform2 - waveform1
+        print(repr(waveform3))
+        self._test_unit_values(waveform3, np_true_array2 - np_true_array1)
+        self.assertEqual(waveform3.prefixed_unit, U_mV)
+        self.assertEqual(waveform3.name, '')
+
+        waveform4 = waveform3.convert(U_uV)
+        print(waveform4, type(waveform4))
 
 ####################################################################################################
 
