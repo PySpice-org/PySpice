@@ -146,8 +146,9 @@ class Vector:
         data = self._data
         if to_real:
             data = data.real
-        if to_float:
-            data = float(data[0])
+        # Fixme: else UnitValue instead of UnitValues
+        # if to_float:
+        #     data = float(data[0])
 
         return WaveForm.from_unit_values(self.simplified_name, self._unit(data), abscissa=abscissa)
 
