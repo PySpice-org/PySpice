@@ -172,7 +172,14 @@ for unit_prefix in _Unit.UnitPrefixMetaclass.prefix_iter():
 class FrequencyValue(_Unit.UnitValue, _Unit.FrequencyMixin):
     pass
 
+# Fixme:
+class FrequencyValues(_Unit.UnitValues): # , _Unit.FrequencyMixin
+    pass
+
 class PeriodValue(_Unit.UnitValue, _Unit.PeriodMixin):
+    pass
+
+class PeriodValues(_Unit.UnitValues): # , _Unit.PeriodMixin
     pass
 
 ####################################################################################################
@@ -195,10 +202,10 @@ def _build_unit_prefix_shortcut(unit, unit_prefix):
     name = 'u_' + str(unit_prefix) + unit.unit_suffix
     if unit.__class__ == _SiUnits.Hertz:
         value_ctor = FrequencyValue
-        values_ctor = None # Fixme:
+        values_ctor = FrequencyValues
     elif unit.__class__ == _SiUnits.Second:
         value_ctor = PeriodValue
-        values_ctor = None # Fixme:
+        values_ctor = PeriodValues
     else:
         value_ctor = _Unit.UnitValue
         values_ctor = _Unit.UnitValues
