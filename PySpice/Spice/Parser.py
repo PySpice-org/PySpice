@@ -530,7 +530,7 @@ class Element(Statement):
 
     def build(self, circuit, ground=0):
 
-        factory = getattr(circuit, self.factory.alias)
+        factory = getattr(circuit, self.factory.__alias__)
         nodes = self.translate_ground_node(ground)
         if self._prefix != 'X':
             args = nodes + self._parameters
@@ -861,7 +861,10 @@ class SpiceParser:
         # if lines[-1] != '.end':
         #     raise NameError('".end" is expected at the end of the netlist')
 
-        self._title = lines[0]
+        title_statement = '.title '
+        self._title = str(lines[0])
+        if self._title.startswith(title_statement):
+            self._title = self._title[len(title_statement):]
 
         statements = []
         sub_circuit = None
