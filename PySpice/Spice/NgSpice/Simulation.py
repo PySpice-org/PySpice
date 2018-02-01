@@ -119,5 +119,7 @@ class NgSpiceSharedCircuitSimulator(NgSpiceCircuitSimulator):
         self.reset_analysis()
 
         plot_name = self._ngspice_shared.last_plot
+        if plot_name == 'const':
+            raise NameError('Invalid plot name')
 
         return self._ngspice_shared.plot(self, plot_name).to_analysis()
