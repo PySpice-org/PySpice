@@ -44,7 +44,7 @@ analysis = simulator.dc(Vinput=slice(-10, 2, .05)) # 10mV
 
 figure = plt.figure(1, (20, 10))
 
-zener_part = analysis.out <= -5.4
+zener_part = analysis.out <= -5.4@u_V
 # compute derivate
 # fit linear part
 
