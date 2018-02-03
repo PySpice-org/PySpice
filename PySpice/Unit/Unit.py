@@ -975,6 +975,11 @@ class UnitValue: # numbers.Real
 
     ##############################################
 
+    # def to_unit_values(self):
+    #     return self._prefixed_unit.new_value(self._value)
+
+    ##############################################
+
     # def clone_unit(self, value, power):
     #     return self.__class__(PrefixedUnit(self.unit, power), value)
 
