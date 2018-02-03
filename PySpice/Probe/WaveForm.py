@@ -113,7 +113,10 @@ class WaveForm(UnitValues):
 
         # self._logger.info("result\n{}".format(result))
 
-        return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
+        if isinstance(result, UnitValues):
+            return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
+        else:
+            return result # e.g. foo <= 0
 
     ##############################################
 

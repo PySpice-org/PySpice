@@ -1744,6 +1744,8 @@ class UnitValues(np.ndarray):
                 nd_other = self._convert_value(other)
                 if isinstance(other, UnitValues):
                     nd_other = nd_other.as_ndarray()
+                elif isinstance(other, UnitValue):
+                    nd_other = float(nd_other)
                 args.append(nd_other)
             else:
                 raise ValueError
