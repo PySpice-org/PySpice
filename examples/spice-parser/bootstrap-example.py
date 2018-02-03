@@ -46,7 +46,7 @@ circuit.X('D1', '1N4148', circuit.gnd, 1)
 circuit.D(1, circuit.gnd, 1, model='DIODE1', off=True)
 circuit.X('Dz1', 'd1n5919brl', 1, 'out')
 circuit.C('ac', 1, 2, nano(470))
-circuit.R('ac', 2, 'in', 470, m=1, temperature='{25}')
+circuit.R('ac', 2, 'in', 470) # Fixme: , m=1, temperature='{25}'
 
 source = str(circuit)
 print(source)
