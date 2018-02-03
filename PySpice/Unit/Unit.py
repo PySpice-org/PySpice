@@ -1529,11 +1529,11 @@ class UnitValues(np.ndarray):
         np.negative:     CONVERSION.NO_CONVERSION,
         np.positive:     CONVERSION.NO_CONVERSION,
         np.power:        CONVERSION.NEW_UNIT,
-        np.remainder:    CONVERSION.NOT_IMPLEMENTED, # !
-        np.mod:          CONVERSION.NOT_IMPLEMENTED, # !
-        np.fmod:         CONVERSION.NOT_IMPLEMENTED, # !
-        np.divmod:       CONVERSION.NOT_IMPLEMENTED, # !
-        np.absolute:     CONVERSION.NOT_IMPLEMENTED, # ! ???
+        np.remainder:    CONVERSION.UNIT_MATCH,
+        np.mod:          CONVERSION.UNIT_MATCH,
+        np.fmod:         CONVERSION.UNIT_MATCH,
+        np.divmod:       CONVERSION.UNIT_MATCH,
+        np.absolute:     CONVERSION.NO_CONVERSION,
         np.fabs:         CONVERSION.NO_CONVERSION,
         np.rint:         CONVERSION.NO_CONVERSION,
         np.sign:         CONVERSION.NO_CONVERSION,
