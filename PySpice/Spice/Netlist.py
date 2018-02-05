@@ -306,6 +306,8 @@ class ElementParameterMetaClass(type):
      #: Dictionary for SPICE prefix -> [cls,]
     __classes__ = {}
 
+    _logger = _module_logger.getChild('ElementParameterMetaClass')
+
     ##############################################
 
     def __new__(meta_cls, class_name, base_classes, namespace):
@@ -725,6 +727,8 @@ class Netlist:
 
     """
 
+    _logger = _module_logger.getChild('Netlist')
+
     ##############################################
 
     def __init__(self):
@@ -1018,6 +1022,8 @@ class Circuit(Netlist):
        str(circuit)
 
     """
+
+    _logger = _module_logger.getChild('Circuit')
 
     ##############################################
 
