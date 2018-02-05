@@ -1,4 +1,4 @@
-#!# This example depicts half and full wave rectification.
+#r# This example depicts half and full wave rectification.
 
 ####################################################################################################
 
@@ -51,7 +51,7 @@ plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 ####################################################################################################
 
-#cm# half-wave-rectification.m4
+#f# circuit_macros('half-wave-rectification.m4')
 
 circuit.C('1', 'output', circuit.gnd, 1@u_mF)
 
@@ -94,7 +94,7 @@ plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 ####################################################################################################
 
-#cm# full-wave-rectification.m4
+#f# circuit_macros('full-wave-rectification.m4')
 
 circuit.C('1', 'output_plus', 'output_minus', 1@u_mF)
 
@@ -112,7 +112,8 @@ plt.legend(('input', 'output'), loc=(.05,.1))
 plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 plt.tight_layout()
-#fig# save_figure(figure1, 'rectification.png')
+
+#f# save_figure('figure1', 'rectification.png')
 
 ####################################################################################################
 
@@ -153,7 +154,8 @@ plt.legend(('input', 'output'), loc=(.05,.1))
 # plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 plt.tight_layout()
-#fig# save_figure(figure2, 'universal-rectifier.png')
+
+#f# save_figure('figure2', 'universal-rectifier.png')
 
 ####################################################################################################
 

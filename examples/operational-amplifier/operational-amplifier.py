@@ -18,7 +18,7 @@ from PySpice.Unit import *
 
 from OperationalAmplifier import BasicOperationalAmplifier
 
-#i# OperationalAmplifier.py
+#f# literal_include('OperationalAmplifier.py')
 
 ####################################################################################################
 
@@ -45,4 +45,5 @@ bode_diagram(axes=(plt.subplot(211), plt.subplot(212)),
             )
 plt.tight_layout()
 plt.show()
-#fig# save_figure(figure, 'operational-amplifier.png')
+
+#f# save_figure('figure', 'operational-amplifier.png')

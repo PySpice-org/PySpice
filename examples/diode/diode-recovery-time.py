@@ -1,4 +1,4 @@
-#!# This example illustrates the diode recovery time and the capacitive behaviour of a PN junction.
+#r# This example illustrates the diode recovery time and the capacitive behaviour of a PN junction.
 
 # Fixme: Split the plots ? Add some explanations at the end
 
@@ -29,24 +29,24 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-#!# Let define some parameters
+#r# Let define some parameters
 
 dc_offset = 1@u_V
 ac_amplitude = 100@u_mV
 
 ####################################################################################################
 
-#!# We will first compute some quiescent points and the corresponding dynamic resistance.
+#r# We will first compute some quiescent points and the corresponding dynamic resistance.
 
-#cm# diode-characteristic-curve-circuit.m4
+#f# circuit_macros('diode-characteristic-curve-circuit.m4')
 
-#!# Since this circuit is equivalent to a voltage divider, we can write the following relation :
-#!#
-#!# .. math::
-#!#
-#!#     V_{out} = \frac{Z_d}{R_1 + Z_d} V_{in}
-#!#
-#!# where :math:`Z_d` is the diode impedance.
+#r# Since this circuit is equivalent to a voltage divider, we can write the following relation :
+#r#
+#r# .. math::
+#r#
+#r#     V_{out} = \frac{Z_d}{R_1 + Z_d} V_{in}
+#r#
+#r# where :math:`Z_d` is the diode impedance.
 
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
@@ -78,14 +78,14 @@ dynamic_resistance = ((quiescent_points[ 0]['quiescent_voltage'] -
 #?# print("Dynamic Resistance = {:.1f} Ω".format(dynamic_resistance))
 #?# #o#
 
-#!# We found a dynamic resistance of @<@dynamic_resistance:.1f@>@ Ω.
+#r# We found a dynamic resistance of @<@dynamic_resistance:.1f@>@ Ω.
 
 ####################################################################################################
 
-#!#
-#!# We will now drive the diode with a sinusoidal source and perform an AC analysis.
+#r#
+#r# We will now drive the diode with a sinusoidal source and perform an AC analysis.
 
-#cm# diode-characteristic-curve-circuit-ac.m4
+#f# circuit_macros('diode-characteristic-curve-circuit-ac.m4')
 
 circuit = Circuit('Diode')
 circuit.include(spice_library['BAV21'])
@@ -98,7 +98,7 @@ circuit.D('1', 'out', circuit.gnd, model='BAV21')
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.ac(start_frequency=10@u_kHz, stop_frequency=1@u_GHz, number_of_points=10,  variation='dec')
 
-#!# Let plot the voltage across the diode and the dynamic resistance as a function of the frequency.
+#r# Let plot the voltage across the diode and the dynamic resistance as a function of the frequency.
 
 figure = plt.figure(1, (20, 10))
 
@@ -120,9 +120,9 @@ axe.set_ylabel('Rd [Ω]')
 
 ####################################################################################################
 
-#!# We will now drive the diode with a pulse generator and perform a transient analysis.
+#r# We will now drive the diode with a pulse generator and perform a transient analysis.
 
-#cm# diode-characteristic-curve-circuit-pulse.m4
+#f# circuit_macros('diode-characteristic-curve-circuit-pulse.m4')
 
 frequency = 1@u_MHz
 
@@ -155,9 +155,9 @@ axe.set_ylabel('[V]')
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'diode-recovery-time.png')
+#f# save_figure('figure', 'diode-recovery-time.png')
 
-#!# We notice the output of the circuit cannot follow the pulse generator.  It is due to the
-#!# capacitive behaviour of a PN junction that cut off the highest frequencies of the pulse.  The
-#!# plot of the dynamic resistance as a function of the frequency show a typical low pass filter
-#!# behaviour where the impedance drop at high frequencies.
+#r# We notice the output of the circuit cannot follow the pulse generator.  It is due to the
+#r# capacitive behaviour of a PN junction that cut off the highest frequencies of the pulse.  The
+#r# plot of the dynamic resistance as a function of the frequency show a typical low pass filter
+#r# behaviour where the impedance drop at high frequencies.

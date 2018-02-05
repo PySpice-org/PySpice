@@ -48,4 +48,5 @@ plot(analysis.comparator)
 plot(analysis.output)
 plt.tight_layout()
 plt.show()
-#fig# save_figure(figure, 'astable.png')
+
+#f# save_figure('figure', 'astable.png')

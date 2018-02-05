@@ -1,12 +1,12 @@
 ####################################################################################################
 
-#!#
-#!# =============
-#!#  Transformer
-#!# =============
-#!#
-#!# This examples shows how to simulate a transformer.
-#!#
+#r#
+#r# =============
+#r#  Transformer
+#r# =============
+#r#
+#r# This examples shows how to simulate a transformer.
+#r#
 
 ####################################################################################################
 
@@ -27,7 +27,7 @@ from PySpice.Unit import *
 
 from Transformer import Transformer
 
-#i# Transformer.py
+#f# literal_include('Transformer.py')
 
 ####################################################################################################
 
@@ -51,4 +51,5 @@ plt.ylabel('[V]')
 
 plt.tight_layout()
 plt.show()
-#fig# save_figure(figure, 'transformer.png')
+
+#f# save_figure('figure', 'transformer.png')

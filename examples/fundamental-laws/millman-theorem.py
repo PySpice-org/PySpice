@@ -1,28 +1,28 @@
 ####################################################################################################
 
-#!# ===================
-#!#  Millman's theorem
-#!# ===================
-#!#
-#!# Millman's theorem is a method to compute the voltage of a node in such circuits:
+#r# ===================
+#r#  Millman's theorem
+#r# ===================
+#r#
+#r# Millman's theorem is a method to compute the voltage of a node in such circuits:
 
-#cm# millman-theorem.m4
+#f# circuit_macros('millman-theorem.m4')
 
-#!# The voltage at node A is:
-#!#
-#!# .. math::
-#!#
-#!#     V_A = \frac{\sum \frac{V_i}{R_i}}{\sum \frac{1}{R_i}}
-#!#
-#!# We can extend this theorem to branches with current sources:
-#!#
-#!# .. math::
-#!#
-#!#     V_A = \frac{\sum \frac{V_i}{R_i} + \sum I_k}{\sum \frac{1}{R_i}}
-#!#
-#!# Note voltage sources can be null and resistances in current's branches don't change the denominator.
+#r# The voltage at node A is:
+#r#
+#r# .. math::
+#r#
+#r#     V_A = \frac{\sum \frac{V_i}{R_i}}{\sum \frac{1}{R_i}}
+#r#
+#r# We can extend this theorem to branches with current sources:
+#r#
+#r# .. math::
+#r#
+#r#     V_A = \frac{\sum \frac{V_i}{R_i} + \sum I_k}{\sum \frac{1}{R_i}}
+#r#
+#r# Note voltage sources can be null and resistances in current's branches don't change the denominator.
 
-#cm# millman-theorem-with-current-source.m4
+#f# circuit_macros('millman-theorem-with-current-source.m4')
 
 ####################################################################################################
 

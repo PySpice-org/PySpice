@@ -1,10 +1,8 @@
-#!# This example depicts a ring modulator
+#r# This example depicts a ring modulator
 
-#!## .. warning:: It don't simulate
-#!#
-#!##   doAnalyses: TRAN:  Timestep too small; time = 5.5453e-08, timestep = 1.25e-18: trouble with xring_modulator.xd2:1n4148-instance d.xring_modulator.xd2.d1
-
-#i# RingModulator.py
+#r## .. warning:: It don't simulate
+#r#
+#r##   doAnalyses: TRAN:  Timestep too small; time = 5.5453e-08, timestep = 1.25e-18: trouble with xring_modulator.xd2:1n4148-instance d.xring_modulator.xd2.d1
 
 ####################################################################################################
 
@@ -34,7 +32,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 from RingModulator import RingModulator
 
-#i# RingModulator.py
+#f# literal_include('RingModulator.py')
 
 ####################################################################################################
 

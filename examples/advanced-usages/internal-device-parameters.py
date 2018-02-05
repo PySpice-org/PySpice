@@ -1,4 +1,4 @@
-#!# This example show how to access internal device parameters
+#r# This example show how to access internal device parameters
 
 ####################################################################################################
 
@@ -63,23 +63,23 @@ analysis = simulator.dc(Vdd=slice(0, 5, .1)) # Fixme: ,Vsig=slice(1, 5, 1)
 
 ####################################################################################################
 
-# vdd d1 0 2.0
-# vss vsss 0 0
-# vsig g1 vsss 0
-# xmos1 d1 g1 vsss level1
-# .subckt level1 d3 g3 v3
-# xmos2 d3 g3 v3 level2
-# .ends
-# .subckt level2 d4 g4 v4
-# m1 d4 g4 v4 v4 nmos w=1e-5 l=3.5e -007
-# .ends
-# .dc vdd 0 5 0.1 vsig 0 5 1
-# .control
-# save all @m.xmos1.xmos2.m1[vdsat]
-# run
-# plot vss#branch $ current measured at the top level
-# plot @m.xmos1.xmos2.m1[vdsat]
-# .endc
-# .MODEL NMOS NMOS LEVEL=8
-# +VERSION=3.2.4 TNOM=27 TOX=7.4E-9
-# .end
+#?# vdd d1 0 2.0
+#?# vss vsss 0 0
+#?# vsig g1 vsss 0
+#?# xmos1 d1 g1 vsss level1
+#?# .subckt level1 d3 g3 v3
+#?# xmos2 d3 g3 v3 level2
+#?# .ends
+#?# .subckt level2 d4 g4 v4
+#?# m1 d4 g4 v4 v4 nmos w=1e-5 l=3.5e -007
+#?# .ends
+#?# .dc vdd 0 5 0.1 vsig 0 5 1
+#?# .control
+#?# save all @m.xmos1.xmos2.m1[vdsat]
+#?# run
+#?# plot vss#branch $ current measured at the top level
+#?# plot @m.xmos1.xmos2.m1[vdsat]
+#?# .endc
+#?# .MODEL NMOS NMOS LEVEL=8
+#?# +VERSION=3.2.4 TNOM=27 TOX=7.4E-9
+#?# .end

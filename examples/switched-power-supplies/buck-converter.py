@@ -24,7 +24,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-# cm# buck-converter.m4
+#?# circuit_macros('buck-converter.m4')
 
 circuit = Circuit('Buck Converter')
 
@@ -53,14 +53,14 @@ print('period =', period.canonise())
 print('duty_cycle =', duty_cycle.canonise())
 print('ripple_current =', ripple_current)
 
-#!# .. math:
-#!#      U = L \frac{dI}{dt}
+#r# .. math:
+#r#      U = L \frac{dI}{dt}
 
 L = (Vin - Vout) * duty_cycle / ripple_current
 RL = 37@u_mΩ
 
-#!# .. math:
-#!#      dV = dI (ESR + \frac{dt}{C} + \frac{ESL}{dt})
+#r# .. math:
+#r#      dV = dI (ESR + \frac{dt}{C} + \frac{ESL}{dt})
 
 ESR = 30@u_mΩ
 ESL = 0
@@ -117,4 +117,5 @@ plt.ylabel('[V]')
 
 plt.tight_layout()
 plt.show()
-#fig# save_figure(figure, 'buck-converter.png')
+
+#f# save_figure('figure', 'buck-converter.png')

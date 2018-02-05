@@ -1,8 +1,8 @@
-#!# =====================================
-#!#  Relay drived by a bipolar transistor
-#!# =====================================
+#r# =====================================
+#r#  Relay drived by a bipolar transistor
+#r# =====================================
 
-#!# This example shows the simulation of ...
+#r# This example shows the simulation of ...
 
 ####################################################################################################
 
@@ -31,7 +31,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-# #cm# relay.m4
+#?# #cm# relay.m4
 
 period = 50@u_ms
 pulse_width = period / 2
@@ -73,4 +73,4 @@ plt.legend(('Vbase', 'Vcollector'), loc=(.05,.1))
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'relay.png')
+#f# save_figure('figure', 'relay.png')

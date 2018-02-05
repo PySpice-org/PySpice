@@ -1,8 +1,8 @@
-#!# ================
-#!#  CEM Simulation
-#!# ================
+#r# ================
+#r#  CEM Simulation
+#r# ================
 
-#!# This example show a CEM simulation.
+#r# This example show a CEM simulation.
 
 # Fixme: retrieve PDF reference and complete
 
@@ -34,7 +34,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 from HP54501A import HP54501A
 
-#i# HP54501A.py
+#f# literal_include('HP54501A.py')
 
 ####################################################################################################
 
@@ -68,4 +68,4 @@ plt.ylabel('[V]')
 
 plt.show()
 
-#fig# save_figure(figure, 'hp54501a-cem.png')
+#f# save_figure('figure', 'hp54501a-cem.png')

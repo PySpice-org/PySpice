@@ -1,8 +1,8 @@
-#!# ====================
-#!#  Bipolar Transistor
-#!# ====================
+#r# ====================
+#r#  Bipolar Transistor
+#r# ====================
 
-#!# This example shows how to simulate the characteristic curves of a bipolar transistor.
+#r# This example shows how to simulate the characteristic curves of a bipolar transistor.
 
 # Fixme: Complete
 
@@ -37,9 +37,9 @@ figure = plt.figure(1, (20, 10))
 
 ####################################################################################################
 
-#!# We define a basic circuit to drive an NPN transistor (2n2222a) using two voltage sources.
+#r# We define a basic circuit to drive an NPN transistor (2n2222a) using two voltage sources.
 
-#cm# transistor.m4
+#f# circuit_macros('transistor.m4')
 
 circuit = Circuit('Transistor')
 
@@ -52,7 +52,7 @@ circuit.R('collector', 2, 'collector', 1@u_kΩ)
 circuit.include(spice_library['2n2222a'])
 circuit.BJT(1, 'collector', 'base', circuit.gnd, model='2n2222a')
 
-#!# We plot the base-emitter diode curve :math:`Ib = f(Vbe)` using a DC sweep simulation.
+#r# We plot the base-emitter diode curve :math:`Ib = f(Vbe)` using a DC sweep simulation.
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vbase=slice(0, 3, .01))
@@ -67,7 +67,7 @@ axe1.set_ylabel('Ib [mA]')
 
 ####################################################################################################
 
-#!# We will now replace the base's voltage source by a current source in the previous circuit.
+#r# We will now replace the base's voltage source by a current source in the previous circuit.
 
 circuit = Circuit('Transistor')
 Ibase = circuit.I('base', circuit.gnd, 'base', 10@u_uA) # take care to the orientation
@@ -131,7 +131,7 @@ for base_current in np.arange(0, 100, 10):
     # axe3.plot(analysis.collector, analysis.sweep/(float(base_current)-analysis.Vcollector))
     # Fixme: sweep is not so explicit
 
-#!# Let plot :math:`Ic = f(Ib)`
+#r# Let plot :math:`Ic = f(Ib)`
 
 axe4 = plt.subplot(224)
 axe4.grid()
@@ -149,4 +149,4 @@ axe4.legend(('Ic(Ib)',), loc=(.1,.8))
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'transistor-plot.png')
+#f# save_figure('figure', 'transistor-plot.png')

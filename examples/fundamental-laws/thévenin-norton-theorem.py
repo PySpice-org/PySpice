@@ -1,51 +1,51 @@
 ####################################################################################################
 
-#!# ============================
-#!#  Thévenin and Norton Theorem
-#!# ============================
+#r# ============================
+#r#  Thévenin and Norton Theorem
+#r# ============================
 
-#!# The Thévenin's theorem holds that:
-#!#
-#!#  * Any linear electrical network with voltage and current sources and only resistances can be
-#!#    replaced at terminals A-B by an equivalent voltage source Vth in series connection with an
-#!#    equivalent resistance Rth.
-#!#
-#!#  * This equivalent voltage Vth is the voltage obtained at terminals A-B of the network with
-#!#    terminals A-B open circuited.
-#!#
-#!#  * This equivalent resistance Rth is the resistance obtained at terminals A-B of the network
-#!#    with all its independent current sources open circuited and all its independent voltage
-#!#    sources short circuited.
-#!#
-#!# The Norton's theorem holds that:
-#!#
-#!#  * Any linear electrical network with voltage and current sources and only resistances can be
-#!#    replaced at terminals A-B by an equivalent current source INO in parallel connection with an
-#!#    equivalent resistance Rno.
-#!#
-#!#  * This equivalent current Ino is the current obtained at terminals A-B of the network with
-#!#    terminals A-B short circuited.
-#!#
-#!#  * This equivalent resistance Rno is the resistance obtained at terminals A-B of the network
-#!#    with all its voltage sources short circuited and all its current sources open circuited.
-#!#
-#!# The Norton's theorem is the dual of the Thévenin's therorem and both are related by
-#!# these equations:
-#!#
-#!#  .. math::
-#!#
-#!#       \begin{align}
-#!#         R_{no} & = R_{th} \\
-#!#         I_{no} & = V_{th} / R_{th} \\
-#!#         V_{th} & = I_{No} R_{no}
-#!#       \end{align}
+#r# The Thévenin's theorem holds that:
+#r#
+#r#  * Any linear electrical network with voltage and current sources and only resistances can be
+#r#    replaced at terminals A-B by an equivalent voltage source Vth in series connection with an
+#r#    equivalent resistance Rth.
+#r#
+#r#  * This equivalent voltage Vth is the voltage obtained at terminals A-B of the network with
+#r#    terminals A-B open circuited.
+#r#
+#r#  * This equivalent resistance Rth is the resistance obtained at terminals A-B of the network
+#r#    with all its independent current sources open circuited and all its independent voltage
+#r#    sources short circuited.
+#r#
+#r# The Norton's theorem holds that:
+#r#
+#r#  * Any linear electrical network with voltage and current sources and only resistances can be
+#r#    replaced at terminals A-B by an equivalent current source INO in parallel connection with an
+#r#    equivalent resistance Rno.
+#r#
+#r#  * This equivalent current Ino is the current obtained at terminals A-B of the network with
+#r#    terminals A-B short circuited.
+#r#
+#r#  * This equivalent resistance Rno is the resistance obtained at terminals A-B of the network
+#r#    with all its voltage sources short circuited and all its current sources open circuited.
+#r#
+#r# The Norton's theorem is the dual of the Thévenin's therorem and both are related by
+#r# these equations:
+#r#
+#r#  .. math::
+#r#
+#r#       \begin{align}
+#r#         R_{no} & = R_{th} \\
+#r#         I_{no} & = V_{th} / R_{th} \\
+#r#         V_{th} & = I_{No} R_{no}
+#r#       \end{align}
 
-#cm# thévenin-norton-theorem.m4
+#f# circuit_macros('thévenin-norton-theorem.m4')
 
-#!# In circuit theory terms, these theorems allows any one-port network to be reduced to a single
-#!# voltage or current source and a single impedance.
-#!#
-#!# For AC circuits these theorems can be applied to reactive impedances as well as resistances.
+#r# In circuit theory terms, these theorems allows any one-port network to be reduced to a single
+#r# voltage or current source and a single impedance.
+#r#
+#r# For AC circuits these theorems can be applied to reactive impedances as well as resistances.
 
 #?# These theorems also applies to frequency domain AC circuits consisting of reactive and resistive
 #?# impedances.

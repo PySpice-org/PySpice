@@ -1,7 +1,7 @@
-#!# This example shows the simulation of a capacitor and an inductor.
-#!#
-#!# To go further, you can read these pages on Wikipedia: `RC circuit <https://en.wikipedia.org/wiki/RC_circuit>`_
-#!# and `RL circuit <https://en.wikipedia.org/wiki/RL_circuit>`_.
+#r# This example shows the simulation of a capacitor and an inductor.
+#r#
+#r# To go further, you can read these pages on Wikipedia: `RC circuit <https://en.wikipedia.org/wiki/RC_circuit>`_
+#r# and `RL circuit <https://en.wikipedia.org/wiki/RL_circuit>`_.
 
 ####################################################################################################
 
@@ -26,15 +26,15 @@ from scipy.optimize import curve_fit
 # Warning: the capacitor/inductor return current in the generator
 #  could use switches instead
 
-#!# We will use a simple circuit where both capacitor and inductor are driven by a pulse source
-#!# through a limiting current resistor.
+#r# We will use a simple circuit where both capacitor and inductor are driven by a pulse source
+#r# through a limiting current resistor.
 
-#cm# capacitor_and_inductor.m4
+#f# circuit_macros('capacitor_and_inductor.m4')
 
 # Fixme: for loop makes difficult to intermix code and text !
 
-#!# We will fit from the simulation output the time constant of each circuit and compare it to the
-#!# theoretical value.
+#r# We will fit from the simulation output the time constant of each circuit and compare it to the
+#r# theoretical value.
 
 figure = plt.figure(1, (20, 10))
 
@@ -110,6 +110,6 @@ for element_type in ('capacitor', 'inductor'):
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'capacitor-inductor.png')
+#f# save_figure('figure', 'capacitor-inductor.png')
 
 # Fixme: Add formulae

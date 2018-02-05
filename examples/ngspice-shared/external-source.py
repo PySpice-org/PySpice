@@ -1,12 +1,12 @@
 ####################################################################################################
 
-#!#
-#!# ===================================
-#!#  Simulation using External Sources
-#!# ===================================
-#!#
-#!# This example explains how to plug a voltage source from Python to NgSpice.
-#!#
+#r#
+#r# ===================================
+#r#  Simulation using External Sources
+#r# ===================================
+#r#
+#r# This example explains how to plug a voltage source from Python to NgSpice.
+#r#
 
 ####################################################################################################
 
@@ -83,4 +83,5 @@ plt.ylim(float(-amplitude*1.1), float(amplitude*1.1))
 
 plt.tight_layout()
 plt.show()
-#fig# save_figure(figure1, 'voltage-divider.png')
+
+#f# save_figure('figure1', 'voltage-divider.png')

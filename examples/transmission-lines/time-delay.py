@@ -1,4 +1,4 @@
-#!# This example shows the simulation of a transmission line.
+#r# This example shows the simulation of a transmission line.
 
 ####################################################################################################
 
@@ -17,7 +17,7 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-#!# We will drive the transmission line with a pulse source and use a standard 50 Ω load.
+#r# We will drive the transmission line with a pulse source and use a standard 50 Ω load.
 
 circuit = Circuit('Transmission Line')
 circuit.PulseVoltageSource('pulse', 'input', circuit.gnd, 0@u_V, 1@u_V, 1@u_ns, 1@u_us)
@@ -40,4 +40,4 @@ plt.legend(['input', 'output'], loc='upper right')
 
 plt.show()
 
-#fig# save_figure(figure, 'time-delay.png')
+#f# save_figure('figure', 'time-delay.png')

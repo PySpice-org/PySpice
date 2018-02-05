@@ -1,5 +1,5 @@
-#!# This example depicts a voltage multiplier using diodes and capacitors.  To go further, you can
-#!# read this `page <http://en.wikipedia.org/wiki/Voltage_multiplier>`_ on Wikipedia.
+#r# This example depicts a voltage multiplier using diodes and capacitors.  To go further, you can
+#r# read this `page <http://en.wikipedia.org/wiki/Voltage_multiplier>`_ on Wikipedia.
 
 ####################################################################################################
 
@@ -27,7 +27,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-#cm# voltage-multiplier-circuit.m4
+#f# circuit_macros('voltage-multiplier-circuit.m4')
 
 circuit = Circuit('Voltage Multiplier')
 circuit.include(spice_library['1N4148'])
@@ -71,4 +71,4 @@ axe.legend(['input'] + ['*' + str(i) for i in range(1, multiplier+1)] ,
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'voltage-multiplier.png')
+#f# save_figure('figure', 'voltage-multiplier.png')

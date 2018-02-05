@@ -1,8 +1,8 @@
-#!# ======================
-#!#  AC Coupled Amplifier
-#!# ======================
+#r# ======================
+#r#  AC Coupled Amplifier
+#r# ======================
 
-#!# This example shows the simulation of an AC coupled amplifier using a NPN bipolar transistor.
+#r# This example shows the simulation of an AC coupled amplifier using a NPN bipolar transistor.
 
 ####################################################################################################
 
@@ -31,7 +31,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-#cm# ac-coupled-amplifier.m4
+#f# circuit_macros('ac-coupled-amplifier.m4')
 
 circuit = Circuit('Transistor')
 
@@ -68,4 +68,4 @@ plt.legend(('input', 'output'), loc=(.05,.1))
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'ac-coupled-amplifier-plot.png')
+#f# save_figure('figure', 'ac-coupled-amplifier-plot.png')

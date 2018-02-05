@@ -1,4 +1,4 @@
-#!# This example shows how to simulate and plot the characteristic curve of a Zener diode.
+#r# This example shows how to simulate and plot the characteristic curve of a Zener diode.
 
 ####################################################################################################
 
@@ -26,7 +26,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-#cm# zener-diode-characteristic-curve-circuit.m4
+#f# circuit_macros('zener-diode-characteristic-curve-circuit.m4')
 
 circuit = Circuit('Diode DC Curve')
 
@@ -80,4 +80,4 @@ axe.set_ylabel('Dynamic Resistance [Ohm]')
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'zener-characteristic-curve.png')
+#f# save_figure('figure', 'zener-characteristic-curve.png')
