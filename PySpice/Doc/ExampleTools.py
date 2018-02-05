@@ -20,6 +20,7 @@
 
 ####################################################################################################
 
+import logging
 import os
 import sys
 
@@ -27,12 +28,21 @@ from PySpice.Tools.Path import parent_directory_of
 
 ####################################################################################################
 
+_module_logger = logging.getLogger(__name__)
+
+####################################################################################################
+
 def find_libraries():
 
-    # os.path.join(os.environ['PySpice_examples_path'], 'libraries')
+    try:
+        library_path = os.environ['PySpiceLibraryPath']
+    except KeyError:
+        # Fixme: only works for one level
+        python_file = os.path.abspath(sys.argv[0])
+        examples_root = parent_directory_of(python_file, step=2)
+        # .../PySpice/examples/diode/__example_rst_factory__nlrrr2fh.py .../PySpice/examples
+        library_path = os.path.join(examples_root, 'libraries')
 
-    python_file = sys.argv[0]
-    examples_root = parent_directory_of(python_file, step=2)
-    # .../PySpice/examples/diode/__example_rst_factory__nlrrr2fh.py .../PySpice/examples
+    _module_logger.info('SPICE library path is {}'.format(library_path))
 
-    return os.path.join(examples_root, 'libraries')
+    return library_path
