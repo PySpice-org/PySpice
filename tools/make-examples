@@ -1,18 +1,50 @@
-#! /usr/bin/bash
+#! /usr/bin/env python3
+
+####################################################################################################
+
+import argparse
+import os
+import shutil
+import subprocess
+
+####################################################################################################
+
+parser = argparse.ArgumentParser(description='Generate RST for examples')
+parser.add_argument('--clean',
+                    action='store_true', default=False,
+                    help='Regenerate from scratch')
+parser.add_argument('--no-html',
+                    action='store_true', default=False,
+                    help="Don't generate html")
+
+args = parser.parse_args()
+
+####################################################################################################
+
+print('Generate RST examples files')
+
+root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 # Regenerate from scratch
-# examples=doc/sphinx/source/examples
-# rm -rf ${examples}
+if args.clean:
+    rst_path = os.path.join(root_path, 'doc', 'sphinx', 'source', 'examples')
+    shutil.rmtree(rst_path)
 
-echo
-echo Generate RST examples files
-# generate-rst-examples --skip-external-figure --skip-figure
+# pyterate --skip-external-figure --skip-figure
 # PYTHONPATH=$PWD/examples/:${PYTHONPATH}
 # PySpiceLogLevel=WARNING
-PySpiceLogLevel=ERROR generate-rst-examples # --force
 
-echo
-echo Run Sphinx
-pushd doc/sphinx/
-./make-html # --clean
-popd
+os.environ['PySpiceLibraryPath'] = os.path.join(root_path, 'examples', 'libraries')
+os.environ['PySpiceLogLevel'] = 'ERROR'
+
+setting_path = os.path.join(root_path, 'examples', 'settings.py')
+subprocess.run(('pyterate',
+                '--config', setting_path)
+)
+# --force
+
+print('Run Sphinx')
+if not args.no_html:
+    working_path = os.path.join(root_path, 'doc', 'sphinx')
+    subprocess.run(('make-html'), cwd=working_path)
+    # --clean
