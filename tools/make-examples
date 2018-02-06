@@ -37,7 +37,7 @@ if args.clean:
 os.environ['PySpiceLibraryPath'] = os.path.join(root_path, 'examples', 'libraries')
 os.environ['PySpiceLogLevel'] = 'ERROR'
 
-setting_path = os.path.join(root_path, 'examples', 'settings.py')
+setting_path = os.path.join(root_path, 'examples', 'Settings.py')
 subprocess.run(('pyterate',
                 '--config', setting_path)
 )
