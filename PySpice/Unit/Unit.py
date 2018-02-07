@@ -860,9 +860,13 @@ class PrefixedUnit:
         if unit:
             string += str(self._unit)
         if spice:
-            # Ngspice don't support utf-8
-            string = string.replace('Ω', 'Ohm') # utf-8 cea0
-            string = string.replace('μ',   'u') # utf-8 cebc
+            # F is interpreted as f = femto
+            if string == 'F':
+                string = ''
+            else:
+                # Ngspice don't support utf-8
+                string = string.replace('Ω', 'Ohm') # utf-8 cea0
+                string = string.replace('μ',   'u') # utf-8 cebc
         return string
 
     ##############################################
