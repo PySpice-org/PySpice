@@ -101,8 +101,6 @@
 
 |Pypi Version|
 
-Note: a new version 1.2 is currently being developed, but unit support is more difficult to implement than expected ... still need some efforts to run all examples.
-
 * Quick Link to `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
 * Quick Link to `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
 
