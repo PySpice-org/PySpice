@@ -99,7 +99,7 @@ See Ngspice documentation for details.
 
 from ..Tools.StringTools import str_spice, join_list, join_dict
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
-from .Netlist import (AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
+from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
 from .ElementParameter import (
     # KeyValueParameter,
     BoolKeyParameter,
@@ -166,6 +166,14 @@ class SubCircuitElement(NPinElement):
         #     parameter.__set__(self, value)
         #     self.optional_parameters[key] = parameter
         #     setattr(self, key, parameter)
+
+    ##############################################
+
+    def copy_to(self, netlist):
+
+        element = self.__class__(netlist, self._name, self.subcircuit_name, *self.node_names, **self.parameters)
+        # Element.copy_to(self, element)
+        return element
 
     ##############################################
 

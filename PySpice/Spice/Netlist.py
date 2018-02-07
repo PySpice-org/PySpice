@@ -33,7 +33,7 @@ is translated to Python like this:
 
 .. code-block:: python3
 
-    circuit = Circuit('Voltage Divider') 
+    circuit = Circuit('Voltage Divider')
    circuit.V('input', 'in', circuit.gnd, 10)
     circuit.R(1, 'in', 'out', kilo(9))
     circuit.R(2, 'out', circuit.gnd, kilo(1))
@@ -152,6 +152,13 @@ class DeviceModel:
 
     ##############################################
 
+    def clone(self):
+
+        # Fixme: clone parameters ???
+        return self.__class__(self._name, self._model_type, self._parameters)
+
+    ##############################################
+
     @property
     def name(self):
         return self._name
@@ -198,6 +205,13 @@ class PinDefinition:
         self._name = name
         self._alias = alias
         self._optional = optional
+
+    ##############################################
+
+    def clone(self):
+
+        # Fixme: self.__class__ ???
+        return PinDefinition(self._position, self._name, self._alias, self._optional)
 
     ##############################################
 
@@ -265,6 +279,13 @@ class Pin(PinDefinition):
     def __repr__(self):
 
         return "Pin {} of {} on node {}".format(self._name, self._element.name, self._node)
+
+    ##############################################
+
+    def disconnect(self):
+
+        self._node.disconnect(self)
+        self._node = None
 
     ##############################################
 
@@ -475,6 +496,7 @@ class Element(metaclass=ElementParameterMetaClass):
         self._netlist = netlist
         self._name = str(name)
         self.raw_spice = ''
+        self.enabled = True
 
         # Process remaining args
         if len(self.__parameters_from_args__) < len(args):
@@ -494,6 +516,19 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
+    def copy_to(self, element):
+
+        for parameter_dict in self.__positional_parameters__, self.__optional_parameters__:
+            for parameter in parameter_dict.values():
+                if hasattr(self, parameter.attribute_name):
+                    value = getattr(self, parameter.attribute_name)
+                    setattr(element, parameter.attribute_name, value)
+
+        if hasattr(self, 'raw_spice'):
+            element.raw_spice = self.raw_spice
+
+    ##############################################
+
     @property
     def netlist(self):
         return self._netlist
@@ -508,9 +543,24 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
+    def detach(self):
+
+        for pin in self._pins:
+            pin.disconnect()
+        self._netlist._remove_element(self)
+        self._netlist = None
+
+        return self
+
+    ##############################################
+
     @property
     def nodes(self):
         return [pin.node for pin in self._pins]
+
+    @property
+    def node_names(self):
+        return [str(x) for x in self.nodes]
 
     ##############################################
 
@@ -548,8 +598,11 @@ class Element(metaclass=ElementParameterMetaClass):
     ##############################################
 
     def parameter_iterator(self):
-        # Fixme: .parameters ???
+
         """ This iterator returns the parameter in the right order. """
+
+        # Fixme: .parameters ???
+
         for parameter_dict in self.__positional_parameters__, self.__optional_parameters__:
             for parameter in parameter_dict.values():
                 if parameter.nonzero(self):
@@ -578,6 +631,14 @@ class Element(metaclass=ElementParameterMetaClass):
 class AnyPinElement(Element):
 
     __pins__ = ()
+
+    ##############################################
+
+    def copy_to(self, netlist):
+
+        element = self.__class__(netlist, self._name)
+        super().copy_to(element)
+        return element
 
 ####################################################################################################
 
@@ -621,6 +682,14 @@ class FixedPinElement(Element):
         self._pins = [Pin(self, pin_definition, netlist.get_node(node, True))
                       for pin_definition, node in pin_definition_nodes]
 
+    ##############################################
+
+    def copy_to(self, netlist):
+
+        element = self.__class__(netlist, self._name, *self.nodes)
+        super().copy_to(element)
+        return element
+
 ####################################################################################################
 
 class NPinElement(Element):
@@ -635,6 +704,15 @@ class NPinElement(Element):
 
         self._pins = [Pin(self, PinDefinition(position), netlist.get_node(node, True))
                       for position, node in enumerate(nodes)]
+
+    ##############################################
+
+    def copy_to(self, netlist):
+
+        nodes = [str(x) for x in self.nodes]
+        element = self.__class__(netlist, self._name, nodes)
+        super().copy_to(element)
+        return element
 
 ####################################################################################################
 
@@ -744,6 +822,23 @@ class Netlist:
         self.raw_spice = ''
 
         # self._graph = networkx.Graph()
+
+    ##############################################
+
+    def copy_to(self, netlist):
+
+        for subcircuit in self.subcircuits:
+            netlist.subcircuit(subcircuit)
+
+        for element in self.elements:
+            element.copy_to(netlist)
+
+        for name, model in self._models.items():
+            netlist._models[name] = model.clone()
+
+        netlist.raw_spice = str(self.raw_spice)
+
+        return netlist
 
     ##############################################
 
@@ -863,6 +958,15 @@ class Netlist:
 
     ##############################################
 
+    def _remove_element(self, element):
+
+        try:
+            del self._elements[element.name]
+        except KeyError:
+            raise NameError("Cannot remove undefined element {}".format(element))
+
+    ##############################################
+
     def model(self, name, modele_type, **parameters):
 
         """Add a model."""
@@ -878,6 +982,8 @@ class Netlist:
     def subcircuit(self, subcircuit):
 
         """Add a sub-circuit."""
+
+        # Fixme: subcircuit is a class
 
         self._subcircuits[str(subcircuit.name)] = subcircuit
 
@@ -899,7 +1005,8 @@ class Netlist:
 
     def _str_elements(self):
 
-        return join_lines(self.elements) + os.linesep
+        elements = [element for element in self.elements if element.enabled]
+        return join_lines(elements) + os.linesep
 
     ##############################################
 
@@ -952,6 +1059,20 @@ class SubCircuit(Netlist):
             del kwargs['ground']
 
         self._parameters = kwargs
+
+    ##############################################
+
+    def clone(self, name=None):
+
+        if name is None:
+            name = self._name
+
+        # Fixme: clone parameters ???
+        kwargs = dict(self._parameters)
+        kwargs['ground'] = self._ground
+
+        subcircuit = self.__class__(name, list(self._external_nodes), **kwargs)
+        self.copy_to(subcircuit)
 
     ##############################################
 
@@ -1048,6 +1169,23 @@ class Circuit(Netlist):
 
     ##############################################
 
+    def clone(self, title=None):
+
+        if title is None:
+            title = self.title
+
+        circuit = self.__class__(title, self._ground, set(self._global_nodes))
+        self.copy_to(circuit)
+
+        for include in self._includes:
+            circuit.include(include)
+        for name, value in self._parameters.items():
+            self.parameter(name, value)
+
+        return circuit
+
+    ##############################################
+
     def include(self, path):
 
         """Include a file."""
@@ -1071,8 +1209,8 @@ class Circuit(Netlist):
 
         """Return the formatted desk."""
 
-        if not self.has_ground_node():
-            raise NameError("Circuit don't have ground node")
+        # if not self.has_ground_node():
+        #     raise NameError("Circuit don't have ground node")
 
         netlist = self._str_title()
         netlist += self._str_includes(simulator)
