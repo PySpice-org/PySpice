@@ -46,7 +46,20 @@ Is ground node required ?
 
 **Yes**, according to Ngspice manual, each circuit has to have a ground node (gnd or 0)!
 
-How to pass raw spice command ?
+How to deal with SPICE parameters that clash with Python keywords ?
+-------------------------------------------------------------------
+
+For such cases, PySpice accepts keyword arguments with a trailing underscore, for example:
+
+.. code-block:: py3
+
+    model = circuit.model('Diode', 'D', is_=1)
+    model.is_ = 1
+    model['is'] = 1
+
+We can also use uppercase letters since SPICE is case insensitive.
+
+How to pass raw SPICE command ?
 -------------------------------
 
 If the API don't yet implement a SPICE command, then you can pass raw SPICE commands using:

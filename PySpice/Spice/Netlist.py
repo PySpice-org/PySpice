@@ -148,7 +148,12 @@ class DeviceModel:
 
         self._name = str(name)
         self._model_type = str(modele_type)
-        self._parameters = dict(**parameters)
+
+        self._parameters = {}
+        for key, value in parameters.items():
+            if key.endswith('_'):
+                key = key[:-1]
+            self._parameters[key] = value
 
     ##############################################
 
@@ -177,7 +182,15 @@ class DeviceModel:
 
         return self._parameters[name]
 
-    # Fixme: __getattr__
+    ##############################################
+
+    def __getattr__(self, name):
+
+        try:
+            return self._parameters[name]
+        except KeyError:
+            if name.endswith('_'):
+                return self._parameters[name[:-1]]
 
     ##############################################
 
@@ -580,7 +593,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
-    def __getattr__(self, name):
+    def __getattr__(self, name): 
 
         # Implement alias for parameters
         if name in self.__spice_to_parameters__:
@@ -976,6 +989,8 @@ class Netlist:
             self._models[model.name] = model
         else:
             raise NameError("Model name {} is already defined".format(name))
+
+        return model
 
     ##############################################
 

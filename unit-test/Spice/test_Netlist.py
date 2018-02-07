@@ -156,9 +156,9 @@ R2 out 0 1kOhm
 
         spice_declaration = """
 .title Voltage Divider
+R2 out 0 1kOhm
 Vinput in 0 10V
 R1 in out 9kOhm
-R2 out 0 1kOhm
 """
 # .end
 
@@ -167,6 +167,16 @@ R2 out 0 1kOhm
         circuit.R(1, 'in', 'out', raw_spice='9kOhm')
         circuit.raw_spice += 'R2 out 0 1kOhm'
         self._test_spice_declaration(circuit, spice_declaration)
+
+    ##############################################
+
+    def test_keyword_clash(self):
+
+        circuit = Circuit('')
+        model = circuit.model('Diode', 'D', is_=1, rs=2)
+        self.assertEqual(model.is_, 1)
+        self.assertEqual(model['is'], 1)
+        self.assertEqual(str(model), '.model Diode D (is=1 rs=2)')
 
 ####################################################################################################
 
