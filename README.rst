@@ -93,8 +93,6 @@
 
 |Pypi Version|
 
-Note: a new version 1.2 is currently being developed, but unit support is more difficult to implement than expected ... still need some efforts to run all examples.
-
 * Quick Link to `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
 * Quick Link to `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
 
@@ -161,7 +159,9 @@ V1.2.0 (development release)
    **Notice: Some classes were renamed !**
  * Implemented node kwarg e.g. :code:`circuit.Q(1, base=1, collector=2, emitter=3, model='npn')`
  * Implemented raw spice pass through (see `User FAQ </faq.html>`_)
+ * Implemented access to internal parameters (cf. :code:`save @device[parameter]`)
  * Implemented check for missing ground node
+ * Implemented a way to disable an element and clone netlist
  * Improved SPICE parser
  * Improved unit support:
 
