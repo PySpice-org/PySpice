@@ -316,7 +316,7 @@ class CircuitSimulation:
 
         self._options = {} # .options
         self._initial_condition = {} # .ic
-        self._saved_nodes = ()
+        self._saved_nodes = set()
         self._analyses = {}
 
         self.temperature = kwargs.get('temperature', u_Degree(27))
@@ -395,7 +395,17 @@ class CircuitSimulation:
 
         """
 
-        self._saved_nodes = list(args)
+        self._saved_nodes |= set(*args)
+
+    ##############################################
+
+    def save_internal_parameters(self, *args):
+
+        """This method is similar to`save` but assume *all*.
+        """
+
+        # Fixme: ok ???
+        self.save(list(args) + ['all'])
 
     ##############################################
 

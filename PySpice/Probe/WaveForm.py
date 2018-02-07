@@ -222,7 +222,7 @@ class Analysis:
 
     ##############################################
 
-    def __init__(self, simulation, nodes=(), branches=(), elements=()):
+    def __init__(self, simulation, nodes=(), branches=(), elements=(), internal_parameters=()):
 
         # Fixme: branches are elements in fact, and elements is not yet supported ...
 
@@ -231,6 +231,7 @@ class Analysis:
         self._nodes = {waveform.name:waveform for waveform in nodes}
         self._branches = {waveform.name:waveform for waveform in branches}
         self._elements = {waveform.name:waveform for waveform in elements}
+        self._internal_parameters = {waveform.name:waveform for waveform in internal_parameters}
 
     ##############################################
 
@@ -251,16 +252,23 @@ class Analysis:
     def elements(self):
         return self._elements
 
+    @property
+    def internal_parameters(self):
+        return self._internal_parameters
+
    ##############################################
 
     def _get_item(self, name):
 
+        # Fixme: cache dict ???
         if name in self._nodes:
             return self._nodes[name]
         elif name in self._branches:
             return self._branches[name]
         elif name in self._elements:
             return self._elements[name]
+        elif name in self._internal_parameters:
+            return self._internal_parameters[name]
         else:
             raise IndexError(name)
 
@@ -290,7 +298,9 @@ class Analysis:
             raise AttributeError(name + os.linesep +
                                  'Nodes :' + os.linesep + self._format_dict(self._nodes) + os.linesep +
                                  'Branches :' + os.linesep + self._format_dict(self._branches) + os.linesep +
-                                 'Elements :' + os.linesep + self._format_dict(self._elements))
+                                 'Elements :' + os.linesep + self._format_dict(self._elements) + os.linesep +
+                                 'Internal Parameters :' + os.linesep + self._format_dict(self._internal_parameters)
+            )
 
 ####################################################################################################
 
@@ -306,9 +316,10 @@ class SensitivityAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation, elements):
+    def __init__(self, simulation, elements, internal_parameters):
 
-        super().__init__(simulation=simulation, elements=elements)
+        super().__init__(simulation=simulation, elements=elements,
+                         internal_parameters=internal_parameters)
 
 ####################################################################################################
 
@@ -328,9 +339,10 @@ class DcAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation, sweep, nodes, branches):
+    def __init__(self, simulation, sweep, nodes, branches, internal_parameters):
 
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches)
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
 
         self._sweep = sweep
 
@@ -349,9 +361,10 @@ class AcAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation, frequency, nodes, branches):
+    def __init__(self, simulation, frequency, nodes, branches, internal_parameters):
 
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches)
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
 
         self._frequency = frequency
 
@@ -370,9 +383,10 @@ class TransientAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation, time, nodes, branches):
+    def __init__(self, simulation, time, nodes, branches, internal_parameters):
 
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches)
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
 
         self._time = time
 

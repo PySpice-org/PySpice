@@ -61,7 +61,7 @@ ffi = FFI()
 
 ####################################################################################################
 
-from PySpice.Unit import u_V, u_A, u_s, u_Hz
+from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F
 
 ####################################################################################################
 
@@ -74,6 +74,7 @@ from PySpice.Probe.WaveForm import (OperatingPoint, SensitivityAnalysis,
                                     DcAnalysis, AcAnalysis, TransientAnalysis,
                                     WaveForm)
 from PySpice.Tools.EnumFactory import EnumFactory
+from .SimulationType import SIMULATION_TYPE
 
 ####################################################################################################
 
@@ -92,19 +93,17 @@ class Vector:
 
       :attr:`name`
 
-      :attr:`type`
-        cf. `NgSpiceShared.SIMULATION_TYPE`
-
     """
 
     ##############################################
 
-    def __init__(self, name, type_, data):
+    def __init__(self, ngspice_shared, name, type_, data):
 
+        self._ngspice_shared = ngspice_shared
         self._name = str(name)
         self._type = type_
         self._data = data
-        self._unit = NgSpiceShared.__type_to_unit__[type_]
+        self._unit = ngspice_shared.type_to_unit(type_)
 
     ##############################################
 
@@ -114,24 +113,30 @@ class Vector:
 
     ##############################################
 
-    def is_voltage_node(self):
-
-        return self._type == NgSpiceShared.SIMULATION_TYPE.voltage
+    @property
+    def is_interval_parameter(self):
+        return self._name.startswith('@')
 
     ##############################################
 
-    def is_branch_current(self):
+    @property
+    def is_voltage_node(self):
+        return self._type == self._ngspice_shared.simulation_type.voltage and not self.is_interval_parameter
 
-        return self._type == NgSpiceShared.SIMULATION_TYPE.current
+    ##############################################
+
+    @property
+    def is_branch_current(self):
+        return self._type == self._ngspice_shared.simulation_type.current and not self.is_interval_parameter
 
     ##############################################
 
     @property
     def simplified_name(self):
 
-        if self.is_voltage_node() and self._name.startswith('V('):
+        if self.is_voltage_node and self._name.startswith('V('):
             return self._name[2:-1]
-        elif self.is_branch_current():
+        elif self.is_branch_current:
             # return self._name.replace('#branch', '')
             return self._name[:-7]
         else:
@@ -179,7 +184,7 @@ class Plot(dict):
 
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.values()
-                if variable.is_voltage_node()]
+                if variable.is_voltage_node]
 
     ##############################################
 
@@ -187,7 +192,15 @@ class Plot(dict):
 
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.values()
-                if variable.is_branch_current()]
+                if variable.is_branch_current]
+
+    ##############################################
+
+    def internal_parameters(self, to_float=False, abscissa=None):
+
+        return [variable.to_waveform(abscissa, to_float=to_float)
+                for variable in self.values()
+                if variable.is_interval_parameter]
 
     ##############################################
 
@@ -221,6 +234,7 @@ class Plot(dict):
             simulation=self._simulation,
             nodes=self.nodes(to_float=True),
             branches=self.branches(to_float=True),
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
@@ -230,7 +244,8 @@ class Plot(dict):
         # Fixme: separate v(vinput), analysis.R2.m
         return SensitivityAnalysis(
             simulation=self._simulation,
-            elements=self.elements(),
+            elements=self.elements(), # Fixme: internal parameters ???
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
@@ -253,6 +268,7 @@ class Plot(dict):
             sweep=sweep,
             nodes=self.nodes(),
             branches=self.branches(),
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
@@ -265,6 +281,7 @@ class Plot(dict):
             frequency=frequency,
             nodes=self.nodes(),
             branches=self.branches(),
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
@@ -277,6 +294,7 @@ class Plot(dict):
             time=time,
             nodes=self.nodes(abscissa=time),
             branches=self.branches(abscissa=time),
+            internal_parameters=self.internal_parameters(abscissa=time),
         )
 
 ####################################################################################################
@@ -284,41 +302,6 @@ class Plot(dict):
 class NgSpiceShared:
 
     _logger = _module_logger.getChild('NgSpiceShared')
-
-    # Fixme: check Ngspice version
-    # cf. ngspice-27/include/ngspice/sim.h
-    SIMULATION_TYPE = EnumFactory('SimulationType', (
-        'no_type',
-        'time',
-        'frequency',
-        'voltage',
-        'current',
-        'voltage_density',
-        'current_density',
-        'sqr_voltage_density',
-        'sqr_current_density',
-        'sqr_voltage',
-        'sqr_current',
-        'pole',
-        'zero',
-        's_parameter',
-        'temperature',
-        'res',
-        'impedance',
-        'admittance',
-        'power',
-        'phase',
-        'db',
-        'capacitance',
-        'charge',
-    ))
-
-    __type_to_unit__ = {
-        SIMULATION_TYPE.time: u_s,
-        SIMULATION_TYPE.voltage: u_V,
-        SIMULATION_TYPE.current: u_A,
-        SIMULATION_TYPE.frequency: u_Hz,
-    }
 
     NGSPICE_PATH = None
     LIBRARY_PATH = None
@@ -428,6 +411,18 @@ class NgSpiceShared:
             raise NameError("Ngspice_Init_Sync returned {}".format(rc))
 
         self._get_version()
+
+        try:
+            self._simulation_type = EnumFactory('SimulationType', SIMULATION_TYPE[self._ngspice_version])
+        except KeyError:
+            self._logger.error("Unsupported Ngspice version {}".format(self._ngspice_version))
+        self._type_to_unit = {
+            self._simulation_type.time: u_s,
+            self._simulation_type.voltage: u_V,
+            self._simulation_type.current: u_A,
+            self._simulation_type.frequency: u_Hz,
+            self._simulation_type.capacitance: u_F,
+        }
 
         # Prevent paging output of commands (hangs)
         self.set('nomoremode')
@@ -691,6 +686,16 @@ class NgSpiceShared:
     def has_cider(self):
         """Return True if libngspice was compiled with CIDER support."""
         return self._has_cider
+
+    ##############################################
+
+    @property
+    def simulation_type(self):
+        return self._simulation_type
+
+    def type_to_unit(self, vector_type):
+
+        return  self._type_to_unit.get(vector_type, None)
 
     ##############################################
 
@@ -1078,7 +1083,7 @@ class NgSpiceShared:
                 vector_name = ffi_string_utf8(all_vectors_c[i])
                 name = '.'.join((plot_name, vector_name))
                 vector_info = self._ngspice_shared.ngGet_Vec_Info(name.encode('utf8'))
-                vector_type = self.SIMULATION_TYPE[vector_info.v_type]
+                vector_type = self._simulation_type[vector_info.v_type]
                 length = vector_info.v_length
                 # self._logger.debug("vector[{}] {} type {} flags {} length {}".format(i,
                 #                                                                      vector_name,
@@ -1098,7 +1103,7 @@ class NgSpiceShared:
                     tmp_array = np.frombuffer(ffi.buffer(vector_info.v_compdata, length*8*2), dtype=np.float64)
                     array = np.array(tmp_array[0::2], dtype=np.complex64)
                     array.imag = tmp_array[1::2]
-                plot[vector_name] = Vector(vector_name, vector_type, array)
+                plot[vector_name] = Vector(self, vector_name, vector_type, array)
             i += 1
 
         return plot
