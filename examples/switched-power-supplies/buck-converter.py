@@ -11,6 +11,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Doc.ExampleTools import find_libraries
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
@@ -18,12 +19,12 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
+libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-# cm# buck-converter.m4
+#?# circuit_macros('buck-converter.m4')
 
 circuit = Circuit('Buck Converter')
 
@@ -52,14 +53,14 @@ print('period =', period.canonise())
 print('duty_cycle =', duty_cycle.canonise())
 print('ripple_current =', ripple_current)
 
-#!# .. math:
-#!#      U = L \frac{dI}{dt}
+#r# .. math:
+#r#      U = L \frac{dI}{dt}
 
 L = (Vin - Vout) * duty_cycle / ripple_current
 RL = 37@u_mΩ
 
-#!# .. math:
-#!#      dV = dI (ESR + \frac{dt}{C} + \frac{ESL}{dt})
+#r# .. math:
+#r#      dV = dI (ESR + \frac{dt}{C} + \frac{ESL}{dt})
 
 ESR = 30@u_mΩ
 ESL = 0
@@ -83,14 +84,14 @@ circuit.C('in', 'in', circuit.gnd, Cin)
 
 # Fixme: out drop from 12V to 4V
 # circuit.VCS('switch', 'gate', circuit.gnd, 'in', 'source', model='Switch', initial_state='off')
-# circuit.Pulse('pulse', 'gate', circuit.gnd, 0@u_V, Vin, duty_cycle, period)
+# circuit.PulseVoltageSource('pulse', 'gate', circuit.gnd, 0@u_V, Vin, duty_cycle, period)
 # circuit.model('Switch', 'SW', ron=1@u_mΩ, roff=10@u_MΩ)
 
 # Fixme: Vgate => Vout ???
 circuit.X('Q', 'irf150', 'in', 'gate', 'source')
-# circuit.Pulse('pulse', 'gate', 'source', 0@u_V, Vin, duty_cycle, period)
+# circuit.PulseVoltageSource('pulse', 'gate', 'source', 0@u_V, Vin, duty_cycle, period)
 circuit.R('gate', 'gate', 'clock', 1@u_Ω)
-circuit.Pulse('pulse', 'clock', circuit.gnd, 0@u_V, 2.*Vin, duty_cycle, period)
+circuit.PulseVoltageSource('pulse', 'clock', circuit.gnd, 0@u_V, 2.*Vin, duty_cycle, period)
 
 circuit.X('D', '1N5822', circuit.gnd, 'source')
 circuit.L(1, 'source', 1, L)
@@ -116,4 +117,5 @@ plt.ylabel('[V]')
 
 plt.tight_layout()
 plt.show()
-#fig# save_figure(figure, 'buck-converter.png')
+
+#f# save_figure('figure', 'buck-converter.png')

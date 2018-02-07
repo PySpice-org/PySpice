@@ -1,7 +1,7 @@
 ####################################################################################################
 #
 # PySpice - A Spice package for Python
-# Copyright (C) 2014 Salvaire Fabrice
+# Copyright (C) 2017 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
 ####################################################################################################
 
 import os
-import sys
-import subprocess
 
 ####################################################################################################
 
@@ -65,64 +63,21 @@ def read_readme(file_name):
 
 ####################################################################################################
 
-long_description = read_readme('README.txt')
+if not __file__.endswith('conf.py'):
+    long_description = read_readme('README.txt')
+else:
+    long_description = ''
 
 ####################################################################################################
-
-# check NgSpice is installed
-try:
-    rc = subprocess.check_call(('ngspice', '--version'), stdout=sys.stderr)
-except FileNotFoundError:
-    sys.stderr.write('\n\nWarning: You must install ngspice\n\n')
 
 setup_dict = dict(
     name='PySpice',
-    version='1.1.4',
+    version='1.2',
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
-    description='Simulate electronic circuit using Python and the Ngspice simulator',
+    description='Simulate electronic circuit using Python and the Ngspice / Xyce simulators',
     license='GPLv3',
-    keywords= 'spice berkeley ngspice electronic circuit simulation simulator',
+    keywords= 'spice berkeley ngspice xyce electronic circuit simulation simulator',
     url='https://github.com/FabriceSalvaire/PySpice',
-    scripts=['bin/cir2py'],
-    packages=['PySpice', # Fixme:
-              'PySpice.Config',
-              'PySpice.Logging',
-              'PySpice.Math',
-              'PySpice.Physics',
-              'PySpice.Plot',
-              'PySpice.Probe',
-              'PySpice.Spice',
-              'PySpice.Spice.NgSpice',
-              'PySpice.Tools',
-              'PySpice.Unit',
-          ],
-    # package_dir = {'PySpice': 'PySpice'},
-    package_data={
-        'PySpice.Config': ['logging.yml'],
-        'PySpice.Spice.NgSpice': ['api.h'],
-    },
     long_description=long_description,
-    # cf. http://pypi.python.org/pypi?%3Aaction=list_classifiers
-    classifiers=[
-        'Topic :: Scientific/Engineering',
-        'Intended Audience :: Education',
-        'Development Status :: 5 - Production/Stable',
-        'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.5',
-        ],
-    install_requires=[
-        'PyYAML',
-        'cffi',
-        'matplotlib',
-        'numpy',
-        'scipy',
-    ],
 )
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

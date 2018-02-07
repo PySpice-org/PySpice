@@ -49,6 +49,7 @@ the shared library by worker as explained in the manual.
 import logging
 import os
 import platform
+import re
 # import time
 
 import numpy as np
@@ -57,6 +58,10 @@ import numpy as np
 
 from cffi import FFI
 ffi = FFI()
+
+####################################################################################################
+
+from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F
 
 ####################################################################################################
 
@@ -69,6 +74,7 @@ from PySpice.Probe.WaveForm import (OperatingPoint, SensitivityAnalysis,
                                     DcAnalysis, AcAnalysis, TransientAnalysis,
                                     WaveForm)
 from PySpice.Tools.EnumFactory import EnumFactory
+from .SimulationType import SIMULATION_TYPE
 
 ####################################################################################################
 
@@ -87,65 +93,54 @@ class Vector:
 
       :attr:`name`
 
-      :attr:`type`
-        cf. `NgSpiceShared.SIMULATION_TYPE`
-
     """
 
     ##############################################
 
-    def __init__(self, name, type_, data):
+    def __init__(self, ngspice_shared, name, type_, data):
 
-        self.name = str(name)
-        self.type = type_
-        self.data = data
+        self._ngspice_shared = ngspice_shared
+        self._name = str(name)
+        self._type = type_
+        self._data = data
+        self._unit = ngspice_shared.type_to_unit(type_)
 
     ##############################################
 
     def __repr__(self):
 
-        return 'variable: {0.name} {0.type}'.format(self)
+        return 'variable: {0._name} {0._type}'.format(self)
 
     ##############################################
 
+    @property
+    def is_interval_parameter(self):
+        return self._name.startswith('@')
+
+    ##############################################
+
+    @property
     def is_voltage_node(self):
-
-        return self.type == NgSpiceShared.SIMULATION_TYPE.voltage
+        return self._type == self._ngspice_shared.simulation_type.voltage and not self.is_interval_parameter
 
     ##############################################
 
+    @property
     def is_branch_current(self):
-
-        return self.type == NgSpiceShared.SIMULATION_TYPE.current
+        return self._type == self._ngspice_shared.simulation_type.current and not self.is_interval_parameter
 
     ##############################################
 
     @property
     def simplified_name(self):
 
-        if self.is_voltage_node() and self.name.startswith('V('):
-            return self.name[2:-1]
-        elif self.is_branch_current():
-            # return self.name.replace('#branch', '')
-            return self.name[:-7]
+        if self.is_voltage_node and self._name.startswith('V('):
+            return self._name[2:-1]
+        elif self.is_branch_current:
+            # return self._name.replace('#branch', '')
+            return self._name[:-7]
         else:
-            return self.name
-
-    ##############################################
-
-    @property
-    def unit(self):
-
-        if self.type == NgSpiceShared.SIMULATION_TYPE.voltage:
-            return 'V'
-        elif self.type == NgSpiceShared.SIMULATION_TYPE.current:
-            return 'A'
-        elif self.type == NgSpiceShared.SIMULATION_TYPE.time:
-            return 's'
-        elif self.type == NgSpiceShared.SIMULATION_TYPE.frequency:
-            return 'Hz'
-        else:
-            return ''
+            return self._name
 
     ##############################################
 
@@ -153,13 +148,14 @@ class Vector:
 
         """ Return a :obj:`PySpice.Probe.WaveForm` instance. """
 
-        data = self.data
+        data = self._data
         if to_real:
             data = data.real
-        if to_float:
-            data = float(data[0])
+        # Fixme: else UnitValue instead of UnitValues
+        # if to_float:
+        #     data = float(data[0])
 
-        return WaveForm(self.simplified_name, self.unit, data, abscissa=abscissa)
+        return WaveForm.from_unit_values(self.simplified_name, self._unit(data), abscissa=abscissa)
 
 ####################################################################################################
 
@@ -188,7 +184,7 @@ class Plot(dict):
 
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.values()
-                if variable.is_voltage_node()]
+                if variable.is_voltage_node]
 
     ##############################################
 
@@ -196,7 +192,15 @@ class Plot(dict):
 
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.values()
-                if variable.is_branch_current()]
+                if variable.is_branch_current]
+
+    ##############################################
+
+    def internal_parameters(self, to_float=False, abscissa=None):
+
+        return [variable.to_waveform(abscissa, to_float=to_float)
+                for variable in self.values()
+                if variable.is_interval_parameter]
 
     ##############################################
 
@@ -230,6 +234,7 @@ class Plot(dict):
             simulation=self._simulation,
             nodes=self.nodes(to_float=True),
             branches=self.branches(to_float=True),
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
@@ -239,7 +244,8 @@ class Plot(dict):
         # Fixme: separate v(vinput), analysis.R2.m
         return SensitivityAnalysis(
             simulation=self._simulation,
-            elements=self.elements(),
+            elements=self.elements(), # Fixme: internal parameters ???
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
@@ -262,6 +268,7 @@ class Plot(dict):
             sweep=sweep,
             nodes=self.nodes(),
             branches=self.branches(),
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
@@ -274,6 +281,7 @@ class Plot(dict):
             frequency=frequency,
             nodes=self.nodes(),
             branches=self.branches(),
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
@@ -286,6 +294,7 @@ class Plot(dict):
             time=time,
             nodes=self.nodes(abscissa=time),
             branches=self.branches(abscissa=time),
+            internal_parameters=self.internal_parameters(abscissa=time),
         )
 
 ####################################################################################################
@@ -293,29 +302,6 @@ class Plot(dict):
 class NgSpiceShared:
 
     _logger = _module_logger.getChild('NgSpiceShared')
-
-    SIMULATION_TYPE = EnumFactory('SimulationType', (
-        'no_type',
-        'time',
-        'frequency',
-        'voltage',
-        'current',
-        'output_noise_density',
-        'output_noise',
-        'input_noise_density',
-        'input_noise',
-        'pole',
-        'zero',
-        's_parameter',
-        'temperature',
-        'res',
-        'impedance',
-        'admittance',
-        'power',
-        'phase',
-        'db',
-        'capacitance',
-        'charge'))
 
     NGSPICE_PATH = None
     LIBRARY_PATH = None
@@ -378,7 +364,10 @@ class NgSpiceShared:
         else:
             library_prefix = '{}'.format(self._ngspice_id)
         library_path = self.LIBRARY_PATH.format(library_prefix)
+        self._logger.debug('Load {}'.format(library_path))
         self._ngspice_shared = ffi.dlopen(library_path)
+
+        # Note: cannot yet execute command
 
     ##############################################
 
@@ -420,6 +409,20 @@ class NgSpiceShared:
                                                     self_c)
         if rc:
             raise NameError("Ngspice_Init_Sync returned {}".format(rc))
+
+        self._get_version()
+
+        try:
+            self._simulation_type = EnumFactory('SimulationType', SIMULATION_TYPE[self._ngspice_version])
+        except KeyError:
+            self._logger.error("Unsupported Ngspice version {}".format(self._ngspice_version))
+        self._type_to_unit = {
+            self._simulation_type.time: u_s,
+            self._simulation_type.voltage: u_V,
+            self._simulation_type.current: u_A,
+            self._simulation_type.frequency: u_Hz,
+            self._simulation_type.capacitance: u_F,
+        }
 
         # Prevent paging output of commands (hangs)
         self.set('nomoremode')
@@ -642,27 +645,61 @@ class NgSpiceShared:
 
     ##############################################
 
+    def _get_version(self):
+
+        self._ngspice_version = None
+        self._has_xspice = False
+        self._has_cider = False
+        self._extensions = []
+
+        output = self.exec_command('version -f')
+        for line in output.split('\n'):
+            match = re.match('\*\* ngspice\-(\d+)', line)
+            if match is not None:
+                self._ngspice_version = int(match.group(1))
+            # if '** XSPICE extensions included' in line:
+            if '** XSPICE' in line:
+                self._has_xspice = True
+                self._extensions.append('XSPICE')
+            # if '** CIDER 1.b1 (CODECS simulator) included' in line:
+            if 'CIDER' in line:
+                self._has_cider = True
+                self._extensions.append('CIDER')
+
+        self._logger.debug('Ngspice version {} with extensions: {}'.format(
+            self._ngspice_version,
+            ', '.join(self._extensions),
+        ))
+
+    ##############################################
+
+    @property
+    def ngspice_version(self):
+        return self._ngspice_version
+
+    @property
     def has_xspice(self):
+        """Return True if libngspice was compiled with XSpice support."""
+        return self._has_xspice
 
-        """Return True if libngspice was compiled with XSpice support
-
-        """
-
-        return '** XSPICE extensions included' in cmd('version -f')
-
-    ##############################################
-
+    @property
     def has_cider(self):
-
-        """Return True if libngspice was compiled with CIDER support
-
-        """
-
-        return '** CIDER 1.b1 (CODECS simulator) included' in cmd('version -f')
+        """Return True if libngspice was compiled with CIDER support."""
+        return self._has_cider
 
     ##############################################
 
-    def _alter(self, command, item, kwargs):
+    @property
+    def simulation_type(self):
+        return self._simulation_type
+
+    def type_to_unit(self, vector_type):
+
+        return  self._type_to_unit.get(vector_type, None)
+
+    ##############################################
+
+    def _alter(self, command, device, kwargs):
 
         device_name = device.lower()
         for key, value in kwargs.items():
@@ -684,7 +721,7 @@ class NgSpiceShared:
 
         """Alter model parameters"""
 
-        self._alter('altermod', device, kwargs)
+        self._alter('altermod', model, kwargs)
 
     ##############################################
 
@@ -736,7 +773,7 @@ class NgSpiceShared:
 
     ##############################################
 
-    def source(file_path):
+    def source(self, file_path):
 
         """Read a ngspice input file"""
 
@@ -749,7 +786,7 @@ class NgSpiceShared:
         """Set any of the simulator variables."""
 
         for key, value in kwargs.items():
-            self.exec_command('option {} = {}'.format(command, key, value))
+            self.exec_command('option {} = {}'.format(key, value))
 
     ##############################################
 
@@ -860,7 +897,7 @@ class NgSpiceShared:
 
         """Run a fixed number of time-points"""
 
-        if step is not None:
+        if number_of_steps is not None:
             self.exec_command('step {}'.format(number_of_steps))
         else:
             self.exec_command('step')
@@ -1046,7 +1083,7 @@ class NgSpiceShared:
                 vector_name = ffi_string_utf8(all_vectors_c[i])
                 name = '.'.join((plot_name, vector_name))
                 vector_info = self._ngspice_shared.ngGet_Vec_Info(name.encode('utf8'))
-                vector_type = self.SIMULATION_TYPE[vector_info.v_type]
+                vector_type = self._simulation_type[vector_info.v_type]
                 length = vector_info.v_length
                 # self._logger.debug("vector[{}] {} type {} flags {} length {}".format(i,
                 #                                                                      vector_name,
@@ -1066,7 +1103,7 @@ class NgSpiceShared:
                     tmp_array = np.frombuffer(ffi.buffer(vector_info.v_compdata, length*8*2), dtype=np.float64)
                     array = np.array(tmp_array[0::2], dtype=np.complex64)
                     array.imag = tmp_array[1::2]
-                plot[vector_name] = Vector(vector_name, vector_type, array)
+                plot[vector_name] = Vector(self, vector_name, vector_type, array)
             i += 1
 
         return plot

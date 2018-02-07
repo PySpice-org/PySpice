@@ -1,21 +1,21 @@
 ####################################################################################################
 
-#!# =============================
-#!#  Voltage and Current Divider
-#!# =============================
+#r# =============================
+#r#  Voltage and Current Divider
+#r# =============================
 
-#!# This circuit is a fundamental block in electronic that permits to scale a voltage by an
-#!# impedance ratio:
+#r# This circuit is a fundamental block in electronic that permits to scale a voltage by an
+#r# impedance ratio:
 
-#cm# voltage-divider.m4
+#f# circuit_macros('voltage-divider.m4')
 
-#!# The relation between the input and ouput voltage is:
-#!#
-#!# .. math::
-#!#
-#!#     \frac{V_{out}}{V_{in}} = \frac{R_2}{R_1 + R_2}
-#!#
-#!# This equation holds for any impedances like resistance, capacitance, inductance, etc.
+#r# The relation between the input and ouput voltage is:
+#r#
+#r# .. math::
+#r#
+#r#     \frac{V_{out}}{V_{in}} = \frac{R_2}{R_1 + R_2}
+#r#
+#r# This equation holds for any impedances like resistance, capacitance, inductance, etc.
 
 ####################################################################################################
 
@@ -44,19 +44,19 @@ for node in analysis.nodes.values():
 
 ####################################################################################################
 
-#!# Similarly we can build a circuit that scale a current by an impedance ratio:
+#r# Similarly we can build a circuit that scale a current by an impedance ratio:
 
-#cm# current-divider.m4
+#f# circuit_macros('current-divider.m4')
 
-#!# The relation between the input and ouput current is:
-#!#
-#!# .. math::
-#!#
-#!#     \frac{I_{out}}{I_{in}} = \frac{R_1}{R_1 + R_2}
-#!#
-#!# Note the role of R1 and R2 is exchanged.
-#!#
-#!# This equation holds for any impedances like resistance, capacitance, inductance, etc.
+#r# The relation between the input and ouput current is:
+#r#
+#r# .. math::
+#r#
+#r#     \frac{I_{out}}{I_{in}} = \frac{R_1}{R_1 + R_2}
+#r#
+#r# Note the role of R1 and R2 is exchanged.
+#r#
+#r# This equation holds for any impedances like resistance, capacitance, inductance, etc.
 
 ####################################################################################################
 

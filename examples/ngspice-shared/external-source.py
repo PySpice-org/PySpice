@@ -1,12 +1,12 @@
 ####################################################################################################
 
-#!#
-#!# ===================================
-#!#  Simulation using External Sources
-#!# ===================================
-#!#
-#!# This example explains how to plug a voltage source from Python to NgSpice.
-#!#
+#r#
+#r# ===================================
+#r#  Simulation using External Sources
+#r# ===================================
+#r#
+#r# This example explains how to plug a voltage source from Python to NgSpice.
+#r#
 
 ####################################################################################################
 
@@ -65,7 +65,7 @@ amplitude = 10@u_V
 frequency = 50@u_Hz
 ngspice_shared = MyNgSpiceShared(amplitude=amplitude, frequency=frequency, send_data=False)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25,
-                              simulator='shared', ngspice_shared=ngspice_shared)
+                              simulator='ngspice-shared', ngspice_shared=ngspice_shared)
 period = float(frequency.period)
 analysis = simulator.transient(step_time=period/200, end_time=period*2)
 
@@ -83,4 +83,5 @@ plt.ylim(float(-amplitude*1.1), float(amplitude*1.1))
 
 plt.tight_layout()
 plt.show()
-#fig# save_figure(figure1, 'voltage-divider.png')
+
+#f# save_figure('figure1', 'voltage-divider.png')

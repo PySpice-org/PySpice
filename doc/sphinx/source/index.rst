@@ -33,25 +33,28 @@
         }
     </style>
 
-###################################################################
- Simulate Electronic Circuit using Python and the Ngspice Simulator
-###################################################################
-
-.. image:: /_static/logo.png
-   :alt: PySpice logo
-   :width: 800
-
 .. raw:: html
 
    <div class="reduced-width">
+
+###########################################################################
+ Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
+###########################################################################
+
+.. image:: /_static/logo.png
+   :alt: PySpice logo
+   :width: 750
 
 ********
 Overview
 ********
 
-PySpice is a free and open source (*) Python module which interface |Python|_ and the |Ngspice|_ circuit
-simulator, a clone of the famous `SPICE <https://en.wikipedia.org/wiki/SPICE>`_ circuit
-simulator.
+PySpice is a free and open source (*) Python module which interface |Python|_ to the |Ngspice|_ and
+|Xyce|_ circuit simulators.
+
+|Ngspice|_ is a fork of the famous `SPICE <https://en.wikipedia.org/wiki/SPICE>`_ circuit simulator,
+while |Xyce|_ is a SPICE compatible simulator developed by the `Sandia National Laboratories
+<http://www.sandia.gov>`_.
 
 .. rst-class:: small-text
 
@@ -113,6 +116,20 @@ How to contribute to the project
 
 Technical reference material, for classes, methods, APIs, commands.
 
+.. rst-class:: column column2
+
+:ref:`how-to-refer-page`
+========================
+
+Guidelines to cite PySpice
+
+.. rst-class:: column column2
+
+:ref:`donate-page`
+==================
+
+If you want to donate to the project or need a more professional support.
+
 .. raw:: html
 
    </div>
@@ -137,6 +154,7 @@ Technical reference material, for classes, methods, APIs, commands.
   news.rst
   roadmap.rst
   installation.rst
+  simulators.rst
   faq.rst
   example-introduction.rst
   examples/index.rst
@@ -144,6 +162,9 @@ Technical reference material, for classes, methods, APIs, commands.
   design-notes.rst
   reference-manual.rst
   development.rst
+  how-to-refer.rst
+  donate.rst
+  on-the-web.rst
   related-projects.rst
   bibliography.rst
 

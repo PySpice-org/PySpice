@@ -1,4 +1,4 @@
-#!# This example shows the computation of the DC bias and sensitivity in a voltage divider.
+#r# This example shows the computation of the DC bias and sensitivity in a voltage divider.
 
 ####################################################################################################
 
@@ -12,7 +12,7 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-#cm# voltage-divider.m4
+#f# circuit_macros('voltage-divider.m4')
 
 circuit = Circuit('Voltage Divider')
 
@@ -29,6 +29,7 @@ for node in (analysis['in'], analysis.out): # .in is invalid !
     print('Node {}: {} V'.format(str(node), float(node)))
 #o#
 
+# Fixme: Xyce sensitivity analysis
 analysis = simulator.dc_sensitivity('v(out)')
 for element in analysis.elements.values():
     print(element, float(element))

@@ -54,47 +54,39 @@
 .. End
 .. -*- Mode: rst -*-
 
-.. |Ngspice| replace:: Ngspice
-.. _Ngspice: http://ngspice.sourceforge.net
-
-.. |Python| replace:: Python
-.. _Python: http://python.org
-
-.. |PyPI| replace:: PyPI
-.. _PyPI: https://pypi.python.org/pypi
-
-.. |Numpy| replace:: Numpy
-.. _Numpy: http://www.numpy.org
-
-.. |Matplotlib| replace:: Matplotlib
+.. _CFFI: http://cffi.readthedocs.org/en/latest/
+.. _Circuit_macros: http://ece.uwaterloo.ca/~aplevich/Circuit_macros
+.. _IPython: http://ipython.org
+.. _Kicad: http://www.kicad-pcb.org
 .. _Matplotlib: http://matplotlib.org
+.. _Modelica: http://www.modelica.org
+.. _Ngspice: http://ngspice.sourceforge.net
+.. _Numpy: http://www.numpy.org
+.. _PyPI: https://pypi.python.org/pypi
+.. _Pyterate: https://github.com/FabriceSalvaire/Pyterate
+.. _Python: http://python.org
+.. _Sphinx: http://sphinx-doc.org
+.. _Tikz: http://www.texample.net/tikz
+.. _Xyce: https://xyce.sandia.gov
 
 .. |CFFI| replace:: CFFI
-.. _CFFI: http://cffi.readthedocs.org/en/latest/
-
-.. |IPython| replace:: IPython
-.. _IPython: http://ipython.org
-
-.. |Sphinx| replace:: Sphinx
-.. _Sphinx: http://sphinx-doc.org
-
-.. |Modelica| replace:: Modelica
-.. _Modelica: http://www.modelica.org
-
-.. |Kicad| replace:: Kicad
-.. _Kicad: http://www.kicad-pcb.org
-
 .. |Circuit_macros| replace:: Circuit_macros
-.. _Circuit_macros: http://ece.uwaterloo.ca/~aplevich/Circuit_macros
-
+.. |IPython| replace:: IPython
+.. |Kicad| replace:: Kicad
+.. |Matplotlib| replace:: Matplotlib
+.. |Modelica| replace:: Modelica
+.. |Ngspice| replace:: Ngspice
+.. |Numpy| replace:: Numpy
+.. |PyPI| replace:: PyPI
+.. |Pyterate| replace:: Pyterate
+.. |Python| replace:: Python
+.. |Sphinx| replace:: Sphinx
 .. |Tikz| replace:: Tikz
-.. _Tikz: http://www.texample.net/tikz
+.. |Xyce| replace:: Xyce
 
-.. End
-
-=============================================================================
- PySpice : Simulate Electronic Circuit using Python and the Ngspice Simulator
-=============================================================================
+=====================================================================================
+ PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
+=====================================================================================
 
 |Pypi License|
 |Pypi Python Version|
@@ -110,14 +102,20 @@ Overview
 What is PySpice ?
 -----------------
 
-PySpice is a Python module which interface |Python|_ and the |Ngspice|_ circuit
-simulator.
+PySpice is a Python module which interface |Python|_ to the |Ngspice|_ and |Xyce|_ circuit
+simulators.
+
+Where is the Documentation ?
+----------------------------
+
+The documentation is available on the |PySpiceHomePage|_.
 
 What are the main features ?
 ----------------------------
 
-* licensed under **GPLv3** therms
+* support Ngspice and Xyce circuit simulators
 * support **Linux**, **Windows** and Mac **OS X** platforms
+* licensed under **GPLv3** therms
 * implement an **Ngspice shared library binding** using CFFI which support external sources
 * implement (partial) **SPICE netlist parser**
 * implement an **Oriented Object API** to define circuit
@@ -127,11 +125,6 @@ What are the main features ?
 * work with **Kicad schematic editor**
 * implement a **documentation generator**
 * provides many **examples**
-
-Where is the Documentation ?
-----------------------------
-
-The documentation is available on the |PySpiceHomePage|_.
 
 How to install it ?
 -------------------
@@ -148,16 +141,55 @@ News
 
 .. -*- Mode: rst -*-
 
+
 .. no title here
 
-V1.1.0
-------
+V1.3.0 (development release)
+----------------------------
+
+V1.2.0 (production release) 2018-02-xx
+--------------------------------------
+
+ * Initial support of the |Xyce|_ simulator.  Xyce is an open source, SPICE-compatible,
+   high-performance analog circuit simulator, capable of solving extremely large circuit problems
+   developed at Sandia National Laboratories.  Xyce will make PySpice suitable for industry and
+   research use.
+ * Fixed OSX support
+ * Splitted G device
+ * Implemented partially `A` XSPICE device
+ * Implemented missing transmission line devices
+ * Implemented high level current sources
+   **Notice: Some classes were renamed !**
+ * Implemented node kwarg e.g. :code:`circuit.Q(1, base=1, collector=2, emitter=3, model='npn')`
+ * Implemented raw spice pass through (see `User FAQ </faq.html>`_)
+ * Implemented access to internal parameters (cf. :code:`save @device[parameter]`)
+ * Implemented check for missing ground node
+ * Implemented a way to disable an element and clone netlist
+ * Improved SPICE parser
+ * Improved unit support:
+
+   * Implemented unit prefix cast `U_μV(U_mV(1))` to easily convert values
+   * Added `U_mV`, ... shortcuts
+   * Added Numpy array support to unit, see `UnitValues` **Notice: this new feature could be buggy !!!**
+   * Rebased `WaveForm` to `UnitValues`
+
+ * Fixed node order so as to not confuse users **Now PySpice matches SPICE order for two ports elements !**
+ * Fixed device shortcuts in `Netlist` class
+ * Fixed model kwarg for BJT **Notice: it must be passed exclusively as kwarg !**
+ * Fixed subcircuit nesting
+ * Outsourced documentation generator to |Pyterate|_
+ * Updated `setup.py` for wheel
+
+.. :ref:`user-faq-page`
+
+V1.1.0 2017-09-06
+-----------------
 
  * Enhanced shared mode
  * Shared mode is now set as default on Linux
 
-V1.0.0
-------
+V1.0.0 2017-09-06
+-----------------
 
  * Bump version to v1.0.0 since it just works!
  * Support Windows platform using Ngspice shared mode
@@ -169,8 +201,8 @@ V0.4.2
 
  * Fixed Spice parser for lower case device prefix.
 
-V0.4.0
-------
+V0.4.0 2017-07-31
+-----------------
 
  * Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size.
  * Improved documentation generator: Implemented :code:`format` for RST content and Tikz figure.
@@ -180,22 +212,27 @@ V0.4.0
  * Added the Simulation instance to the Analysis class.
  * Refactored simulation parameters as classes.
 
-V0.3.2
-------
+V0.3.2 2017-02-22
+-----------------
 
  * fixed CCCS and CCVS
 
-V0.3.1
-------
+V0.3.1 2017-02-22
+-----------------
 
  * fixed ngspice shared
 
-V0.3.0
-------
+V0.3.0 2015-12-08
+-----------------
 
  * Added an example to show how to use the NgSpice Shared Simulation Mode.
  * Completed the Spice netlist parser and added examples, we could now use a schematic editor
    to define the circuit.  The program *cir2py* translates a circuit file to Python.
+
+V0 2014-03-21
+-------------
+
+Started project
 
 .. End
 

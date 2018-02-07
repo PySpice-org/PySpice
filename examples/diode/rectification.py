@@ -1,4 +1,4 @@
-#!# This example depicts half and full wave rectification.
+#r# This example depicts half and full wave rectification.
 
 ####################################################################################################
 
@@ -13,6 +13,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Doc.ExampleTools import find_libraries
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
@@ -20,7 +21,7 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
+libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
@@ -31,7 +32,7 @@ figure1 = plt.figure(1, (20, 10))
 
 circuit = Circuit('half-wave rectification')
 circuit.include(spice_library['1N4148'])
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10@u_V, frequency=50@u_Hz)
+source = circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=10@u_V, frequency=50@u_Hz)
 circuit.X('D1', '1N4148', 'in', 'output')
 circuit.R('load', 'output', circuit.gnd, 100@u_Ω)
 
@@ -50,7 +51,7 @@ plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 ####################################################################################################
 
-#cm# half-wave-rectification.m4
+#f# circuit_macros('half-wave-rectification.m4')
 
 circuit.C('1', 'output', circuit.gnd, 1@u_mF)
 
@@ -71,7 +72,7 @@ plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 circuit = Circuit('half-wave rectification')
 circuit.include(spice_library['1N4148'])
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10, frequency=50)
+source = circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=10, frequency=50)
 circuit.X('D1', '1N4148', 'in', 'output_plus')
 circuit.R('load', 'output_plus', 'output_minus', 100@u_Ω)
 circuit.X('D2', '1N4148', 'output_minus', circuit.gnd)
@@ -93,7 +94,7 @@ plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 ####################################################################################################
 
-#cm# full-wave-rectification.m4
+#f# circuit_macros('full-wave-rectification.m4')
 
 circuit.C('1', 'output_plus', 'output_minus', 1@u_mF)
 
@@ -111,7 +112,8 @@ plt.legend(('input', 'output'), loc=(.05,.1))
 plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 plt.tight_layout()
-#fig# save_figure(figure1, 'rectification.png')
+
+#f# save_figure('figure1', 'rectification.png')
 
 ####################################################################################################
 
@@ -126,7 +128,7 @@ else:
     node_230 = 'node_230'
     node_115 = circuit.gnd
     amplitude = 230@u_V
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=amplitude, frequency=50) # Fixme: rms
+source = circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=amplitude, frequency=50) # Fixme: rms
 circuit.X('D1', '1N4148', 'in', 'output_plus')
 circuit.X('D3', '1N4148', node_230, 'output_plus')
 circuit.X('D2', '1N4148', 'output_minus', node_230)
@@ -152,7 +154,8 @@ plt.legend(('input', 'output'), loc=(.05,.1))
 # plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 plt.tight_layout()
-#fig# save_figure(figure2, 'universal-rectifier.png')
+
+#f# save_figure('figure2', 'universal-rectifier.png')
 
 ####################################################################################################
 

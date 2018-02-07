@@ -10,18 +10,21 @@
 What is PySpice ?
 -----------------
 
-PySpice is an open source Python module which provides a  |Python|_ interface to the |Ngspice|_
-circuit simulator, which is a clone of the famous `Spice <https://en.wikipedia.org/wiki/SPICE>`_
-circuit simulator.
+PySpice is an open source Python module which provides a |Python|_ interface to the |Ngspice|_ and
+|Xyce|_ circuit simulators.
+
+|Ngspice|_ is a fork of the famous `SPICE <https://en.wikipedia.org/wiki/SPICE>`_ circuit simulator,
+while |Xyce|_ is a SPICE compatible simulator developed by the `Sandia National Laboratories
+<http://www.sandia.gov>`_.
 
 It permits:
 
  * definition of a circuit, through a netlist,
- * simulation using |Ngspice|_,
+ * simulation using |Ngspice|_ and |Xyce|_,
  * analysis of the output using |Numpy|_ and |Matplotlib|_.
 
-How is PySpice licensed?
-------------------------
+How is PySpice licensed ?
+-------------------------
 
 PySpice is licensed under the `GPLv3 <https://www.gnu.org/licenses/quick-guide-gplv3.en.html>`_.
 
@@ -46,12 +49,13 @@ How can PySpice be used for learning ?
 --------------------------------------
 
  * PySpice comes with many examples covering several topics.
- * PySpice features a documentation generator which generates HTML or PDF documentation
 
-  | cf. supra for the documentation generator features
+.. * PySpice features a documentation generator which generates HTML or PDF documentation
+..
+..  | cf. supra for the documentation generator features
 
 Which platforms are supported by PySpice ?
--------------------------------------------
+------------------------------------------
 
 PySpice runs on Linux, Windows 64-bit and Mac OS X.
 
@@ -63,7 +67,7 @@ The procedure to install PySpice is described in the :ref:`Installation Manual <
 How does PySpice differ from simulator like LTspice ?
 -----------------------------------------------------
 
- * PySpice and Ngspice are `Free Software <https://en.wikipedia.org/wiki/Free_software>`_ and thus open source,
+ * PySpice, Ngspice and Xyce are `Free Software <https://en.wikipedia.org/wiki/Free_software>`_ and thus open source,
  * PySpice doesn't feature a schematic editor (*) or GUI, but,
  * It has the power of Python for data analysis,
  * And thus provide modern data analysis tools.
@@ -71,8 +75,8 @@ How does PySpice differ from simulator like LTspice ?
 
 (*) However you can export netlist from Kicad to PySpice.
 
-How can a non-GUI simulator be helpful?
----------------------------------------
+How can a non-GUI simulator be helpful ?
+----------------------------------------
 
 It is often not easy to write a netlist, and a tool like a schematic editor can help to
 visualise the circuit.  Tools like Circuit_macros and Tikz are complex and
@@ -93,15 +97,15 @@ Having discussed the main drawbacks, we will now look at the advantages:
  * If you work with an editor and a console in parallel, then you can easily and quickly change
    things, and rerun the simulation, e.g. comment out a diode or a capacitor to see what happen.  Using a
    GUI, this task would require many actions.
- * Thanks to tools like the documentation generator, you can enrich your simulation with text,
+ * Thanks to the tool |Pyterate|_, you can enrich your simulation with text,
    formulae and figures.
 
 Is is possible to use both approaches all together ? The technical answer is, 'yes we
 can'. For example the Modelica language uses a concept of annotations to describe the schema.  A
 schematic editor like Kicad could be updated to interact closely with PySpice.
 
-What are the benefits of PySpice over Ngspice ?
------------------------------------------------
+What are the benefits of PySpice over Ngspice / Xyce ?
+------------------------------------------------------
 
  * You can steer your netlist and simulation using Python.
 
@@ -112,7 +116,7 @@ What are the benefits of PySpice over Ngspice ?
 
   | Which supersede tools like TclSpice.
 
-How PySpice is interfaced with Ngspice ?
+How is PySpice interfaced with Ngspice ?
 ----------------------------------------
 
  * PySpice can parse a Spice netlist and generate the equivalent Python code, or instantiate it directly.
@@ -127,6 +131,11 @@ When using *shared* mode
  * PySpice permits getting and sending data to the simulator during the simulation process.
  * |CFFI|_ is used to interface C to Python.
 
+How is PySpice interfaced with Xyce ?
+-------------------------------------
+
+Actually, PySpice run Xyce as a subprocess and read the raw output.
+
 How is the netlist defined ?
 ----------------------------
 
@@ -140,8 +149,8 @@ Thanks to the Ngspice shared library binding, you are not tied to the object-ori
 PySpice.  You can run Ngspice as you did before and just upload the simulation output as Numpy
 arrays.  For an example, look at the Ngspice shared examples.
 
-How are Spice libraries handled?
---------------------------------
+How are Spice libraries handled ?
+---------------------------------
 
  * PySpice features a library manager that scan a path for library files.
  * Libraries can be included as is using the *include* directive.
@@ -168,11 +177,17 @@ PySpice, generate a wrong simulation, or produce bugs.
 
 *Note that Ngspice is not distributed with PySpice !*
 
-Which flavours of Spice are supported ?
+Which version of Xyce is required ?
+-----------------------------------
+
+You should use the latest version provided by Sandia.
+
+Which flavours of SPICE are supported ?
 ---------------------------------------
 
-Up to now PySpice only support Ngspice. But PySpice could support easily any simulator providing an
-API similar to Ngspice.
+Up to now PySpice only support Ngspice and Xyce.
+
+But PySpice could support easily any simulator providing an API similar to Ngspice.
 
 What else should you be aware of ?
 ----------------------------------
@@ -187,19 +202,3 @@ Users should be aware of these disclaimers:
  * Ngspice is not compliant with industrial quality assurance processes.
 
  * Simulation is a design tool and not a perfect description of the real world.
-
-What are the features of the documentation generator ?
-------------------------------------------------------
-
-The documentation generator features:
-
- * intermixing of code, text, `LaTeX formulae <https://www.mathjax.org>`_, figures and plots
- * use the `reStructuredText <https://en.wikipedia.org/wiki/ReStructuredText>`_ syntax for text
- * use the |Sphinx|_ generator
- * embed computations in the text content
- * generation of circuit schematics using |Circuit_macros|_
- * generation of figures using |Tikz|_
- * generation of plots using |Matplotlib|_
-
-Somehow, it is similar to an `Jupyter notebook <https://ipython.org/notebook.html>`_, but it works
-differently and provides specific features.

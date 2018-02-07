@@ -1,7 +1,7 @@
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
-# Copyright (C) 2014 Fabrice Salvaire
+# Copyright (C) 2017 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,70 +24,12 @@ import os
 
 ####################################################################################################
 
-"""This module provide tools to read the output of Ngspice.
-
-Header
-
-.. code::
-
-    Circuit: 230V Rectifier
-
-    Doing analysis at TEMP = 25.000000 and TNOM = 25.000000
-
-    Title: 230V Rectifier
-    Date: Thu Jun  4 23:40:58  2015
-    Plotname: Transient Analysis
-    Flags: real
-    No. Variables: 6
-    No. Points: 0
-    Variables:
-    No. of Data Columns : 6
-            0       time    time
-            1       v(in)   voltage
-            ...
-            5       i(vinput)       current
-    Binary:
-
-Operating Point
-Node voltages and source branch currents:
-
- * v(node_name)
- * i(vname)
-
-Sensitivity Analysis
-
- * v({element})
- * v({element}_{parameter})
- * v(v{source})
-
-DC
-
- * v(v-sweep)
- * v({node})
- * i(v{source})
-
-AC
-Frequency, node voltages and source branch currents:
-
- * frequency
- * v({node})
- * i(v{name})
-
-Transient Analysis
-Time, node voltages and source branch currents:
-
- * time
- * v({node})
- * i(v{source})
-
+"""This module provide tools to read raw output.
 """
-
-# * v({element}:bv_max)
-# * i(e.xdz1.ev1)
 
 ####################################################################################################
 
-from ..Unit import u_Degree, U_V, U_A, U_s, U_Hz
+from PySpice.Unit import u_Degree, u_V, u_A, u_s, u_Hz
 
 ####################################################################################################
 
@@ -96,9 +38,9 @@ import numpy as np
 
 ####################################################################################################
 
-from ..Probe.WaveForm import (OperatingPoint, SensitivityAnalysis,
-                              DcAnalysis, AcAnalysis, TransientAnalysis,
-                              WaveForm)
+from PySpice.Probe.WaveForm import (OperatingPoint, SensitivityAnalysis,
+                                    DcAnalysis, AcAnalysis, TransientAnalysis,
+                                    WaveForm)
 
 ####################################################################################################
 
@@ -108,7 +50,7 @@ _module_logger = logging.getLogger(__name__)
 
 # Fixme: self._
 
-class Variable:
+class VariableAbc:
 
     """This class implements a variable or probe in a SPICE simulation output.
 
@@ -139,17 +81,6 @@ class Variable:
 
     ##############################################
 
-    def is_voltage_node(self):
-        return self.name.startswith('v(')
-
-    ##############################################
-
-    def is_branch_current(self):
-        # source branch current
-        return self.name.startswith('i(')
-
-    ##############################################
-
     @staticmethod
     def to_voltage_name(node):
         return 'v({})'.format(node)
@@ -159,16 +90,6 @@ class Variable:
     @staticmethod
     def to_branch_name(element):
         return 'i({})'.format(element)
-
-    ##############################################
-
-    @property
-    def simplified_name(self):
-
-        if self.is_voltage_node() or self.is_branch_current():
-            return self.name[2:-1]
-        else:
-            return self.name
 
     ##############################################
 
@@ -195,56 +116,16 @@ class Variable:
         if to_float:
             data = float(data[0])
 
-        return WaveForm(self.simplified_name, self.unit, data, abscissa=abscissa)
+        return WaveForm(self.simplified_name, self.unit(data), abscissa=abscissa)
 
 ####################################################################################################
 
-class RawFile:
+class RawFileAbc:
 
     """ This class parse the stdout of ngspice and the raw data output.
-
-    Public Attributes:
-
-      :attr:`circuit`
-        same as title
-
-      :attr:`data`
-
-      :attr:`date`
-
-      :attr:`flags`
-        'real' or 'complex'
-
-      :attr:`number_of_points`
-
-      :attr:`number_of_variables`
-
-      :attr:`plot_name`
-        AC Analysis, Operating Point, Sensitivity Analysis, DC transfer characteristic
-
-      :attr:`temperature`
-
-      :attr:`title`
-
-      :attr:`variables`
-
-      :attr:`warnings`
-
     """
 
-    _logger = _module_logger.getChild('RawFile')
-
-    ##############################################
-
-    def __init__(self, stdout, number_of_points):
-
-        self.number_of_points = number_of_points
-
-        raw_data = self._read_header(stdout)
-        self._read_variable_data(raw_data)
-        # self._to_analysis()
-
-        self._simulation = None
+    _logger = _module_logger.getChild('RawFileAbc')
 
     ##############################################
 
@@ -269,55 +150,11 @@ class RawFile:
     ##############################################
 
     __name_to_unit__ = {
-        'time': U_s,
-        'voltage': U_V,
-        'current': U_A,
-        'frequency': U_Hz,
+        'time': u_s,
+        'voltage': u_V,
+        'current': u_A,
+        'frequency': u_Hz,
     }
-
-    ##############################################
-
-    def _read_header(self, stdout):
-
-        """ Parse the header """
-
-        binary_line = b'Binary:' + os.linesep.encode('ascii')
-        binary_location = stdout.find(binary_line)
-        if binary_location < 0:
-            raise NameError('Cannot locate binary data')
-        raw_data_start = binary_location + len(binary_line)
-        # self._logger.debug(os.linesep + stdout[:raw_data_start].decode('utf-8'))
-        header_lines = stdout[:binary_location].splitlines()
-        raw_data = stdout[raw_data_start:]
-        header_line_iterator = iter(header_lines)
-
-        self.circuit_name = self._read_header_field_line(header_line_iterator, 'Circuit')
-        self.temperature, self.nominal_temperature = self._read_temperature_line(header_line_iterator)
-        self.warnings = [self._read_header_field_line(header_line_iterator, 'Warning')
-                         for i in range(stdout.count(b'Warning'))]
-        for warning in self.warnings:
-            self._logger.warn(warning)
-        self.title = self._read_header_field_line(header_line_iterator, 'Title')
-        self.date = self._read_header_field_line(header_line_iterator, 'Date')
-        self.plot_name = self._read_header_field_line(header_line_iterator, 'Plotname')
-        self.flags = self._read_header_field_line(header_line_iterator, 'Flags')
-        self.number_of_variables = int(self._read_header_field_line(header_line_iterator, 'No. Variables'))
-        self._read_header_field_line(header_line_iterator, 'No. Points')
-        self._read_header_field_line(header_line_iterator, 'Variables', has_value=False)
-        self._read_header_field_line(header_line_iterator, 'No. of Data Columns ')
-        self.variables = {}
-        for i in range(self.number_of_variables):
-            line = (next(header_line_iterator)).decode('utf-8')
-            self._logger.debug(line)
-            items = [x.strip() for x in line.split('\t') if x]
-            # 0 frequency frequency grid=3
-            index, name, unit = items[:3]
-            #  unit = time, voltage, current
-            unit = self.__name_to_unit__[unit] # convert to Unit
-            self.variables[name] = Variable(index, name, unit)
-        # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
-
-        return raw_data
 
     ##############################################
 
@@ -390,6 +227,22 @@ class RawFile:
 
     ##############################################
 
+    def _read_header_variables(self, header_line_iterator):
+
+        self.variables = {}
+        for i in range(self.number_of_variables):
+            line = (next(header_line_iterator)).decode('utf-8')
+            self._logger.debug(line)
+            items = [x.strip() for x in line.split('\t') if x]
+            # 0 frequency frequency grid=3
+            index, name, unit = items[:3]
+            #  unit = time, voltage, current
+            unit = self.__name_to_unit__[unit] # convert to Unit
+            self.variables[name] = self.__variable_cls__(index, name, unit)
+        # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
+
+    ##############################################
+
     def _read_variable_data(self, raw_data):
 
         """ Read the raw data and set the variable values. """
@@ -411,18 +264,6 @@ class RawFile:
             input_data.imag = raw_data[1::2]
         for variable in self.variables.values():
             variable.data = input_data[variable.index]
-
-    ##############################################
-
-    def fix_case(self):
-
-        """ Ngspice return lower case names. This method fixes the case of the variable names. """
-
-        circuit = self.circuit
-        element_translation = {element.lower():element for element in circuit.element_names()}
-        node_translation = {node.lower():node for node in circuit.node_names()}
-        for variable in self.variables.values():
-            variable.fix_case(element_translation, node_translation)
 
     ##############################################
 
@@ -490,15 +331,8 @@ class RawFile:
 
     ##############################################
 
-    def _to_dc_analysis(self):
+    def _to_dc_analysis(self, sweep_variable):
 
-        if 'v(v-sweep)' in self.variables:
-            sweep_variable = self.variables['v(v-sweep)']
-        elif 'v(i-sweep)' in self.variables:
-            sweep_variable = self.variables['v(i-sweep)']
-        else:
-            #
-            raise NotImplementedError
         sweep = sweep_variable.to_waveform()
         return DcAnalysis(
             simulation=self.simulation,

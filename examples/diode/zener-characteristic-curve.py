@@ -1,4 +1,4 @@
-#!# This example shows how to simulate and plot the characteristic curve of a Zener diode.
+#r# This example shows how to simulate and plot the characteristic curve of a Zener diode.
 
 ####################################################################################################
 
@@ -14,18 +14,19 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Doc.ExampleTools import find_libraries
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
+libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-#cm# zener-diode-characteristic-curve-circuit.m4
+#f# circuit_macros('zener-diode-characteristic-curve-circuit.m4')
 
 circuit = Circuit('Diode DC Curve')
 
@@ -43,7 +44,7 @@ analysis = simulator.dc(Vinput=slice(-10, 2, .05)) # 10mV
 
 figure = plt.figure(1, (20, 10))
 
-zener_part = analysis.out <= -5.4
+zener_part = analysis.out <= -5.4@u_V
 # compute derivate
 # fit linear part
 
@@ -79,4 +80,4 @@ axe.set_ylabel('Dynamic Resistance [Ohm]')
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'zener-characteristic-curve.png')
+#f# save_figure('figure', 'zener-characteristic-curve.png')

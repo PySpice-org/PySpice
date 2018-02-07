@@ -1,8 +1,8 @@
-#!# =====================================
-#!#  Relay drived by a bipolar transistor
-#!# =====================================
+#r# =====================================
+#r#  Relay drived by a bipolar transistor
+#r# =====================================
 
-#!# This example shows the simulation of ...
+#r# This example shows the simulation of ...
 
 ####################################################################################################
 
@@ -18,6 +18,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Doc.ExampleTools import find_libraries
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
@@ -25,12 +26,12 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
+libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-# #cm# relay.m4
+#?# #cm# relay.m4
 
 period = 50@u_ms
 pulse_width = period / 2
@@ -38,9 +39,9 @@ pulse_width = period / 2
 circuit = Circuit('Relay')
 
 # circuit.V('digital', 'Vdigital', circuit.gnd, 5@u_V)
-circuit.Pulse('clock', 'clock', circuit.gnd, 0@u_V, 5@u_V, pulse_width, period, rise_time=5@u_ms, fall_time=5@u_ms)
+circuit.PulseVoltageSource('clock', 'clock', circuit.gnd, 0@u_V, 5@u_V, pulse_width, period, rise_time=5@u_ms, fall_time=5@u_ms)
 circuit.R('base', 'clock', 'base', 100@u_Ω)
-circuit.BJT(1, 'collector', 'base', circuit.gnd, 'bjt') # Q is mapped to BJT !
+circuit.BJT(1, 'collector', 'base', circuit.gnd, model='bjt') # Q is mapped to BJT !
 circuit.model('bjt', 'npn', bf=80, cjc=pico(5), rb=100)
 circuit.V('analog', 'VccAnalog', circuit.gnd, 8@u_V)
 circuit.R('relay', 'VccAnalog', 1, 50@u_Ω)
@@ -72,4 +73,4 @@ plt.legend(('Vbase', 'Vcollector'), loc=(.05,.1))
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'relay.png')
+#f# save_figure('figure', 'relay.png')

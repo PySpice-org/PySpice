@@ -1,8 +1,9 @@
 # https://git-scm.com/docs/gitattributes
 
-*.cir text eol=lf
-*.lib text eol=lf
-*.mod text eol=lf
+# *.cir text eol=lf
+# *.lib text eol=lf
+# *.mod text eol=lf
+
 *.py text eol=lf
 *.rst text eol=lf
 *.yml text eol=lf

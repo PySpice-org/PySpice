@@ -1,8 +1,8 @@
-#!# ================
-#!#  CEM Simulation
-#!# ================
+#r# ================
+#r#  CEM Simulation
+#r# ================
 
-#!# This example show a CEM simulation.
+#r# This example show a CEM simulation.
 
 # Fixme: retrieve PDF reference and complete
 
@@ -19,6 +19,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Doc.ExampleTools import find_libraries
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
@@ -26,12 +27,14 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
+libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
 from HP54501A import HP54501A
+
+#f# literal_include('HP54501A.py')
 
 ####################################################################################################
 
@@ -65,4 +68,4 @@ plt.ylabel('[V]')
 
 plt.show()
 
-#fig# save_figure(figure, 'hp54501a-cem.png')
+#f# save_figure('figure', 'hp54501a-cem.png')

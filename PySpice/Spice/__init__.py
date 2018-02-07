@@ -20,9 +20,15 @@
 
 ####################################################################################################
 
+import logging
+
 from . import BasicElement
 from . import HighLevelElement
 from .Netlist import Netlist, ElementParameterMetaClass
+
+####################################################################################################
+
+_module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
@@ -30,7 +36,7 @@ def _get_elements(module):
     element_classes = []
     for item  in module.__dict__.values():
         if (type(item) is ElementParameterMetaClass
-            and item.prefix is not None
+            and item.__prefix__ is not None
            ):
             element_classes.append(item)
     return element_classes
@@ -47,14 +53,21 @@ for element_class in spice_elements + high_level_elements:
 
     def _make_function(element_class):
         def function(self, *args, **kwargs):
-            element = element_class(*args, **kwargs)
-            self._add_element(element)
-            return element
+            return element_class(self, *args, **kwargs)
         return function
 
-    if element_class in spice_elements and hasattr(element_class, 'alias'):
-        function_name = element_class.alias
-    else:
-        function_name = element_class.__name__
+    func = _make_function(element_class)
 
-    setattr(Netlist, function_name, _make_function(element_class))
+    def _set(name):
+        # _module_logger.debug("Add device shortcut {} for class {}".format(name, element_class))
+        setattr(Netlist, name, func)
+
+    _set(element_class.__name__)
+
+    if element_class in spice_elements:
+        if hasattr(element_class, '__alias__'):
+            _set(element_class.__alias__)
+        if hasattr(element_class, '__long_alias__'):
+            _set(element_class.__long_alias__)
+
+

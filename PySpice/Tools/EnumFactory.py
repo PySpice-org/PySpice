@@ -133,6 +133,12 @@ class EnumConstant:
 
     ##############################################
 
+    def __hash__(self):
+
+        return self._value
+
+    ##############################################
+
     def __repr__(self):
 
         return self._name

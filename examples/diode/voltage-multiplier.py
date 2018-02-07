@@ -1,5 +1,5 @@
-#!# This example depicts a voltage multiplier using diodes and capacitors.  To go further, you can
-#!# read this `page <http://en.wikipedia.org/wiki/Voltage_multiplier>`_ on Wikipedia.
+#r# This example depicts a voltage multiplier using diodes and capacitors.  To go further, you can
+#r# read this `page <http://en.wikipedia.org/wiki/Voltage_multiplier>`_ on Wikipedia.
 
 ####################################################################################################
 
@@ -14,6 +14,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Doc.ExampleTools import find_libraries
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
@@ -21,16 +22,16 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
+libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-#cm# voltage-multiplier-circuit.m4
+#f# circuit_macros('voltage-multiplier-circuit.m4')
 
 circuit = Circuit('Voltage Multiplier')
 circuit.include(spice_library['1N4148'])
-source = circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=10@u_V, frequency=50@u_Hz)
+source = circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=10@u_V, frequency=50@u_Hz)
 
 multiplier = 5
 for i in range(multiplier):
@@ -70,4 +71,4 @@ axe.legend(['input'] + ['*' + str(i) for i in range(1, multiplier+1)] ,
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'voltage-multiplier.png')
+#f# save_figure('figure', 'voltage-multiplier.png')

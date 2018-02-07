@@ -18,7 +18,9 @@
 #
 ####################################################################################################
 
-"""This modules implements the machinery to define element's parameters as descriptor."""
+"""This modules implements the machinery to define element's parameters as descriptors.
+
+"""
 
 ####################################################################################################
 

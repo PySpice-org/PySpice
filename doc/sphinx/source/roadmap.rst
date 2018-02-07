@@ -7,14 +7,22 @@
  Roadmap
 =========
 
-V1.2
+`Roadmap @Github <https://github.com/FabriceSalvaire/PySpice/milestones>`_
+
+V1.3
 ----
 
-* Support `Xyce <https://xyce.sandia.gov>`_ simulator.  Xyce is an open source, SPICE-compatible,
-  high-performance analog circuit simulator, capable of solving extremely large circuit problems
-  developed at Sandia National Laboratories.  Xyce will make PySpice suitable for industry a
-  research use.
-* Improve unit : rebase unit to Numpy array (ongoing)
+`V1.3 Roadmap @Github <https://github.com/FabriceSalvaire/PySpice/milestone/4>`_
+
+* to be defined
+
+V2
+--
+
+`V2 Roadmap @Github <https://github.com/FabriceSalvaire/PySpice/milestone/1>`_
+
+* `Implement missing analyses  <https://github.com/FabriceSalvaire/PySpice/issues/63>`_
+* `Implement missing devices <https://github.com/FabriceSalvaire/PySpice/issues/64>`_
 
 .. What are the planned features ?
 

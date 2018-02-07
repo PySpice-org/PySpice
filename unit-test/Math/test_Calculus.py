@@ -120,12 +120,12 @@ class TestFiniteDifference(unittest.TestCase):
 
         for derivative_order, derivative_order_dict in centred_coefficients.items():
             for accuracy_order, coefficients in derivative_order_dict.items():
-                if accuracy_order > 1:
+                if accuracy_order is not None and accuracy_order > 1:
                     coefficients = np.array(coefficients)
                     grid_size = accuracy_order +1
                     # D = compute_finite_difference_coefficients(derivative_order, grid_size)
                     # computed_coefficients = D[:,grid_size/2]
-                    grid = list(range(-accuracy_order/2,accuracy_order/2+1))
+                    grid = list(range(-accuracy_order//2,accuracy_order//2+1))
                     computed_coefficients = compute_exact_finite_difference_coefficients(derivative_order, grid)
                     computed_coefficients = [float(x) for x in computed_coefficients]
                     # print "Derivative order {} Accuracy order {}".format(derivative_order, accuracy_order)
@@ -136,7 +136,7 @@ class TestFiniteDifference(unittest.TestCase):
 
         for derivative_order, derivative_order_dict in forward_coefficients.items():
             for accuracy_order, coefficients in derivative_order_dict.items():
-                if accuracy_order > 1:
+                if accuracy_order is not None and accuracy_order > 1:
                     coefficients = np.array(coefficients)
                     grid_size = derivative_order + accuracy_order
                     # D = compute_finite_difference_coefficients(derivative_order, grid_size)

@@ -21,12 +21,12 @@ class BasicOperationalAmplifier(SubCircuitFactory):
 
         # dc gain=100k and pole1=100hz
         # unity gain = dcgain x pole1 = 10MHZ
-        self.VCVS('gain', 'non_inverting_input', 'inverting_input', 1, self.gnd, voltage_gain=kilo(100))
+        self.VCVS('gain', 1, self.gnd, 'non_inverting_input', 'inverting_input', voltage_gain=kilo(100))
         self.R('P1', 1, 2, 1@u_kΩ)
         self.C('P1', 2, self.gnd, 1.5915@u_uF)
 
         # Output buffer and resistance
-        self.VCVS('buffer', 2, self.gnd, 3, self.gnd, 1)
+        self.VCVS('buffer', 3, self.gnd, 2, self.gnd, 1)
         self.R('out', 3, 'output', 10@u_Ω)
 
 ####################################################################################################
