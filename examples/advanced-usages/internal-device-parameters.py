@@ -1,4 +1,4 @@
-#r# This example show how to access internal device parameters
+#r# This example show how to access internal device parameters.
 
 ####################################################################################################
 
