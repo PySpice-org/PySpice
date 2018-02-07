@@ -144,8 +144,11 @@ News
 
 .. no title here
 
-V1.2.0 (development release)
+V1.3.0 (development release)
 ----------------------------
+
+V1.2.0 (production release) 2018-02-xx
+--------------------------------------
 
  * Initial support of the |Xyce|_ simulator.  Xyce is an open source, SPICE-compatible,
    high-performance analog circuit simulator, capable of solving extremely large circuit problems
@@ -179,8 +182,8 @@ V1.2.0 (development release)
 
 .. :ref:`user-faq-page`
 
-V1.1.0 (production release) 2017-09-06
---------------------------------------
+V1.1.0 2017-09-06
+-----------------
 
  * Enhanced shared mode
  * Shared mode is now set as default on Linux
