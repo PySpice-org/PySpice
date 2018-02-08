@@ -1529,6 +1529,12 @@ class CoupledMulticonductorLine(NPinElement):
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('len', unit=U_m)
 
+    ##############################################
+
+    def __init__(self, netlist, name, *nodes, **parameters):
+
+        super().__init__(netlist, name, nodes, **parameters)
+
 ####################################################################################################
 
 class UniformDistributedRCLine(FixedPinElement):
@@ -1636,6 +1642,14 @@ class XSpiceElement(NPinElement):
     __prefix__ = 'A'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
+
+    ##############################################
+
+    def __init__(self, netlist, name, *nodes, **parameters):
+
+        # Fixme: ok ???
+
+        super().__init__(netlist, name, nodes, **parameters)
 
 ####################################################################################################
 #
