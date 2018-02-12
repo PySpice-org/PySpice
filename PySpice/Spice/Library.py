@@ -103,8 +103,7 @@ class SpiceLibrary:
             return self._models[name]
         else:
             # print('Library {} not found in {}'.format(name, self._directory))
-            # self._logger.warn('Library {} not found in {}'.format(name, self._direct
-                                                                  ory))
+            # self._logger.warn('Library {} not found in {}'.format(name, self._directory))
             raise KeyError(name)
 
     ##############################################
