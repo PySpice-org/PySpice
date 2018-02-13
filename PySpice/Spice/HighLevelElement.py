@@ -798,7 +798,7 @@ class AmplitudeModulatedCurrentSource(CurrentSource, AmplitudeModulatedMixin):
 
 ####################################################################################################
 
-class RandomVoltageVoltageSource(VoltageSource, RandomMixin):
+class RandomVoltageSource(VoltageSource, RandomMixin):
 
     r"""This class implements a random waveform voltage source.
 
