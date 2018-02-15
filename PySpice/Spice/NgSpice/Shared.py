@@ -95,6 +95,8 @@ class Vector:
 
     """
 
+    _logger = _module_logger.getChild('Vector')
+
     ##############################################
 
     def __init__(self, ngspice_shared, name, type_, data):
@@ -104,6 +106,8 @@ class Vector:
         self._type = type_
         self._data = data
         self._unit = ngspice_shared.type_to_unit(type_)
+        if self._unit is None:
+            self._logger.warning('Unit is None for {0._name} {0._type}'.format(self))
 
     ##############################################
 
@@ -155,7 +159,10 @@ class Vector:
         # if to_float:
         #     data = float(data[0])
 
-        return WaveForm.from_unit_values(self.simplified_name, self._unit(data), abscissa=abscissa)
+        if self._unit is not None:
+            return WaveForm.from_unit_values(self.simplified_name, self._unit(data), abscissa=abscissa)
+        else:
+            return WaveForm.from_array(self.simplified_name, data, abscissa=abscissa)
 
 ####################################################################################################
 

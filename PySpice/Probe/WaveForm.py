@@ -72,6 +72,18 @@ class WaveForm(UnitValues):
 
     ##############################################
 
+    @classmethod
+    def from_array(cls, name, array, title=None, abscissa=None):
+
+        # Fixme: ok ???
+
+        obj = cls(name, None, array.shape, title=title, abscissa=abscissa)
+        obj[...] = array[...]
+
+        return obj
+
+    ##############################################
+
     def __new__(cls, name, prefixed_unit,
                 shape, dtype=float, buffer=None, offset=0, strides=None, order=None,
                 title=None, abscissa=None):
