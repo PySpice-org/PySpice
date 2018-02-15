@@ -638,7 +638,14 @@ class CircuitSimulation:
         if self.initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
         if self._saved_nodes:
-            netlist += '.save ' + join_list(self._saved_nodes) + os.linesep
+            # Place 'all' first
+            saved_nodes = self._saved_nodes
+            if 'all' in saved_nodes:
+                all_str = 'all '
+                saved_nodes.remove('all')
+            else:
+                all_str = ''
+            netlist += '.save ' + all_str + join_list(saved_nodes) + os.linesep
         for analysis_parameters in self._analyses.values():
             netlist += str(analysis_parameters) + os.linesep
         netlist += '.end' + os.linesep
