@@ -688,7 +688,7 @@ class FixedPinElement(Element):
                     continue
                 else:
                     raise NameError("Node '{}' is missing for element {}".format(pin_definition.name, self.name))
-                pin_definition_nodes.append(pin_definition, node)
+                pin_definition_nodes.append((pin_definition, node))
 
         super().__init__(netlist, name, *args, **kwargs)
 
