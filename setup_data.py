@@ -21,6 +21,16 @@
 ####################################################################################################
 
 import os
+import re
+
+####################################################################################################
+
+init_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Pyterate', '__init__.py')
+with open(init_path) as fh:
+    try:
+        version = re.findall(r"^__version__ = '([^']+)'\r?$", fh.read(), re.M)[0]
+    except IndexError:
+        raise RuntimeError('Unable to determine version.')
 
 ####################################################################################################
 
@@ -72,7 +82,7 @@ else:
 
 setup_dict = dict(
     name='PySpice',
-    version='1.2',
+    version=version,
     author='Fabrice Salvaire',
     author_email='fabrice.salvaire@orange.fr',
     description='Simulate electronic circuit using Python and the Ngspice / Xyce simulators',
