@@ -25,7 +25,7 @@ import re
 
 ####################################################################################################
 
-init_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Pyterate', '__init__.py')
+init_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'PySpice', '__init__.py')
 with open(init_path) as fh:
     try:
         version = re.findall(r"^__version__ = '([^']+)'\r?$", fh.read(), re.M)[0]
