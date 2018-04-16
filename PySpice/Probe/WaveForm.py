@@ -65,7 +65,14 @@ class WaveForm(UnitValues):
     @classmethod
     def from_unit_values(cls, name, array, title=None, abscissa=None):
 
-        obj = cls(name, array.prefixed_unit, array.shape, title=title, abscissa=abscissa)
+        obj = cls(
+            name,
+            array.prefixed_unit,
+            array.shape,
+            dtype=array.dtype,
+            title=title,
+            abscissa=abscissa,
+        )
         obj[...] = array[...]
 
         return obj
