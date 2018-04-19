@@ -1568,7 +1568,7 @@ class UniformDistributedRCLine(FixedPinElement):
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
-    number_of_lumps = IntKeyParameter('m')
+    number_of_lumps = IntKeyParameter('n')
 
 ####################################################################################################
 
