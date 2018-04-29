@@ -36,6 +36,16 @@ There is three solutions if you don't have these Unicode characters available on
 first one, is to use the ASCII alternative: :code:`u_kOhm` or :code:`u_uV.`.  The second one, is to
 define macros on your favourite editor.  The last one, is to customise your keyboard settings (on Linux look at https://www.x.org/wiki/XKB/).
 
+How to perform division with units ?
+------------------------------------
+
+According to the Python `operator precedence
+<https://docs.python.org/3/reference/expressions.html#operator-precedence>`_, division operators
+have a higher priority than the matrix multiplication operator.  In consequence you must had
+parenthesis to perform something like :code:`(10@u_s) / (2@_us)`.
+
+**It is currently an issue ...**
+
 Is unit API well tested ?
 -------------------------
 
