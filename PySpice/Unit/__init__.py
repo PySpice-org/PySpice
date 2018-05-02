@@ -18,6 +18,8 @@
 #
 ####################################################################################################
 
+# Note: This module should be outsourced, only code specific to SPICE must remain.
+
 """This module implements units.
 
 Shortcuts are defined to build unit values easily :
@@ -73,6 +75,13 @@ Some examples of usage:
   period = u_Hz(50).period
   pulsation = frequency.pulsation
   pulsation = period.pulsation
+
+.. warning::
+
+   According to the Python `operator precedence
+  <https://docs.python.org/3/reference/expressions.html#operator-precedence>`_, division operators
+  have a higher priority than the matrix multiplication operator.  In consequence you must had
+  parenthesis to perform something like :code:`(10@u_s) / (2@_us)`.
 
 """
 
