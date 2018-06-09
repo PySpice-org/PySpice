@@ -79,3 +79,5 @@ SIMULATION_TYPE[27] = (
     'capacitance',
     'charge',
 )
+
+SIMULATION_TYPE[28] = SIMULATION_TYPE[27]
