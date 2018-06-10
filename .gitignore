@@ -12,8 +12,10 @@ MANIFEST
 #
 ####################################################################################################
 #
-.tox/
 .cache/
+.pytest_cache/
+.tox/
+PySpice.egg-info/
 build/
 dist/
 doc/sphinx/build/
@@ -93,3 +95,14 @@ spice-examples/xyce-test2.csv
 stargazers.txt
 user-tests/
 xyce.diff
+
+PySpice/Spice/notes.txt
+PySpice/Unit/numpy-notes.txt
+doc/sphinx/source/_static/logo-square.png
+doc/sphinx/source/project-links.txt-
+internal.diff
+issues/internal-parameters/
+issues/multi-shared.py
+issues/nazir/
+make-graph.sh
+trash/
