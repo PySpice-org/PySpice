@@ -13,9 +13,10 @@ On Windows
 ----------
 
 Firstly, you have to install Ngspice for Windows from this `page
-<http://ngspice.sourceforge.net/download.html>`_.  Download this archive `ngspice 64 bit devel
-<http://ngspice.sourceforge.net/experimental/ngspice-26plus-scope-inpcom-6-64.7z>`_ and unzip the
-files in `C:\\Program Files\\Spice64`.
+<http://ngspice.sourceforge.net/download.html>`_.  Download the archive
+:file:`ngspice-28_dll_64.zip` from thex `release page
+<https://sourceforge.net/projects/ngspice/files/ng-spice-rework/28>`_ and unzip the files in
+`C:\\Program Files\\Spice64`.
 
 Secondly, you have to install the `Anaconda Distribution <https://www.anaconda.com/download/>`_ so
 as to get a full featured Python 3 environment.
