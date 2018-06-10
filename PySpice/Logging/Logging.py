@@ -32,7 +32,7 @@ import PySpice.Config.ConfigInstall as ConfigInstall
 ####################################################################################################
 
 def setup_logging(application_name='PySpice',
-                  config_file=ConfigInstall.Logging.default_config_file
+                  config_file=ConfigInstall.Logging.default_config_file,
                   loglevel=''):
     #TODO: Add function/module docstring
 
