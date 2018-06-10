@@ -70,7 +70,8 @@ class XyceServer:
 
         """Parse stdout for errors."""
 
-        self._logger.debug(os.linesep + stdout.decode('utf-8'))
+        # log Spice output
+        self._logger.info(os.linesep + stdout.decode('utf-8'))
 
         error_found = False
         simulation_failed = False
@@ -101,7 +102,7 @@ class XyceServer:
 
         """
 
-        self._logger.info("Start the xyce subprocess")
+        self._logger.debug('Start the xyce subprocess')
 
         tmp_dir = tempfile.mkdtemp()
         input_filename = os.path.join(tmp_dir, 'input.cir')

@@ -51,8 +51,8 @@ def setup_logging(application_name='PySpice',
     logging.config.dictConfig(logging_config)
 
     logger = logging.getLogger(application_name)
-    if 'PySpiceLogLevel' in os.environ:
-        numeric_level = getattr(logging, os.environ['PySpiceLogLevel'], None)
-        logger.setLevel(numeric_level)
+    if 'PySpiceLogLevel' in os.environ: # used by tools/make-examples
+        level = getattr(logging, os.environ['PySpiceLogLevel'], None)
+        logger.setLevel(level) # level can be int or string
 
     return logger
