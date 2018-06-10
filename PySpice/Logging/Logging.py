@@ -32,7 +32,9 @@ import PySpice.Config.ConfigInstall as ConfigInstall
 ####################################################################################################
 
 def setup_logging(application_name='PySpice',
-                  config_file=ConfigInstall.Logging.default_config_file):
+                  config_file=ConfigInstall.Logging.default_config_file
+                  loglevel=''):
+    #TODO: Add function/module docstring
 
     logging_config_file_name = ConfigInstall.Logging.find(config_file)
     logging_config = yaml.load(open(logging_config_file_name, 'r'))
@@ -54,5 +56,8 @@ def setup_logging(application_name='PySpice',
     if 'PySpiceLogLevel' in os.environ:
         numeric_level = getattr(logging, os.environ['PySpiceLogLevel'], None)
         logger.setLevel(numeric_level)
+    if loglevel:
+        level = logging.getLevelName(loglevel)
+        logger.setLevel(level)
 
     return logger
