@@ -93,3 +93,5 @@ spice-examples/xyce-test2.csv
 stargazers.txt
 user-tests/
 xyce.diff
+PySpice.egg-info/
+
