@@ -67,6 +67,8 @@ class VariableAbc:
 
     def __init__(self, index, name, unit):
 
+        # Fixme: self._ ?
+
         self._index = int(index)
         self.name = str(name)
         self._unit = unit # could be guessed from name also for voltage node and branch current
@@ -89,13 +91,23 @@ class VariableAbc:
     ##############################################
 
     def __repr__(self):
-        return 'variable[{0._index}]: {0._name} [{0._unit}]'.format(self)
+        return 'variable[{0._index}]: {0.name} [{0._unit}]'.format(self)
+
+    ##############################################
+
+    def is_voltage_node(self):
+        raise NotImplementedError
+
+    ##############################################
+
+    def is_branch_current(self):
+        raise NotImplementedError
 
     ##############################################
 
     @property
     def is_interval_parameter(self):
-        return self.name.startswith('@')
+        return self.name.startswith('@') # Fixme: Xyce ???
 
     ##############################################
 
@@ -115,13 +127,18 @@ class VariableAbc:
 
         """ Update the name to the right case. """
 
-        # Fixme: is_branch_current ???
         if self.is_branch_current():
             if self.simplified_name in element_translation:
                 self.name = self.to_branch_name(element_translation[self.simplified_name])
         elif self.is_voltage_node():
             if self.simplified_name in node_translation:
                 self.name = self.to_voltage_name(node_translation[self.simplified_name])
+
+    ##############################################
+
+    @property
+    def simplified_name(self):
+        raise NotImplementedError
 
     ##############################################
 

@@ -44,7 +44,6 @@ _module_logger = logging.getLogger(__name__)
 
 class Variable(VariableAbc):
 
-
     ##############################################
 
     def is_voltage_node(self):
@@ -55,7 +54,6 @@ class Variable(VariableAbc):
     ##############################################
 
     def is_branch_current(self):
-
         return self.name.endswith('#branch')
 
     ##############################################
