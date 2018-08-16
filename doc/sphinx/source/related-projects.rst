@@ -19,6 +19,16 @@ Ahkab
 
 `Ahkab <https://ahkab.github.io/ahkab>`_ is a SPICE-like electronic circuit simulator written in Python.
 
+Lcapy
+-----
+
+`Lcapy <http://lcapy.elec.canterbury.ac.nz>`_ is a Python package for linear circuit analysis. Lcapy
+uses `SymPy <http://www.sympy.org>`_ for symbolic analysis.
+
+Lcapy can semi-automate the drawing of schematics from a netlist using Circuitikz.
+
+Lcapy sources are available at https://github.com/mph-/lcapy
+
 Other Projects
 --------------
 

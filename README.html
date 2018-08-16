@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.13.1: http://docutils.sourceforge.net/" />
-<title>PySpice : Simulate Electronic Circuit using Python and the Ngspice Simulator</title>
+<title>PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators</title>
 <style type="text/css">
 
 /*
@@ -360,8 +360,8 @@ ul.auto-toc {
 </style>
 </head>
 <body>
-<div class="document" id="pyspice-simulate-electronic-circuit-using-python-and-the-ngspice-simulator">
-<h1 class="title">PySpice : Simulate Electronic Circuit using Python and the Ngspice Simulator</h1>
+<div class="document" id="pyspice-simulate-electronic-circuit-using-python-and-the-ngspice-xyce-simulators">
+<h1 class="title">PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators</h1>
 
 <!-- -*- Mode: rst -*- -->
 <!-- -*- Mode: rst -*- -->
@@ -379,22 +379,30 @@ ul.auto-toc {
 <!-- https://img.shields.io/github/stars/badges/shields.svg?style=social&label=Star -->
 <!-- End -->
 <!-- -*- Mode: rst -*- -->
-<!-- End -->
 <p><a class="reference external" href="https://pypi.python.org/pypi/PySpice"><object data="https://img.shields.io/pypi/l/PySpice.svg" type="image/svg+xml">PySpice license</object></a>
 <a class="reference external" href="https://pypi.python.org/pypi/PySpice"><object data="https://img.shields.io/pypi/pyversions/PySpice.svg" type="image/svg+xml">PySpice python version</object></a></p>
 <p><a class="reference external" href="https://pypi.python.org/pypi/PySpice"><object data="https://img.shields.io/pypi/v/PySpice.svg" type="image/svg+xml">PySpice last version</object></a></p>
+<ul class="simple">
+<li>Quick Link to <a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/tree/master">Production Branch</a></li>
+<li>Quick Link to <a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/tree/devel">Devel Branch</a></li>
+</ul>
 <div class="section" id="overview">
 <h1>Overview</h1>
 <div class="section" id="what-is-pyspice">
 <h2>What is PySpice ?</h2>
-<p>PySpice is a Python module which interface <a class="reference external" href="http://python.org">Python</a> and the <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a> circuit
-simulator.</p>
+<p>PySpice is a Python module which interface <a class="reference external" href="http://python.org">Python</a> to the <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a> and <a class="reference external" href="https://xyce.sandia.gov">Xyce</a> circuit
+simulators.</p>
+</div>
+<div class="section" id="where-is-the-documentation">
+<h2>Where is the Documentation ?</h2>
+<p>The documentation is available on the <a class="reference external" href="https://pyspice.fabrice-salvaire.fr">PySpice Home Page</a>.</p>
 </div>
 <div class="section" id="what-are-the-main-features">
 <h2>What are the main features ?</h2>
 <ul class="simple">
-<li>licensed under <strong>GPLv3</strong> therms</li>
+<li>support Ngspice and Xyce circuit simulators</li>
 <li>support <strong>Linux</strong>, <strong>Windows</strong> and Mac <strong>OS X</strong> platforms</li>
+<li>licensed under <strong>GPLv3</strong> therms</li>
 <li>implement an <strong>Ngspice shared library binding</strong> using CFFI which support external sources</li>
 <li>implement (partial) <strong>SPICE netlist parser</strong></li>
 <li>implement an <strong>Oriented Object API</strong> to define circuit</li>
@@ -405,10 +413,6 @@ simulator.</p>
 <li>implement a <strong>documentation generator</strong></li>
 <li>provides many <strong>examples</strong></li>
 </ul>
-</div>
-<div class="section" id="where-is-the-documentation">
-<h2>Where is the Documentation ?</h2>
-<p>The documentation is available on the <a class="reference external" href="https://pyspice.fabrice-salvaire.fr">PySpice Home Page</a>.</p>
 </div>
 <div class="section" id="how-to-install-it">
 <h2>How to install it ?</h2>
@@ -423,8 +427,48 @@ simulator.</p>
 <h1>News</h1>
 <!-- -*- Mode: rst -*- -->
 <!-- no title here -->
-<div class="section" id="v1-1-0">
-<h2>V1.1.0</h2>
+<div class="section" id="v1-3-0-development-release">
+<h2>V1.3.0 (development release)</h2>
+</div>
+<div class="section" id="v1-2-0-production-release-2018-02-xx">
+<h2>V1.2.0 (production release) 2018-02-xx</h2>
+<blockquote>
+<ul class="simple">
+<li>Initial support of the <a class="reference external" href="https://xyce.sandia.gov">Xyce</a> simulator.  Xyce is an open source, SPICE-compatible,
+high-performance analog circuit simulator, capable of solving extremely large circuit problems
+developed at Sandia National Laboratories.  Xyce will make PySpice suitable for industry and
+research use.</li>
+<li>Fixed OSX support</li>
+<li>Splitted G device</li>
+<li>Implemented partially <cite>A</cite> XSPICE device</li>
+<li>Implemented missing transmission line devices</li>
+<li>Implemented high level current sources
+<strong>Notice: Some classes were renamed !</strong></li>
+<li>Implemented node kwarg e.g. <code>circuit.Q(1, base=1, collector=2, emitter=3, model='npn')</code></li>
+<li>Implemented raw spice pass through (see <a class="reference external" href="/faq.html">User FAQ</a>)</li>
+<li>Implemented access to internal parameters (cf. <code>save &#64;device[parameter]</code>)</li>
+<li>Implemented check for missing ground node</li>
+<li>Implemented a way to disable an element and clone netlist</li>
+<li>Improved SPICE parser</li>
+<li>Improved unit support:<ul>
+<li>Implemented unit prefix cast <cite>U_μV(U_mV(1))</cite> to easily convert values</li>
+<li>Added <cite>U_mV</cite>, ... shortcuts</li>
+<li>Added Numpy array support to unit, see <cite>UnitValues</cite> <strong>Notice: this new feature could be buggy !!!</strong></li>
+<li>Rebased <cite>WaveForm</cite> to <cite>UnitValues</cite></li>
+</ul>
+</li>
+<li>Fixed node order so as to not confuse users <strong>Now PySpice matches SPICE order for two ports elements !</strong></li>
+<li>Fixed device shortcuts in <cite>Netlist</cite> class</li>
+<li>Fixed model kwarg for BJT <strong>Notice: it must be passed exclusively as kwarg !</strong></li>
+<li>Fixed subcircuit nesting</li>
+<li>Outsourced documentation generator to <a class="reference external" href="https://github.com/FabriceSalvaire/Pyterate">Pyterate</a></li>
+<li>Updated <cite>setup.py</cite> for wheel</li>
+</ul>
+</blockquote>
+<!-- :ref:`user-faq-page` -->
+</div>
+<div class="section" id="v1-1-0-2017-09-06">
+<h2>V1.1.0 2017-09-06</h2>
 <blockquote>
 <ul class="simple">
 <li>Enhanced shared mode</li>
@@ -432,8 +476,8 @@ simulator.</p>
 </ul>
 </blockquote>
 </div>
-<div class="section" id="v1-0-0">
-<h2>V1.0.0</h2>
+<div class="section" id="v1-0-0-2017-09-06">
+<h2>V1.0.0 2017-09-06</h2>
 <blockquote>
 <ul class="simple">
 <li>Bump version to v1.0.0 since it just works!</li>
@@ -451,8 +495,8 @@ simulator.</p>
 </ul>
 </blockquote>
 </div>
-<div class="section" id="v0-4-0">
-<h2>V0.4.0</h2>
+<div class="section" id="v0-4-0-2017-07-31">
+<h2>V0.4.0 2017-07-31</h2>
 <blockquote>
 <ul class="simple">
 <li>Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size.</li>
@@ -465,24 +509,24 @@ The relevant documentation is on this <a class="reference external" href="api/Py
 </ul>
 </blockquote>
 </div>
-<div class="section" id="v0-3-2">
-<h2>V0.3.2</h2>
+<div class="section" id="v0-3-2-2017-02-22">
+<h2>V0.3.2 2017-02-22</h2>
 <blockquote>
 <ul class="simple">
 <li>fixed CCCS and CCVS</li>
 </ul>
 </blockquote>
 </div>
-<div class="section" id="v0-3-1">
-<h2>V0.3.1</h2>
+<div class="section" id="v0-3-1-2017-02-22">
+<h2>V0.3.1 2017-02-22</h2>
 <blockquote>
 <ul class="simple">
 <li>fixed ngspice shared</li>
 </ul>
 </blockquote>
 </div>
-<div class="section" id="v0-3-0">
-<h2>V0.3.0</h2>
+<div class="section" id="v0-3-0-2015-12-08">
+<h2>V0.3.0 2015-12-08</h2>
 <blockquote>
 <ul class="simple">
 <li>Added an example to show how to use the NgSpice Shared Simulation Mode.</li>
@@ -490,6 +534,10 @@ The relevant documentation is on this <a class="reference external" href="api/Py
 to define the circuit.  The program <em>cir2py</em> translates a circuit file to Python.</li>
 </ul>
 </blockquote>
+</div>
+<div class="section" id="v0-2014-03-21">
+<h2>V0 2014-03-21</h2>
+<p>Started project</p>
 <!-- End -->
 <!-- End -->
 </div>

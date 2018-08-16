@@ -12,5 +12,4 @@ from setup_data import long_description
 with open('README.rst', 'w') as f:
     f.write(long_description)
 
-# subprocess.call('python setup.py --long-description | rst2html > /dev/null', shell=True)
-subprocess.call('python setup.py --long-description | rst2html > README.html', shell=True)
+subprocess.call(('rst2html', 'README.rst', 'README.html'))

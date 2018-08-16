@@ -22,30 +22,48 @@ import os
 
 ####################################################################################################
 
-from ..Unit.Unit import UnitValue
+from PySpice.Unit.Unit import UnitValue
 
 ####################################################################################################
 
-def str_spice(obj):
+def str_spice(obj, unit=True):
+
+    # Fixme: right place ???
 
     """Convert an object to a Spice compatible string."""
 
     if isinstance(obj, UnitValue):
-        return obj.str_spice()
+        if unit:
+            return obj.str_spice()
+        else: # Fixme: ok ???
+            return obj.str(spice=False, space=False, unit=False)
     else:
         return str(obj)
 
 ####################################################################################################
 
 def join_lines(items, prefix=''):
-    return os.linesep.join([prefix + str(item) for item in items if item is not None])
+    return os.linesep.join([prefix + str(item)
+                            for item in items
+                            if item is not None]) # Fixme: and item
 
 ####################################################################################################
 
 def join_list(items):
-    return ' '.join([str_spice(item) for item in items if item is not None])
+    # return ' '.join([str_spice(item)
+    #                  for item in items
+    #                  if item is not None and str_spice(item)])
+    values = []
+    for item in items:
+        if item is not None:
+            str_value = str_spice(item)
+            if str_value:
+                values.append(str_value)
+    return ' '.join(values)
 
 ####################################################################################################
 
 def join_dict(d):
-    return ' '.join(["{}={}".format(key, str_spice(value)) for key, value in d.items() if value is not None])
+    return ' '.join(["{}={}".format(key, str_spice(value))
+                     for key, value in d.items()
+                     if value is not None])

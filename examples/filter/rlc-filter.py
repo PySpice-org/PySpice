@@ -1,8 +1,8 @@
-#!# ============
-#!#  RLC Filter
-#!# ============
+#r# ============
+#r#  RLC Filter
+#r# ============
 
-#!# This example illustrates RLC Filters.
+#r# This example illustrates RLC Filters.
 
 ####################################################################################################
 
@@ -24,16 +24,16 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-#!# We define four low-pass RLC filters with the following factor of quality: .5, 1, 2 and 4.
+#r# We define four low-pass RLC filters with the following factor of quality: .5, 1, 2 and 4.
 
-#cm# low-pass-rlc-filter.m4
+#f# circuit_macros('low-pass-rlc-filter.m4')
 
 circuit1 = Circuit('Four double-pole Low-Pass RLC Filter')
 
 inductance = 10@u_mH
 capacitance = 1@u_uF
 
-circuit1.Sinusoidal('input', 'in', circuit1.gnd, amplitude=1@u_V)
+circuit1.SinusoidalVoltageSource('input', 'in', circuit1.gnd, amplitude=1@u_V)
 #?# pulse 0 5 10 ms
 # Q = .5
 circuit1.R(1, 'in', 1, 200@u_Ω)
@@ -52,23 +52,23 @@ R4 = circuit1.R(4, 'in', 4, 25@u_Ω)
 circuit1.L(4, 4, 'out4', inductance)
 circuit1.C(4, 'out4', circuit1.gnd, capacitance)
 
-#!# We perform an AC analysis.
+#r# We perform an AC analysis.
 
 simulator1 = circuit1.simulator(temperature=25, nominal_temperature=25)
 analysis1 = simulator1.ac(start_frequency=100@u_Hz, stop_frequency=10@u_kHz, number_of_points=100,  variation='dec')
 
-#!# The resonant frequency is given by
-#!#
-#!# .. math::
-#!#
-#!#     f_0 = 2 \pi \omega_0 = \frac{1}{2 \pi \sqrt{L C}}
-#!#
-#!# and the factor of quality by
-#!#
-#!# .. math::
-#!#
-#!#     Q = \frac{1}{R} \sqrt{\frac{L}{C}} = \frac{1}{RC \omega_0}
-#!#
+#r# The resonant frequency is given by
+#r#
+#r# .. math::
+#r#
+#r#     f_0 = 2 \pi \omega_0 = \frac{1}{2 \pi \sqrt{L C}}
+#r#
+#r# and the factor of quality by
+#r#
+#r# .. math::
+#r#
+#r#     Q = \frac{1}{R} \sqrt{\frac{L}{C}} = \frac{1}{RC \omega_0}
+#r#
 
 resonant_frequency = 1 / (2 * math.pi * math.sqrt(inductance * capacitance))
 quality_factor = 1 / R4.resistance * math.sqrt(inductance / capacitance)
@@ -76,7 +76,7 @@ print("Resonant frequency = {:.1f} Hz".format(resonant_frequency))
 print("Factor of quality = {:.1f}".format(quality_factor))
 #o#
 
-#!# We plot the Bode diagram of the four filters.
+#r# We plot the Bode diagram of the four filters.
 
 figure = plt.figure(1, (20, 10))
 plt.title("Bode Diagrams of RLC Filters")
@@ -95,13 +95,13 @@ for axe in axes:
 
 ####################################################################################################
 
-#!# We define a pass-band RLC filter with a quality's factor of 4.
+#r# We define a pass-band RLC filter with a quality's factor of 4.
 
-#cm# pass-band-rlc-filter.m4
+#f# circuit_macros('pass-band-rlc-filter.m4')
 
 circuit2 = Circuit('Pass-Band RLC Filter')
 
-circuit2.Sinusoidal('input', 'in', circuit2.gnd, amplitude=1@u_V)
+circuit2.SinusoidalVoltageSource('input', 'in', circuit2.gnd, amplitude=1@u_V)
 circuit2.L(1, 'in', 2, inductance)
 circuit2.C(1, 2, 'out', capacitance)
 circuit2.R(1, 'out', circuit2.gnd, 25@u_Ω)
@@ -121,4 +121,4 @@ bode_diagram(axes=axes,
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'rlc-filter-bode-diagram.png')
+#f# save_figure('figure', 'rlc-filter-bode-diagram.png')

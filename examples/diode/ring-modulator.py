@@ -1,10 +1,8 @@
-#!# This example depicts a ring modulator
+#r# This example depicts a ring modulator
 
-#!## .. warning:: It don't simulate
-#!#
-#!##   doAnalyses: TRAN:  Timestep too small; time = 5.5453e-08, timestep = 1.25e-18: trouble with xring_modulator.xd2:1n4148-instance d.xring_modulator.xd2.d1
-
-#i# RingModulator.py
+#r## .. warning:: It don't simulate
+#r#
+#r##   doAnalyses: TRAN:  Timestep too small; time = 5.5453e-08, timestep = 1.25e-18: trouble with xring_modulator.xd2:1n4148-instance d.xring_modulator.xd2.d1
 
 ####################################################################################################
 
@@ -19,6 +17,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Doc.ExampleTools import find_libraries
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
@@ -26,19 +25,21 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.environ['PySpice_examples_path'], 'libraries')
+libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
 from RingModulator import RingModulator
 
+#f# literal_include('RingModulator.py')
+
 ####################################################################################################
 
 circuit = Circuit('Ring Modulator')
 
-modulator = circuit.Sinusoidal('modulator', 'in', circuit.gnd, amplitude=1@u_V, frequency=1@u_kHz)
-carrier = circuit.Sinusoidal('carrier', 'carrier', circuit.gnd, amplitude=10@u_V, frequency=100@u_kHz)
+modulator = circuit.SinusoidalVoltageSource('modulator', 'in', circuit.gnd, amplitude=1@u_V, frequency=1@u_kHz)
+carrier = circuit.SinusoidalVoltageSource('carrier', 'carrier', circuit.gnd, amplitude=10@u_V, frequency=100@u_kHz)
 circuit.R('in', 'in', 1, 50@u_Ω)
 circuit.R('carrier', 'carrier', 2, 50@u_Ω)
 

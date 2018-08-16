@@ -18,12 +18,14 @@ from PySpice.Unit import *
 
 from OperationalAmplifier import BasicOperationalAmplifier
 
+#f# literal_include('OperationalAmplifier.py')
+
 ####################################################################################################
 
 circuit = Circuit('Operational Amplifier')
 
 # AC 1 PWL(0US 0V  0.01US 1V)
-circuit.Sinusoidal('input', 'in', circuit.gnd, amplitude=1@u_V)
+circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd, amplitude=1@u_V)
 circuit.subcircuit(BasicOperationalAmplifier())
 circuit.X('op', 'BasicOperationalAmplifier', 'in', circuit.gnd, 'out')
 circuit.R('load', 'out', circuit.gnd, 470@u_Ω)
@@ -43,4 +45,5 @@ bode_diagram(axes=(plt.subplot(211), plt.subplot(212)),
             )
 plt.tight_layout()
 plt.show()
-#fig# save_figure(figure, 'operational-amplifier.png')
+
+#f# save_figure('figure', 'operational-amplifier.png')

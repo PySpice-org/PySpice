@@ -1,8 +1,8 @@
-#!# ====================
-#!#  Bipolar Transistor
-#!# ====================
+#r# ====================
+#r#  Bipolar Transistor
+#r# ====================
 
-#!# This example shows how to simulate the characteristic curves of a bipolar transistor.
+#r# This example shows how to simulate the characteristic curves of a bipolar transistor.
 
 # Fixme: Complete
 
@@ -20,6 +20,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Doc.ExampleTools import find_libraries
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
@@ -27,7 +28,7 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
+libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
@@ -36,9 +37,9 @@ figure = plt.figure(1, (20, 10))
 
 ####################################################################################################
 
-#!# We define a basic circuit to drive an NPN transistor (2n2222a) using two voltage sources.
+#r# We define a basic circuit to drive an NPN transistor (2n2222a) using two voltage sources.
 
-#cm# transistor.m4
+#f# circuit_macros('transistor.m4')
 
 circuit = Circuit('Transistor')
 
@@ -46,18 +47,18 @@ Vbase = circuit.V('base', '1', circuit.gnd, 1@u_V)
 circuit.R('base', 1, 'base', 1@u_kΩ)
 Vcollector = circuit.V('collector', '2', circuit.gnd, 0@u_V)
 circuit.R('collector', 2, 'collector', 1@u_kΩ)
-# circuit.BJT(1, 'collector', 'base', circuit.gnd, 'generic')
+# circuit.BJT(1, 'collector', 'base', circuit.gnd, model='generic')
 # circuit.model('generic', 'npn')
 circuit.include(spice_library['2n2222a'])
-circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
+circuit.BJT(1, 'collector', 'base', circuit.gnd, model='2n2222a')
 
-#!# We plot the base-emitter diode curve :math:`Ib = f(Vbe)` using a DC sweep simulation.
+#r# We plot the base-emitter diode curve :math:`Ib = f(Vbe)` using a DC sweep simulation.
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vbase=slice(0, 3, .01))
 
 axe1 = plt.subplot(221)
-axe1.plot(analysis.base, -analysis.Vbase*1000) # Fixme: I_Vbase, unit scale
+axe1.plot(analysis.base, u_mA(-analysis.Vbase)) # Fixme: I_Vbase
 axe1.axvline(x=.65, color='red')
 axe1.legend(('Base-Emitter Diode curve',), loc=(.1,.8))
 axe1.grid()
@@ -66,15 +67,15 @@ axe1.set_ylabel('Ib [mA]')
 
 ####################################################################################################
 
-#!# We will now replace the base's voltage source by a current source in the previous circuit.
+#r# We will now replace the base's voltage source by a current source in the previous circuit.
 
 circuit = Circuit('Transistor')
 Ibase = circuit.I('base', circuit.gnd, 'base', 10@u_uA) # take care to the orientation
 Vcollector = circuit.V('collector', 'collector', circuit.gnd, 5)
-# circuit.BJT(1, 'collector', 'base', circuit.gnd, 'generic')
+# circuit.BJT(1, 'collector', 'base', circuit.gnd, model='generic')
 # circuit.model('generic', 'npn')
 circuit.include(spice_library['2n2222a'])
-circuit.BJT(1, 'collector', 'base', circuit.gnd, '2n2222a')
+circuit.BJT(1, 'collector', 'base', circuit.gnd, model='2n2222a')
 
 # Fixme: ngspice doesn't support multi-sweep ???
 #   it works in interactive mode
@@ -123,14 +124,14 @@ for base_current in np.arange(0, 100, 10):
     analysis = simulator.dc(Vcollector=slice(0, 5, .01))
     # add ib as text, linear and saturate region
     # Plot Ic = f(Vce)
-    axe2.plot(analysis.collector, -analysis.Vcollector*1000)
+    axe2.plot(analysis.collector, u_mA(-analysis.Vcollector))
     # Plot β = Ic / Ib = f(Vce)
     axe3.plot(analysis.collector, -analysis.Vcollector/float(base_current))
     # trans-resistance U = RI   R = U / I = Vce / Ie
     # axe3.plot(analysis.collector, analysis.sweep/(float(base_current)-analysis.Vcollector))
     # Fixme: sweep is not so explicit
 
-#!# Let plot :math:`Ic = f(Ib)`
+#r# Let plot :math:`Ic = f(Ib)`
 
 axe4 = plt.subplot(224)
 axe4.grid()
@@ -140,7 +141,7 @@ axe4.set_ylabel('Ic [mA]')
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Ibase=slice(0, 100e-6, 10e-6))
 # Fixme: sweep
-axe4.plot(analysis.sweep*1e6, -analysis.Vcollector*1000, 'o-')
+axe4.plot(analysis.sweep*1e6, u_mA(-analysis.Vcollector), 'o-')
 axe4.legend(('Ic(Ib)',), loc=(.1,.8))
 
 ####################################################################################################
@@ -148,4 +149,4 @@ axe4.legend(('Ic(Ib)',), loc=(.1,.8))
 plt.tight_layout()
 plt.show()
 
-#fig# save_figure(figure, 'transistor-plot.png')
+#f# save_figure('figure', 'transistor-plot.png')

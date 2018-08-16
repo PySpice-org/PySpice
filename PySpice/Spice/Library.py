@@ -53,6 +53,13 @@ class SpiceLibrary:
 
     _logger = _module_logger.getChild('Library')
 
+    EXTENSIONS = (
+        '.lib',
+        '.mod',
+        '.lib@xyce',
+        '.mod@xyce',
+    )
+
     ##############################################
 
     def __init__(self, root_path):
@@ -63,15 +70,28 @@ class SpiceLibrary:
         self._models = {}
 
         for path in self._directory.iter_file():
-            if path.extension.lower() in ('.lib', '.mod'):
+            extension = path.extension.lower()
+            if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
                 spice_parser = SpiceParser(path)
                 if spice_parser.is_only_subcircuit():
                     for subcircuit in spice_parser.subcircuits:
-                        self._subcircuits[subcircuit.name] = path
+                        name = self._suffix_name(subcircuit.name, extension)
+                        self._subcircuits[name] = path
                 elif spice_parser.is_only_model():
                     for model in spice_parser.models:
-                        self._models[model.name] = path
+                        name = self._suffix_name(model.name, extension)
+                        self._models[name] = path
+
+    ##############################################
+
+    @staticmethod
+    def _suffix_name(name, extension):
+
+        if extension.endswith('@xyce'):
+            name += '@xyce'
+
+        return name
 
     ##############################################
 
@@ -82,6 +102,8 @@ class SpiceLibrary:
         elif name in self._models:
             return self._models[name]
         else:
+            # print('Library {} not found in {}'.format(name, self._directory))
+            # self._logger.warn('Library {} not found in {}'.format(name, self._directory))
             raise KeyError(name)
 
     ##############################################

@@ -45,6 +45,11 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
+class ParseError(NameError):
+    pass
+
+####################################################################################################
+
 class PrefixData:
 
     """This class represents a device prefix."""
@@ -154,7 +159,9 @@ class Statement:
     def __init__(self, line, statement=None):
 
         self._line = line
-        self._line.lower_case_statement(statement)
+
+        if statement is not None:
+            self._line.lower_case_statement(statement)
 
     ##############################################
 
@@ -209,7 +216,7 @@ class Title(Statement):
     def __init__(self, line):
 
         super().__init__(line, statement='title')
-        self._title = self._line.read_right_of('.title')
+        self._title = self._line.right_of('.title')
 
     ##############################################
 
@@ -232,7 +239,7 @@ class Include(Statement):
     def __init__(self, line):
 
         super().__init__(line, statement='include')
-        self._include = self._line.read_right_of('.include')
+        self._include = self._line.right_of('.include')
 
     ##############################################
 
@@ -266,12 +273,18 @@ class Model(Statement):
 
     def __init__(self, line):
 
-        super().__init__(line, statement='mode')
+        super().__init__(line, statement='model')
 
-        # Fixme
-        parameters, dict_parameters = self._line.split_line('.model')
-        self._name, self._model_type = parameters[:2]
-        self._parameters = dict_parameters
+        text = line.right_of('.model')
+        kwarg_start = text.find('(')
+        kwarg_stop = text.find(')')
+        if kwarg_start == -1 or kwarg_stop == -1:
+            # raise ParseError("Bad model: {}".format(line))
+            parts, self._parameters = line.split_line('.model')
+            self._name, self._model_type = parts
+        else:
+            self._name, self._model_type = text[:kwarg_start].split()
+            self._parameters = Line.get_kwarg(text[kwarg_start+1:kwarg_stop])
 
     ##############################################
 
@@ -358,7 +371,7 @@ class SubCircuitStatement(Statement):
 
         """ Append a statement to the statement's list. """
 
-        self._statements .append(statement)
+        self._statements.append(statement)
 
     ##############################################
 
@@ -472,7 +485,7 @@ class Element(Statement):
         for i in to_delete:
             del self._parameters[i]
 
-        self._logger.debug(os.linesep + self.__repr__())
+        # self._logger.debug(os.linesep + self.__repr__())
 
     ##############################################
 
@@ -517,7 +530,7 @@ class Element(Statement):
 
     def build(self, circuit, ground=0):
 
-        factory = getattr(circuit, self.factory.alias)
+        factory = getattr(circuit, self.factory.__alias__)
         nodes = self.translate_ground_node(ground)
         if self._prefix != 'X':
             args = nodes + self._parameters
@@ -535,20 +548,15 @@ class Line:
 
     """ This class implements a line in the netlist. """
 
+    _logger = _module_logger.getChild('Element')
+
     ##############################################
 
-    def __init__(self, text, line_range):
+    def __init__(self, line, line_range, end_of_line_comment):
 
-        text = str(text)
-        for marker in ('$', ';', '//'):
-            location = text.find(marker)
-            if location != -1:
-                break
-        if location != -1:
-            text = text[:location]
-            comment = text[location:]
-        else:
-            comment = ''
+        self._end_of_line_comment = end_of_line_comment
+
+        text, comment, self._is_comment = self._split_comment(line)
 
         self._text = text
         self._comment = comment
@@ -557,7 +565,7 @@ class Line:
     ##############################################
 
     def __repr__(self):
-        return '{0._line_range} {0._text}'.format(self)
+        return '{0._line_range}: {0._text} // {0._comment}'.format(self)
 
     ##############################################
 
@@ -566,14 +574,79 @@ class Line:
 
     ##############################################
 
-    def lower_case_statement(self, statement):
+    @property
+    def comment(self):
+        return self._comment
 
-        if statement:
-            self._text = self._text.replace(statement.upper(), statement.lower())
+    @property
+    def is_comment(self):
+
+        return self._is_comment
 
     ##############################################
 
-    def read_right_of(self, text):
+    def _split_comment(self, line):
+
+        line = str(line)
+
+        if line.startswith('*'):
+            is_comment = True
+            text = ''
+            comment = line[1:].strip()
+        else:
+            is_comment = False
+            # remove end of line comment
+            location = -1
+            for marker in self._end_of_line_comment:
+                _location = line.find(marker)
+                if _location != -1:
+                    if location == -1:
+                        location = _location
+                    else:
+                        location = min(_location, location)
+            if location != -1:
+                text = line[:location].strip()
+                comment = line[location:].strip()
+            else:
+                text = line
+                comment = ''
+
+        return text, comment, is_comment
+
+    ##############################################
+
+    def append(self, line):
+
+        text, comment, is_comment = self._split_comment(line)
+
+        if text:
+            if not self._text.endswith(' ') or text.startswith(' '):
+                self._text += ' '
+            self._text += text
+        if comment:
+            self._comment += ' // ' + comment
+
+        _slice = self._line_range
+        self._line_range = slice(_slice.start, _slice.stop + 1)
+
+    ##############################################
+
+    def lower_case_statement(self, statement):
+
+        """Lower case the statement"""
+
+        # statement without . prefix
+
+        if self._text:
+            lower_statement = statement.lower()
+            _slice = slice(1, len(statement) + 1)
+            _statement = self._text[_slice]
+            if _statement.lower() == lower_statement:
+                self._text = '.' + lower_statement + self._text[_slice.stop:]
+
+    ##############################################
+
+    def right_of(self, text):
 
         return self._text[len(text):].strip()
 
@@ -581,9 +654,13 @@ class Line:
 
     def read_words(self, start_location, number_of_words):
 
+        """Read a fixed number of words separated by space."""
+
+        words = []
+        stop_location = None
+
         line_str = self._text
         number_of_words_read = 0
-        words = []
         while number_of_words_read < number_of_words: # and start_location < len(line_str)
             stop_location = line_str.find(' ', start_location)
             if stop_location == -1:
@@ -595,9 +672,11 @@ class Line:
             if stop_location is None: # we should stop
                 if number_of_words_read != number_of_words:
                     template = 'Bad element line, looking for word {}/{}:' + os.linesep
-                    raise NameError(template.format(number_of_words_read, number_of_words) +
-                                    line_str + os.linesep +
-                                    ' '*start_location + '^')
+                    message = (template.format(number_of_words_read, number_of_words) +
+                               line_str + os.linesep +
+                               ' '*start_location + '^')
+                    self._logger.warning(message)
+                    raise ParseError(message)
             else:
                 if start_location < stop_location:
                     start_location = stop_location
@@ -610,8 +689,9 @@ class Line:
 
     def split_words(self, start_location, until=None):
 
-        line_str = self._text
         stop_location = None
+
+        line_str = self._text
         if until is not None:
             location = line_str.find(until, start_location)
             if location != -1:
@@ -629,26 +709,64 @@ class Line:
 
     ##############################################
 
+    @staticmethod
+    def get_kwarg(text):
+
+        dict_parameters = {}
+
+        parts = []
+        for part in text.split():
+            if '=' in part and part != '=':
+                left, right = [x for x in part.split('=')]
+                parts.append(left)
+                parts.append('=')
+                if right:
+                    parts.append(right)
+            else:
+                parts.append(part)
+
+        i = 0
+        i_stop = len(parts)
+        while i < i_stop:
+            if i + 1 < i_stop and parts[i + 1] == '=':
+                key, value = parts[i], parts[i + 2]
+                dict_parameters[key] = value
+                i += 3
+            else:
+                raise ParseError("Bad kwarg: {}".format(text))
+
+        return dict_parameters
+
+    ##############################################
+
     def split_line(self, keyword):
 
-        """ Split the line according to the following pattern::
+        """Split the line according to the following pattern::
 
             keyword parameter1 parameter2 ... key1=value1 key2=value2 ...
 
-        Return the list of parameters and the dictionnary.
+        Return the list of parameters and the dictionary.
+
         """
+
+        # Fixme: cf. get_kwarg
 
         parameters = []
         dict_parameters = {}
 
-        text = self._text[len(keyword):]
+        text = self.right_of(keyword)
+
         parts = []
         for part in text.split():
-            if '=' in part:
+            if '=' in part and part != '=':
                 left, right = [x for x in part.split('=')]
-                parts += [left, '=', right]
+                parts.append(left)
+                parts.append('=')
+                if right:
+                    parts.append(right)
             else:
                 parts.append(part)
+
         i = 0
         i_stop = len(parts)
         while i < i_stop:
@@ -682,7 +800,7 @@ class SpiceParser:
 
     ##############################################
 
-    def __init__(self, path=None, source=None):
+    def __init__(self, path=None, source=None, end_of_line_comment=('$', '//', ';')):
 
         # Fixme: empty source
 
@@ -690,9 +808,11 @@ class SpiceParser:
             with open(str(path), 'r') as f:
                 raw_lines = f.readlines()
         elif source is not None:
-            raw_lines = source.split(os.linesep) # Fixme: other os
+            raw_lines = source.split(os.linesep)
         else:
             raise ValueError
+
+        self._end_of_line_comment = end_of_line_comment
 
         lines = self._merge_lines(raw_lines)
         self._title = None
@@ -708,20 +828,21 @@ class SpiceParser:
         A line starting with "+" continues the preceding line.
         """
 
-        # Fixme: better using lines[-1] ?
         lines = []
-        current_line = ''
-        current_line_index = None
-        for line_index, line in enumerate(raw_lines):
-            if line.startswith('+'):
-                current_line += ' ' + line[1:].strip()
+        current_line = None
+        for line_index, line_string in enumerate(raw_lines):
+            if line_string.startswith('+'):
+                current_line.append(line_string[1:].strip('\r\n'))
             else:
-                if current_line:
-                    lines.append(Line(current_line, slice(current_line_index, line_index)))
-                current_line = line.strip()
-                current_line_index = line_index
-        if current_line:
-            lines.append(Line(current_line, slice(current_line_index, len(raw_lines))))
+                line_string = line_string.strip('\r\n')
+                if line_string:
+                    _slice = slice(line_index, line_index +1)
+                    line = Line(line_string, _slice, self._end_of_line_comment)
+                    lines.append(line)
+                    # handle case with comment before line continuation
+                    if not line_string.startswith('*'):
+                        current_line = line
+
         return lines
 
     ##############################################
@@ -730,14 +851,29 @@ class SpiceParser:
 
         """ Parse the lines and return a list of statements. """
 
+        # The first line in the input file must be the title, which is the only comment line that does
+        # not need any special character in the first place.
+        #
+        # The last line must be .end
+
+        if len(lines) <= 1:
+            raise NameError('Netlist is empty')
+        # if lines[-1] != '.end':
+        #     raise NameError('".end" is expected at the end of the netlist')
+
+        title_statement = '.title '
+        self._title = str(lines[0])
+        if self._title.startswith(title_statement):
+            self._title = self._title[len(title_statement):]
+
         statements = []
         sub_circuit = None
         scope = statements
-        for line in lines:
-            # print(repr(line))
+        for line in lines[1:]:
+            # print('>', repr(line))
             text = str(line)
             lower_case_text = text.lower() # !
-            if text.startswith('*'):
+            if line.is_comment:
                 scope.append(Comment(line))
             elif lower_case_text.startswith('.'):
                 lower_case_text = lower_case_text[1:]
@@ -749,6 +885,7 @@ class SpiceParser:
                     sub_circuit = None
                     scope = statements
                 elif lower_case_text.startswith('title'):
+                    # override fist line
                     self._title = Title(line)
                     scope.append(self._title)
                 elif lower_case_text.startswith('end'):
@@ -767,8 +904,11 @@ class SpiceParser:
                     # { expr } are allowed in .model lines and in device lines.
                     self._logger.warn(line)
             else:
-                element = Element(line)
-                scope.append(element)
+                try:
+                    element = Element(line)
+                    scope.append(element)
+                except ParseError:
+                    pass
 
         return statements
 

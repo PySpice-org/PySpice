@@ -1,4 +1,4 @@
-#!# This example shows a capacitive power supply with a pre zener half-rectification.
+#r# This example shows a capacitive power supply with a pre zener half-rectification.
 
 ####################################################################################################
 
@@ -13,6 +13,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
+from PySpice.Doc.ExampleTools import find_libraries
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
 from PySpice.Spice.Netlist import Circuit
@@ -20,12 +21,12 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'libraries')
+libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-#cm# capacitive-half-wave-rectification-pre-zener-circuit.m4
+#f# circuit_macros('capacitive-half-wave-rectification-pre-zener-circuit.m4')
 
 circuit = Circuit('Capacitive Half-Wave Rectification (Pre Zener)')
 
@@ -45,7 +46,7 @@ circuit.X('Dz', 'd1n5919brl', circuit.gnd, 'out')
 circuit.C('', circuit.gnd, 'out', 250@u_uF)
 circuit.R('load', circuit.gnd, 'out', 1@u_kΩ)
 
-# # Fixme: circuit.nodes[2].v, circuit.branch.current
+#?# Fixme: circuit.nodes[2].v, circuit.branch.current
 # print circuit.nodes
 
 # Simulator(circuit, ...).transient(...)
@@ -77,4 +78,5 @@ plt.ylabel('[V]')
 
 plt.tight_layout()
 plt.show()
-#fig# save_figure(figure, 'capacitive-half-wave-rectification-post-zener.png')
+
+#f# save_figure('figure', 'capacitive-half-wave-rectification-post-zener.png')

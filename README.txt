@@ -3,14 +3,17 @@
 .. include:: project-links.txt
 .. include:: abbreviation.txt
 
-=============================================================================
- PySpice : Simulate Electronic Circuit using Python and the Ngspice Simulator
-=============================================================================
+=====================================================================================
+ PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
+=====================================================================================
 
 |Pypi License|
 |Pypi Python Version|
 
 |Pypi Version|
+
+* Quick Link to `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
+* Quick Link to `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
 
 Overview
 ========
@@ -18,14 +21,20 @@ Overview
 What is PySpice ?
 -----------------
 
-PySpice is a Python module which interface |Python|_ and the |Ngspice|_ circuit
-simulator.
+PySpice is a Python module which interface |Python|_ to the |Ngspice|_ and |Xyce|_ circuit
+simulators.
+
+Where is the Documentation ?
+----------------------------
+
+The documentation is available on the |PySpiceHomePage|_.
 
 What are the main features ?
 ----------------------------
 
-* licensed under **GPLv3** therms
+* support Ngspice and Xyce circuit simulators
 * support **Linux**, **Windows** and Mac **OS X** platforms
+* licensed under **GPLv3** therms
 * implement an **Ngspice shared library binding** using CFFI which support external sources
 * implement (partial) **SPICE netlist parser**
 * implement an **Oriented Object API** to define circuit
@@ -35,11 +44,6 @@ What are the main features ?
 * work with **Kicad schematic editor**
 * implement a **documentation generator**
 * provides many **examples**
-
-Where is the Documentation ?
-----------------------------
-
-The documentation is available on the |PySpiceHomePage|_.
 
 How to install it ?
 -------------------
