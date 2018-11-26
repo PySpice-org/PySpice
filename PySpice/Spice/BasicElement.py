@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ####################################################################################################
+from PySpice.Spice.ElementParameter import KeyValueParameter
 
 """This module implements SPICE circuit elements.
 
@@ -116,6 +117,8 @@ from .ElementParameter import (
     ModelPositionalParameter,
     )
 
+import SchemDraw as schem
+
 ####################################################################################################
 
 class DipoleElement(FixedPinElement):
@@ -153,12 +156,11 @@ class SubCircuitElement(NPinElement):
 
     ##############################################
 
-    def __init__(self, netlist, name, subcircuit_name, *nodes, **parameters):
+    def __init__(self, netlist, name, subcircuit_name, *nodes, **kwargs):
 
-        super().__init__(netlist, name, nodes, subcircuit_name)
-
+        schematic_kwargs = kwargs.pop('schematic_kwargs', {})
         # Fixme: match parameters to subcircuit
-        self.parameters = parameters
+        self.parameters = kwargs
 
         # Fixme: investigate
         # for key, value in parameters.items():
@@ -166,6 +168,9 @@ class SubCircuitElement(NPinElement):
         #     parameter.__set__(self, value)
         #     self.optional_parameters[key] = parameter
         #     setattr(self, key, parameter)
+        
+        super().__init__(netlist, name, nodes, subcircuit_name, 
+                         schematic_kwargs=schematic_kwargs)
 
     ##############################################
 
@@ -239,6 +244,8 @@ class Resistor(DipoleElement):
 
     __alias__ = 'R'
     __prefix__ = 'R'
+    
+    schematic = schem.elements.RES
 
     resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
     ac = FloatKeyParameter('ac', unit=U_Ω)
@@ -761,6 +768,8 @@ class VoltageSource(DipoleElement):
 
     __alias__ = 'V'
     __prefix__ = 'V'
+    
+    schematic = schem.elements.SOURCE_V
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_V)

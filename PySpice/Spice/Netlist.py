@@ -82,7 +82,8 @@ import keyword
 import logging
 import os
 
-# import networkx
+import networkx
+import SchemDraw
 
 ####################################################################################################
 
@@ -337,14 +338,14 @@ class ElementParameterMetaClass(type):
 
     """
 
-     #: Dictionary for SPICE prefix -> [cls,]
+    #: Dictionary for SPICE prefix -> [cls,]
     __classes__ = {}
 
     _logger = _module_logger.getChild('ElementParameterMetaClass')
 
     ##############################################
 
-    def __new__(meta_cls, class_name, base_classes, namespace):
+    def __new__(cls, class_name, base_classes, namespace):
 
         # __new__ is called for the creation of a class depending of this metaclass, i.e. at module loading
         # It customises the namespace of the new class
@@ -428,15 +429,15 @@ class ElementParameterMetaClass(type):
         else:
             _module_logger.debug("{} don't define a __pins__ attribute".format(class_name))
 
-        return type.__new__(meta_cls, class_name, base_classes, namespace)
+        return type.__new__(cls, class_name, base_classes, namespace)
 
     ##############################################
 
-    def __init__(meta_cls, class_name, base_classes, namespace):
+    def __init__(cls, class_name, base_classes, namespace):
 
         # __init__ is called after the class is created (__new__)
 
-        type.__init__(meta_cls, class_name, base_classes, namespace)
+        type.__init__(cls, class_name, base_classes, namespace)
 
         # Collect basic element classes
         if '__prefix__' in namespace:
@@ -444,9 +445,9 @@ class ElementParameterMetaClass(type):
             if prefix is not None:
                 classes = ElementParameterMetaClass.__classes__
                 if prefix in classes:
-                    classes[prefix].append(meta_cls)
+                    classes[prefix].append(cls)
                 else:
-                    classes[prefix] = [meta_cls]
+                    classes[prefix] = [cls]
 
     ##############################################
 
@@ -454,33 +455,37 @@ class ElementParameterMetaClass(type):
     #       e.g. Resistor.number_of_pins or Resistor.__class__.number_of_pins
 
     @property
-    def number_of_pins(cls):
+    def number_of_pins(self):
         #! Fixme: many pins ???
-        number_of_pins = len(cls.__pins__)
-        if cls.__number_of_optional_pins__:
-            return slice(number_of_pins - cls.__number_of_optional_pins__, number_of_pins +1)
+        number_of_pins = len(self.__pins__)
+        if self.__number_of_optional_pins__:
+            return slice(number_of_pins - self.__number_of_optional_pins__, number_of_pins +1)
         else:
             return number_of_pins
 
     @property
-    def number_of_positional_parameters(cls):
-        return len(cls.__positional_parameters__)
+    def number_of_positional_parameters(self):
+        return len(self.__positional_parameters__)
 
     @property
-    def positional_parameters(cls):
-        return cls.__positional_parameters__
+    def positional_parameters(self):
+        return self.__positional_parameters__
 
     @property
-    def optional_parameters(cls):
-        return cls.__optional_parameters__
+    def optional_parameters(self):
+        return self.__optional_parameters__
 
     @property
-    def parameters_from_args(cls):
-        return cls.__parameters_from_args__
+    def parameters_from_args(self):
+        return self.__parameters_from_args__
 
     @property
-    def spice_to_parameters(cls):
-        return cls.__spice_to_parameters__
+    def spice_to_parameters(self):
+        return self.__spice_to_parameters__
+    
+#     @property
+#     def schematic(self):
+#         return self.__schematic__
 
 ####################################################################################################
 
@@ -501,6 +506,8 @@ class Element(metaclass=ElementParameterMetaClass):
 
     #: SPICE element prefix
     __prefix__ = None
+    
+    schematic = None
 
     ##############################################
 
@@ -510,6 +517,7 @@ class Element(metaclass=ElementParameterMetaClass):
         self._name = str(name)
         self.raw_spice = ''
         self.enabled = True
+        #self._pins = kwargs.pop('pins',())
 
         # Process remaining args
         if len(self.__parameters_from_args__) < len(args):
@@ -524,8 +532,10 @@ class Element(metaclass=ElementParameterMetaClass):
             elif key in self.__positional_parameters__ or key in self.__optional_parameters__:
                 setattr(self, key, value)
 
-        self._pins = ()
-        netlist._add_element(self)
+        schematic_kwargs = kwargs.pop('schematic_kwargs', {})
+        self.schematic_kwargs = schematic_kwargs
+
+        netlist._add_element(self, **schematic_kwargs)
 
     ##############################################
 
@@ -690,10 +700,13 @@ class FixedPinElement(Element):
                     raise NameError("Node '{}' is missing for element {}".format(pin_definition.name, self.name))
                 pin_definition_nodes.append((pin_definition, node))
 
-        super().__init__(netlist, name, *args, **kwargs)
+        
 
         self._pins = [Pin(self, pin_definition, netlist.get_node(node, True))
                       for pin_definition, node in pin_definition_nodes]
+        
+        
+        super().__init__(netlist, name, *args, **kwargs)    
 
     ##############################################
 
@@ -713,10 +726,10 @@ class NPinElement(Element):
 
     def __init__(self, netlist, name, nodes, *args, **kwargs):
 
-        super().__init__(netlist, name, *args, **kwargs)
-
         self._pins = [Pin(self, PinDefinition(position), netlist.get_node(node, True))
                       for position, node in enumerate(nodes)]
+        
+        super().__init__(netlist, name, *args, **kwargs)
 
     ##############################################
 
@@ -826,6 +839,8 @@ class Netlist:
 
         self._ground_name = 0
         self._nodes = {}
+        self._graph = networkx.Graph()
+        self._schematic = SchemDraw.Drawing()
         self._ground_node = self._add_node(self._ground_name)
 
         self._subcircuits = OrderedDict() # to keep the declaration order
@@ -834,7 +849,6 @@ class Netlist:
 
         self.raw_spice = ''
 
-        # self._graph = networkx.Graph()
 
     ##############################################
 
@@ -890,6 +904,14 @@ class Netlist:
     @property
     def subcircuit_names(self):
         return self._subcircuits.keys()
+    
+    @property
+    def graph(self):
+        return self._graph
+    
+    @property
+    def schematic(self):
+        return self._schematic
 
     ##############################################
 
@@ -922,6 +944,10 @@ class Netlist:
         if node_name not in self._nodes:
             node = Node(self, node_name)
             self._nodes[node_name] = node
+            self._graph.add_node(node, name=node_name)
+            
+            #if(node_name == str(self._ground_name)):
+            #    self.schematic.add(SchemDraw.elements.GND)
             return node
         else:
             raise ValueError("Node {} is already defined".format(node_name))
@@ -960,12 +986,35 @@ class Netlist:
 
     ##############################################
 
-    def _add_element(self, element):
+    def _add_element(self, element, **schematic_kwargs):
 
         """Add an element."""
-
         if element.name not in self._elements:
             self._elements[element.name] = element
+            
+            if len(element.nodes) == 2:
+                self.graph.add_edge(element.nodes[0], element.nodes[1],
+                                    x=element, name=element.name)
+            
+            #print(schematic_kwargs)
+            schematic = schematic_kwargs.pop('schematic', element.schematic)
+            if(schematic):
+                element.schematic = schematic
+                label = schematic_kwargs.pop('label', element.name)
+                schematic_element = self.schematic.add(schematic, label=label,
+                                   **schematic_kwargs)
+                element.schematic_element = schematic_element
+                
+                show_plus = schematic_kwargs.pop('show_plus', False)
+                show_minus = schematic_kwargs.pop('show_minus', False)
+                if(show_plus):
+                    self.schematic.add(SchemDraw.elements.DOT, label=element.plus.node.name)
+                    
+                if(show_minus):
+                    self.schematic.add(SchemDraw.elements.DOT, label=element.minus.node.name)
+                #if(element.pins[1].node == self.get_node(0, False)):
+                #    self.schematic.add(SchemDraw.elements.GND)
+                    
         else:
             raise NameError("Element name {} is already defined".format(element.name))
 
