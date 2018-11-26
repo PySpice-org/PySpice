@@ -84,6 +84,7 @@ import os
 
 import networkx
 import SchemDraw
+import numpy as np
 
 ####################################################################################################
 
@@ -726,9 +727,6 @@ class NPinElement(Element):
 
     def __init__(self, netlist, name, nodes, *args, **kwargs):
 
-        self._pins = [Pin(self, PinDefinition(position), netlist.get_node(node, True))
-                      for position, node in enumerate(nodes)]
-        
         super().__init__(netlist, name, *args, **kwargs)
 
     ##############################################
@@ -1008,15 +1006,18 @@ class Netlist:
                 show_plus = schematic_kwargs.pop('show_plus', False)
                 show_minus = schematic_kwargs.pop('show_minus', False)
                 
-                minus_xy = schematic_kwargs.pop('minus_xy', [])
-                plus_xy = schematic_kwargs.pop('minus_xy', [])
                 if(show_plus):
-                    self.schematic.add(SchemDraw.elements.DOT, label=element.plus.node.name,
-                                       xy=plus_xy)
+                    plus_label = schematic_kwargs.pop('plus_label',{})
+                  
+                    self.schematic.add(SchemDraw.elements.DOT,
+                                       xy=schematic_element.start,
+                                       **plus_label)
                     
                 if(show_minus):
-                    self.schematic.add(SchemDraw.elements.DOT, label=element.minus.node.name,
-                                       xy=minus_xy)
+                    minus_label = schematic_kwargs.pop('minus_label',{})
+                    self.schematic.add(SchemDraw.elements.DOT, 
+                                       xy=schematic_element.end,
+                                       **minus_label)
                 #if(element.pins[1].node == self.get_node(0, False)):
                 #    self.schematic.add(SchemDraw.elements.GND)
                     
@@ -1192,6 +1193,7 @@ class SubCircuitFactory(SubCircuit):
 
     __name__ = None
     __nodes__ = None
+    __pins__ = None
 
     ##############################################
 

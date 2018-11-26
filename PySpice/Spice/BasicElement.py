@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ####################################################################################################
-from PySpice.Spice.ElementParameter import KeyValueParameter
 
 """This module implements SPICE circuit elements.
 
@@ -100,7 +99,8 @@ See Ngspice documentation for details.
 
 from ..Tools.StringTools import str_spice, join_list, join_dict
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
-from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
+from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement, 
+                      OptionalPin, Pin, PinDefinition)
 from .ElementParameter import (
     # KeyValueParameter,
     BoolKeyParameter,
@@ -168,6 +168,11 @@ class SubCircuitElement(NPinElement):
         #     parameter.__set__(self, value)
         #     self.optional_parameters[key] = parameter
         #     setattr(self, key, parameter)
+        
+        subcircuit = netlist._subcircuits.get(subcircuit_name)
+        
+        self._pins = [Pin(self, PinDefinition(position, name=subcircuit.__pins__[position]), netlist.get_node(node, True))
+                      for position, node in enumerate(nodes)]
         
         super().__init__(netlist, name, nodes, subcircuit_name, 
                          schematic_kwargs=schematic_kwargs)
