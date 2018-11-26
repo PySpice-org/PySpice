@@ -998,26 +998,26 @@ class Netlist:
             schematic = schematic_kwargs.pop('schematic', element.schematic)
             if(schematic):
                 element.schematic = schematic
-                label = schematic_kwargs.pop('label', element.name)
-                schematic_element = self.schematic.add(schematic, label=label,
+                #label = schematic_kwargs.pop('label', element.name)
+                schematic_element = self.schematic.add(schematic,
                                    **schematic_kwargs)
                 element.schematic_element = schematic_element
                 
-                show_plus = schematic_kwargs.pop('show_plus', False)
-                show_minus = schematic_kwargs.pop('show_minus', False)
+                show_start = schematic_kwargs.pop('show_start', False)
+                show_end = schematic_kwargs.pop('show_end', False)
                 
-                if(show_plus):
-                    plus_label = schematic_kwargs.pop('plus_label',{})
+                if(show_start):
+                    start_label = schematic_kwargs.pop('start_label',{})
                   
-                    self.schematic.add(SchemDraw.elements.DOT,
+                    self.schematic.add(SchemDraw.elements.DOT_OPEN,
                                        xy=schematic_element.start,
-                                       **plus_label)
+                                       **start_label)
                     
-                if(show_minus):
-                    minus_label = schematic_kwargs.pop('minus_label',{})
-                    self.schematic.add(SchemDraw.elements.DOT, 
+                if(show_end):
+                    end_label = schematic_kwargs.pop('end_label',{})
+                    self.schematic.add(SchemDraw.elements.DOT_OPEN, 
                                        xy=schematic_element.end,
-                                       **minus_label)
+                                       **end_label)
                 #if(element.pins[1].node == self.get_node(0, False)):
                 #    self.schematic.add(SchemDraw.elements.GND)
                     
