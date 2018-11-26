@@ -1007,11 +1007,16 @@ class Netlist:
                 
                 show_plus = schematic_kwargs.pop('show_plus', False)
                 show_minus = schematic_kwargs.pop('show_minus', False)
+                
+                minus_xy = schematic_kwargs.pop('minus_xy', [])
+                plus_xy = schematic_kwargs.pop('minus_xy', [])
                 if(show_plus):
-                    self.schematic.add(SchemDraw.elements.DOT, label=element.plus.node.name)
+                    self.schematic.add(SchemDraw.elements.DOT, label=element.plus.node.name,
+                                       xy=plus_xy)
                     
                 if(show_minus):
-                    self.schematic.add(SchemDraw.elements.DOT, label=element.minus.node.name)
+                    self.schematic.add(SchemDraw.elements.DOT, label=element.minus.node.name,
+                                       xy=minus_xy)
                 #if(element.pins[1].node == self.get_node(0, False)):
                 #    self.schematic.add(SchemDraw.elements.GND)
                     
