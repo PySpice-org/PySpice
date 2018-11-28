@@ -48,8 +48,8 @@ if sys.version_info < (3,4):
 
 ####################################################################################################
 
-exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
-
+#exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
+from setup_data import setup_dict
 ####################################################################################################
 
 setup_dict.update(dict(
@@ -83,6 +83,8 @@ setup_dict.update(dict(
         'numpy',
         'ply',
         'scipy',
+        'networkx',
+        'SchemDraw'
     ],
 ))
 

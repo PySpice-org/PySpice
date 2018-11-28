@@ -99,7 +99,8 @@ See Ngspice documentation for details.
 
 from ..Tools.StringTools import str_spice, join_list, join_dict
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
-from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
+from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement, 
+                      OptionalPin, Pin, PinDefinition)
 from .ElementParameter import (
     # KeyValueParameter,
     BoolKeyParameter,
@@ -115,6 +116,8 @@ from .ElementParameter import (
     IntKeyParameter,
     ModelPositionalParameter,
     )
+
+import SchemDraw as schem
 
 ####################################################################################################
 
@@ -153,12 +156,11 @@ class SubCircuitElement(NPinElement):
 
     ##############################################
 
-    def __init__(self, netlist, name, subcircuit_name, *nodes, **parameters):
+    def __init__(self, netlist, name, subcircuit_name, *nodes, **kwargs):
 
-        super().__init__(netlist, name, nodes, subcircuit_name)
-
+        schematic_kwargs = kwargs.pop('schematic_kwargs', {})
         # Fixme: match parameters to subcircuit
-        self.parameters = parameters
+        self.parameters = kwargs
 
         # Fixme: investigate
         # for key, value in parameters.items():
@@ -166,6 +168,14 @@ class SubCircuitElement(NPinElement):
         #     parameter.__set__(self, value)
         #     self.optional_parameters[key] = parameter
         #     setattr(self, key, parameter)
+        
+        subcircuit = netlist._subcircuits.get(subcircuit_name)
+        
+        self._pins = [Pin(self, PinDefinition(position, name=subcircuit.__pins__[position]), netlist.get_node(node, True))
+                      for position, node in enumerate(nodes)]
+        
+        super().__init__(netlist, name, nodes, subcircuit_name, 
+                         schematic_kwargs=schematic_kwargs)
 
     ##############################################
 
@@ -239,6 +249,8 @@ class Resistor(DipoleElement):
 
     __alias__ = 'R'
     __prefix__ = 'R'
+    
+    schematic = schem.elements.RES
 
     resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
     ac = FloatKeyParameter('ac', unit=U_Ω)
@@ -761,6 +773,8 @@ class VoltageSource(DipoleElement):
 
     __alias__ = 'V'
     __prefix__ = 'V'
+    
+    schematic = schem.elements.SOURCE_V
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_V)
