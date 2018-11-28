@@ -746,7 +746,7 @@ class Node:
             self._logger.warning("Node name '{}' is a Python keyword".format(name))
 
         self._netlist = netlist
-        self._name = str(name)
+        self._name = str(name).lower()
 
         self._pins = set()
 
@@ -1067,6 +1067,7 @@ class SubCircuit(Netlist):
 
         self._name = str(name)
         self._external_nodes = nodes
+        self._external_nodes = tuple([Node(self, str(node)) for node in nodes])
 
         # Fixme: ok ?
         self._ground = kwargs.get('ground', 0)
@@ -1111,12 +1112,20 @@ class SubCircuit(Netlist):
         """Check for dangling nodes in the subcircuit."""
 
         nodes = self._external_nodes
-        connected_nodes = set()
+        connected_nodes = dict()
+        connected_nodes.update([(node.name, False) for node in nodes])
         for element in self.elements:
-            connected_nodes.add(nodes & element.nodes)
-        not_connected_nodes = nodes - connected_nodes
+            for node in element.nodes:
+                node_name = node.name
+                if node_name in connected_nodes:
+                    connected_nodes[node_name] = True
+                else:
+                    connected_nodes[node_name] = False
+        not_connected_nodes = [node for node in connected_nodes
+                               if not connected_nodes[node]]
         if not_connected_nodes:
             raise NameError("SubCircuit Nodes {} are not connected".format(not_connected_nodes))
+
 
     ##############################################
 
