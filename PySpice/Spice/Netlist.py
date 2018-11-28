@@ -1066,7 +1066,6 @@ class SubCircuit(Netlist):
         super().__init__()
 
         self._name = str(name)
-        self._external_nodes = nodes
         self._external_nodes = tuple([Node(self, str(node)) for node in nodes])
 
         # Fixme: ok ?
