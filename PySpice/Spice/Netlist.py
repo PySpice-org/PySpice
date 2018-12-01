@@ -84,7 +84,6 @@ import os
 
 import networkx
 import SchemDraw
-import numpy as np
 
 ####################################################################################################
 
@@ -147,6 +146,7 @@ class DeviceModel:
     ##############################################
 
     def __init__(self, name, modele_type, **parameters):
+        self._include = None
 
         self._name = str(name)
         self._model_type = str(modele_type)
@@ -177,6 +177,16 @@ class DeviceModel:
     @property
     def parameters(self):
         return self._parameters.keys()
+
+    @property
+    def include(self):
+        """Include file"""
+        return self._include
+
+    @property
+    def is_included(self):
+        """is_included"""
+        return self._include is None
 
     ##############################################
 
@@ -1114,15 +1124,17 @@ class SubCircuit(Netlist):
     ##############################################
 
     def __init__(self, name, *nodes, **kwargs):
+        self._include = None
 
-        if len(set(nodes)) != len(nodes):
+        nodes_set = set(nodes)
+        if len(nodes_set) != len(nodes):
             raise ValueError("Duplicated nodes in {}".format(nodes))
 
         super().__init__()
 
         self._name = str(name)
         self._external_nodes = tuple([Node(self, str(node)) for node in nodes])
-
+        self.__pins__ = nodes
         # Fixme: ok ?
         self._ground = kwargs.get('ground', 0)
         if 'ground' in kwargs:
@@ -1158,6 +1170,16 @@ class SubCircuit(Netlist):
     def parameters(self):
         """Parameters"""
         return self._parameters
+
+    @property
+    def include(self):
+        """Include file"""
+        return self._include
+
+    @property
+    def is_included(self):
+        """is_included"""
+        return self._include is None
 
     ##############################################
 
@@ -1266,11 +1288,22 @@ class Circuit(Netlist):
     ##############################################
 
     def include(self, path):
+        from .Parser import SpiceParser
 
         """Include a file."""
 
         if path not in self._includes:
             self._includes.append(path)
+            parser = SpiceParser(path=path)
+            subcircuits = parser.subcircuits
+            for subcircuit in subcircuits:
+                subcircuit_def = subcircuit.build()
+                self.subcircuit(subcircuit_def)
+                self._subcircuits[subcircuit._name]._include = path
+            models = parser.models
+            for model in models:
+                self.model(model._name, model._model_type, **model._parameters)
+                self._models[model._name]._include = path
         else:
             self._logger.warn("Duplicated include")
 

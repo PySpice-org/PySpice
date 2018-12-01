@@ -35,7 +35,6 @@ import os
 
 ####################################################################################################
 
-from .BasicElement import SubCircuitElement, BipolarJunctionTransistor
 from .ElementParameter import FlagParameter
 from .Netlist import ElementParameterMetaClass, NPinElement, Circuit, SubCircuit
 
@@ -388,7 +387,7 @@ class SubCircuitStatement(Statement):
 
     def build(self, ground=0):
 
-        subcircuit = SubCircuit(self._name, self._nodes)
+        subcircuit = SubCircuit(self._name, *self._nodes)
         SpiceParser._build_circuit(subcircuit, self._statements, ground)
         return subcircuit
 
