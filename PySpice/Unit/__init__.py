@@ -205,7 +205,7 @@ def _build_as_unit_shortcut(unit):
     define_shortcut(name, shortcut)
 
 def _exec_body(ns, unit_prefix):
-    ns['__power__'] = unit_prefix
+    ns['_power_'] = unit_prefix
 
 def _build_unit_prefix_shortcut(unit, unit_prefix):
     name = 'u_' + str(unit_prefix) + unit.unit_suffix

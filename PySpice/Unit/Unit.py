@@ -51,7 +51,7 @@ class UnitPrefixMetaclass(type):
 
     """Metaclass to register unit prefixes"""
 
-    __prefixes__ = {} # singletons
+    _prefixes_ = {} # singletons
 
     ##############################################
 
@@ -67,22 +67,22 @@ class UnitPrefixMetaclass(type):
     @classmethod
     def register_prefix(meta, cls):
 
-        power = cls.__power__
+        power = cls._power_
         if power is None:
             raise ValueError('Power is None for {}'.format(cls.__name__))
-        meta.__prefixes__[power] = cls()
+        meta._prefixes_[power] = cls()
 
     ##############################################
 
     @classmethod
     def prefix_iter(cls):
-        return cls.__prefixes__.values()
+        return cls._prefixes_.values()
 
     ##############################################
 
     @classmethod
     def get(cls, power):
-        return cls.__prefixes__[power]
+        return cls._prefixes_[power]
 
 ####################################################################################################
 
@@ -90,51 +90,51 @@ class UnitPrefix(metaclass=UnitPrefixMetaclass):
 
     """This class implements a unit prefix like kilo"""
 
-    __power__ = None
-    __prefix__ = ''
+    _power_ = None
+    _prefix_ = ''
 
     ##############################################
 
     def __repr__(self):
-        return '{}({}, {})'.format(self.__class__.__name__, self.__power__, self.__prefix__)
+        return '{}({}, {})'.format(self.__class__.__name__, self._power_, self._prefix_)
 
     ##############################################
 
     def __int__(self):
-        return self.__power__
+        return self._power_
 
     ##############################################
 
     def __str__(self):
-        return self.__prefix__
+        return self._prefix_
 
     ##############################################
 
     @property
     def power(self):
-        return self.__power__
+        return self._power_
 
     @property
     def prefix(self):
-        return self.__prefix__
+        return self._prefix_
 
     @property
     def is_unit(self):
-        return self.__power__ == 0
+        return self._power_ == 0
 
     @property
     def scale(self):
-        return 10**self.__power__
+        return 10**self._power_
 
     ##############################################
 
     @property
     def spice_prefix(self):
 
-        if hasattr(self, '__spice_prefix__'):
-            return self.__spice_prefix__
+        if hasattr(self, '_spice_prefix_'):
+            return self._spice_prefix_
         else:
-            return self.__prefix__
+            return self._prefix_
 
     ##############################################
 
@@ -147,25 +147,25 @@ class UnitPrefix(metaclass=UnitPrefixMetaclass):
 
     def __eq__(self, other):
 
-        return self.__power__ == other.__power__
+        return self._power_ == other._power_
 
     ##############################################
 
     def __ne__(self, other):
 
-        return self.__power__ != other.__power__
+        return self._power_ != other._power_
 
     ##############################################
 
     def __lt__(self, other):
 
-        return self.__power__ < other.__power__
+        return self._power_ < other._power_
 
     ##############################################
 
     def __gt__(self, other):
 
-        return self.__power__ > other.__power__
+        return self._power_ > other._power_
 
     ##############################################
 
@@ -174,14 +174,14 @@ class UnitPrefix(metaclass=UnitPrefixMetaclass):
         if spice:
             return self.spice_prefix
         else:
-            return self.__prefix__
+            return self._prefix_
 
 ####################################################################################################
 
 class ZeroPower(UnitPrefix):
-    __power__ = 0
-    __prefix__ = ''
-    __spice_prefix__ = ''
+    _power_ = 0
+    _prefix_ = ''
+    _spice_prefix_ = ''
 
 _zero_power = UnitPrefixMetaclass.get(0)
 
@@ -405,8 +405,8 @@ class UnitMetaclass(type):
 
     """Metaclass to register units"""
 
-    __units__ = {}
-    __hash_map__ = {}
+    _units_ = {}
+    _hash_map_ = {}
 
     ##############################################
 
@@ -422,14 +422,14 @@ class UnitMetaclass(type):
     @classmethod
     def init_unit(meta, cls):
 
-        si_unit = cls.__si_unit__
+        si_unit = cls._si_unit_
         if not (isinstance(si_unit, SiDerivedUnit) and si_unit):
             # si_unit is not defined
             if cls.is_base_unit():
-                si_unit = SiDerivedUnit(cls.__unit_suffix__)
+                si_unit = SiDerivedUnit(cls._unit_suffix_)
             else: # str
                 si_unit = SiDerivedUnit(si_unit)
-            cls.__si_unit__ = si_unit
+            cls._si_unit_ = si_unit
 
     ##############################################
 
@@ -437,20 +437,20 @@ class UnitMetaclass(type):
     def register_unit(meta, cls):
 
         obj = cls()
-        meta.__units__[obj.unit_suffix] = obj
+        meta._units_[obj.unit_suffix] = obj
 
         if obj.si_unit:
             hash_ = obj.si_unit.hash
-            if hash_ in meta.__hash_map__:
-                meta.__hash_map__[hash_].append(obj)
+            if hash_ in meta._hash_map_:
+                meta._hash_map_[hash_].append(obj)
             else:
-                meta.__hash_map__[hash_] = [obj]
+                meta._hash_map_[hash_] = [obj]
 
     ##############################################
 
     @classmethod
     def unit_iter(meta):
-        return meta.__units__.values()
+        return meta._units_.values()
 
     ##############################################
 
@@ -462,7 +462,7 @@ class UnitMetaclass(type):
 
     @classmethod
     def from_hash(meta, hash_):
-        return meta.__hash_map__.get(hash_, None)
+        return meta._hash_map_.get(hash_, None)
 
     ##############################################
 
@@ -475,7 +475,7 @@ class UnitMetaclass(type):
         #      define unit, format as V^2
         #  - complex unit
 
-        units = meta.__hash_map__.get(si_unit.hash, None)
+        units = meta._hash_map_.get(si_unit.hash, None)
         if unique and units is not None:
             if len(units) > 1:
                 units = [unit for unit in units if unit.is_default_unit()]
@@ -500,11 +500,11 @@ class Unit(metaclass=UnitMetaclass):
     """This class implements a unit.
     """
 
-    __unit_name__ = ''
-    __unit_suffix__ = ''
-    __quantity__ = ''
-    __si_unit__ = SiDerivedUnit()
-    __default_unit__ = False
+    _unit_name_ = ''
+    _unit_suffix_ = ''
+    _quantity_ = ''
+    _si_unit_ = SiDerivedUnit()
+    _default_unit_ = False
     # __spice_suffix__ = ''
 
     _logger = _module_logger.getChild('Unit')
@@ -513,12 +513,12 @@ class Unit(metaclass=UnitMetaclass):
 
     def __init__(self, si_unit=None):
 
-        self._unit_name = self.__unit_name__
-        self._unit_suffix = self.__unit_suffix__
-        self._quantity = self.__quantity__
+        self._unit_name = self._unit_name_
+        self._unit_suffix = self._unit_suffix_
+        self._quantity = self._quantity_
 
         if si_unit is None:
-            self._si_unit = self.__si_unit__
+            self._si_unit = self._si_unit_
         else:
             self._si_unit = si_unit
 
@@ -556,7 +556,7 @@ class Unit(metaclass=UnitMetaclass):
 
     @classmethod
     def is_default_unit(cls):
-        return cls.__default_unit__
+        return cls._default_unit_
 
     @classmethod
     def is_base_unit(cls):
@@ -713,11 +713,11 @@ class PrefixedUnit:
     """This class implements a prefixed unit.
     """
 
-    __unit_map__ = {} # Prefixed unit singletons
-    __prefixed_unit_map__ = {}
+    _unit_map_ = {} # Prefixed unit singletons
+    _prefixed_unit_map_ = {}
 
-    __value_ctor__ = None
-    __values_ctor__ = None
+    _value_ctor_ = None
+    _values_ctor_ = None
 
     ##############################################
 
@@ -728,22 +728,22 @@ class PrefixedUnit:
         if unit_prefix.is_unit and unit.is_default_unit():
             key = unit.si_unit.hash
             # print('Register', key, prefixed_unit)
-            cls.__unit_map__[key] = prefixed_unit
+            cls._unit_map_[key] = prefixed_unit
         if unit.unit_suffix:
             unit_key = str(unit)
         else:
             unit_key = '_'
         power_key = unit_prefix.power
         # print('Register', unit_key, power_key, prefixed_unit)
-        if unit_key not in cls.__prefixed_unit_map__:
-            cls.__prefixed_unit_map__[unit_key] = {}
-        cls.__prefixed_unit_map__[unit_key][power_key] = prefixed_unit
+        if unit_key not in cls._prefixed_unit_map_:
+            cls._prefixed_unit_map_[unit_key] = {}
+        cls._prefixed_unit_map_[unit_key][power_key] = prefixed_unit
 
     ##############################################
 
     @classmethod
     def from_si_unit(cls, si_unit):
-        return cls.__unit_map__.get(si_unit.hash, None)
+        return cls._unit_map_.get(si_unit.hash, None)
 
     ##############################################
 
@@ -757,7 +757,7 @@ class PrefixedUnit:
                 return _simple_prefixed_unit
             unit_key = '_'
         try:
-            return cls.__prefixed_unit_map__[unit_key][power]
+            return cls._prefixed_unit_map_[unit_key][power]
         except KeyError:
             return None
 
@@ -775,12 +775,12 @@ class PrefixedUnit:
             self._power = power
 
         if value_ctor is None:
-            self._value_ctor = self.__value_ctor__
+            self._value_ctor = self._value_ctor_
         else:
             self._value_ctor = value_ctor
 
         if values_ctor is None:
-            self._values_ctor = self.__values_ctor__
+            self._values_ctor = self._values_ctor_
         else:
             self._values_ctor = values_ctor
 
@@ -2004,7 +2004,7 @@ class UnitValues(np.ndarray):
 ####################################################################################################
 
 # Reset
-PrefixedUnit.__value_ctor__ = UnitValue
+PrefixedUnit._value_ctor_ = UnitValue
 
 _simple_prefixed_unit = PrefixedUnit()
 
