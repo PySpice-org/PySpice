@@ -34,7 +34,7 @@ from PySpice.Unit import *
 
 class VoltageDivider(SubCircuitFactory):
     __name__ = 'VoltageDivider'
-    __nodes__ = ('input', 'output_plus', 'output_minus')
+    _nodes_ = ('input', 'output_plus', 'output_minus')
     def __init__(self):
         super().__init__()
         self.R(1, 'input', 'output_plus', 9@u_kΩ)
