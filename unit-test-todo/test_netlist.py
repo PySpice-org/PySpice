@@ -1,5 +1,5 @@
-from PySpice.Netlist import SubCircuit, Circuit
-from PySpice.Units import *
+from PySpice.Spice.Netlist import SubCircuit, Circuit
+from PySpice.Unit import *
 
 subcircuit_1N4148 = SubCircuit('1N4148', 1, 2)
 subcircuit_1N4148.R('1', 1, 2, 5.827E+9)
