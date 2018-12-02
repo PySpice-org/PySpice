@@ -158,7 +158,7 @@ class SubCircuitElement(NPinElement):
 
     def __init__(self, netlist, name, subcircuit_name, *nodes, **kwargs):
 
-        schematic_kwargs = kwargs.pop('schematic_kwargs', {})
+        schematic_kwargs = kwargs.pop('schematic', {})
         # Fixme: match parameters to subcircuit
         self.parameters = kwargs
 
@@ -171,11 +171,11 @@ class SubCircuitElement(NPinElement):
         
         subcircuit = netlist._subcircuits.get(subcircuit_name)
         
-        self._pins = [Pin(self, PinDefinition(position, name=subcircuit.__pins__[position]), netlist.get_node(node, True))
+        self._pins = [Pin(self, PinDefinition(position, name=subcircuit._pins_[position]), netlist.get_node(node, True))
                       for position, node in enumerate(nodes)]
         
-        super().__init__(netlist, name, nodes, subcircuit_name, 
-                         schematic_kwargs=schematic_kwargs)
+        super().__init__(netlist, name, subcircuit_name,
+                         schematic=schematic_kwargs)
 
     ##############################################
 

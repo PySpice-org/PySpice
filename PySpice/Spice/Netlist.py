@@ -269,6 +269,11 @@ class OptionalPin:
 
 ####################################################################################################
 
+
+def schematic(**kwargs):
+        return kwargs
+
+
 class Pin(PinDefinition):
 
     """This class implements a pin of an element. It stores a reference to the element, the name of the
@@ -501,6 +506,7 @@ class ElementParameterMetaClass(type):
 
 ####################################################################################################
 
+
 class Element(metaclass=ElementParameterMetaClass):
 
     """This class implements a base class for an element.
@@ -544,10 +550,10 @@ class Element(metaclass=ElementParameterMetaClass):
             elif key in self._positional_parameters_ or key in self._optional_parameters_:
                 setattr(self, key, value)
 
-        schematic_kwargs = kwargs.pop('schematic_kwargs', {})
-        self.schematic_kwargs = schematic_kwargs
+        schematic = kwargs.pop('schematic', {})
+        self._schematic = schematic
 
-        netlist._add_element(self, **schematic_kwargs)
+        netlist._add_element(self, **schematic)
 
     ##############################################
 
@@ -1125,7 +1131,7 @@ class SubCircuit(Netlist):
     ##############################################
 
     def __init__(self, name, *nodes, **kwargs):
-        self._include = None
+        self._included = None
 
         nodes_set = set(nodes)
         if len(nodes_set) != len(nodes):
@@ -1135,7 +1141,7 @@ class SubCircuit(Netlist):
 
         self._name = str(name)
         self._external_nodes = tuple([Node(self, str(node)) for node in nodes])
-        self.__pins__ = nodes
+        self._pins_ = nodes
         # Fixme: ok ?
         self._ground = kwargs.get('ground', 0)
         if 'ground' in kwargs:
@@ -1173,14 +1179,14 @@ class SubCircuit(Netlist):
         return self._parameters
 
     @property
-    def include(self):
+    def included(self):
         """Include file"""
-        return self._include
+        return self._included
 
     @property
     def is_included(self):
         """is_included"""
-        return self._include is None
+        return self._included is None
 
     ##############################################
 
@@ -1223,14 +1229,14 @@ class SubCircuit(Netlist):
 class SubCircuitFactory(SubCircuit):
 
     __name__ = None
-    __nodes__ = None
-    __pins__ = None
+    _nodes_ = None
+    _pins_ = None
 
     ##############################################
 
     def __init__(self, **kwargs):
 
-        super().__init__(self.__name__, *self.__nodes__, **kwargs)
+        super().__init__(self.__name__, *self._nodes_, **kwargs)
 
 ####################################################################################################
 
@@ -1300,11 +1306,11 @@ class Circuit(Netlist):
             for subcircuit in subcircuits:
                 subcircuit_def = subcircuit.build()
                 self.subcircuit(subcircuit_def)
-                self._subcircuits[subcircuit._name]._include = path
+                self._subcircuits[subcircuit._name]._included = path
             models = parser.models
             for model in models:
                 self.model(model._name, model._model_type, **model._parameters)
-                self._models[model._name]._include = path
+                self._models[model._name]._included = path
         else:
             self._logger.warn("Duplicated include")
 
