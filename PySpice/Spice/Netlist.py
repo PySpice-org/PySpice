@@ -862,6 +862,8 @@ class Netlist:
         self._elements = OrderedDict() # to keep the declaration order
         self._models = {}
         self._includes = [] # .include
+        self._used_models = set()
+        self._used_subcircuits = set()
 
         self.raw_spice = ''
 
@@ -1007,7 +1009,14 @@ class Netlist:
         """Add an element."""
         if element.name not in self._elements:
             self._elements[element.name] = element
-            
+            if hasattr(element, 'model'):
+                model = element.model
+                self._used_models.add(model)
+
+            if hasattr(element, 'subcircuit_name'):
+                subcircuit_name = element.subcircuit_name
+                self._used_subcircuits.add(subcircuit_name)
+
             if len(element.nodes) == 2:
                 self.graph.add_edge(element.nodes[0], element.nodes[1],
                                     x=element, name=element.name)
