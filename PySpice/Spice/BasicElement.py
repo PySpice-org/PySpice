@@ -152,7 +152,7 @@ class SubCircuitElement(NPinElement):
     __alias__ = 'X'
     _prefix_ = 'X'
 
-    subcircuit_name = ElementNamePositionalParameter(position=0, key_parameter=False)
+    subcircuit_name = ElementNamePositionalParameter(position=0, key_parameter=False).lower()
 
     ##############################################
 
