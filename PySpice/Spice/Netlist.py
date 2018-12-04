@@ -861,6 +861,7 @@ class Netlist:
         self._subcircuits = OrderedDict() # to keep the declaration order
         self._elements = OrderedDict() # to keep the declaration order
         self._models = {}
+        self._includes = [] # .include
 
         self.raw_spice = ''
 
@@ -1122,6 +1123,26 @@ class Netlist:
             netlist += os.linesep
         return netlist
 
+    def include(self, path):
+        from .Parser import SpiceParser
+
+        """Include a file."""
+
+        if path not in self._includes:
+            self._includes.append(path)
+            parser = SpiceParser(path=path)
+            subcircuits = parser.subcircuits
+            for subcircuit in subcircuits:
+                subcircuit_def = subcircuit.build()
+                self.subcircuit(subcircuit_def)
+                self._subcircuits[subcircuit._name]._included = path
+            models = parser.models
+            for model in models:
+                self.model(model._name, model._model_type, **model._parameters)
+                self._models[model._name]._included = path
+        else:
+            self._logger.warn("Duplicated include")
+
 ####################################################################################################
 
 class SubCircuit(Netlist):
@@ -1266,7 +1287,6 @@ class Circuit(Netlist):
         self.title = str(title)
         self._ground = ground
         self._global_nodes = set(global_nodes) # .global
-        self._includes = [] # .include
         self._parameters = {} # .param
 
         # Fixme: not implemented
@@ -1293,26 +1313,6 @@ class Circuit(Netlist):
         return circuit
 
     ##############################################
-
-    def include(self, path):
-        from .Parser import SpiceParser
-
-        """Include a file."""
-
-        if path not in self._includes:
-            self._includes.append(path)
-            parser = SpiceParser(path=path)
-            subcircuits = parser.subcircuits
-            for subcircuit in subcircuits:
-                subcircuit_def = subcircuit.build()
-                self.subcircuit(subcircuit_def)
-                self._subcircuits[subcircuit._name]._included = path
-            models = parser.models
-            for model in models:
-                self.model(model._name, model._model_type, **model._parameters)
-                self._models[model._name]._included = path
-        else:
-            self._logger.warn("Duplicated include")
 
     ##############################################
 
