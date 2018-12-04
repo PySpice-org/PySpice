@@ -38,7 +38,7 @@ def str_spice(obj, unit=True):
         else: # Fixme: ok ???
             return obj.str(spice=False, space=False, unit=False)
     else:
-        return str(obj)
+        return str(obj).lower()
 
 ####################################################################################################
 

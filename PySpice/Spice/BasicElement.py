@@ -152,7 +152,7 @@ class SubCircuitElement(NPinElement):
     __alias__ = 'X'
     _prefix_ = 'X'
 
-    subcircuit_name = ElementNamePositionalParameter(position=0, key_parameter=False).lower()
+    subcircuit_name = ElementNamePositionalParameter(position=0, key_parameter=False)
 
     ##############################################
 
@@ -327,7 +327,7 @@ class SemiconductorResistor(DipoleElement):
     schematic = schem.elements.RES
 
     resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
-    model = ModelPositionalParameter(position=1, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=1, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
     width = FloatKeyParameter('w', unit=U_m)
     temperature = FloatKeyParameter('temp', unit=U_Degree)
@@ -431,7 +431,7 @@ class Capacitor(DipoleElement):
     schematic = schem.elements.CAP
 
     capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_F)
-    model = ModelPositionalParameter(position=1, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=1, key_parameter=True)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
     temperature = FloatKeyParameter('temp', unit=U_Degree)
@@ -502,7 +502,7 @@ class SemiconductorCapacitor(DipoleElement):
     schematic = schem.elements.CAP
 
     capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_F)
-    model = ModelPositionalParameter(position=1, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=1, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
     width = FloatKeyParameter('w', unit=U_m)
     multiplier = IntKeyParameter('m')
@@ -605,7 +605,7 @@ class Inductor(DipoleElement):
     schematic = schem.elements.INDUCTOR2
 
     inductance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_H)
-    model = ModelPositionalParameter(position=1, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=1, key_parameter=True)
     nt = FloatKeyParameter('nt')
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
@@ -724,7 +724,7 @@ class VoltageControlledSwitch(TwoPortElement):
     __long_alias__ = 'VCS'
     _prefix_ = 'S'
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     initial_state = InitialStatePositionalParameter(position=1, key_parameter=True)
 
 ####################################################################################################
@@ -762,7 +762,7 @@ class CurrentControlledSwitch(DipoleElement):
     _prefix_ = 'W'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=True)
-    model = ModelPositionalParameter(position=1, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=1, key_parameter=True)
     initial_state = InitialStatePositionalParameter(position=2, key_parameter=True)
 
 ####################################################################################################
@@ -1148,7 +1148,7 @@ class Diode(FixedPinElement):
 
     schematic = schem.elements.DIODE_F
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
     multiplier = IntKeyParameter('m')
     pj = FloatKeyParameter('pj')
@@ -1225,7 +1225,7 @@ class BipolarJunctionTransistor(FixedPinElement):
     _prefix_ = 'Q'
     _pins_ = ('collector', 'base', 'emitter', OptionalPin('substrate'))
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
     areac = FloatKeyParameter('areac')
     areab = FloatKeyParameter('areab')
@@ -1287,7 +1287,7 @@ class JunctionFieldEffectTransistor(JfetElement):
     __long_alias__ = 'JFET'
     _prefix_ = 'J'
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
     multiplier = IntKeyParameter('m')
     off = FlagParameter('off')
@@ -1338,7 +1338,7 @@ class Mesfet(JfetElement):
     __long_alias__ = 'MESFET'
     _prefix_ = 'Z'
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
     multiplier = IntKeyParameter('m')
     off = FlagParameter('off')
@@ -1437,7 +1437,7 @@ class Mosfet(FixedPinElement):
     _prefix_ = 'M'
     _pins_ = ('drain', 'gate', 'source', ('bulk', 'substrate'))
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     multiplier = IntKeyParameter('m')
     length = FloatKeyParameter('l', unit=U_m)
     width = FloatKeyParameter('w', unit=U_m)
@@ -1539,7 +1539,7 @@ class LossyTransmission(TwoPortElement):
     __alias__ = 'O'
     _prefix_ = 'O'
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
 
 ####################################################################################################
 
@@ -1568,7 +1568,7 @@ class CoupledMulticonductorLine(NPinElement):
     __alias__ = 'P'
     _prefix_ = 'P'
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('len', unit=U_m)
 
     ##############################################
@@ -1608,7 +1608,7 @@ class UniformDistributedRCLine(FixedPinElement):
     _prefix_ = 'U'
     _pins_ = ('output', 'input', 'capacitance_node')
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
     number_of_lumps = IntKeyParameter('n')
 
@@ -1641,7 +1641,7 @@ class SingleLossyTransmissionLine(TwoPortElement):
     __alias__ = 'Y'
     _prefix_ = 'Y'
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('len', unit=U_m)
 
 ####################################################################################################
@@ -1683,7 +1683,7 @@ class XSpiceElement(NPinElement):
     __alias__ = 'A'
     _prefix_ = 'A'
 
-    model = ModelPositionalParameter(position=0, key_parameter=True).lower()
+    model = ModelPositionalParameter(position=0, key_parameter=True)
 
     ##############################################
 
