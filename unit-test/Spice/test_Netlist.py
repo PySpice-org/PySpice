@@ -178,6 +178,17 @@ R1 in out 9kOhm
         self.assertEqual(model['is'], 1)
         self.assertEqual(str(model), '.model Diode D (is=1 rs=2)')
 
+    def test_transformer(self):
+        import os
+        from PySpice.Spice.Netlist import Circuit
+        circuit = Circuit('Diode Characteristic Curve')
+        circuit.L('primary', 'Vlp', 'Vdrain', '{l_trf}')
+        circuit.C('resonance', 'Vlv', 'Vdrain', '{cap_r}')
+        circuit.L('secondary', 'Vls', 'ghv', '{Ls}')
+        circuit.R('secondary', 'Vls', 1, 5.15)
+        circuit.K('flyback', 'Lprimary', 'Lsecondary', 1)
+
+
 ####################################################################################################
 
 if __name__ == '__main__':
