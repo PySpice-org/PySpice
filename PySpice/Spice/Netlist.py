@@ -148,7 +148,7 @@ class DeviceModel:
     def __init__(self, name, modele_type, **parameters):
         self._include = None
 
-        self._name = str(name)
+        self._name = str(name).lower()
         self._model_type = str(modele_type)
 
         self._parameters = {}
@@ -1011,11 +1011,13 @@ class Netlist:
             self._elements[element.name] = element
             if hasattr(element, 'model'):
                 model = element.model
-                self._used_models.add(model)
+                if model is not None:
+                    self._used_models.add(str(model).lower())
 
             if hasattr(element, 'subcircuit_name'):
                 subcircuit_name = element.subcircuit_name
-                self._used_subcircuits.add(subcircuit_name)
+                if subcircuit_name is not None:
+                    self._used_subcircuits.add(str(subcircuit_name).lower())
 
             if len(element.nodes) == 2:
                 self.graph.add_edge(element.nodes[0], element.nodes[1],
@@ -1066,7 +1068,7 @@ class Netlist:
 
         """Add a model."""
 
-        model = DeviceModel(name, modele_type, **parameters)
+        model = DeviceModel(str(name).lower(), modele_type, **parameters)
         if model.name not in self._models:
             self._models[model.name] = model
         else:
@@ -1093,8 +1095,10 @@ class Netlist:
         # Fixme: order ???
         netlist = self._str_raw_spice()
         netlist += self._str_subcircuits() # before elements
-        netlist += self._str_elements()
+        netlist += "\n"
         netlist += self._str_models()
+        netlist += "\n"
+        netlist += self._str_elements()
 
         return netlist
 
@@ -1108,18 +1112,18 @@ class Netlist:
     ##############################################
 
     def _str_models(self):
-
-        if self._models:
-            return join_lines(self.models) + os.linesep
+        if self._used_models:
+            models = [self._models[model] for model in self._used_models]
+            return join_lines(models) + os.linesep
         else:
             return ''
 
     ##############################################
 
     def _str_subcircuits(self):
-
-        if self._subcircuits:
-            return join_lines(self.subcircuits)
+        if self._used_subcircuits:
+            subcircuits = [self._subcircuits[subcircuit] for subcircuit in self._used_subcircuits]
+            return join_lines(subcircuits)
         else:
             return ''
 
@@ -1169,7 +1173,7 @@ class SubCircuit(Netlist):
 
         super().__init__()
 
-        self._name = str(name)
+        self._name = str(name).lower()
         self._external_nodes = tuple([Node(self, str(node)) for node in nodes])
         self._pins_ = nodes
         # Fixme: ok ?
@@ -1341,7 +1345,8 @@ class Circuit(Netlist):
         #     raise NameError("Circuit don't have ground node")
 
         netlist = self._str_title()
-        netlist += self._str_includes(simulator)
+        netlist = "\n"
+        # netlist += self._str_includes(simulator)
         netlist += self._str_globals()
         netlist += self._str_parameters()
         netlist += super().__str__()

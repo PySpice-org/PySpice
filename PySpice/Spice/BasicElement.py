@@ -168,7 +168,8 @@ class SubCircuitElement(NPinElement):
         #     parameter.__set__(self, value)
         #     self.optional_parameters[key] = parameter
         #     setattr(self, key, parameter)
-        
+
+        subcircuit_name = subcircuit_name.lower()
         subcircuit = netlist._subcircuits.get(subcircuit_name)
         
         self._pins = [Pin(self, PinDefinition(position, name=subcircuit._pins_[position]), netlist.get_node(node, True))

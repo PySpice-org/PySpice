@@ -284,6 +284,7 @@ class Model(Statement):
         else:
             self._name, self._model_type = text[:kwarg_start].split()
             self._parameters = Line.get_kwarg(text[kwarg_start+1:kwarg_stop])
+        self._name = self._name.lower()
 
     ##############################################
 
@@ -333,6 +334,7 @@ class SubCircuitStatement(Statement):
         # Fixme
         parameters, dict_parameters = self._line.split_line('.subckt')
         self._name, self._nodes = parameters[0], parameters[1:]
+        self._name = self._name.lower()
 
         self._statements = []
 
