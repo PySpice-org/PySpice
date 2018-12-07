@@ -43,22 +43,22 @@ class TestBasicElement(unittest.TestCase):
     def test(self):
 
         self._test_spice_declaration(Resistor(Circuit(''), '1', 'n1', 'n2', 100),
-                                     'R1 n1 n2 100')
+                                     'R1 n1 n2 100'.lower())
         self._test_spice_declaration(Resistor(Circuit(''), '1', 'n1', 'n2', kilo(1)),
-                                     'R1 n1 n2 1k')
+                                     'R1 n1 n2 1k'.lower())
         self._test_spice_declaration(Resistor(Circuit(''), '1', 'n1', 'n2', kilo(1),
                                               ac=kilo(2),
                                               multiplier=2,
                                               scale=1.5,
                                               temperature=25, device_temperature=26,
                                               noisy=True),
-                                     'R1 n1 n2 1k ac=2k dtemp=26 m=2 noisy=1 scale=1.5 temp=25')
+                                     'R1 n1 n2 1k ac=2k dtemp=26 m=2 noisy=1 scale=1.5 temp=25'.lower())
         self._test_spice_declaration(Resistor(Circuit(''), '1', 'n1', 'n2', kilo(1),
                                               noisy=False),
-                                     'R1 n1 n2 1k')
+                                     'R1 n1 n2 1k'.lower())
 
         self._test_spice_declaration(XSpiceElement(Circuit(''), '1', 1, 0, model='cap'),
-                                     'A1 1 0 cap')
+                                     'A1 1 0 cap'.lower())
 
 ####################################################################################################
 

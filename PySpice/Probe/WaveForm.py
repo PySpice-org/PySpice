@@ -37,7 +37,7 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-from PySpice.Unit.Unit import UnitValues
+from PySpice.Unit.Unit import UnitValues, UnitValue
 
 ####################################################################################################
 
@@ -65,6 +65,7 @@ class WaveForm(UnitValues):
     @classmethod
     def from_unit_values(cls, name, array, title=None, abscissa=None):
 
+        shape = array.shape
         obj = cls(
             name,
             array.prefixed_unit,
@@ -133,7 +134,10 @@ class WaveForm(UnitValues):
         # self._logger.info("result\n{}".format(result))
 
         if isinstance(result, UnitValues):
-            return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
+            if len(result.shape) == 0:
+                return UnitValue(result.prefixed_unit, result)
+            else:
+                return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
         else:
             return result # e.g. foo <= 0
 
@@ -298,7 +302,7 @@ class Analysis:
         try:
             return self._get_item(name)
         except IndexError:
-            return self._get_item(name.lower())
+            return self._get_item(str(name).lower())
 
     ##############################################
 
@@ -307,19 +311,6 @@ class Analysis:
 
         return os.linesep.join([' '*2 + str(x) for x in d])
 
-    ##############################################
-
-    def __getattr__(self, name):
-
-        try:
-            return self.__getitem__(name)
-        except IndexError:
-            raise AttributeError(name + os.linesep +
-                                 'Nodes :' + os.linesep + self._format_dict(self._nodes) + os.linesep +
-                                 'Branches :' + os.linesep + self._format_dict(self._branches) + os.linesep +
-                                 'Elements :' + os.linesep + self._format_dict(self._elements) + os.linesep +
-                                 'Internal Parameters :' + os.linesep + self._format_dict(self._internal_parameters)
-            )
 
 ####################################################################################################
 

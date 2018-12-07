@@ -151,11 +151,7 @@ class DeviceModel:
         self._name = str(name).lower()
         self._model_type = str(modele_type)
 
-        self._parameters = {}
-        for key, value in parameters.items():
-            if key.endswith('_'):
-                key = key[:-1]
-            self._parameters[key] = value
+        self._parameters = parameters.copy()
 
     ##############################################
 
@@ -191,18 +187,12 @@ class DeviceModel:
     ##############################################
 
     def __getitem__(self, name):
-
         return self._parameters[name]
 
     ##############################################
 
-    def __getattr__(self, name):
-
-        try:
-            return self._parameters[name]
-        except KeyError:
-            if name.endswith('_'):
-                return self._parameters[name[:-1]]
+    #def __getattr__(self, name):
+    #    return super(DeviceModel, self).__getattr__('_parameter')[name]
 
     ##############################################
 
@@ -947,12 +937,12 @@ class Netlist:
 
     ##############################################
 
-    def __getattr__(self, attribute_name):
+    #def __getattr__(self, attribute_name):
 
-        try:
-            return self.__getitem__(attribute_name)
-        except IndexError:
-            raise AttributeError(attribute_name)
+    #    try:
+    #        return self.__getitem__(attribute_name)
+    #    except IndexError:
+    #        raise AttributeError(attribute_name)
 
     ##############################################
 
@@ -1094,10 +1084,14 @@ class Netlist:
 
         # Fixme: order ???
         netlist = self._str_raw_spice()
-        netlist += self._str_subcircuits() # before elements
-        netlist += "\n"
-        netlist += self._str_models()
-        netlist += "\n"
+        subcircuits = self._str_subcircuits()
+        if subcircuits:
+            netlist +=  subcircuits# before elements
+            netlist += os.linesep
+        models = self._str_models()
+        if models:
+            netlist += models
+            netlist += os.linesep
         netlist += self._str_elements()
 
         return netlist
@@ -1345,7 +1339,7 @@ class Circuit(Netlist):
         #     raise NameError("Circuit don't have ground node")
 
         netlist = self._str_title()
-        netlist = "\n"
+        netlist += os.linesep
         # netlist += self._str_includes(simulator)
         netlist += self._str_globals()
         netlist += self._str_parameters()

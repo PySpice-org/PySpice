@@ -840,7 +840,7 @@ class PrefixedUnit:
 
         """self == other"""
 
-        return self.is_same_unit(other) and self.is_same_power(other)
+        return (self._unit == other.unit) and (self._power == other.power)
 
     ##############################################
 
@@ -1602,6 +1602,7 @@ class UnitValues(np.ndarray):
         np.logical_xor:   CONVERSION.UNIT_MATCH,
         np.logical_not:   CONVERSION.UNIT_MATCH,
 
+        np.mean:          CONVERSION.UNIT_MATCH,
         np.maximum:       CONVERSION.UNIT_MATCH,
         np.minimum:       CONVERSION.UNIT_MATCH,
         np.fmax:          CONVERSION.UNIT_MATCH,
@@ -1612,7 +1613,7 @@ class UnitValues(np.ndarray):
         np.isfinite:  CONVERSION.NOT_IMPLEMENTED, # ! _T
         np.isinf:     CONVERSION.NOT_IMPLEMENTED, # ! _T
         np.isnan:     CONVERSION.NOT_IMPLEMENTED, # ! _T
-        np.fabs:      CONVERSION.NOT_IMPLEMENTED, # ! _
+        # np.fabs:      CONVERSION.NOT_IMPLEMENTED, # ! _
         np.signbit:   CONVERSION.NOT_IMPLEMENTED, # ! _T
         np.copysign:  CONVERSION.NOT_IMPLEMENTED, # !
         np.nextafter: CONVERSION.NOT_IMPLEMENTED, # !
@@ -1620,7 +1621,7 @@ class UnitValues(np.ndarray):
         np.modf:      CONVERSION.NOT_IMPLEMENTED, # !
         np.ldexp:     CONVERSION.NOT_IMPLEMENTED, # !
         np.frexp:     CONVERSION.NOT_IMPLEMENTED, # !
-        np.fmod:      CONVERSION.NOT_IMPLEMENTED, # !
+        # np.fmod:      CONVERSION.NOT_IMPLEMENTED, # !
         np.floor:     CONVERSION.NOT_IMPLEMENTED, # !
         np.ceil:      CONVERSION.NO_CONVERSION,
         np.trunc:     CONVERSION.NO_CONVERSION,
@@ -1745,19 +1746,24 @@ class UnitValues(np.ndarray):
                     for input_ in inputs]
         #
         elif conversion in (self.CONVERSION.UNIT_MATCH, self.CONVERSION.UNIT_MATCH_NO_OUT_CAST):
-            # len(inputs) == 2
-            other = inputs[1]
-            if isinstance(other, (UnitValues, UnitValue)):
-                self._check_unit(other)
-                args.append(self.as_ndarray())
-                nd_other = self._convert_value(other)
-                if isinstance(other, UnitValues):
-                    nd_other = nd_other.as_ndarray()
-                elif isinstance(other, UnitValue):
-                    nd_other = float(nd_other)
-                args.append(nd_other)
+            if len(inputs) == 1:
+                prefixed_unit = self._prefixed_unit
+                args.append(self.as_ndarray(True))
+            elif len(inputs) == 2:
+                other = inputs[1]
+                if isinstance(other, (UnitValues, UnitValue)):
+                    self._check_unit(other)
+                    args.append(self.as_ndarray())
+                    nd_other = self._convert_value(other)
+                    if isinstance(other, UnitValues):
+                        nd_other = nd_other.as_ndarray()
+                    elif isinstance(other, UnitValue):
+                        nd_other = float(nd_other)
+                    args.append(nd_other)
+                else:
+                    raise ValueError
             else:
-                raise ValueError
+                raise NotImplementedError
         #
         elif conversion == self.CONVERSION.NEW_UNIT:
             if len(inputs) == 1:
@@ -1827,11 +1833,16 @@ class UnitValues(np.ndarray):
         # Cast results
         if conversion in (self.CONVERSION.FLOAT, self.CONVERSION.UNIT_MATCH_NO_OUT_CAST):
             # Fixme: ok ???
-            results = tuple(( result if output is None else output )
+            results = tuple((result if output is None else output)
                             for result, output in zip(results, outputs))
         else:
-            results = tuple(( UnitValues.from_ndarray(np.asarray(result), prefixed_unit) if output is None else output )
-                            for result, output in zip(results, outputs))
+            value = np.asarray(results[0])
+            if len(value.shape) == 1 and value.shape[0] == 1:
+                results = (UnitValue(value[0], prefixed_unit),)
+            else:
+                results = tuple((UnitValues.from_ndarray(np.asarray(result), prefixed_unit)
+                                 if output is None else output)
+                                for result, output in zip(results, outputs))
 
         # list or scalar
         return results[0] if len(results) == 1 else results
@@ -1856,9 +1867,9 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def __getitem__(self, _slice):
+    def __getitem__(self, slice_):
 
-        value = super(UnitValues, self).__getitem__(_slice)
+        value = super(UnitValues, self).__getitem__(slice_)
 
         if isinstance(value, UnitValue): # slice
             return value
@@ -1867,7 +1878,7 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def __setitem__(self, _slice, value):
+    def __setitem__(self, slice_, value):
 
         if isinstance(value, UnitValue):
             self._check_unit(value)
@@ -1876,10 +1887,29 @@ class UnitValues(np.ndarray):
             self._check_unit(value)
             value = self._convert_value(value)
 
-        super(UnitValues, self).__setitem__(_slice, value)
+        super(UnitValues, self).__setitem__(slice_, value)
 
     ##############################################
 
+    def __getstate__(self):
+        return {'data': super(UnitValues, self).__getstate__(),
+                'prefixed_unit': self._prefixed_unit
+                }
+
+    ##############################################
+
+    def __reduce__(self):
+        np_ret = super(UnitValues, self).__reduce__()
+        obj_state = np_ret[2]
+        unit_state = ((self._prefixed_unit,) + obj_state[:],)
+        new_ret = np_ret[:2] + unit_state + np_ret[3:]
+        return new_ret
+
+    def __setstate__(self, state):
+        super(UnitValues, self).__setstate__(state[1:])
+        self._prefixed_unit = state[0]
+
+    ##############################################
     def __contains__(self, value):
 
         raise NotImplementedError
@@ -1912,8 +1942,7 @@ class UnitValues(np.ndarray):
     ##############################################
 
     def is_same_unit(self, other):
-
-        return self._prefixed_unit.is_same_unit(other.prefixed_unit)
+        return self._prefixed_unit == other.prefixed_unit
 
     ##############################################
 
@@ -2005,6 +2034,7 @@ class UnitValues(np.ndarray):
 
 # Reset
 PrefixedUnit._value_ctor_ = UnitValue
+PrefixedUnit._values_ctor_ = UnitValues
 
 _simple_prefixed_unit = PrefixedUnit()
 
