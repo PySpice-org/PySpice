@@ -353,6 +353,11 @@ class PieceWiseLinearMixin(SourceMixinAbc):
     delay time time = td. The current source still needs to be patched, td and r are not yet
     available.
 
+    `values` should be given as a list of (`Time`, `Value`)-tuples, e.g.::
+
+        PieceWiseLinearVoltageSource(Circuit(''), 'inpwl1', '1', '0',
+            values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)])
+
     """
 
     ##############################################
