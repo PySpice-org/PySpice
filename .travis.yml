@@ -8,3 +8,4 @@ install:
 
 script:
     - python unit-test/Spice/test_BasicElement.py
+    - python unit-test/Spice/test_HighLevelElement.py
