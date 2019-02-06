@@ -361,7 +361,7 @@ class PieceWiseLinearMixin(SourceMixinAbc):
 
         # Fixme: default
 
-        self.values = [self.__as_unit__(x) for x in values]
+        self.values = sum(([as_s(t), self.__as_unit__(x)] for (t, x) in values), [])
         self.repeate_time = as_s(repeate_time)
         self.delay_time = as_s(delay_time)
 
@@ -371,7 +371,7 @@ class PieceWiseLinearMixin(SourceMixinAbc):
 
         # Fixme: to func?
         return ('PWL(' +
-                join_list(self.values) +
+                join_list(self.values) + ' ' +
                 join_dict({'r':self.repeate_time, 'td':self.delay_time}) + # OrderedDict(
                 ')')
 
