@@ -65,5 +65,5 @@ def join_list(items):
 
 def join_dict(d):
     return ' '.join(["{}={}".format(key, str_spice(value))
-                     for key, value in d.items()
+                     for key, value in sorted(d.items())
                      if value is not None])
