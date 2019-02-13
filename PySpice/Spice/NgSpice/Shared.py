@@ -421,8 +421,9 @@ class NgSpiceShared:
 
         try:
             self._simulation_type = EnumFactory('SimulationType', SIMULATION_TYPE[self._ngspice_version])
-        except KeyError:
+        except KeyError as e:
             self._logger.error("Unsupported Ngspice version {}".format(self._ngspice_version))
+
         self._type_to_unit = {
             self._simulation_type.time: u_s,
             self._simulation_type.voltage: u_V,
