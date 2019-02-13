@@ -32,7 +32,7 @@ if pyspice_path.name == 'conf.py':
 else:
     pyspice_path = pyspice_path.parent
 init_path = pyspice_path.joinpath('PySpice', '__init__.py')
-with open(init_path) as fh:
+with open(str(init_path)) as fh:
     try:
         version = re.findall(r"^__version__ = '([^']+)'\r?$", fh.read(), re.M)[0]
     except IndexError:
