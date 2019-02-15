@@ -119,6 +119,19 @@ from .ElementParameter import (
 
 import SchemDraw as schem
 
+def _non_linear_source_parser_(args):
+    value = 'value'
+    table = 'table'
+    expression = None
+    table = None
+    value_idx = 2
+    if value in args[value_idx]:
+        if args[value_idx+1] == '=':
+            value_idx += 1
+        expression = ''.join(args[value_idx:])
+        table = None
+    return expression, table
+
 ####################################################################################################
 
 class DipoleElement(FixedPinElement):
@@ -1031,6 +1044,9 @@ class NonLinearVoltageSource(DipoleElement):
     __alias__ = 'NonLinearVoltageSource'
     _prefix_ = 'E'
 
+    value = ExpressionKeyParameter('value')
+    table = ExpressionKeyParameter('table')
+
     schematic = schem.elements.SOURCE_V
 
     ##############################################
@@ -1052,6 +1068,8 @@ class NonLinearVoltageSource(DipoleElement):
             # TABLE {expression} = (x0, y0) (x1, y1) ...
             table = ['({}, {})'.format(str_spice(x), str_spice(y)) for x, y in self.table]
             spice_element += ' TABLE {%s} = %s' % (self.expression, join_list(table))
+        else:
+            spice_element += ' VALUE={%s}' % (self.expression)
         return spice_element
 
 ####################################################################################################

@@ -1,0 +1,161 @@
+***
+*$
+*  UCC27211 Model
+*****************************************************************************
+*  (C) Copyright 2011 Texas Instruments Incorporated. All rights reserved.
+*****************************************************************************
+** This model is designed as an aid for customers of Texas Instruments.
+** TI and its licensors and suppliers make no warrenties, either expressed
+** or implied, with respect to this model, including the warranties of 
+** merchantability or fitness for a particular purpose.  The model is
+** provided solely on an "as is" basis.  The entire risk as to its quality
+** and performance is with the customer
+*****************************************************************************
+*
+** Released by: Analog eLab Design Center, Texas Instruments Inc.
+* Part: UCC27211
+* Date: 11/16/2011
+* Model Type: TRANSIENT
+* Simulator: PSPICE
+* Simulator Version: 16.0.0.p001
+* EVM Order Number: None
+* EVM Users Guide: None
+* Datasheet: SLUSAT7 - November 2011
+*
+* Model Version: Final 1.00
+*
+*****************************************************************************
+*
+* Updates:
+*
+* Final 1.00
+* Release to Web.
+*
+*****************************************************************************
+* source UCC27211
+.SUBCKT UCC27211
++ HB
++ HI
++ HO
++ HS
++ LI
++ LO
++ VDD
++ VSS
+C_U7_C4 HS HO 1pF
+E_U7_E1 U7_N208620 HO 
++ VALUE { IF(V(U7_N208706, 0) > 0.5, 5, -5) }
+C_U7_C3 HO U7_N208506 20p
+C_U7_C5 HO HB 1pF
+R_U7_R4 HB U7_N208424 .2
+M_U7_M1 U7_N208424 U7_N208506 HO HO NMOS01
++ L=10u
++ W=10u
+M_U7_M2 U7_N208826 U7_N208506 HO HO PMOS01
+R_U7_R5 U7_N208826 HS .2
+R_U7_R3 U7_N208506 U7_N208620 100
+C_U7_C1 U7_N208506 U7_N208424 7p
+C_U7_C2 U7_N208826 U7_N208506 7p
+X_U7_U1 H_DRV U7_N208706 DELAY PARAMS: RINP=1K DELAY=16n
+C_U8_C4 VSS LO 1pF
+E_U8_E1 U8_N208620 LO 
++ VALUE { IF(V(U8_N208706, 0) > 0.5, 5, -5) }
+C_U8_C3 LO U8_N208506 20p
+C_U8_C5 LO VDD 1pF
+R_U8_R4 VDD U8_N208424 .2
+M_U8_M1 U8_N208424 U8_N208506 LO LO NMOS01
++ L=10u
++ W=10u
+M_U8_M2 U8_N208826 U8_N208506 LO LO PMOS01
+R_U8_R5 U8_N208826 VSS .2
+R_U8_R3 U8_N208506 U8_N208620 100
+C_U8_C1 U8_N208506 U8_N208424 7p
+C_U8_C2 U8_N208826 U8_N208506 7p
+X_U8_U1 L_DRV U8_N208706 DELAY PARAMS: RINP=1K DELAY=16n
+G_U3_G1 HB HS H_ENB 0 65u
+V_U3_V1 U3_N00585 HS 6.7Vdc
+V_U3_V2 U3_N00613 0 1.1Vdc
+X_U3_U1 H_ENB HB U3_N00585 U3_N00613 COMP_BOB
+R_U1_R1 VSS HI 70k
+C_U1_C1 VSS HI 2p
+X_U1_U1 H_INP HI U1_N02053 U1_N02141 COMP_BOB
+R_U1_R2 VSS VDD 1G
+V_U1_V1 U1_N02053 VSS 2.3Vdc
+V_U1_V2 U1_N02141 0 0.7Vdc
+G_U4_G1 VDD VSS L_ENB 0 80u
+V_U4_V1 U4_N00415 VSS 7.0Vdc
+V_U4_V2 U4_N00435 0 0.5Vdc
+X_U4_U1 L_ENB VDD U4_N00415 U4_N00435 COMP_BOB
+R_U2_R1 VSS LI 70k
+C_U2_C1 VSS LI 2p
+X_U2_U1 L_INP LI U2_N02053 U2_N02141 COMP_BOB
+R_U2_R2 VSS VDD 1G
+V_U2_V1 U2_N02053 VSS 2.3Vdc
+V_U2_V2 U2_N02141 0 0.7Vdc
+X_U6 L_INP L_ENB L_DRV AND2
+D_D1 VDD HB DIODE01
+X_U5 H_ENB H_INP L_ENB H_DRV AND3
+.ENDS UCC27211
+*$
+.model PMOS01 PMOS
++ VTO = -1
++ KP = 0.46
++ LAMBDA = 0.001
++ RS = 1m
+*$
+.model NMOS01 NMOS
++ VTO = 3
++ KP = 2.25
++ LAMBDA = 0.001
++ RS = 1m
+*$
+.model DIODE01 D
++ IS = 1.038e-15
++ N = 1
++ TT = 20e-9
++ CJO = 5e-12
++ RS = 0.50
++ BV = 130
+*$
+.SUBCKT DELAY INP OUT PARAMS: RINP = 1k DELAY = 10n
+R1 INP 101 {RINP}
+C1 101 102 { 1.4427 * DELAY / RINP }
+E1 102 0 OUT 0 0.5
+E2 103 0 VALUE {IF(V(101) > 0.5, 1, 0)}
+R2 103 OUT 1
+C2 OUT 0 1n
+.ENDS DELAY
+*$
+.SUBCKT AND2 A B Y
+EINT YINT 0 VALUE {IF(V(A) > 0.5 & V(B) > 0.5, 1, 0)}
+RINT YINT Y 1
+CINT Y 0 1n
+.ENDS AND2
+*$
+.SUBCKT AND3 A B C Y
+EINT YINT 0 
++ VALUE {IF(V(A) > 0.5 & V(B) > 0.5 & V(C) > 0.5, 1, 0)}
+RINT YINT Y 1
+CINT Y 0 1n
+.ENDS AND3
+*$
+.SUBCKT BUF_BOB A Y VDD VSS PARAMS: VTHRESH = 0.5
+EINT YINT 0 VALUE {IF(V(A) > { VTHRESH }, V(VDD), V(VSS))}
+RINT YINT Y 1
+CINT Y VSS 1n
+.ENDS BUF_BOB
+*$
+.SUBCKT INV_BOB A Y VDD VSS PARAMS: VTHRESH = 0.5
+EINT YINT 0 VALUE {IF(V(A) < { VTHRESH }, V(VDD), V(VSS))}
+RINT YINT Y 1
+CINT Y VSS 1n
+.ENDS INV_BOB
+*$
+.SUBCKT COMP_BOB Y VINP VINN VHYS
+EINT YINT 0 
++ VALUE { MAX(0, MIN(1, 1000*(5e-4 + V(Y)*V(VHYS) + V(VINP) - V(VINN)))) }
+RINT YINT Y 1
+CINT Y 0 1n
+.ENDS COMP_BOB
+*$
+
