@@ -537,9 +537,14 @@ class Element(metaclass=ElementParameterMetaClass):
         for key, value in kwargs.items():
             if key == 'raw_spice':
                 self.raw_spice = value
-            elif key in self._positional_parameters_ or key in self._optional_parameters_:
-                setattr(self, key, value)
-
+            else:
+                if key in self._positional_parameters_ or key in self._optional_parameters_:
+                    setattr(self, key, value)
+                else:
+                    for parameter in self._optional_parameters_:
+                        if key.lower() == self._optional_parameters_[parameter].spice_name.lower():
+                            setattr(self, parameter, value)
+                            break
         schematic = kwargs.pop('schematic', {})
         self._schematic = schematic
 
