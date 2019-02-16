@@ -465,7 +465,7 @@ class Element(Statement):
                     if kwarg in ('off',) and prefix_data.has_flag:
                         self._dict_parameters['off'] = True
                     else:
-                        self._logger.warn(line_str)
+                        self._logger.warning(line_str)
                         # raise NameError('Bad element line:', line_str)
 
         if prefix_data.multi_devices:
@@ -663,7 +663,12 @@ class Line:
         line_str = self._text
         number_of_words_read = 0
         while number_of_words_read < number_of_words: # and start_location < len(line_str)
-            stop_location = line_str.find(' ', start_location)
+            if line_str[start_location] == '{':
+                stop_location = line_str.find('}', start_location)
+                if stop_location > start_location:
+                    stop_location += 1
+            else:
+                stop_location = line_str.find(' ', start_location)
             if stop_location == -1:
                 stop_location = None # read until end
             word = line_str[start_location:stop_location].strip()
@@ -705,8 +710,19 @@ class Line:
 
         line_str = line_str[start_location:stop_location]
         words = [x for x in line_str.split(' ') if x]
-
-        return words, stop_location
+        result = []
+        expression = 0
+        begin_idx = 0
+        for idx, word in enumerate(words):
+            if expression == 0:
+                begin_idx = idx
+            expression += word.count('{') - word.count('}')
+            if expression == 0:
+                if begin_idx < idx:
+                    result.append(' '.join(words[begin_idx:idx+1]))
+                else:
+                    result.append(word)
+        return result, stop_location
 
     ##############################################
 
