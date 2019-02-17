@@ -315,6 +315,114 @@ class Model(Statement):
 
 ####################################################################################################
 
+class CircuitStatement(Statement):
+
+    """ This class implements a circuit definition.
+
+    Spice syntax::
+
+        Title ...
+
+    """
+
+    ##############################################
+
+    def __init__(self, title):
+
+        super().__init__(title, statement='title')
+
+        title_statement = '.title '
+        self._title = str(title)
+        if self._title.startswith(title_statement):
+            self._title = self._title[len(title_statement):]
+
+        self._statements = []
+        self._subcircuits = []
+        self._models = []
+
+    ##############################################
+
+    @property
+    def title(self):
+        """ Title of the circuit. """
+        return self._title
+
+    @property
+    def models(self):
+        """ Models of the circuit. """
+        return self._models
+
+    @property
+    def subcircuits(self):
+        """ Subcircuits of the circuit. """
+        return self._subcircuits
+
+    ##############################################
+
+    def __repr__(self):
+
+        text = 'Circuit {}'.format(self._title) + os.linesep
+        text += os.linesep.join([repr(model) for model in self._models]) + os.linesep
+        text += os.linesep.join([repr(subcircuit) for subcircuit in self._subcircuits]) + os.linesep
+        text += os.linesep.join(['  ' + repr(statement) for statement in self._statements])
+        return text
+
+    ##############################################
+
+    def __iter__(self):
+
+        """ Return an iterator on the statements. """
+
+        return iter(self._models + self._subcircuits + self._statements)
+
+    ##############################################
+
+    def append(self, statement):
+
+        """ Append a statement to the statement's list. """
+
+        self._statements.append(statement)
+
+    def appendModel(self, statement):
+
+        """ Append a model to the statement's list. """
+
+        self._models.append(statement)
+
+    def appendSubCircuit(self, statement):
+
+        """ Append a model to the statement's list. """
+
+        self._subcircuits.append(statement)
+
+    ##############################################
+
+    def to_python(self, ground=0):
+
+        subcircuit_name = 'subcircuit_' + self._name
+        args = self.values_to_python([subcircuit_name] + self._nodes)
+        source_code = ''
+        source_code += '{} = SubCircuit({})'.format(subcircuit_name, self.join_args(args)) + os.linesep
+        source_code += SpiceParser.netlist_to_python(subcircuit_name, self, ground)
+        return source_code
+
+    ##############################################
+
+    def build(self, ground=0):
+        circuit = Circuit(self._title)
+        for statement in self._models:
+            statement.build(circuit)
+        for statement in self._subcircuits:
+            subckt = statement.build(ground)  # Fixme: ok ???
+            circuit.subcircuit(subckt)
+        for statement in self._statements:
+            if isinstance(statement, Element):
+                statement.build(circuit, ground)
+        return circuit
+
+
+####################################################################################################
+
 class SubCircuitStatement(Statement):
 
     """ This class implements a sub-circuit definition.
@@ -333,10 +441,15 @@ class SubCircuitStatement(Statement):
 
         # Fixme
         parameters, dict_parameters = self._line.split_line('.subckt')
+        if parameters[-1].lower() == 'params:':
+            parameters = parameters[:-1]
         self._name, self._nodes = parameters[0], parameters[1:]
         self._name = self._name.lower()
+        self._parameters = dict_parameters
 
         self._statements = []
+        self._subcircuits = []
+        self._models = []
 
     ##############################################
 
@@ -350,11 +463,26 @@ class SubCircuitStatement(Statement):
         """ Nodes of the sub-circuit. """
         return self._nodes
 
+    @property
+    def models(self):
+        """ Models of the sub-circuit. """
+        return self._models
+
+    @property
+    def subcircuits(self):
+        """ Subcircuits of the sub-circuit. """
+        return self._subcircuits
+
     ##############################################
 
     def __repr__(self):
 
-        text = 'SubCircuit {} {}'.format(self._name, self._nodes) + os.linesep
+        if self._parameters:
+            text = 'SubCircuit {} {} Params: {}'.format(self._name, self._nodes, self._parameters) + os.linesep
+        else:
+            text = 'SubCircuit {} {}'.format(self._name, self._nodes) + os.linesep
+        text += os.linesep.join([repr(model) for model in self._models]) + os.linesep
+        text += os.linesep.join([repr(subcircuit) for subcircuit in self._subcircuits]) + os.linesep
         text += os.linesep.join(['  ' + repr(statement) for statement in self._statements])
         return text
 
@@ -364,7 +492,7 @@ class SubCircuitStatement(Statement):
 
         """ Return an iterator on the statements. """
 
-        return iter(self._statements)
+        return iter(self._models + self._subcircuits + self._statements)
 
     ##############################################
 
@@ -373,6 +501,18 @@ class SubCircuitStatement(Statement):
         """ Append a statement to the statement's list. """
 
         self._statements.append(statement)
+
+    def appendModel(self, statement):
+
+        """ Append a model to the statement's list. """
+
+        self._models.append(statement)
+
+    def appendSubCircuit(self, statement):
+
+        """ Append a model to the statement's list. """
+
+        self._subcircuits.append(statement)
 
     ##############################################
 
@@ -389,8 +529,15 @@ class SubCircuitStatement(Statement):
 
     def build(self, ground=0):
 
-        subcircuit = SubCircuit(self._name, *self._nodes)
-        SpiceParser._build_circuit(subcircuit, self._statements, ground)
+        subcircuit = SubCircuit(self._name, *self._nodes, **self._parameters)
+        for statement in self._models:
+            statement.build(subcircuit)
+        for statement in self._subcircuits:
+            subckt = statement.build(ground)  # Fixme: ok ???
+            subcircuit.subcircuit(subckt)
+        for statement in self._statements:
+            if isinstance(statement, Element):
+                statement.build(subcircuit, ground)
         return subcircuit
 
 ####################################################################################################
@@ -439,12 +586,14 @@ class Element(Statement):
                 # Fixme: optional node
             else: # X
                 args, stop_location = self._line.split_words(stop_location, until='=')
+                if args[-1].lower() == 'params:':
+                    args = args[:-1]
                 self._nodes = args[:-1]
                 self._parameters.append(args[-1]) # model name
 
         # Read positionals
         number_of_positionals = prefix_data.number_of_positionals_min
-        if number_of_positionals and stop_location is not None: # model is optional
+        if number_of_positionals and (stop_location is not None) and (prefix_data.prefix != 'X'): # model is optional
             self._parameters, stop_location = self._line.read_words(stop_location, number_of_positionals)
         if prefix_data.multi_devices and stop_location is not None:
             remaining, stop_location = self._line.split_words(stop_location, until='=')
@@ -455,7 +604,7 @@ class Element(Statement):
             self._parameters[-1] += line_str[stop_location:]
 
         # Read optionals
-        if prefix_data.has_optionals and stop_location is not None:
+        if (prefix_data.has_optionals or (prefix_data.prefix == 'X')) and stop_location is not None:
             kwargs, stop_location = self._line.split_words(stop_location)
             for kwarg in kwargs:
                 try:
@@ -834,7 +983,6 @@ class SpiceParser:
         lines = self._merge_lines(raw_lines)
         self._title = None
         self._statements = self._parse(lines)
-        self._find_sections()
 
     ##############################################
 
@@ -878,14 +1026,9 @@ class SpiceParser:
         # if lines[-1] != '.end':
         #     raise NameError('".end" is expected at the end of the netlist')
 
-        title_statement = '.title '
-        self._title = str(lines[0])
-        if self._title.startswith(title_statement):
-            self._title = self._title[len(title_statement):]
-
-        statements = []
-        sub_circuit = None
-        scope = statements
+        circuit = CircuitStatement(lines[0])
+        stack = []
+        scope = circuit
         for line in lines[1:]:
             # print('>', repr(line))
             text = str(line)
@@ -895,12 +1038,12 @@ class SpiceParser:
             elif lower_case_text.startswith('.'):
                 lower_case_text = lower_case_text[1:]
                 if lower_case_text.startswith('subckt'):
-                    sub_circuit = SubCircuitStatement(line)
-                    statements.append(sub_circuit)
-                    scope = sub_circuit
+                    stack.append(scope)
+                    scope = SubCircuitStatement(line)
                 elif lower_case_text.startswith('ends'):
-                    sub_circuit = None
-                    scope = statements
+                    parent = stack.pop()
+                    parent.appendSubCircuit(scope)
+                    scope = parent
                 elif lower_case_text.startswith('title'):
                     # override fist line
                     self._title = Title(line)
@@ -909,7 +1052,7 @@ class SpiceParser:
                     pass
                 elif lower_case_text.startswith('model'):
                     model = Model(line)
-                    scope.append(model)
+                    scope.appendModel(model)
                 elif lower_case_text.startswith('include'):
                     scope.append(Include(line))
                 else:
@@ -927,27 +1070,24 @@ class SpiceParser:
                 except ParseError:
                     pass
 
-        return statements
+        return circuit
 
     ##############################################
 
-    def _find_sections(self):
+    @property
+    def circuit(self):
+        """ Circuit statements. """
+        return self._statements
 
-        """ Look for model, sub-circuit and circuit definitions in the statement list. """
+    @property
+    def models(self):
+        """ Models of the sub-circuit. """
+        return self._statements.models
 
-        self.circuit = None
-        self.subcircuits = []
-        self.models = []
-        for statement in self._statements:
-            if isinstance(statement, Title):
-                if self.circuit is None:
-                    self.circuit = statement
-                else:
-                    raise NameError('More than one title')
-            elif isinstance(statement, SubCircuitStatement):
-                self.subcircuits.append(statement)
-            elif isinstance(statement, Model):
-                self.models.append(statement)
+    @property
+    def subcircuits(self):
+        """ Subcircuits of the sub-circuit. """
+        return self._statements.subcircuits
 
     ##############################################
 
@@ -989,8 +1129,8 @@ class SpiceParser:
 
         """
 
-        circuit = Circuit(str(self._title))
-        self._build_circuit(circuit, self._statements, ground)
+        #circuit = Circuit(str(self._title))
+        circuit = self.circuit.build(ground)
         return circuit
 
     ##############################################
