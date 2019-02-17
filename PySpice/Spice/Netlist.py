@@ -1143,15 +1143,15 @@ class Netlist:
         if path not in self._includes:
             self._includes.append(path)
             parser = SpiceParser(path=path)
+            models = parser.models
+            for model in models:
+                self.model(model._name, model._model_type, **model._parameters)
+                self._models[model._name]._included = path
             subcircuits = parser.subcircuits
             for subcircuit in subcircuits:
                 subcircuit_def = subcircuit.build()
                 self.subcircuit(subcircuit_def)
                 self._subcircuits[subcircuit._name]._included = path
-            models = parser.models
-            for model in models:
-                self.model(model._name, model._model_type, **model._parameters)
-                self._models[model._name]._included = path
         else:
             self._logger.warn("Duplicated include")
 
