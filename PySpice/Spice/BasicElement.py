@@ -119,19 +119,6 @@ from .ElementParameter import (
 
 import SchemDraw as schem
 
-def _non_linear_source_parser_(args):
-    value = 'value'
-    table = 'table'
-    expression = None
-    table = None
-    value_idx = 2
-    if value in args[value_idx]:
-        if args[value_idx+1] == '=':
-            value_idx += 1
-        expression = ''.join(args[value_idx:])
-        table = None
-    return expression, table
-
 ####################################################################################################
 
 class DipoleElement(FixedPinElement):
@@ -1016,6 +1003,7 @@ class BehavioralSource(DipoleElement):
     tc2 = FloatKeyParameter('tc2')
     temperature = FloatKeyParameter('temp', unit=U_Degree)
     device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    smoothbsrc = IntKeyParameter('smoothbsrc')
 
 ####################################################################################################
 
@@ -1046,6 +1034,7 @@ class NonLinearVoltageSource(DipoleElement):
 
     value = ExpressionKeyParameter('value')
     table = ExpressionKeyParameter('table')
+    smoothbsrc = ExpressionKeyParameter('smoothbsrc')
 
     schematic = schem.elements.SOURCE_V
 
