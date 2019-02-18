@@ -1,3 +1,4 @@
+* Ideal mos driver
 .SUBCKT mosdriver
 + HB
 + HI
