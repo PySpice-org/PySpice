@@ -1,0 +1,23 @@
+.SUBCKT mosdriver
++ HB
++ HI
++ HO
++ HS
++ LI
++ LO
++ VDD
++ VSS
+
+.model diode D
++ is = 1.038e-15
++ n = 1
++ tt = 20e-9
++ cjo = 5e-12
++ rs = 0.50
++ bv = 130
+
+bhigh ho hs v={if(v(hi, vss) > 0.5, v(hb, vss), 0)}
+blow lo vss v={if(v(li, vss) > 0.5, v(vdd, vss), 0)}
+dhb vdd hb diode
+
+.ENDS mosdriver
