@@ -1005,6 +1005,31 @@ class BehavioralSource(DipoleElement):
     device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
     smoothbsrc = IntKeyParameter('smoothbsrc')
 
+    ##############################################
+
+    def __str__(self):
+
+        spice_element = self.format_node_names()
+        # Fixme: expression
+        if self.current_expression is not None:
+            expression = ' i=%s' % self.current_expression
+        elif self.voltage_expression is not None:
+            expression = ' v=%s' % self.voltage_expression
+        else:
+            expression = ''
+        spice_element += expression
+        if self.tc1 is not None:
+            spice_element += ' tc1=%f' % self.tc1
+        if self.tc2 is not None:
+            spice_element += ' tc2=%f' % self.tc2
+        if self.temperature is not None:
+            spice_element += ' temp=%f' % self.temperature
+        if self.device_temperature is not None:
+            spice_element += ' dtemp=%f' % self.device_temperature
+        if self.smoothbsrc is not None:
+            spice_element += ' smoothbsrc=%s' % self.smoothbsrc
+        return spice_element
+
 ####################################################################################################
 
 class NonLinearVoltageSource(DipoleElement):
