@@ -30,7 +30,7 @@ setuptools_available = True
 
 ####################################################################################################
 
-if sys.version_info < (3, 8):
+if sys.version_info < (3, 6):
     sys.stderr.write('WARNING: PySpice requires Python 3.5 ...\n')
     sys.exit(1)
 
