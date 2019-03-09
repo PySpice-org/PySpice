@@ -17,6 +17,7 @@ MANIFEST
 .pytest_cache/
 .tox/
 PySpice.egg-info/
+PySpice/__init__.py
 build/
 dist/
 doc/sphinx/build/
