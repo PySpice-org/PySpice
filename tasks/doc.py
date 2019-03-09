@@ -28,30 +28,41 @@ from invoke import task
  # import sys
 
 from .clean import flycheck as _clean_flycheck
+from .release import update_git_sha as _update_git_sha
 
 ####################################################################################################
 
 PYSPICE_SOURCE_PATH = Path(__file__).resolve().parents[1]
 
+SPHINX_PATH = PYSPICE_SOURCE_PATH.joinpath('doc', 'sphinx')
+BUILD_PATH = SPHINX_PATH.joinpath('build')
+SOURCE_PATH = SPHINX_PATH.joinpath('source')
+API_PATH = SOURCE_PATH.joinpath('api')
+EXAMPLES_PATH = SOURCE_PATH.joinpath('examples')
+
 ####################################################################################################
 
 @task
 def clean_build(ctx):
-    ctx.run('rm -rf doc/sphinx/build')
+    # ctx.run('rm -rf {}'.format(BUILD_PATH))
+    if BUILD_PATH.exists():
+        shutil.rmtree(BUILD_PATH)
 
 @task
 def clean_api(ctx):
-    ctx.run('rm -rf doc/sphinx/source/api')
+    # ctx.run('rm -rf {}'.format(API_PATH))
+    if API_PATH.exists():
+        shutil.rmtree(API_PATH)
 
 ####################################################################################################
 
-@task(_clean_flycheck, clean_api)
+@task(_update_git_sha, _clean_flycheck, clean_api)
 def make_api(ctx):
     print('\nGenerate RST API files')
     ctx.run('pyterate-rst-api {0.Package}'.format(ctx))
     print('\nRun Sphinx')
     with ctx.cd('doc/sphinx/'):
-        ctx.run('./make-html') #--clean
+        ctx.run('make-html') #--clean
 
 ####################################################################################################
 
@@ -59,9 +70,8 @@ def make_api(ctx):
 def make_examples(ctx, clean=False, no_html=False, force=False):
 
     # Regenerate from scratch
-    if clean:
-        rst_path = PYSPICE_SOURCE_PATH.joinpath('doc', 'sphinx', 'source', 'examples')
-        shutil.rmtree(str(rst_path))
+    if clean and EXAMPLES_PATH.exists():
+        shutil.rmtree(EXAMPLES_PATH)
 
     # pyterate --skip-external-figure --skip-figure
     # PYTHONPATH=$PWD/examples/:${PYTHONPATH}
