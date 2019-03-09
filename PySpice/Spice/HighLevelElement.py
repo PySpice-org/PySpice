@@ -353,6 +353,14 @@ class PieceWiseLinearMixin(SourceMixinAbc):
     delay time time = td. The current source still needs to be patched, td and r are not yet
     available.
 
+    `values` should be given as a list of (`Time`, `Value`)-tuples, e.g.::
+
+        PieceWiseLinearVoltageSource(
+            circuit,
+            'pwl1', '1', '0',
+            values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
+        )
+
     """
 
     ##############################################
@@ -361,7 +369,7 @@ class PieceWiseLinearMixin(SourceMixinAbc):
 
         # Fixme: default
 
-        self.values = [self.__as_unit__(x) for x in values]
+        self.values = sum(([as_s(t), self.__as_unit__(x)] for (t, x) in values), [])
         self.repeate_time = as_s(repeate_time)
         self.delay_time = as_s(delay_time)
 
@@ -372,6 +380,7 @@ class PieceWiseLinearMixin(SourceMixinAbc):
         # Fixme: to func?
         return ('PWL(' +
                 join_list(self.values) +
+                ' ' +
                 join_dict({'r':self.repeate_time, 'td':self.delay_time}) + # OrderedDict(
                 ')')
 
