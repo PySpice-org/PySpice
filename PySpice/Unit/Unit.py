@@ -31,7 +31,7 @@ A shortcut is defined for each unit prefix, e.g. :class:`pico`, :class:`nano`, :
 
 import logging
 
-import collections
+import collections.abc as collections
 import math
 # import numbers
 
