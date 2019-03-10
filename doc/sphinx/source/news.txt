@@ -8,7 +8,7 @@
 V1.3.0 (development release)
 ----------------------------
 
-V1.2.0 (production release) 2018-02-xx
+V1.2.0 (production release) 2018-06-07
 --------------------------------------
 
  * Initial support of the |Xyce|_ simulator.  Xyce is an open source, SPICE-compatible,
