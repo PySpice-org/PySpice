@@ -517,8 +517,12 @@ class Element(metaclass=ElementParameterMetaClass):
         for key, value in kwargs.items():
             if key == 'raw_spice':
                 self.raw_spice = value
-            elif key in self.__positional_parameters__ or key in self.__optional_parameters__:
+            elif (key in self.__positional_parameters__ or
+                  key in self.__optional_parameters__ or
+                  key in self.__spice_to_parameters__):
                 setattr(self, key, value)
+            else:
+                raise ValueError('Unknown argument {}={}'.format(key, value))
 
         self._pins = ()
         netlist._add_element(self)
@@ -589,7 +593,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
-    def __getattr__(self, name): 
+    def __getattr__(self, name):
 
         # Implement alias for parameters
         if name in self.__spice_to_parameters__:

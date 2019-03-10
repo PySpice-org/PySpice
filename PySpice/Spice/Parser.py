@@ -75,8 +75,8 @@ class PrefixData:
         self.has_optionals = has_optionals
 
         self.multi_devices = len(classes) > 1
-        self.npins = prefix in ('Q', 'X') # NPinElement, Q has 3 to 4 pins
-        if self.npins:
+        self.has_variable_number_of_pins = prefix in ('Q', 'X') # NPinElement, Q has 3 to 4 pins
+        if self.has_variable_number_of_pins:
             self.number_of_pins = None
         else:
             # Q and X are single
@@ -416,7 +416,7 @@ class Element(Statement):
         self._dict_parameters = {}
 
         # Read nodes
-        if not prefix_data.npins:
+        if not prefix_data.has_variable_number_of_pins:
             number_of_pins = prefix_data.number_of_pins
             if number_of_pins:
                 self._nodes, stop_location = self._line.read_words(stop_location, number_of_pins)
@@ -447,7 +447,7 @@ class Element(Statement):
             for kwarg in kwargs:
                 try:
                     key, value = kwarg.split('=')
-                    self._dict_parameters[key] = value
+                    self._dict_parameters[key.lower()] = value
                 except ValueError:
                     if kwarg in ('off',) and prefix_data.has_flag:
                         self._dict_parameters['off'] = True
@@ -524,9 +524,10 @@ class Element(Statement):
         else: # != Spice
             args = self._parameters + nodes
         kwargs = self._dict_parameters
-        message = ' '.join([str(x) for x in (self._prefix, self._name, nodes,
-                                             self._parameters, self._dict_parameters)])
-        self._logger.debug(message)
+        if self._logger.isEnabledFor(logging.DEBUG):
+            message = ' '.join([str(x) for x in (self._prefix, self._name, nodes,
+                                                 self._parameters, self._dict_parameters)])
+            self._logger.debug(message)
         factory(self._name, *args, **kwargs)
 
 ####################################################################################################
@@ -887,7 +888,7 @@ class SpiceParser:
                     # .param
                     # .func .csparam .temp .if
                     # { expr } are allowed in .model lines and in device lines.
-                    self._logger.warn(line)
+                    self._logger.warn('Parser ignored: {}'.format(line))
             else:
                 try:
                     element = Element(line)
