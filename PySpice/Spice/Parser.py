@@ -35,9 +35,9 @@ import os
 
 ####################################################################################################
 
-from .BasicElement import SubCircuitElement, BipolarJunctionTransistor
+from .BasicElement import SubCircuitElement
 from .ElementParameter import FlagParameter
-from .Netlist import ElementParameterMetaClass, NPinElement, Circuit, SubCircuit
+from .Netlist import ElementParameterMetaClass, Circuit, SubCircuit
 
 ####################################################################################################
 
@@ -166,7 +166,6 @@ class Statement:
     ##############################################
 
     def __repr__(self):
-
         return '{} {}'.format(self.__class__.__name__, repr(self._line))
 
     ##############################################
@@ -190,14 +189,12 @@ class Statement:
     ##############################################
 
     def kwargs_to_python(self, kwargs):
-
         return ['{}={}'.format(key, self.value_to_python(value))
                 for key, value in kwargs.items()]
 
     ##############################################
 
     def join_args(self, args):
-
         return ', '.join(args)
 
 ####################################################################################################
@@ -296,13 +293,11 @@ class Model(Statement):
     ##############################################
 
     def __repr__(self):
-
         return 'Model {} {} {}'.format(self._name, self._model_type, self._parameters)
 
     ##############################################
 
     def to_python(self, netlist_name):
-
         args = self.values_to_python((self._name, self._model_type))
         kwargs = self.kwargs_to_python(self._parameters)
         return '{}.model({})'.format(netlist_name, self.join_args(args + kwargs)) + os.linesep
@@ -310,7 +305,6 @@ class Model(Statement):
     ##############################################
 
     def build(self, circuit):
-
         circuit.model(self._name, self._model_type, **self._parameters)
 
 ####################################################################################################
@@ -352,7 +346,6 @@ class SubCircuitStatement(Statement):
     ##############################################
 
     def __repr__(self):
-
         text = 'SubCircuit {} {}'.format(self._name, self._nodes) + os.linesep
         text += os.linesep.join(['  ' + repr(statement) for statement in self._statements])
         return text
@@ -360,17 +353,13 @@ class SubCircuitStatement(Statement):
     ##############################################
 
     def __iter__(self):
-
         """ Return an iterator on the statements. """
-
         return iter(self._statements)
 
     ##############################################
 
     def append(self, statement):
-
         """ Append a statement to the statement's list. """
-
         self._statements.append(statement)
 
     ##############################################
@@ -387,7 +376,6 @@ class SubCircuitStatement(Statement):
     ##############################################
 
     def build(self, ground=0):
-
         subcircuit = SubCircuit(self._name, *self._nodes)
         SpiceParser._build_circuit(subcircuit, self._statements, ground)
         return subcircuit
@@ -497,7 +485,6 @@ class Element(Statement):
     ##############################################
 
     def __repr__(self):
-
         return 'Element {0._prefix} {0._name} {0._nodes} {0._parameters} {0._dict_parameters}'.format(self)
 
     ##############################################
@@ -580,7 +567,6 @@ class Line:
 
     @property
     def is_comment(self):
-
         return self._is_comment
 
     ##############################################
@@ -647,7 +633,6 @@ class Line:
     ##############################################
 
     def right_of(self, text):
-
         return self._text[len(text):].strip()
 
     ##############################################
@@ -935,13 +920,11 @@ class SpiceParser:
     ##############################################
 
     def is_only_subcircuit(self):
-
         return bool(not self.circuit and self.subcircuits)
 
     ##############################################
 
     def is_only_model(self):
-
         return bool(not self.circuit and not self.subcircuits and self.models)
 
     ##############################################
