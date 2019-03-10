@@ -66,7 +66,7 @@ def make_api(ctx):
 
 ####################################################################################################
 
-@task()
+@task(_update_git_sha)
 def make_examples(ctx, clean=False, no_html=False, force=False):
 
     # Regenerate from scratch
