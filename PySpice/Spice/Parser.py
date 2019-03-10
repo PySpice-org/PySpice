@@ -908,7 +908,7 @@ class SpiceParser:
                     element = Element(line)
                     scope.append(element)
                 except ParseError:
-                    pass
+                    self._logger.warn('Parse error on:\n{}'.format(line))
 
         return statements
 
