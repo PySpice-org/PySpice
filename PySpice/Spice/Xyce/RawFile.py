@@ -127,7 +127,10 @@ class RawFile(RawFileAbc):
 
         """ Parse the header """
 
-        binary_line = b'Binary:' + os.linesep.encode('ascii')
+        # see https://github.com/FabriceSalvaire/PySpice/issues/132
+        #   Xyce open the file in binary mode and print using: os << "Binary:" << std::endl;
+        #   endl is thus \n
+        binary_line = b'Binary:\n'
         binary_location = output.find(binary_line)
         if binary_location < 0:
             raise NameError('Cannot locate binary data')
