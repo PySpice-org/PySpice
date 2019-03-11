@@ -79,7 +79,7 @@ class SpiceServer:
 
     def __init__(self, **kwargs):
 
-        self._spice_command = kwargs.get('spice_command', self.SPICE_COMMAND)
+        self._spice_command = kwargs.get('spice_command') or self.SPICE_COMMAND
 
     ##############################################
 

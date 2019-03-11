@@ -17,7 +17,7 @@ thevenin_circuit.R('generator', 1, 'load', 10@u_Ω)
 thevenin_circuit.R('load', 'load', thevenin_circuit.gnd, 1@u_kΩ)
 
 simulator = thevenin_circuit.simulator(simulator='xyce-serial', temperature=25, nominal_temperature=25)
-# simulator._spice_server._xyce_command = "C:\\progs\\Xyce 6.10 OPENSOURCE\\bin\\Xyce.exe"
+# simulator._spice_server._xyce_command = "C:\\Program Files\\Xyce 6.10 OPENSOURCE\\bin\\Xyce.exe"
 analysis = simulator.operating_point()
 
 load_node = analysis.load

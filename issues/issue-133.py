@@ -33,7 +33,6 @@ V2 = circuit.V(2, 'p2', 'p3', -10@u_V)
 print(str(circuit))
 
 simulator = circuit.simulator(simulator='xyce-serial')
-
 analysis = simulator.operating_point()
 
 for node in analysis.nodes.values():
