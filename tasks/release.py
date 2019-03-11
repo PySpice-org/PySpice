@@ -21,6 +21,8 @@
 ####################################################################################################
 
 from pathlib import Path
+import re
+import shutil
 
 from invoke import task
 
@@ -80,17 +82,34 @@ def find_package(ctx, name):
 @task()
 def update_git_sha(ctx):
     result = ctx.run('git describe --tags --abbrev=0 --always', hide='out')
+    tag = result.stdout.strip()
+    if tag.startswith('v'):
+        version = tag[1:]
+    else:
+        version = tag
+    if not re.match('\d+(\.\d+(\.\d+)?)?', version):
+        raise ValueError('Invalid version {}'.format(version))
+    result = ctx.run('git rev-parse HEAD', hide='out')
     sha = result.stdout.strip()
+    print(sha)
+    print(tag)
+    print(version)
     filename = Path(ctx.Package, '__init__.py')
     with open(str(filename) + '.in', 'r') as fh:
         lines = fh.readlines()
     with open(filename, 'w') as fh:
         for line in lines:
             if '@' in line:
+                line = line.replace('@VERSION@', version)
+                line = line.replace('@GIT_TAG@', tag)
                 line = line.replace('@GIT_SHA@', sha)
             fh.write(line)
 
 ####################################################################################################
+
+def clean(ctx):
+    for directory in ('build', 'dist'):
+        shutil.rmtree(directory)
 
 def show_python_site(ctx):
     ctx.run('python3 -m site')
@@ -102,3 +121,17 @@ def build(ctx):
 @task(build)
 def install(ctx):
     ctx.run('python3 setup.py install')
+
+@task(build)
+def install(ctx):
+    ctx.run('python3 setup.py install')
+
+@task(clean, build)
+def wheel(ctx):
+    ctx.run('python3 setup.py bdist_wheel')
+
+@task(build)
+def upload(ctx):
+    ctx.run('twine register dist/*whl')
+    ctx.run('gpg --detach-sign -a dist/*whl')
+    ctx.run('twine upload dist/*')
