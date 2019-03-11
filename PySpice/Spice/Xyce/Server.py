@@ -110,12 +110,14 @@ class XyceServer:
         with open(input_filename, 'w') as f:
             f.write(str(spice_input))
 
-        process = subprocess.Popen((self._xyce_command,
-                                    '-r', output_filename,
-                                    input_filename),
-                                   stdin=subprocess.PIPE,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
+        command = (self._xyce_command, '-r', output_filename, input_filename)
+        self._logger.info('Run {}'.format(' '.join(command)))
+        process = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         stdout, stderr = process.communicate()
 
         self._parse_stdout(stdout)
