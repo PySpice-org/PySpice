@@ -128,8 +128,8 @@ def install(ctx):
 def wheel(ctx):
     ctx.run('python3 setup.py bdist_wheel')
 
-@task(build)
+@task(wheel)
 def upload(ctx):
-    ctx.run('twine register dist/*whl')
+    # ctx.run('twine register dist/*whl')
     ctx.run('gpg --detach-sign -a dist/*whl')
     ctx.run('twine upload dist/*')
