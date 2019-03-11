@@ -82,6 +82,9 @@ PySpice on your Python environment.
 
 **You have to download the PySpice archive or clone the Git repository to get the examples.** See "Installation from Source".
 
+Note: We could install examples with pip, but files would be more difficult to locate in the
+environment directory.
+
 Installation from PyPi Repository
 ---------------------------------
 
