@@ -78,6 +78,7 @@ To simulate the circuit, we must create a simulator instance using the :meth:`Ci
 ####################################################################################################
 
 from collections import OrderedDict
+from pathlib import Path
 import keyword
 import logging
 import os
@@ -1236,10 +1237,10 @@ class Circuit(Netlist):
             # ngspice don't like // in path, thus ensure we write real paths
             real_paths = []
             for path in self._includes:
-                path = os.path.realpath(str(path))
+                path = Path(str(path)).resolve()
                 if simulator:
-                    path_flavour = path + '@' + simulator
-                    if os.path.exists(path_flavour):
+                    path_flavour = Path(str(path) + '@' + simulator)
+                    if path_flavour.exists():
                         path = path_flavour
                 real_paths.append(path)
 
