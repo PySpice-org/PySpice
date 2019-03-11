@@ -107,20 +107,18 @@ def update_git_sha(ctx):
 
 ####################################################################################################
 
+@task()
 def clean(ctx):
     for directory in ('build', 'dist'):
-        shutil.rmtree(directory)
+        shutil.rmtree(directory, ignore_errors=True)
 
+@task()
 def show_python_site(ctx):
     ctx.run('python3 -m site')
 
 @task(update_git_sha)
 def build(ctx):
     ctx.run('python3 setup.py build')
-
-@task(build)
-def install(ctx):
-    ctx.run('python3 setup.py install')
 
 @task(build)
 def install(ctx):

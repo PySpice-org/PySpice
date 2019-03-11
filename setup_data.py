@@ -31,7 +31,7 @@ if pyspice_path.name == 'conf.py':
     pyspice_path = pyspice_path.parents[3]
 else:
     pyspice_path = pyspice_path.parent
-init_path = pyspice_path.joinpath('PySpice', '__init__.py.in')
+init_path = pyspice_path.joinpath('PySpice', '__init__.py')
 with open(init_path) as fh:
     try:
         version = re.findall(r"^__version__ = '([^']+)'\r?$", fh.read(), re.M)[0]
