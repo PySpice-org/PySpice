@@ -630,8 +630,8 @@ class CircuitSimulation:
 
         Examples of usage::
 
-            analysis = simulator.transient('TRAN', 'tdiff', 'TRIG AT=10m', 'TARG v(n1) VAL=75.0 CROSS=1')
-            analysis = simulator.transient('TRAN', 'tdiff', 'TARG v(n1) VAL=75.0 CROSS=1')
+            simulator.measure('TRAN', 'tdiff', 'TRIG AT=10m', 'TARG v(n1) VAL=75.0 CROSS=1')
+            simulator.measure('tran', 'tdiff', 'TRIG AT=0m', f"TARG par('v(n1)-v(derate)') VAL=0 CROSS=1")
 
         Note: can be used with the .options AUTOSTOP to stop the simulation at Trigger.
         Spice syntax:
