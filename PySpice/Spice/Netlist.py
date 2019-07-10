@@ -525,14 +525,20 @@ class Element(metaclass=ElementParameterMetaClass):
         self._name = str(name)
         self.raw_spice = ''
         self.enabled = True
+        parent = netlist
+        self._parameters = kwargs
         #self._pins = kwargs.pop('pins',())
 
         # Process remaining args
-        if len(self._parameters_from_args_) < len(args):
+        if len(self._positional_parameters_) < len(args):
             raise NameError("Number of args mismatch")
-        for parameter, value in zip(self._parameters_from_args_, args):
-            setattr(self, parameter.attribute_name, value)
-
+        # TODO: Modify the selection of arguments to take into account the RLC model cases.
+        if len(args) > 0:
+            read = [False]*len(args)
+            for parameter in self._positional_parameters_.values():
+                if parameter.position < len(read) and not read[parameter.position]:
+                    setattr(self, parameter.attribute_name, args[parameter.position])
+                    read[parameter.position] = True
         # Process kwargs
         for key, value in kwargs.items():
             if key == 'raw_spice':
@@ -636,10 +642,19 @@ class Element(metaclass=ElementParameterMetaClass):
     def parameter_iterator(self):
 
         """ This iterator returns the parameter in the right order. """
-
+        positional_parameters = OrderedDict()
         # Fixme: .parameters ???
+        if len(self._positional_parameters_) > 0:
+            read = [False]*len(self._positional_parameters_)
+            for parameter in self._positional_parameters_.values():
+                if parameter.position < len(read) and read[parameter.position] is False:
+                    if parameter.nonzero(self):
+                        read[parameter.position] = parameter
+        for parameter in read:
+            if not (parameter is False):
+                positional_parameters[parameter.attribute_name] = parameter
 
-        for parameter_dict in self._positional_parameters_, self._optional_parameters_:
+        for parameter_dict in positional_parameters, self._optional_parameters_:
             for parameter in parameter_dict.values():
                 if parameter.nonzero(self):
                     yield parameter
@@ -940,6 +955,15 @@ class Netlist:
         else:
             raise IndexError(attribute_name) # KeyError
 
+    def _find_subcircuit(self, name):
+        if name not in self._subcircuits:
+            if hasattr(self, 'parent'):
+                return self.parent._find_subcircuit(name)
+            else:
+                return None
+        else:
+            return self._subcircuits[name]
+
     ##############################################
 
     #def __getattr__(self, attribute_name):
@@ -1080,6 +1104,7 @@ class Netlist:
         # Fixme: subcircuit is a class
 
         self._subcircuits[str(subcircuit.name)] = subcircuit
+        subcircuit.parent=self
 
     ##############################################
 
@@ -1089,13 +1114,13 @@ class Netlist:
 
         # Fixme: order ???
         netlist = self._str_raw_spice()
-        subcircuits = self._str_subcircuits()
-        if subcircuits:
-            netlist +=  subcircuits# before elements
-            netlist += os.linesep
         models = self._str_models()
         if models:
             netlist += models
+            netlist += os.linesep
+        subcircuits = self._str_subcircuits()
+        if subcircuits:
+            netlist +=  subcircuits# before elements
             netlist += os.linesep
         netlist += self._str_elements()
 
@@ -1112,7 +1137,9 @@ class Netlist:
 
     def _str_models(self):
         if self._used_models:
-            models = [self._models[model] for model in self._used_models]
+            models = [self._models[model]
+                      for model in self._used_models
+                      if model in self._models]
             return join_lines(models) + os.linesep
         else:
             return ''
@@ -1121,7 +1148,9 @@ class Netlist:
 
     def _str_subcircuits(self):
         if self._used_subcircuits:
-            subcircuits = [self._subcircuits[subcircuit] for subcircuit in self._used_subcircuits]
+            subcircuits = [self._subcircuits[subcircuit]
+                           for subcircuit in self._used_subcircuits
+                           if subcircuit in self._subcircuits]
             return join_lines(subcircuits)
         else:
             return ''
@@ -1149,7 +1178,7 @@ class Netlist:
                 self._models[model._name]._included = path
             subcircuits = parser.subcircuits
             for subcircuit in subcircuits:
-                subcircuit_def = subcircuit.build()
+                subcircuit_def = subcircuit.build(parent=self)
                 self.subcircuit(subcircuit_def)
                 self._subcircuits[subcircuit._name]._included = path
         else:
@@ -1176,10 +1205,10 @@ class SubCircuit(Netlist):
         self._external_nodes = tuple([Node(self, str(node)) for node in nodes])
         self._pins_ = nodes
         # Fixme: ok ?
-        self._ground = kwargs.get('ground', 0)
-        if 'ground' in kwargs:
-            del kwargs['ground']
-
+        ground = 'ground'
+        self._ground = kwargs.get(ground, 0)
+        if ground in kwargs:
+            kwargs.pop(ground)
         self._parameters = kwargs
 
     ##############################################
@@ -1195,6 +1224,14 @@ class SubCircuit(Netlist):
 
         subcircuit = self.__class__(name, list(self._external_nodes), **kwargs)
         self.copy_to(subcircuit)
+
+    ##############################################
+
+    def parameter(self, name, expression):
+
+        """Set a parameter."""
+
+        self._parameters[str(name)] = str(expression)
 
     ##############################################
 

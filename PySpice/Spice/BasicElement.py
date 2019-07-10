@@ -161,6 +161,7 @@ class SubCircuitElement(NPinElement):
         schematic_kwargs = kwargs.pop('schematic', {})
         # Fixme: match parameters to subcircuit
         self.parameters = kwargs
+        self.parent = netlist
 
         # Fixme: investigate
         # for key, value in parameters.items():
@@ -170,11 +171,14 @@ class SubCircuitElement(NPinElement):
         #     setattr(self, key, parameter)
 
         subcircuit_name = subcircuit_name.lower()
-        subcircuit = netlist._subcircuits.get(subcircuit_name)
-        
-        self._pins = [Pin(self, PinDefinition(position, name=subcircuit._pins_[position]), netlist.get_node(node, True))
-                      for position, node in enumerate(nodes)]
-        
+        subcircuit = netlist._find_subcircuit(subcircuit_name)
+
+        try:
+            self._pins = [Pin(self, PinDefinition(position, name=subcircuit._pins_[position]), netlist.get_node(node, True))
+                          for position, node in enumerate(nodes)]
+        except:
+            raise ValueError()
+
         super().__init__(netlist, name, subcircuit_name,
                          schematic=schematic_kwargs)
 
@@ -253,7 +257,8 @@ class Resistor(DipoleElement):
     
     schematic = schem.elements.RES
 
-    resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
+    resistance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_Ω)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     ac = FloatKeyParameter('ac', unit=U_Ω)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
@@ -327,8 +332,8 @@ class SemiconductorResistor(DipoleElement):
 
     schematic = schem.elements.RES
 
-    resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
-    model = ModelPositionalParameter(position=1, key_parameter=True)
+    resistance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_Ω)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
     width = FloatKeyParameter('w', unit=U_m)
     temperature = FloatKeyParameter('temp', unit=U_Degree)
@@ -431,8 +436,8 @@ class Capacitor(DipoleElement):
 
     schematic = schem.elements.CAP
 
-    capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_F)
-    model = ModelPositionalParameter(position=1, key_parameter=True)
+    capacitance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_F)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
     temperature = FloatKeyParameter('temp', unit=U_Degree)
@@ -502,8 +507,8 @@ class SemiconductorCapacitor(DipoleElement):
 
     schematic = schem.elements.CAP
 
-    capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_F)
-    model = ModelPositionalParameter(position=1, key_parameter=True)
+    capacitance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_F)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
     width = FloatKeyParameter('w', unit=U_m)
     multiplier = IntKeyParameter('m')
@@ -605,8 +610,8 @@ class Inductor(DipoleElement):
 
     schematic = schem.elements.INDUCTOR2
 
-    inductance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_H)
-    model = ModelPositionalParameter(position=1, key_parameter=True)
+    inductance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_H)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     nt = FloatKeyParameter('nt')
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
@@ -797,6 +802,15 @@ class VoltageSource(DipoleElement):
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_V)
+
+    def __init__(self, netlist, name, *args, **kwargs):
+        number_of_pins = len(self._pins_)
+        arguments = args
+        if len(args) > number_of_pins:
+            arguments = list(args[:number_of_pins])
+            arguments.append(join_list(args[number_of_pins:]))
+
+        super().__init__(netlist, name, *arguments, **kwargs)
 
 ####################################################################################################
 

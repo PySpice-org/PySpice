@@ -30,8 +30,10 @@ It would be difficult to implement a full parser for Ngspice since the syntax is
 
 ####################################################################################################
 
+from collections import OrderedDict
 import logging
 import os
+import regex
 
 ####################################################################################################
 
@@ -274,16 +276,8 @@ class Model(Statement):
 
         super().__init__(line, statement='model')
 
-        text = line.right_of('.model')
-        kwarg_start = text.find('(')
-        kwarg_stop = text.find(')')
-        if kwarg_start == -1 or kwarg_stop == -1:
-            # raise ParseError("Bad model: {}".format(line))
-            parts, self._parameters = line.split_line('.model')
-            self._name, self._model_type = parts
-        else:
-            self._name, self._model_type = text[:kwarg_start].split()
-            self._parameters = Line.get_kwarg(text[kwarg_start+1:kwarg_stop])
+        base, self._parameters = line.split_keyword('.model')
+        self._name, self._model_type = base
         self._name = self._name.lower()
 
     ##############################################
@@ -311,7 +305,56 @@ class Model(Statement):
 
     def build(self, circuit):
 
-        circuit.model(self._name, self._model_type, **self._parameters)
+        return circuit.model(self._name, self._model_type, **self._parameters)
+
+####################################################################################################
+
+class Param(Statement):
+
+    """ This class implements a model definition.
+
+    Spice syntax::
+
+        .param name=expr
+
+    """
+
+    ##############################################
+
+    def __init__(self, line):
+
+        super().__init__(line, statement='param')
+
+        text = line.right_of('.param').strip().lower()
+        idx = text.find('=')
+        self._name = text[:idx].strip()
+        self._value = text[idx+1:].strip()
+
+    ##############################################
+
+    @property
+    def name(self):
+        """ Name of the model """
+        return self._name
+
+    ##############################################
+
+    def __repr__(self):
+
+        return 'Param {}={}'.format(self._name, self._value)
+
+    ##############################################
+
+    def to_python(self, netlist_name):
+
+        args = self.values_to_python((self._name, self._value))
+        return '{}.param({})'.format(netlist_name, self.join_args(args)) + os.linesep
+
+    ##############################################
+
+    def build(self, circuit):
+
+        circuit.parameter(self._name, self._value)
 
 ####################################################################################################
 
@@ -339,6 +382,9 @@ class CircuitStatement(Statement):
         self._statements = []
         self._subcircuits = []
         self._models = []
+        self._required_subcircuits = set()
+        self._required_models = set()
+        self._params = []
 
     ##############################################
 
@@ -356,6 +402,11 @@ class CircuitStatement(Statement):
     def subcircuits(self):
         """ Subcircuits of the circuit. """
         return self._subcircuits
+
+    @property
+    def params(self):
+        """ Parameters of the circuit. """
+        return self._params
 
     ##############################################
 
@@ -389,6 +440,12 @@ class CircuitStatement(Statement):
 
         self._models.append(statement)
 
+    def appendParam(self, statement):
+
+        """ Append a param to the statement's list. """
+
+        self._params.append(statement)
+
     def appendSubCircuit(self, statement):
 
         """ Append a model to the statement's list. """
@@ -410,8 +467,10 @@ class CircuitStatement(Statement):
 
     def build(self, ground=0):
         circuit = Circuit(self._title)
-        for statement in self._models:
+        for statement in self._params:
             statement.build(circuit)
+        for statement in self._models:
+            model = statement.build(circuit)
         for statement in self._subcircuits:
             subckt = statement.build(ground)  # Fixme: ok ???
             circuit.subcircuit(subckt)
@@ -440,7 +499,7 @@ class SubCircuitStatement(Statement):
         super().__init__(line, statement='subckt')
 
         # Fixme
-        parameters, dict_parameters = self._line.split_line('.subckt')
+        parameters, dict_parameters = self._line.split_keyword('.subckt')
         if parameters[-1].lower() == 'params:':
             parameters = parameters[:-1]
         self._name, self._nodes = parameters[0], parameters[1:]
@@ -450,6 +509,9 @@ class SubCircuitStatement(Statement):
         self._statements = []
         self._subcircuits = []
         self._models = []
+        self._required_subcircuits = set()
+        self._required_models = set()
+        self._params = []
 
     ##############################################
 
@@ -467,6 +529,11 @@ class SubCircuitStatement(Statement):
     def models(self):
         """ Models of the sub-circuit. """
         return self._models
+
+    @property
+    def params(self):
+        """ Params of the sub-circuit. """
+        return self._params
 
     @property
     def subcircuits(self):
@@ -508,6 +575,12 @@ class SubCircuitStatement(Statement):
 
         self._models.append(statement)
 
+    def appendParam(self, statement):
+
+        """ Append a param to the statement's list. """
+
+        self._params.append(statement)
+
     def appendSubCircuit(self, statement):
 
         """ Append a model to the statement's list. """
@@ -527,13 +600,15 @@ class SubCircuitStatement(Statement):
 
     ##############################################
 
-    def build(self, ground=0):
-
+    def build(self, ground=0, parent = None):
         subcircuit = SubCircuit(self._name, *self._nodes, **self._parameters)
-        for statement in self._models:
+        subcircuit.parent = parent
+        for statement in self._params:
             statement.build(subcircuit)
+        for statement in self._models:
+            model = statement.build(subcircuit)
         for statement in self._subcircuits:
-            subckt = statement.build(ground)  # Fixme: ok ???
+            subckt = statement.build(ground, parent=subcircuit)  # Fixme: ok ???
             subcircuit.subcircuit(subckt)
         for statement in self._statements:
             if isinstance(statement, Element):
@@ -562,14 +637,16 @@ class Element(Statement):
         # self._logger.debug(os.linesep + line_str)
 
         # Retrieve device prefix
-        self._prefix = line_str[0]
+        prefix = line_str[0]
+        if prefix.isalpha():
+            self._prefix = prefix
+        else:
+            raise ParseError("Not an element prefix: " + prefix)
         prefix_data = _prefix_cache[self._prefix]
 
         # Retrieve device name
-        start_location = 1
-        stop_location = line_str.find(' ')
-        # Fixme: if stop_location == -1:
-        self._name = line_str[start_location:stop_location]
+        args, kwargs = line.split_element(prefix)
+        self._name = args.pop(0)
 
         self._nodes = []
         self._parameters = []
@@ -579,43 +656,44 @@ class Element(Statement):
         if not prefix_data.npins:
             number_of_pins = prefix_data.number_of_pins
             if number_of_pins:
-                self._nodes, stop_location = self._line.read_words(stop_location, number_of_pins)
+                self._nodes = args[:number_of_pins]
+                args = args[number_of_pins:]
         else: # Q or X
             if prefix_data.prefix == 'Q':
-                self._nodes, stop_location = self._line.read_words(stop_location, 3)
+                self._nodes = args[:3]
+                args = args[3:]
                 # Fixme: optional node
             else: # X
-                args, stop_location = self._line.split_words(stop_location, until='=')
                 if args[-1].lower() == 'params:':
-                    args = args[:-1]
-                self._nodes = args[:-1]
-                self._parameters.append(args[-1]) # model name
+                    args.pop()
+                self._parameters.append(args.pop())
+                self._nodes = args
+                args = []
 
         # Read positionals
         number_of_positionals = prefix_data.number_of_positionals_min
-        if number_of_positionals and (stop_location is not None) and (prefix_data.prefix != 'X'): # model is optional
-            self._parameters, stop_location = self._line.read_words(stop_location, number_of_positionals)
-        if prefix_data.multi_devices and stop_location is not None:
-            remaining, stop_location = self._line.split_words(stop_location, until='=')
+        if number_of_positionals and (len(args) > 0) and (prefix_data.prefix != 'X'): # model is optional
+            self._parameters = args[:number_of_positionals]
+            args = args[number_of_positionals:]
+        if prefix_data.multi_devices and (len(args) > 0):
+            remaining = args
+            args = []
             self._parameters.extend(remaining)
 
-        if prefix_data.prefix in ('V', 'I') and stop_location is not None:
+        if prefix_data.prefix in ('V', 'I') and (len(args) > 0):
             # merge remaining
-            self._parameters[-1] += line_str[stop_location:]
+            self._parameters[-1] += " " + " ".join(args)
+            self._dict_parameters = kwargs
 
         # Read optionals
-        if (prefix_data.has_optionals or (prefix_data.prefix == 'X')) and stop_location is not None:
-            kwargs, stop_location = self._line.split_words(stop_location)
-            for kwarg in kwargs:
-                try:
-                    key, value = kwarg.split('=')
-                    self._dict_parameters[key] = value
-                except ValueError:
-                    if kwarg in ('off',) and prefix_data.has_flag:
-                        self._dict_parameters['off'] = True
-                    else:
-                        self._logger.warning(line_str)
-                        # raise NameError('Bad element line:', line_str)
+        if (prefix_data.has_optionals or (prefix_data.prefix == 'X')) and (len(kwargs) > 0):
+            for key in kwargs:
+                self._dict_parameters[key] = kwargs[key]
+                #if kwarg in ('off',) and prefix_data.has_flag:
+                #    self._dict_parameters['off'] = True
+                #else:
+                #    self._logger.warning(line_str)
+                #    # raise NameError('Bad element line:', line_str)
 
         if prefix_data.multi_devices:
             for element_class in prefix_data:
@@ -629,11 +707,12 @@ class Element(Statement):
         to_delete = []
         for parameter in element_class.positional_parameters.values():
             if parameter.key_parameter:
-                i = parameter.position
-                self._dict_parameters[parameter.attribute_name] = self._parameters[i]
-                to_delete.append(i)
-        for i in to_delete:
-            del self._parameters[i]
+                idx = parameter.position
+                if idx < len(self._parameters):
+                    self._dict_parameters[parameter.attribute_name] = self._parameters[idx]
+                    to_delete.append(idx - len(to_delete))
+        for idx in to_delete:
+            self._parameters.pop(idx)
 
         # self._logger.debug(os.linesep + self.__repr__())
 
@@ -690,7 +769,7 @@ class Element(Statement):
         message = ' '.join([str(x) for x in (self._prefix, self._name, nodes,
                                              self._parameters, self._dict_parameters)])
         self._logger.debug(message)
-        factory(self._name, *args, **kwargs)
+        return factory(self._name, *args, **kwargs)
 
 ####################################################################################################
 
@@ -905,7 +984,101 @@ class Line:
 
     ##############################################
 
-    def split_line(self, keyword):
+    @staticmethod
+    def _partition(text):
+        parts = []
+        for part in text.split():
+            if '=' in part and part != '=':
+                left, right = [x for x in part.split('=')]
+                parts.append(left)
+                parts.append('=')
+                if right:
+                    parts.append(right)
+            else:
+                parts.append(part)
+        return parts
+
+    @staticmethod
+    def _partition_parentheses(text):
+        p = regex.compile(r'\(([^\(\)]|(?R))*?\)')
+        parts = []
+        previous_start = 0
+        for m in regex.finditer(p, text):
+            parts.extend(Line._partition(text[previous_start:m.start()]))
+            parts.append(m.group())
+            previous_start = m.end()
+        parts.extend(Line._partition(text[previous_start:]))
+        return parts
+
+    @staticmethod
+    def _partition_braces(text):
+        p = regex.compile(r'\{([^\{\}]|(?R))*?\}')
+        parts = []
+        previous_start = 0
+        for m in regex.finditer(p, text):
+            parts.extend(Line._partition_parentheses(text[previous_start:m.start()]))
+            parts.append(m.group())
+            previous_start = m.end()
+        parts.extend(Line._partition_parentheses(text[previous_start:]))
+        return parts
+
+    @staticmethod
+    def _check_parameters(parts):
+        parameters = []
+        dict_parameters = {}
+
+        i = 0
+        i_stop = len(parts)
+        while i < i_stop:
+            if i + 1 < i_stop and parts[i + 1] == '=':
+                key, value = parts[i], parts[i + 2]
+                dict_parameters[key] = value
+                i += 3
+            else:
+                parameters.append(parts[i])
+                i += 1
+
+        return parameters, dict_parameters
+
+    def split_keyword(self, keyword):
+
+        """Split the line according to the following pattern::
+
+            keyword parameter1 parameter2 ( key1=value1 key2=value2 )
+
+        Return the list of parameters and the dictionary.
+        The parenthesis can be omitted.
+
+        """
+
+        text = self.right_of(keyword)
+
+        p = regex.compile(r'\(([^\(\)]|(?R))*?\)')
+        b = regex.compile(r'\{([^\{\}]|(?R))*?\}')
+        parts = []
+
+        mp = regex.search(p, text)
+        mb = regex.search(b, text)
+        if mb is not None:
+            if mp is not None:
+                if (mb.start() > mp.start()) and (mb.end() < mp.end()):
+                    parts.extend(Line._partition(text[:mp.start()]))
+                    parts.extend(Line._partition_braces(mp.group()[1:-1]))
+                elif (mb.start() < mp.start()) and (mb.end() > mp.end()):
+                    parts.extend(Line._partition_braces(text))
+                else:
+                    raise ValueError("Incorrect format {}".format(text))
+            else:
+                parts.extend(Line._partition_braces(text))
+        else:
+            if mp is not None:
+                parts.extend(Line._partition(text[:mp.start()]))
+                parts.extend(Line._partition(mp.group()[1:-1]))
+            else:
+                parts.extend(Line._partition(text))
+        return Line._check_parameters(parts)
+
+    def split_element(self, prefix):
 
         """Split the line according to the following pattern::
 
@@ -920,31 +1093,11 @@ class Line:
         parameters = []
         dict_parameters = {}
 
-        text = self.right_of(keyword)
+        text = self.right_of(prefix)
 
-        parts = []
-        for part in text.split():
-            if '=' in part and part != '=':
-                left, right = [x for x in part.split('=')]
-                parts.append(left)
-                parts.append('=')
-                if right:
-                    parts.append(right)
-            else:
-                parts.append(part)
+        parts = Line._partition_braces(text)
 
-        i = 0
-        i_stop = len(parts)
-        while i < i_stop:
-            if i + 1 < i_stop and parts[i + 1] == '=':
-                key, value = parts[i], parts[i + 2]
-                dict_parameters[key] = value
-                i += 3
-            else:
-                parameters.append(parts[i])
-                i += 1
-
-        return parameters, dict_parameters
+        return Line._check_parameters(parts)
 
 ####################################################################################################
 
@@ -971,8 +1124,8 @@ class SpiceParser:
         # Fixme: empty source
 
         if path is not None:
-            with open(str(path), 'r') as f:
-                raw_lines = f.readlines()
+            with open(str(path), 'rb') as f:
+                raw_lines = [line.decode('utf-8') for line in f]
         elif source is not None:
             raw_lines = source.split(os.linesep)
         else:
@@ -999,7 +1152,7 @@ class SpiceParser:
             if line_string.startswith('+'):
                 current_line.append(line_string[1:].strip('\r\n'))
             else:
-                line_string = line_string.strip('\r\n')
+                line_string = line_string.strip(' \t\r\n')
                 if line_string:
                     _slice = slice(line_index, line_index +1)
                     line = Line(line_string, _slice, self._end_of_line_comment)
@@ -1011,6 +1164,51 @@ class SpiceParser:
         return lines
 
     ##############################################
+
+    @staticmethod
+    def _check_models(circuit, available_models=set()):
+        p_available_models = available_models.copy()
+        p_available_models.update([model.name for model in circuit._models])
+        for subcircuit in circuit._subcircuits:
+            SpiceParser._check_models(subcircuit, p_available_models)
+        for model in circuit._required_models:
+            if model not in p_available_models:
+                raise ValueError("model (%s) not available in (%s)" % (model, circuit.name))
+
+    @staticmethod
+    def _sort_subcircuits(circuit, available_subcircuits=set()):
+        p_available_subcircuits = available_subcircuits.copy()
+        names = [subcircuit.name for subcircuit in circuit._subcircuits]
+        p_available_subcircuits.update(names)
+        dependencies = dict()
+        for subcircuit in circuit._subcircuits:
+            required = SpiceParser._sort_subcircuits(subcircuit, p_available_subcircuits)
+            dependencies[subcircuit] = required
+        for subcircuit in circuit._required_subcircuits:
+            if subcircuit not in p_available_subcircuits:
+                raise ValueError("subcircuit (%s) not available in (%s)" % (subcircuit, circuit.name))
+        items = sorted(dependencies.items(), key=lambda item: len(item[1]))
+        result = list()
+        result_names = list()
+        previous = len(items) + 1
+        while 0 < len(items) < previous:
+            previous = len(items)
+            remove = list()
+            for item in items:
+                subckt, depends = item
+                for name in depends:
+                    if name not in result_names:
+                        break
+                else:
+                    result.append(subckt)
+                    result_names.append(subckt.name)
+                    remove.append(item)
+            for item in remove:
+                items.remove(item)
+        if len(items) > 0:
+            raise ValueError("Crossed dependencies (%s)" % [(key.name, value) for key, value in items])
+        circuit._subcircuits = result
+        return circuit._required_subcircuits - set(names)
 
     def _parse(self, lines):
 
@@ -1054,12 +1252,15 @@ class SpiceParser:
                     model = Model(line)
                     scope.appendModel(model)
                 elif lower_case_text.startswith('include'):
-                    scope.append(Include(line))
+                    include = Include(line)
+                    scope.append(include)
+                elif lower_case_text.startswith('param'):
+                    param = Param(line)
+                    scope.appendParam(param)
                 else:
                     # options param ...
                     # .global
                     # .lib filename libname
-                    # .param
                     # .func .csparam .temp .if
                     # { expr } are allowed in .model lines and in device lines.
                     self._logger.warn(line)
@@ -1067,9 +1268,16 @@ class SpiceParser:
                 try:
                     element = Element(line)
                     scope.append(element)
+                    if hasattr(element, '_prefix') and (element._prefix == "X"):
+                        name = element._parameters[0].lower()
+                        scope._required_subcircuits.add(name)
+                    elif hasattr(element, '_dict_parameters') and 'model' in element._dict_parameters:
+                        name = element._dict_parameters['model'].lower()
+                        scope._required_models.add(name)
                 except ParseError:
                     pass
-
+        SpiceParser._check_models(circuit)
+        SpiceParser._sort_subcircuits(circuit)
         return circuit
 
     ##############################################
