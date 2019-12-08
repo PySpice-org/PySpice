@@ -81,7 +81,7 @@ SIMULATION_TYPE[27] = (
     'charge',
 )
 
-LAST_VERSION = 30
+LAST_VERSION = 31
 
 for version in range(28, LAST_VERSION +1):
     SIMULATION_TYPE[version] = SIMULATION_TYPE[27]
