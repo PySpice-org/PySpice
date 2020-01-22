@@ -717,10 +717,11 @@ class NgSpiceShared:
 
     ##############################################
 
-    def alter_device(self, device, **kwargs):
+    def alter_device(self, device=None, **kwargs):
 
         """Alter device parameters"""
-
+        if device is None:
+            device = ''
         self._alter('alter', device, kwargs)
 
     ##############################################
@@ -1011,9 +1012,9 @@ class NgSpiceShared:
 
     ##############################################
 
-    def resume(self, background=True):
+    def resume(self, background=False):
 
-        """ Halt the simulation in the background thread. """
+        """ Resume the simulation """
 
         command = b'bg_resume' if background else b'resume'
         rc = self._ngspice_shared.ngSpice_Command(command)
