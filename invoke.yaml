@@ -1,4 +1,4 @@
-Package: PySpice
+Package: PySpicePro
 ngspice:
   directory: [ngspice-build, 'ngspice-{}']
-  version: 30
+  version: 31
