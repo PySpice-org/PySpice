@@ -817,6 +817,7 @@ class SpiceParser:
         lines = []
         current_line = None
         for line_index, line_string in enumerate(raw_lines):
+            line_string = line_string.lstrip(' ')
             if line_string.startswith('+'):
                 current_line.append(line_string[1:].strip('\r\n'))
             else:
