@@ -328,6 +328,7 @@ class NgSpiceShared:
     __number_of_instances = 0
     _instances = {}
     _ffis = {}
+    __dll_id = 0
 
     @classmethod
     def new_instance(cls, ngspice_id=None, send_data=False):
@@ -378,11 +379,19 @@ class NgSpiceShared:
     ##############################################
         
     def __del__(self):
+        try:
+            self.quit() # this function generates a NameError
+        except:
+            pass
         ffi=self.__class__._ffis[self._ngspice_id]
         ffi.dlclose(self._ngspice_shared)
         del self.__class__._ffis[self._ngspice_id]
         del NgSpiceShared._instances[self._ngspice_id]
-        os.unlink(self.temp_dll)
+        try:
+            os.unlink(self.temp_dll)
+        except: 
+            "dlclose is not doing its job!" # do not know how to solve
+            pass
 
     def get_id(self):
         return self._ngspice_id
@@ -406,12 +415,26 @@ class NgSpiceShared:
         library_path = self.LIBRARY_PATH.format('')
         if self._ngspice_id:
         # create a new instance of the DLL as per ngspice docs about parallelization
-            self.temp_dll = os.path.join(tempfile.gettempdir(), "ngspice_"+ str(self._ngspice_id) +".dll") 
-            shutil.copy(library_path, self.temp_dll)
-            library_path = self.temp_dll
-        
-        self._logger.debug('Load {}'.format(library_path))
-        self._ngspice_shared = ffi.dlopen(library_path)
+            for n in range(1000): # remove this and make automatic temp file if the dlclose problem is solved (see __del__)
+                self.__class__.__dll_id += 1
+                self.temp_dll = os.path.join(tempfile.gettempdir(), "ngspice_"+ str(self.__class__.__dll_id) +".dll") 
+                try:
+                    shutil.copy(library_path, self.temp_dll)
+                except:
+                    continue
+                self._logger.debug('Load {}'.format(self.temp_dll))
+                try:
+                    self._ngspice_shared = ffi.dlopen(self.temp_dll) # the file may be busy from other application
+                except: # dll may be in use
+                    try:
+                        os.unlink(self.temp_dll)
+                    except: 
+                        pass
+                    continue
+                break
+        else:
+            self._logger.debug('Load {}'.format(library_path))
+            self._ngspice_shared = ffi.dlopen(library_path)
 
         # Note: cannot yet execute command
 

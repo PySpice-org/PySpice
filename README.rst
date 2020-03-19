@@ -98,6 +98,8 @@ What is PySpicePro ?
 PySpicePro is a Python module based on the PySpice module created by Fabrice Salvaire with additions that are not yet 
 integrated into PySpice.
 
+PySpicePro only works with ngspice version 30 (install from ngspice-30_dll_64.zip).
+
 Additions:
 """"""""""
 
@@ -110,6 +112,8 @@ Installation:
 """""""""""""
 
     pip install PySpicePro
+
+PySpicePro needs to work with a specific version of ngspice. Currently only supporting v30.
 
 What is PySpice ?
 -----------------
