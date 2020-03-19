@@ -95,18 +95,16 @@ Overview
 What is PySpicePro ?
 --------------------
 
-PySpicePro is a Python module based on the PySpice module created by Fabrice Salvaire with additions that are not yet 
-integrated into PySpice.
+PySpicePro is a Python module based on the PySpice module created by Fabrice Salvaire with additions that are not yet integrated into PySpice.
 
 PySpicePro only works with ngspice version 30 (install from ngspice-30_dll_64.zip).
+
 
 Additions:
 """"""""""
 
-* The .meas(ure) keyword has been added through the simulator.measure(..) member function. This allows the use of 
-simulator.options('AUTOSTOP').
-* Parallelisation is now more convenient with the use of NgSpiceShared.new_instance() where the management of new instances 
-is now completely automated (temporary dll, instances deletions).
+* The .meas(ure) keyword has been added through the simulator.measure(..) member function. This allows the use of simulator.options('AUTOSTOP').
+* Parallelisation is now more convenient with the use of NgSpiceShared.new_instance() where the management of new instances is now completely automated (temporary dll, instances deletions).
 
 Installation:
 """""""""""""
@@ -167,29 +165,29 @@ V1.2.0 2018-06-07
    research use.
  * Fixed OSX support
  * Splitted G device
- * Implemented partially `A` XSPICE device
+ * Implemented partially 'A' XSPICE device
  * Implemented missing transmission line devices
  * Implemented high level current sources
    **Notice: Some classes were renamed !**
  * Implemented node kwarg e.g. :code:`circuit.Q(1, base=1, collector=2, emitter=3, model='npn')`
- * Implemented raw spice pass through (see `User FAQ </faq.html>`_)
+ * Implemented raw spice pass through (see 'User FAQ </faq.html>'_)
  * Implemented access to internal parameters (cf. :code:`save @device[parameter]`)
  * Implemented check for missing ground node
  * Implemented a way to disable an element and clone netlist
  * Improved SPICE parser
  * Improved unit support:
 
-   * Implemented unit prefix cast `U_μV(U_mV(1))` to easily convert values
-   * Added `U_mV`, ... shortcuts
-   * Added Numpy array support to unit, see `UnitValues` **Notice: this new feature could be buggy !!!**
-   * Rebased `WaveForm` to `UnitValues`
+   * Implemented unit prefix cast 'U_μV(U_mV(1))' to easily convert values
+   * Added 'U_mV', ... shortcuts
+   * Added Numpy array support to unit, see 'UnitValues' **Notice: this new feature could be buggy !!!**
+   * Rebased 'WaveForm' to 'UnitValues'
 
  * Fixed node order so as to not confuse users **Now PySpice matches SPICE order for two ports elements !**
- * Fixed device shortcuts in `Netlist` class
+ * Fixed device shortcuts in 'Netlist' class
  * Fixed model kwarg for BJT **Notice: it must be passed exclusively as kwarg !**
  * Fixed subcircuit nesting
  * Outsourced documentation generator to |Pyterate|_
- * Updated `setup.py` for wheel
+ * Updated 'setup.py' for wheel
 
 .. :ref:`user-faq-page`
 
