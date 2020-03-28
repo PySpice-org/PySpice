@@ -297,6 +297,37 @@ class TransientAnalysisParameters(AnalysisParameters):
 
 ####################################################################################################
 
+class MeasureParameters(AnalysisParameters):
+
+    """
+    This class defines measurements on analysis.
+    """
+
+    __analysis_name__ = 'meas'
+
+    ##############################################
+
+    def __init__(self, analysis_type, name, *args):
+        
+        if (str(analysis_type).upper() not in ('AC', 'DC', 'OP', 'TRAN', 'TF', 'NOISE')):
+            raise ValueError("Incorrect analysis type")
+        
+        self._parameters = [analysis_type, name, *args]
+
+    ##############################################
+
+    @property
+    def parameters(self):
+        return self._parameters
+
+    ##############################################
+
+    def to_list(self):
+
+        return self._parameters
+
+####################################################################################################
+
 class CircuitSimulation:
 
     """Define and generate the spice instruction to perform a circuit simulation.
@@ -315,6 +346,7 @@ class CircuitSimulation:
         self._circuit = circuit
 
         self._options = {} # .options
+        self._measures = [] # .measure
         self._initial_condition = {} # .ic
         self._saved_nodes = set()
         self._analyses = {}
@@ -438,6 +470,12 @@ class CircuitSimulation:
     def _add_analysis(self, analysis_parameters):
 
         self._analyses[analysis_parameters.analysis_name] = analysis_parameters
+
+    ##############################################
+
+    def _add_measure(self, measure_parameters):
+
+        self._measures.append(measure_parameters)
 
     ##############################################
 
@@ -586,6 +624,28 @@ class CircuitSimulation:
 
     ##############################################
 
+    def measure(self, analysis_type, name, *args):
+
+        """Add a measure in the circuit.
+
+        Examples of usage::
+
+            simulator.measure('TRAN', 'tdiff', 'TRIG AT=10m', 'TARG v(n1) VAL=75.0 CROSS=1')
+            simulator.measure('tran', 'tdiff', 'TRIG AT=0m', f"TARG par('v(n1)-v(derate)') VAL=0 CROSS=1")
+
+        Note: can be used with the .options AUTOSTOP to stop the simulation at Trigger.
+        Spice syntax:
+
+        .. code:: spice
+
+            .meas tran tdiff TRIG AT=0m TARG v(n1) VAL=75.0 CROSS=1
+
+        """
+
+        self._add_measure(MeasureParameters(analysis_type, name, *args))
+
+    ##############################################
+
     def transient(self, step_time, end_time, start_time=0, max_time=None,
                   use_initial_condition=False):
 
@@ -646,6 +706,8 @@ class CircuitSimulation:
             else:
                 all_str = ''
             netlist += '.save ' + all_str + join_list(saved_nodes) + os.linesep
+        for measure_parameters in self._measures:
+            netlist += str(measure_parameters) + os.linesep
         for analysis_parameters in self._analyses.values():
             netlist += str(analysis_parameters) + os.linesep
         netlist += '.end' + os.linesep

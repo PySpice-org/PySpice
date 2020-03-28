@@ -26,16 +26,16 @@
 .. .. _PySpice@pypi: https://pypi.python.org/pypi/PySpice
 
 .. |Pypi Version| image:: https://img.shields.io/pypi/v/PySpice.svg
-   :target: https://pypi.python.org/pypi/PySpice
-   :alt: PySpice last version
+   :target: https://pypi.python.org/pypi/PySpicePro
+   :alt: PySpicePro last version
 
 .. |Pypi License| image:: https://img.shields.io/pypi/l/PySpice.svg
-   :target: https://pypi.python.org/pypi/PySpice
+   :target: https://pypi.python.org/pypi/PySpicePro
    :alt: PySpice license
 
 .. |Pypi Python Version| image:: https://img.shields.io/pypi/pyversions/PySpice.svg
-   :target: https://pypi.python.org/pypi/PySpice
-   :alt: PySpice python version
+   :target: https://pypi.python.org/pypi/PySpicePro
+   :alt: PySpicePro python version
 
 .. |Build Status| image:: https://travis-ci.org/FabriceSalvaire/PySpice.svg?branch=master
    :target: https://travis-ci.org/FabriceSalvaire/PySpice
@@ -46,10 +46,6 @@
    :alt: Fabrice Salvaire's Ohloh profile
    :height: 15px
    :width:  80px
-
-..  coverage test
-..  https://img.shields.io/pypi/status/Django.svg
-..  https://img.shields.io/github/stars/badges/shields.svg?style=social&label=Star
 
 .. End
 .. -*- Mode: rst -*-
@@ -84,20 +80,38 @@
 .. |Tikz| replace:: Tikz
 .. |Xyce| replace:: Xyce
 
-=====================================================================================
- PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
-=====================================================================================
+====================================================================================
+PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
+====================================================================================
 
 |Pypi License|
 |Pypi Python Version|
 
 |Pypi Version|
 
-* Quick Link to `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
-* Quick Link to `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
-
 Overview
 ========
+
+What is PySpicePro ?
+--------------------
+
+PySpicePro is a Python module based on the PySpice module created by Fabrice Salvaire with additions that are not yet integrated into PySpice.
+
+PySpicePro only works with ngspice version 30 (install from ngspice-30_dll_64.zip).
+
+
+Additions:
+""""""""""
+
+* The .meas(ure) keyword has been added through the simulator.measure(..) member function. This allows the use of simulator.options('AUTOSTOP').
+* Parallelisation is now more convenient with the use of NgSpiceShared.new_instance() where the management of new instances is now completely automated (temporary dll, instances deletions).
+
+Installation:
+"""""""""""""
+
+    pip install PySpicePro
+
+PySpicePro needs to work with a specific version of ngspice. Currently only supporting v30.
 
 What is PySpice ?
 -----------------
@@ -126,23 +140,11 @@ What are the main features ?
 * implement a **documentation generator**
 * provides many **examples**
 
-How to install it ?
--------------------
-
-Look at the `installation <https://pyspice.fabrice-salvaire.fr/installation.html>`_ section in the documentation.
-
 Credits
 =======
 
-Authors: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_
+Author of the original PySpice: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_
 
-News
-====
-
-.. -*- Mode: rst -*-
-
-
-.. no title here
 
 V1.4.0 (development release)
 ----------------------------
@@ -163,29 +165,29 @@ V1.2.0 2018-06-07
    research use.
  * Fixed OSX support
  * Splitted G device
- * Implemented partially `A` XSPICE device
+ * Implemented partially 'A' XSPICE device
  * Implemented missing transmission line devices
  * Implemented high level current sources
    **Notice: Some classes were renamed !**
  * Implemented node kwarg e.g. :code:`circuit.Q(1, base=1, collector=2, emitter=3, model='npn')`
- * Implemented raw spice pass through (see `User FAQ </faq.html>`_)
+ * Implemented raw spice pass through (see 'User FAQ </faq.html>'_)
  * Implemented access to internal parameters (cf. :code:`save @device[parameter]`)
  * Implemented check for missing ground node
  * Implemented a way to disable an element and clone netlist
  * Improved SPICE parser
  * Improved unit support:
 
-   * Implemented unit prefix cast `U_μV(U_mV(1))` to easily convert values
-   * Added `U_mV`, ... shortcuts
-   * Added Numpy array support to unit, see `UnitValues` **Notice: this new feature could be buggy !!!**
-   * Rebased `WaveForm` to `UnitValues`
+   * Implemented unit prefix cast 'U_μV(U_mV(1))' to easily convert values
+   * Added 'U_mV', ... shortcuts
+   * Added Numpy array support to unit, see 'UnitValues' **Notice: this new feature could be buggy !!!**
+   * Rebased 'WaveForm' to 'UnitValues'
 
  * Fixed node order so as to not confuse users **Now PySpice matches SPICE order for two ports elements !**
- * Fixed device shortcuts in `Netlist` class
+ * Fixed device shortcuts in 'Netlist' class
  * Fixed model kwarg for BJT **Notice: it must be passed exclusively as kwarg !**
  * Fixed subcircuit nesting
  * Outsourced documentation generator to |Pyterate|_
- * Updated `setup.py` for wheel
+ * Updated 'setup.py' for wheel
 
 .. :ref:`user-faq-page`
 

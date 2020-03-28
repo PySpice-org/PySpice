@@ -98,3 +98,4 @@ tools/upload-www
 trash/
 
 unit-test/test.py
+PySpicePro.egg-info/

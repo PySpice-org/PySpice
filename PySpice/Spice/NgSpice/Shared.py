@@ -47,9 +47,14 @@ the shared library by worker as explained in the manual.
 ####################################################################################################
 
 import logging
-import os
+import os, shutil
+import tempfile
 import platform
 import re
+from weakref import WeakValueDictionary
+import warnings
+import gc
+
 # import time
 
 import numpy as np
@@ -57,7 +62,6 @@ import numpy as np
 ####################################################################################################
 
 from cffi import FFI
-ffi = FFI()
 
 ####################################################################################################
 
@@ -79,7 +83,15 @@ from .SimulationType import SIMULATION_TYPE
 ####################################################################################################
 
 def ffi_string_utf8(x):
-    return ffi.string(x).decode('utf8') # Fixme: ascii ?
+    bytelist = []
+    i = 0
+    while True:
+        c=x[i]
+        if c == b'\0': 
+            break
+        bytelist.append(c)
+        i+=1
+    return b''.join(bytelist).decode('utf-8')
 
 ####################################################################################################
 
@@ -306,7 +318,7 @@ class Plot(dict):
 
 ####################################################################################################
 
-class NgSpiceShared:
+class NgSpiceShared(object):
 
     _logger = _module_logger.getChild('NgSpiceShared')
 
@@ -317,43 +329,93 @@ class NgSpiceShared:
 
     ##############################################
 
-    _instances = {}
+    _instances=None
+    _ffis = {}
+    _ngspice_shared_dict = {}
+    _temp_dlls = {}
+    
 
-    @classmethod
-    def new_instance(cls, ngspice_id=0, send_data=False):
-
+    def __new__(cls, ngspice_id=None, send_data=False):
+        """
+        Only one instance exists per ngspice_id. All instances can be called in parallel but only one 
+        callback function exists per instance (the fist one defined). The ngspice library has a limit
+        on the number of open libraries, do not open too many instances (50 as of writing these lines).
+        If a duplicate of an instance is required, use the ngspice_id of the previously created instance.
+        Use ngspice_id=None for auto-numbering of instances (recycling previously closed libraries).
+        Use get_id() to get the instance id.
+        """ 
+        assert type(ngspice_id) is int if ngspice_id is not None else True, "ngspice_id must be an int"
         # Fixme: send_data
+        if __class__._instances is None:
+            __class__._instances = WeakValueDictionary()
 
-        if ngspice_id in cls._instances:
-            return cls._instances[ngspice_id]
+        if ngspice_id in __class__._instances:
+            warnings.warn("""This use case as not been tested as I had no use for it yet.
+Creating multiple instances that points to the same library (dll) would be used to have
+multiple circuit simulated in lockstep one to the other. The lockstep functionnality is
+provided by the get_isrc_data and get_vsrc_data callback function.""")
+            return __class__._instances[ngspice_id]
         else:
+            if ngspice_id is None: # find an empty slot
+                gc.collect() # Force garbage collection to make sure all instances have been released
+                slot=0 # starting point
+                while True:
+                    if slot not in __class__._instances:
+                        break # found
+                    slot+=1
+                ngspice_id = slot # keep this id
             cls._logger.info("New instance for id {}".format(ngspice_id))
-            instance = cls(ngspice_id=ngspice_id, send_data=send_data)
-            cls._instances[ngspice_id] = instance
+            instance = object.__new__(cls)
+            __class__._instances[ngspice_id] = instance
+            instance._ffi = FFI()
+            __class__._ffis[ngspice_id] = instance._ffi
+            instance._ngspice_id = ngspice_id
+            instance._load_library()
             return instance
 
     ##############################################
 
-    def __init__(self, ngspice_id=0, send_data=False):
-
-        """ Set the *send_data* flag if you want to enable the output callback.
-
-        Set the *ngspice_id* to an integer value if you want to run NgSpice in parallel.
+    def __init__(self, ngspice_id=None, send_data=False):
         """
-
-        self._ngspice_id = ngspice_id
+        Set the *send_data* flag if you want to enable the output callback.
+        """
+        assert ngspice_id == self._ngspice_id if ngspice_id is not None else True, "__new__ must have been called first"
+        ### __init__ is not called for an instance copy
 
         self._stdout = []
         self._stderr = []
-
-        self._load_library()
+        
         self._init_ngspice(send_data)
 
         self._is_running = False
 
     ##############################################
+        
+    def __del__(self):
+        try:
+            self.quit() # this function generates a NameError
+        except NameError:
+            pass
+        self._ffi.dlclose(self._ngspice_shared)
+        del __class__._ngspice_shared_dict[self._ngspice_id]
+        del __class__._ffis[self._ngspice_id]
+        try:
+            del __class__._instances[self._ngspice_id]
+        except KeyError:
+            pass
+        try:
+            os.unlink(self._temp_dlls[self._ngspice_id])
+        except: 
+            "dlclose is not doing its job!" # do not know how to solve
+            pass
 
+    def get_id(self):
+        return self._ngspice_id
+    
     def _load_library(self):
+    ##############################################
+
+        ffi = self._ffi
 
         if ConfigInstall.OS.on_windows:
             # https://sourceforge.net/p/ngspice/discussion/133842/thread/1cece652/#4e32/5ab8/9027
@@ -366,20 +428,30 @@ class NgSpiceShared:
         with open(api_path) as f:
             ffi.cdef(f.read())
 
-        if not self._ngspice_id:
-            library_prefix = ''
-        else:
-            library_prefix = '{}'.format(self._ngspice_id)
-        library_path = self.LIBRARY_PATH.format(library_prefix)
-        self._logger.debug('Load {}'.format(library_path))
-        self._ngspice_shared = ffi.dlopen(library_path)
-
+        library_path = self.LIBRARY_PATH.format('')
+        # create a new instance of the DLL as per ngspice docs about parallelization
+        temp_dll = os.path.join(tempfile.gettempdir(), "ngspice_"+ str(self._ngspice_id) +".dll") 
+        try:
+            shutil.copy(library_path, temp_dll)
+        except:
+            pass  # Already exist?
+        self._logger.debug('Load {}'.format(temp_dll))
+        try:  # TODO browse through dlls???
+            __class__._ngspice_shared_dict[self._ngspice_id] = ffi.dlopen(temp_dll) # the file may be busy from other application
+            self._ngspice_shared = __class__._ngspice_shared_dict[self._ngspice_id]
+        except: # dll may be in use
+            try:
+                os.unlink(temp_dll)
+            except: 
+                pass
+            raise
+        self.__class__._temp_dlls[self._ngspice_id] = temp_dll
         # Note: cannot yet execute command
 
     ##############################################
 
     def _init_ngspice(self, send_data):
-
+        ffi = self._ffi
         self._send_char_c = ffi.callback('int (char *, int, void *)', self._send_char)
         self._send_stat_c = ffi.callback('int (char *, int, void *)', self._send_stat)
         self._exit_c = ffi.callback('int (int, bool, bool, int, void *)', self._exit)
@@ -389,7 +461,7 @@ class NgSpiceShared:
         if send_data:
             self._send_data_c = ffi.callback('int (pvecvaluesall, int, int, void *)', self._send_data)
         else:
-            self._send_data_c = ffi.NULL
+            self._send_data_c = FFI.NULL
 
         self._get_vsrc_data_c = ffi.callback('int (double *, double, char *, int, void *)', self._get_vsrc_data)
         self._get_isrc_data_c = ffi.callback('int (double *, double, char *, int, void *)', self._get_isrc_data)
@@ -408,10 +480,10 @@ class NgSpiceShared:
             raise NameError("Ngspice_Init returned {}".format(rc))
 
         ngspice_id_c = ffi.new('int *', self._ngspice_id)
-        self._ngspice_id = ngspice_id_c # To prevent garbage collection
+        self._ngspice_id_c = ngspice_id_c # To prevent garbage collection
         rc = self._ngspice_shared.ngSpice_Init_Sync(self._get_vsrc_data_c,
                                                     self._get_isrc_data_c,
-                                                    ffi.NULL, # GetSyncData
+                                                    FFI.NULL, # GetSyncData
                                                     ngspice_id_c,
                                                     self_c)
         if rc:
@@ -441,8 +513,10 @@ class NgSpiceShared:
     def _send_char(message_c, ngspice_id, user_data):
 
         """Callback for sending output from stdout, stderr to caller"""
+        if ngspice_id not in NgSpiceShared._ffis:
+            return 0
 
-        self = ffi.from_handle(user_data)
+        self = NgSpiceShared._ffis[ngspice_id].from_handle(user_data)
         message = ffi_string_utf8(message_c)
 
         prefix, _, content = message.partition(' ')
@@ -460,7 +534,7 @@ class NgSpiceShared:
     @staticmethod
     def _send_stat(message, ngspice_id, user_data):
         """Callback for simulation status to caller"""
-        self = ffi.from_handle(user_data)
+        self = NgSpiceShared._ffis[ngspice_id].from_handle(user_data)
         return self.send_stat(ffi_string_utf8(message), ngspice_id)
 
     ##############################################
@@ -468,7 +542,7 @@ class NgSpiceShared:
     @staticmethod
     def _exit(exit_status, immediate_unloding, quit_exit, ngspice_id, user_data):
         """Callback for asking for a reaction after controlled exit"""
-        self = ffi.from_handle(user_data)
+        self = NgSpiceShared._ffis[ngspice_id].from_handle(user_data)
         self._logger.debug('ngspice_id-{} exit status={} immediate_unloding={} quit_exit={}'.format(
             ngspice_id,
             exit_status,
@@ -481,7 +555,7 @@ class NgSpiceShared:
     @staticmethod
     def _send_data(data, number_of_vectors, ngspice_id, user_data):
         """Callback to send back actual vector data"""
-        self = ffi.from_handle(user_data)
+        self = NgSpiceShared._ffis[ngspice_id].from_handle(user_data)
         # self._logger.debug('ngspice_id-{} send_data [{}]'.format(ngspice_id, data.vecindex))
         actual_vector_values = {}
         for i in range(int(number_of_vectors)):
@@ -497,7 +571,7 @@ class NgSpiceShared:
     @staticmethod
     def _send_init_data(data,  ngspice_id, user_data):
         """Callback to send back initialization vector data"""
-        self = ffi.from_handle(user_data)
+        self = NgSpiceShared._ffis[ngspice_id].from_handle(user_data)
         # if self._logger.isEnabledFor(logging.DEBUG):
         #     self._logger.debug('ngspice_id-{} send_init_data'.format(ngspice_id))
         #     number_of_vectors = data.veccount
@@ -510,7 +584,7 @@ class NgSpiceShared:
     @staticmethod
     def _background_thread_running(is_running, ngspice_id, user_data):
         """Callback to indicate if background thread is runnin"""
-        self = ffi.from_handle(user_data)
+        self = NgSpiceShared._ffis[ngspice_id].from_handle(user_data)
         self._logger.debug('ngspice_id-{} background_thread_running {}'.format(ngspice_id, is_running))
         self._is_running = is_running
 
@@ -519,7 +593,7 @@ class NgSpiceShared:
     @staticmethod
     def _get_vsrc_data(voltage, time, node, ngspice_id, user_data):
         """FFI Callback"""
-        self = ffi.from_handle(user_data)
+        self = NgSpiceShared._ffis[ngspice_id].from_handle(user_data)
         return self.get_vsrc_data(voltage, time, ffi_string_utf8(node), ngspice_id)
 
     ##############################################
@@ -527,7 +601,7 @@ class NgSpiceShared:
     @staticmethod
     def _get_isrc_data(current, time, node, ngspice_id, user_data):
         """FFI Callback"""
-        self = ffi.from_handle(user_data)
+        self = NgSpiceShared._ffis[ngspice_id].from_handle(user_data)
         return self.get_isrc_data(current, time, ffi_string_utf8(node), ngspice_id)
 
     ##############################################
@@ -578,7 +652,7 @@ class NgSpiceShared:
         strings = []
         i = 0
         while (True):
-            if array[i] == ffi.NULL:
+            if array[i] == FFI.NULL:
                 break
             else:
                 strings.append(ffi_string_utf8(array[i]))
@@ -717,10 +791,11 @@ class NgSpiceShared:
 
     ##############################################
 
-    def alter_device(self, device, **kwargs):
+    def alter_device(self, device=None, **kwargs):
 
         """Alter device parameters"""
-
+        if device is None:
+            device = ''
         self._alter('alter', device, kwargs)
 
     ##############################################
@@ -961,11 +1036,12 @@ class NgSpiceShared:
     def load_circuit(self, circuit):
 
         """Load the given circuit string."""
-
+        
+        ffi = NgSpiceShared._ffis[self._ngspice_id]
         circuit_lines = [line for line in str(circuit).split(os.linesep) if line]
         circuit_lines_keepalive = [ffi.new("char[]", line.encode('utf8'))
                                    for line in circuit_lines]
-        circuit_lines_keepalive += [ffi.NULL]
+        circuit_lines_keepalive += [FFI.NULL]
         circuit_array = ffi.new("char *[]", circuit_lines_keepalive)
         rc = self._ngspice_shared.ngSpice_Circ(circuit_array)
         if rc:
@@ -1011,9 +1087,9 @@ class NgSpiceShared:
 
     ##############################################
 
-    def resume(self, background=True):
+    def resume(self, background=False):
 
-        """ Halt the simulation in the background thread. """
+        """ Resume the simulation """
 
         command = b'bg_resume' if background else b'resume'
         rc = self._ngspice_shared.ngSpice_Command(command)
@@ -1081,11 +1157,12 @@ class NgSpiceShared:
 
         # plot_name is for example dc with an integer suffix which is increment for each run
 
+        ffi = self._ffi
         plot = Plot(simulation, plot_name)
         all_vectors_c = self._ngspice_shared.ngSpice_AllVecs(plot_name.encode('utf8'))
         i = 0
         while (True):
-            if all_vectors_c[i] == ffi.NULL:
+            if all_vectors_c[i] == FFI.NULL:
                 break
             else:
                 vector_name = ffi_string_utf8(all_vectors_c[i])
@@ -1098,7 +1175,7 @@ class NgSpiceShared:
                 #                                                                      vector_type,
                 #                                                                      self._flags_to_str(vector_info.v_flags),
                 #                                                                      length))
-                if vector_info.v_compdata == ffi.NULL:
+                if vector_info.v_compdata == FFI.NULL:
                     # for k in xrange(length):
                     #     print("  [{}] {}".format(k, vector_info.v_realdata[k]))
                     tmp_array = np.frombuffer(ffi.buffer(vector_info.v_realdata, length*8), dtype=np.float64)

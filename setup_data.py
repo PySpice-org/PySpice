@@ -80,20 +80,20 @@ def read_readme(file_name):
 ####################################################################################################
 
 if not __file__.endswith('conf.py'):
-    long_description = read_readme('README.txt')
+    long_description = read_readme('README.rst')
 else:
     long_description = ''
 
 ####################################################################################################
 
 setup_dict = dict(
-    name='PySpice',
+    name='PySpicePro',
     version=version,
-    author='Fabrice Salvaire',
-    author_email='fabrice.salvaire@orange.fr',
+    author='ceprio',
+    author_email='c.pypi@zone-c5.com',
     description='Simulate electronic circuit using Python and the Ngspice / Xyce simulators',
     license='GPLv3',
     keywords= 'spice berkeley ngspice xyce electronic circuit simulation simulator',
-    url='https://github.com/FabriceSalvaire/PySpice',
+    url='https://github.com/ceprio/PySpicePro',
     long_description=long_description,
 )
