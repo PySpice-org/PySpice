@@ -51,6 +51,10 @@ import os, shutil
 import tempfile
 import platform
 import re
+from weakref import WeakValueDictionary
+import warnings
+import gc
+
 # import time
 
 import numpy as np
@@ -314,7 +318,7 @@ class Plot(dict):
 
 ####################################################################################################
 
-class NgSpiceShared:
+class NgSpiceShared(object):
 
     _logger = _module_logger.getChild('NgSpiceShared')
 
@@ -325,53 +329,62 @@ class NgSpiceShared:
 
     ##############################################
 
-    __number_of_instances = 0
-    _instances = {}
+    _instances=None
     _ffis = {}
-    __dll_id = 0
+    _ngspice_shared_dict = {}
+    _temp_dlls = {}
+    
 
-    @classmethod
-    def new_instance(cls, ngspice_id=None, send_data=False):
+    def __new__(cls, ngspice_id=None, send_data=False):
         """
-        Use NgSpiceShared.new_instance() to create NgSpice instances. All instances can be called in parallel.
+        Only one instance exists per ngspice_id. All instances can be called in parallel but only one 
+        callback function exists per instance (the fist one defined). The ngspice library has a limit
+        on the number of open libraries, do not open too many instances (50 as of writing these lines).
         If a duplicate of an instance is required, use the ngspice_id of the previously created instance.
+        Use ngspice_id=None for auto-numbering of instances (recycling previously closed libraries).
         Use get_id() to get the instance id.
         """ 
+        assert type(ngspice_id) is int if ngspice_id is not None else True, "ngspice_id must be an int"
         # Fixme: send_data
+        if __class__._instances is None:
+            __class__._instances = WeakValueDictionary()
 
-        if ngspice_id in cls._instances:
-            return cls._instances[ngspice_id]
+        if ngspice_id in __class__._instances:
+            warnings.warn("""This use case as not been tested as I had no use for it yet.
+Creating multiple instances that points to the same library (dll) would be used to have
+multiple circuit simulated in lockstep one to the other. The lockstep functionnality is
+provided by the get_isrc_data and get_vsrc_data callback function.""")
+            return __class__._instances[ngspice_id]
         else:
-            while True:
-                cls.__number_of_instances += 1
-                if cls.__number_of_instances not in cls._instances:
-                    break
-            ngspice_id = cls.__number_of_instances
+            if ngspice_id is None: # find an empty slot
+                gc.collect() # Force garbage collection to make sure all instances have been released
+                slot=0 # starting point
+                while True:
+                    if slot not in __class__._instances:
+                        break # found
+                    slot+=1
+                ngspice_id = slot # keep this id
             cls._logger.info("New instance for id {}".format(ngspice_id))
-            instance = cls(ngspice_id=ngspice_id, send_data=send_data)
-            cls._instances[ngspice_id] = instance
+            instance = object.__new__(cls)
+            __class__._instances[ngspice_id] = instance
+            instance._ffi = FFI()
+            __class__._ffis[ngspice_id] = instance._ffi
+            instance._ngspice_id = ngspice_id
+            instance._load_library()
             return instance
 
     ##############################################
 
-    def __init__(self, ngspice_id=0, send_data=False):
-
+    def __init__(self, ngspice_id=None, send_data=False):
         """
-        Do not use this unless you manage the ngspice_ids yourself or only need one instance.
-        
-        Use NgSpiceShared.new_instance() instead that creates one instance per call unless 
-        ngspice_id is specified (as an int). This allows to run NgSpice in parallel.
-        
         Set the *send_data* flag if you want to enable the output callback.
         """
-        assert ngspice_id not in self.__class__._instances, "You cannot instantiate two instances of NgSpiceShared with the same ngspice_id"
-        self.__class__._ffis[ngspice_id] = FFI()
-        self._ngspice_id = ngspice_id
+        assert ngspice_id == self._ngspice_id if ngspice_id is not None else True, "__new__ must have been called first"
+        ### __init__ is not called for an instance copy
 
         self._stdout = []
         self._stderr = []
-
-        self._load_library()
+        
         self._init_ngspice(send_data)
 
         self._is_running = False
@@ -381,14 +394,17 @@ class NgSpiceShared:
     def __del__(self):
         try:
             self.quit() # this function generates a NameError
-        except:
+        except NameError:
             pass
-        ffi=self.__class__._ffis[self._ngspice_id]
-        ffi.dlclose(self._ngspice_shared)
-        del self.__class__._ffis[self._ngspice_id]
-        del NgSpiceShared._instances[self._ngspice_id]
+        self._ffi.dlclose(self._ngspice_shared)
+        del __class__._ngspice_shared_dict[self._ngspice_id]
+        del __class__._ffis[self._ngspice_id]
         try:
-            os.unlink(self.temp_dll)
+            del __class__._instances[self._ngspice_id]
+        except KeyError:
+            pass
+        try:
+            os.unlink(self._temp_dlls[self._ngspice_id])
         except: 
             "dlclose is not doing its job!" # do not know how to solve
             pass
@@ -399,7 +415,7 @@ class NgSpiceShared:
     def _load_library(self):
     ##############################################
 
-        ffi = NgSpiceShared._ffis[self._ngspice_id]
+        ffi = self._ffi
 
         if ConfigInstall.OS.on_windows:
             # https://sourceforge.net/p/ngspice/discussion/133842/thread/1cece652/#4e32/5ab8/9027
@@ -413,35 +429,29 @@ class NgSpiceShared:
             ffi.cdef(f.read())
 
         library_path = self.LIBRARY_PATH.format('')
-        if self._ngspice_id:
         # create a new instance of the DLL as per ngspice docs about parallelization
-            for n in range(1000): # remove this and make automatic temp file if the dlclose problem is solved (see __del__)
-                self.__class__.__dll_id += 1
-                self.temp_dll = os.path.join(tempfile.gettempdir(), "ngspice_"+ str(self.__class__.__dll_id) +".dll") 
-                try:
-                    shutil.copy(library_path, self.temp_dll)
-                except:
-                    continue
-                self._logger.debug('Load {}'.format(self.temp_dll))
-                try:
-                    self._ngspice_shared = ffi.dlopen(self.temp_dll) # the file may be busy from other application
-                except: # dll may be in use
-                    try:
-                        os.unlink(self.temp_dll)
-                    except: 
-                        pass
-                    continue
-                break
-        else:
-            self._logger.debug('Load {}'.format(library_path))
-            self._ngspice_shared = ffi.dlopen(library_path)
-
+        temp_dll = os.path.join(tempfile.gettempdir(), "ngspice_"+ str(self._ngspice_id) +".dll") 
+        try:
+            shutil.copy(library_path, temp_dll)
+        except:
+            pass  # Already exist?
+        self._logger.debug('Load {}'.format(temp_dll))
+        try:  # TODO browse through dlls???
+            __class__._ngspice_shared_dict[self._ngspice_id] = ffi.dlopen(temp_dll) # the file may be busy from other application
+            self._ngspice_shared = __class__._ngspice_shared_dict[self._ngspice_id]
+        except: # dll may be in use
+            try:
+                os.unlink(temp_dll)
+            except: 
+                pass
+            raise
+        self.__class__._temp_dlls[self._ngspice_id] = temp_dll
         # Note: cannot yet execute command
 
     ##############################################
 
     def _init_ngspice(self, send_data):
-        ffi = NgSpiceShared._ffis[self._ngspice_id]
+        ffi = self._ffi
         self._send_char_c = ffi.callback('int (char *, int, void *)', self._send_char)
         self._send_stat_c = ffi.callback('int (char *, int, void *)', self._send_stat)
         self._exit_c = ffi.callback('int (int, bool, bool, int, void *)', self._exit)
@@ -1147,7 +1157,7 @@ class NgSpiceShared:
 
         # plot_name is for example dc with an integer suffix which is increment for each run
 
-        ffi = NgSpiceShared._ffis[self._ngspice_id]
+        ffi = self._ffi
         plot = Plot(simulation, plot_name)
         all_vectors_c = self._ngspice_shared.ngSpice_AllVecs(plot_name.encode('utf8'))
         i = 0
