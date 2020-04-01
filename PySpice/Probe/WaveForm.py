@@ -415,3 +415,63 @@ class TransientAnalysis(Analysis):
     def time(self):
         """Return an Numpy array for the time abscissa"""
         return self._time
+
+####################################################################################################
+
+class PoleZeroAnalysis(Analysis):
+
+    """This class implements a Pole-Zero analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, nodes, branches, internal_parameters):
+
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
+
+####################################################################################################
+
+class NoiseAnalysis(Analysis):
+
+    """This class implements Noise analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, nodes, branches, internal_parameters):
+
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
+
+####################################################################################################
+
+class DistortionAnalysis(Analysis):
+
+    """This class implements Distortion analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, frequency, nodes, branches, internal_parameters):
+
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
+        self._frequency = frequency
+
+    @property
+    def frequency(self):
+        """Return an Numpy array for the frequency abscissa"""
+        return self._frequency
+
+####################################################################################################
+
+class TransferFunctionAnalysis(Analysis):
+
+    """This class implements Transfer Function (TF) analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, nodes, branches, internal_parameters):
+
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
+
+####################################################################################################

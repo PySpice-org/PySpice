@@ -72,6 +72,7 @@ _module_logger = logging.getLogger(__name__)
 from PySpice.Config import ConfigInstall
 from PySpice.Probe.WaveForm import (OperatingPoint, SensitivityAnalysis,
                                     DcAnalysis, AcAnalysis, TransientAnalysis,
+                                    PoleZeroAnalysis, NoiseAnalysis, DistortionAnalysis, TransferFunctionAnalysis,
                                     WaveForm)
 from PySpice.Tools.EnumFactory import EnumFactory
 from .SimulationType import SIMULATION_TYPE
@@ -230,6 +231,14 @@ class Plot(dict):
             return self._to_ac_analysis()
         elif self.plot_name.startswith('tran'):
             return self._to_transient_analysis()
+        elif self.plot_name.startswith('pz'):
+            return self._to_polezero_analysis()
+        elif self.plot_name.startswith('noise'):
+            return self._to_noise_analysis()
+        elif self.plot_name.startswith('disto'):
+            return self._to_distortion_analysis()
+        elif self.plot_name.startswith('tf'):
+            return self._to_transfer_function_analysis()
         else:
             raise NotImplementedError("Unsupported plot name {}".format(self.plot_name))
 
@@ -303,6 +312,56 @@ class Plot(dict):
             branches=self.branches(abscissa=time),
             internal_parameters=self.internal_parameters(abscissa=time),
         )
+
+    ##############################################
+
+    def _to_polezero_analysis(self):
+
+        return PoleZeroAnalysis(
+            simulation=self._simulation,
+            nodes=self.nodes(),
+            branches=self.branches(),
+            internal_parameters=self.internal_parameters(),
+        )
+
+
+    ##############################################
+
+    def _to_noise_analysis(self):
+
+        return NoiseAnalysis(
+            simulation=self._simulation,
+            nodes=self.nodes(),
+            branches=self.branches(),
+            internal_parameters=self.internal_parameters(),
+        )
+
+
+    ##############################################
+
+    def _to_distortion_analysis(self):
+
+        frequency = self['frequency'].to_waveform(to_real=True)
+        return DistortionAnalysis(
+            simulation=self._simulation,
+            frequency=frequency,
+            nodes=self.nodes(),
+            branches=self.branches(),
+            internal_parameters=self.internal_parameters(),
+        )
+
+
+    ##############################################
+
+    def _to_transfer_function_analysis(self):
+
+        return TransferFunctionAnalysis(
+            simulation=self._simulation,
+            nodes=self.nodes(),
+            branches=self.branches(),
+            internal_parameters=self.internal_parameters(),
+        )
+
 
 ####################################################################################################
 

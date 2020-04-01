@@ -297,6 +297,222 @@ class TransientAnalysisParameters(AnalysisParameters):
 
 ####################################################################################################
 
+class PoleZeroAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for pole-zero analysis."""
+
+    __analysis_name__ = 'pz'
+
+    ##############################################
+
+    def __init__(self, node1, node2, node3, node4, tftype, pztype):
+
+        self._nodes = [node1,node2,node3,node4]
+        self._tftype = tftype
+        self._pztype = pztype
+
+
+    ##############################################
+    @property
+    def node1(self):
+        return self._nodes[0]
+
+    @property
+    def node2(self):
+        return self._nodes[1]
+
+    def node3(self):
+        return self._nodes[2]
+
+    @property
+    def node4(self):
+        return self._nodes[3]
+
+    @property
+    def tftype(self):
+        return self._tftype
+
+    @property
+    def pztype(self):
+        return self._pztype
+
+    ##############################################
+
+    def to_list(self):
+
+        return (
+            self._nodes[0],
+            self._nodes[1],
+            self._nodes[2],
+            self._nodes[3],
+            self._tftype,
+            self._pztype,
+        )
+
+
+class NoiseAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for noise analysis."""
+
+    __analysis_name__ = 'noise'
+
+    ##############################################
+
+    def __init__(self, output, src, variation, pts, fstart, fstop, pts_per_summary):
+
+        self._output = output
+        self._src = src
+        self._variation = variation
+        self._pts = pts
+        self._fstart = fstart
+        self._fstop = fstop
+        self._pts_per_summary = pts_per_summary
+
+
+    ##############################################
+    @property
+    def output(self):
+        return self._output
+
+    @property
+    def src(self):
+        return self._src
+
+    @property
+    def variation(self):
+        return self._variation
+
+    @property
+    def pts(self):
+        return self._pts
+
+    @property
+    def fstart(self):
+        return self._fstart
+
+    @property
+    def fstop(self):
+        return self._fstop
+
+    @property
+    def pts_per_summary(self):
+        return self._pts_per_summary
+
+    ##############################################
+
+    def to_list(self):
+
+        if self._pts_per_summary:
+            return(
+                self._output,
+                self._src,
+                self._variation,
+                self._pts,
+                self._fstart,
+                self._fstop,
+                self._pts_per_summary,
+            )
+        else:
+            return(
+                self._output,
+                self._src,
+                self._variation,
+                self._pts,
+                self._fstart,
+                self._fstop,
+            )
+
+class DistortionAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for distortion analysis."""
+
+    __analysis_name__ = 'disto'
+
+    ##############################################
+
+    def __init__(self, variation, pts, fstart, fstop, f2overf1):
+
+        self._variation = variation
+        self._pts = pts
+        self._fstart = fstart
+        self._fstop = fstop
+        self._f2overf1 = f2overf1
+
+
+    ##############################################
+    @property
+    def variation(self):
+        return self._variation
+
+    @property
+    def pts(self):
+        return self._pts
+
+    @property
+    def fstart(self):
+        return self._fstart
+
+    @property
+    def fstop(self):
+        return self._fstop
+
+    @property
+    def f2overf1(self):
+        return self._f2overf1
+
+    ##############################################
+
+    def to_list(self):
+
+        if self._f2overf1:
+            return(
+                self._variation,
+                self._pts,
+                self._fstart,
+                self._fstop,
+                self._f2overf1,
+            )
+        else:
+            return(
+                self._variation,
+                self._pts,
+                self._fstart,
+                self._fstop,
+            )
+
+class TransferFunctionAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for transfer function (.tf) analysis."""
+
+    __analysis_name__ = 'tf'
+
+    ##############################################
+
+    def __init__(self, outvar, insrc):
+
+        self._outvar = outvar
+        self._insrc = insrc
+
+
+    ##############################################
+    @property
+    def outvar(self):
+        return self._outvar
+
+    @property
+    def insrc(self):
+        return self._insrc
+
+    ##############################################
+
+    def to_list(self):
+        return(
+                self._outvar,
+                self._insrc,
+            )
+
+####################################################################################################
+
 class CircuitSimulation:
 
     """Define and generate the spice instruction to perform a circuit simulation.
@@ -612,6 +828,131 @@ class CircuitSimulation:
 
     ##############################################
 
+    def polezero(self, node1, node2, node3, node4, tftype, pztype):
+
+        """Perform a Pole-Zero analysis of the circuit.
+        node1, node2  - Input node pair.
+        node3, node4  - Output node pair
+        tftype - should be "cur" for current or "vol" for voltage
+        pztype - should be "pol" for pole, "zer" for zero, or "pz" for combined pole zero analysis.
+        See section 15.3.6 of ngspice manual.
+
+        Spice syntax:
+
+        .. code:: spice
+
+            .tran tstep tstop <tstart <tmax>> <uic>
+            .pz node1 node2 node3 node4 cur pol
+           .pz node1 node2 node3 node4 cur zer
+           .pz node1 node2 node3 node4 cur pz
+           .pz node1 node2 node3 node4 vol pol
+           .pz node1 node2 NODE3 node4 vol zer
+           .pz node1 node2 node3 node4 vol pz
+           Examples:
+           .pz 1 0 3 0 cur pol
+           .pz 2 3 5 0 vol zer
+           .pz 4 1 4 1 cur pz
+
+        """
+        # do some rudimentary parameter checking.
+        if not tftype in [ 'cur',  'vol']:
+            raise NameError("polezero type must be 'cur' or 'vol'")
+        if not pztype in ['pol', 'zer', 'pz']:
+            raise NameError("pztype must be 'pol' or 'zer' or 'pz'")
+
+        self._add_analysis(
+            PoleZeroAnalysisParameters(
+                node1, node2, node3, node4, tftype, pztype
+            ))
+
+    ##############################################
+
+    def noise(self, output_node, ref_node, src, variation, pts, fstart, fstop, pts_per_summary=None):
+
+        """Perform a Pole-Zero analysis of the circuit.
+        output_node, ref_node  - output node pair.
+        src  - signal source, typically an ac voltage input.
+        variation  - must be 'dec' or 'lin' or 'oct' for decade, linear, or octave.
+        pts, fstart, fstop - number of points, start and stop frequencies.
+        pts_per_summary - if specified, the noise contributions of each noise generator is produced every pts_per_summary frequency points. 
+        See section 15.3.4 of ngspice manual.
+
+        Spice syntax:
+        General form:
+            .noise v(output <,ref >) src ( dec | lin | oct ) pts fstart fstop <pts_per_summary >
+        Examples:
+            .noise v(5) VIN dec 10 1kHz 100 MEG
+            .noise v(5 ,3) V1 oct 8 1.0 1.0 e6 1
+        """
+        # do some rudimentary parameter checking.
+        if not variation in [ 'dec', 'lin', 'oct' ]:
+            raise NameError("variation must be 'dec' or 'lin' or 'oct'")
+
+        self._add_analysis(
+            NoiseAnalysisParameters(
+                'V(' + str(output_node) + ',' + str(ref_node) + ')', src, variation, pts, fstart, fstop, pts_per_summary
+            ))
+
+    ##############################################
+
+    def transfer_function(self, outvar, insrc):
+        """
+        The python arguments to this function should be two strings, outvar and insrc.
+        ngspice documentation as follows:
+        General form:
+        .tf outvar insrc
+        Examples:
+        .tf v(5, 3) VIN
+        .tf i(VLOAD) VIN
+        The .tf line defines the small-signal output and input for the dc small-signal analysis. outvar
+        is the small signal output variable and insrc is the small-signal input source. If this line is
+        included, ngspice computes the dc small-signal value of the transfer function (output/input),
+        input resistance, and output resistance. For the first example, ngspice would compute the ratio
+        of V(5, 3) to VIN, the small-signal input resistance at VIN, and the small signal output resistance
+        measured across nodes 5 and 3
+        """
+        self._add_analysis(
+            TransferFunctionParameters(
+                outvar, insrc
+            ))
+
+    ##############################################
+
+    def distortion(self, variation, pts, fstart, fstop, f2overf1=None):
+
+        """Perform a distortion analysis of the circuit.
+		variation, pts, fstart, fstop - typical ac range parameters.
+		if f2overf1 is specified, perform a spectral analysis, else perform a harmonic analysis.
+        See section 15.3.3 of ngspice manual.
+
+		- harmonic analysis,
+		The distof1 parameter of the AC input to the circuit must be specified.
+		Second harmonic magnitude and phase are calculated at each circuit node.
+
+		- Spectral analysis,
+		The distof2 parameter of the AC input to the circuit must be specified as well as distof1.
+		See the ngspice manual.
+
+        Spice syntax:
+		General form:
+              .disto dec nd fstart fstop <f2overf1 >
+              .disto oct no fstart fstop <f2overf1 >
+              .disto lin np fstart fstop <f2overf1 >
+        Examples:
+              .disto dec 10 1kHz 100 MEG
+              .disto dec 10 1kHz 100 MEG 0.9
+        """
+        # do some rudimentary parameter checking.
+        if not variation in [ 'dec', 'lin', 'oct' ]:
+            raise NameError("variation must be 'dec' or 'lin' or 'oct'")
+
+        self._add_analysis(
+            DistortionAnalysisParameters(
+                variation, pts, fstart, fstop, f2overf1
+            ))
+
+    ##############################################
+
     def str_options(self, unit=True):
 
         # Fixme: use cls settings ???
@@ -751,3 +1092,29 @@ class CircuitSimulator(CircuitSimulation):
     def transient(self, *args, **kwargs):
 
         return self._run('transient', *args, **kwargs)
+
+    ##############################################
+
+    def polezero(self, *args, **kwargs):
+
+        return self._run('polezero', *args, **kwargs)
+
+    ##############################################
+
+    def noise(self, *args, **kwargs):
+
+        return self._run('noise', *args, **kwargs)
+
+    ##############################################
+
+    def distortion(self, *args, **kwargs):
+
+        return self._run('distortion', *args, **kwargs)
+
+    ##############################################
+
+    def tf(self, *args, **kwargs):
+
+        return self._run('transfer_function', *args, **kwargs)
+
+    ##############################################
