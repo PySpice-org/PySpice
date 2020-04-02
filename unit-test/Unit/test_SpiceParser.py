@@ -28,9 +28,13 @@ def circuit_gft(prb):
 
 class TestSpiceParser(unittest.TestCase):
     def test_parser(self):
+        results = list(map(circuit_gft, [-1, 1]))
+        result = results[0]
+        values = result.nodes['Ninp']
+        print(repr(values))
         results = multiple_sim(circuit_gft, [-1, 1])
         result = results[0]
-        values = result.nodes['x']
+        values = result.nodes['Ninp']
         print(repr(values))
 
     def test_subcircuit(self):

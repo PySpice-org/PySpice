@@ -535,9 +535,9 @@ class Element(metaclass=ElementParameterMetaClass):
             if key == 'raw_spice':
                 self.raw_spice = value
             else:
-                if key in self._positional_parameters_ or
+                if (key in self._positional_parameters_ or
                     key in self._optional_parameters_ or
-                    key in self._spice_to_parameters_:
+                    key in self._spice_to_parameters_):
                     setattr(self, key, value)
                 else:
                     for parameter in self._optional_parameters_:

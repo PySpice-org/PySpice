@@ -62,11 +62,11 @@ class WaveForm(UnitValues):
 
     ##############################################
 
-    @classmethod
-    def from_unit_values(cls, name, array, title=None, abscissa=None):
+    @staticmethod
+    def from_unit_values(name, array, title=None, abscissa=None):
 
         shape = array.shape
-        obj = cls(
+        obj = WaveForm(
             name,
             array.prefixed_unit,
             array.shape,
@@ -80,12 +80,12 @@ class WaveForm(UnitValues):
 
     ##############################################
 
-    @classmethod
-    def from_array(cls, name, array, title=None, abscissa=None):
+    @staticmethod
+    def from_array(name, array, title=None, abscissa=None):
 
         # Fixme: ok ???
 
-        obj = cls(name, None, array.shape, title=title, abscissa=abscissa)
+        obj = WaveForm(name, None, array.shape, title=title, abscissa=abscissa)
         obj[...] = array[...]
 
         return obj
@@ -101,11 +101,16 @@ class WaveForm(UnitValues):
         obj = super(WaveForm, cls).__new__(cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)
         # obj = np.asarray(data).view(cls)
 
-        obj._name = str(name)
-        obj._title = title # str(title)
-        obj._abscissa = abscissa
-
         return obj
+
+    ##############################################
+
+    def __init__(self, name, prefixed_unit,
+                shape, dtype=float, buffer=None, offset=0, strides=None, order=None,
+                title=None, abscissa=None):
+        self._name = str(name)
+        self._title = title # str(title)
+        self._abscissa = abscissa
 
     ##############################################
 
@@ -137,7 +142,7 @@ class WaveForm(UnitValues):
             if len(result.shape) == 0:
                 return UnitValue(result.prefixed_unit, result)
             else:
-                return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
+                return self.__class__.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
         else:
             return result # e.g. foo <= 0
 
@@ -145,7 +150,10 @@ class WaveForm(UnitValues):
 
     @property
     def name(self):
-        return self._name
+        if hasattr(self, '_name'):
+            return self._name
+        else:
+            return ''
 
     @property
     def abscissa(self):
@@ -163,16 +171,16 @@ class WaveForm(UnitValues):
 
     def __repr__(self):
 
-        return '{0.__class__.__name__} {0._name} {1}'.format(self, super().__str__())
+        return '{0.__class__.__name__} {0.name} {1}'.format(self, super().__str__())
 
     ##############################################
 
     def __str__(self):
 
-        if self._title is not None:
+        if hasattr(self, '_title') and self._title is not None:
             return self._title
         else:
-            return self._name
+            return self.name
 
     ##############################################
 
