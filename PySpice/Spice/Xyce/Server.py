@@ -31,8 +31,7 @@ import shutil
 import subprocess
 import tempfile
 
-####################################################################################################
-
+from PySpice.Config import ConfigInstall
 from .RawFile import RawFile
 
 ####################################################################################################
@@ -43,7 +42,7 @@ _module_logger = logging.getLogger(__name__)
 
 class XyceServer:
 
-    """This class wraps the execution of xyce and convert the output to a Python data structure.
+    """This class wraps the execution of Xyce and convert the output to a Python data structure.
 
     Example of usage::
 
@@ -52,17 +51,26 @@ class XyceServer:
 
     It returns a :obj:`PySpice.Spice.RawFile` instance.
 
+    Default Xyce path is set in `XyceServer.XYCE_COMMAND`.
+
     """
 
-    _logger = _module_logger.getChild('XyceServer')
+    if ConfigInstall.OS.on_linux:
+        XYCE_COMMAND = 'Xyce'
+    elif ConfigInstall.OS.on_osx:
+        XYCE_COMMAND = 'Xyce'
+    elif ConfigInstall.OS.on_windows:
+        XYCE_COMMAND = 'C:\\Program Files\\Xyce 6.10 OPENSOURCE\\bin\\Xyce.exe'
+    else:
+        raise NotImplementedError
 
-    XYCE_COMMAND = 'Xyce'
+    _logger = _module_logger.getChild('XyceServer')
 
     ##############################################
 
     def __init__(self, **kwargs):
 
-        self._xyce_command = kwargs.get('xyce_command', self.XYCE_COMMAND)
+        self._xyce_command = kwargs.get('xyce_command') or self.XYCE_COMMAND
 
     ##############################################
 
@@ -110,12 +118,14 @@ class XyceServer:
         with open(input_filename, 'w') as f:
             f.write(str(spice_input))
 
-        process = subprocess.Popen((self._xyce_command,
-                                    '-r', output_filename,
-                                    input_filename),
-                                   stdin=subprocess.PIPE,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
+        command = (self._xyce_command, '-r', output_filename, input_filename)
+        self._logger.info('Run {}'.format(' '.join(command)))
+        process = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         stdout, stderr = process.communicate()
 
         self._parse_stdout(stdout)

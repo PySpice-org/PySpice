@@ -1,7 +1,7 @@
 ####################################################################################################
 #
-# PySpice - A Spice Package for Python
-# Copyright (C) 2014 Fabrice Salvaire
+# PySpice - A Spice package for Python
+# Copyright (C) 2019 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +18,28 @@
 #
 ####################################################################################################
 
+# http://www.pyinvoke.org
+
 ####################################################################################################
 
-__version__ = '1.2.0'
+from invoke import task, Collection
+ # import sys
 
-def show_version():
-    print('PySpice Version {}'.format(__version__))
+####################################################################################################
+
+# PYSPICE_SOURCE_PATH = Path(__file__).resolve().parent
+
+####################################################################################################
+
+from . import clean
+from . import doc
+from . import git
+from . import ngspice
+from . import release
+
+ns = Collection()
+ns.add_collection(Collection.from_module(clean))
+ns.add_collection(Collection.from_module(doc))
+ns.add_collection(Collection.from_module(git))
+ns.add_collection(Collection.from_module(ngspice))
+ns.add_collection(Collection.from_module(release))

@@ -1,6 +1,3 @@
-#! /usr/bin/env python3
-# -*- Python -*-
-
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
@@ -23,21 +20,9 @@
 
 ####################################################################################################
 
-from pathlib import Path
-import glob
-import os
-import subprocess
-import sys
+__version__ = '@VERSION@'
+__git_tag__ = '@GIT_TAG@'
+__git_sha__ = '@GIT_SHA@'
 
-####################################################################################################
-
-examples_path = Path(__file__).resolve().parent
-
-for topic in os.listdir(examples_path):
-    python_files = glob.glob(str(examples_path.joinpath(topic, '*.py')))
-    for file_name in python_files:
-        if file_name.islower():
-            print('Run {}'.format(file_name))
-            subprocess.call(('python', file_name))
-            print('To continue press Enter')
-            rc = sys.stdin.readline().strip()
+def show_version():
+    print('PySpice Version {}'.format(__version__))

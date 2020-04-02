@@ -64,7 +64,7 @@ To start the IPython notebook in your web browser:
 
     ipython notebook
 
-When we use IPython notebook, it is convenient to use a matplotlib backend that outputs the graphics
+When we use IPython notebook, it is convenient to use a Matplotlib backend that outputs the graphics
 embedded in the notebook file. To activate this backend, somewhere in the beginning on the notebook,
 you must add:
 

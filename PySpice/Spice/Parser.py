@@ -38,7 +38,7 @@ import regex
 ####################################################################################################
 
 from .ElementParameter import FlagParameter
-from .Netlist import ElementParameterMetaClass, NPinElement, Circuit, SubCircuit
+from .Netlist import ElementParameterMetaClass, Circuit, SubCircuit
 
 ####################################################################################################
 
@@ -76,8 +76,8 @@ class PrefixData:
         self.has_optionals = has_optionals
 
         self.multi_devices = len(classes) > 1
-        self.npins = prefix in ('Q', 'X') # NPinElement, Q has 3 to 4 pins
-        if self.npins:
+        self.has_variable_number_of_pins = prefix in ('Q', 'X') # NPinElement, Q has 3 to 4 pins
+        if self.has_variable_number_of_pins:
             self.number_of_pins = None
         else:
             # Q and X are single
@@ -167,7 +167,6 @@ class Statement:
     ##############################################
 
     def __repr__(self):
-
         return '{} {}'.format(self.__class__.__name__, repr(self._line))
 
     ##############################################
@@ -191,14 +190,12 @@ class Statement:
     ##############################################
 
     def kwargs_to_python(self, kwargs):
-
         return ['{}={}'.format(key, self.value_to_python(value))
                 for key, value in kwargs.items()]
 
     ##############################################
 
     def join_args(self, args):
-
         return ', '.join(args)
 
 ####################################################################################################
@@ -290,13 +287,11 @@ class Model(Statement):
     ##############################################
 
     def __repr__(self):
-
         return 'Model {} {} {}'.format(self._name, self._model_type, self._parameters)
 
     ##############################################
 
     def to_python(self, netlist_name):
-
         args = self.values_to_python((self._name, self._model_type))
         kwargs = self.kwargs_to_python(self._parameters)
         return '{}.model({})'.format(netlist_name, self.join_args(args + kwargs)) + os.linesep
@@ -304,7 +299,6 @@ class Model(Statement):
     ##############################################
 
     def build(self, circuit):
-
         return circuit.model(self._name, self._model_type, **self._parameters)
 
 ####################################################################################################
@@ -484,7 +478,6 @@ class CircuitStatement(Statement):
                 statement.build(circuit, ground)
         return circuit
 
-
 ####################################################################################################
 
 class SubCircuitStatement(Statement):
@@ -548,7 +541,6 @@ class SubCircuitStatement(Statement):
     ##############################################
 
     def __repr__(self):
-
         if self._parameters:
             text = 'SubCircuit {} {} Params: {}'.format(self._name, self._nodes, self._parameters) + os.linesep
         else:
@@ -561,17 +553,13 @@ class SubCircuitStatement(Statement):
     ##############################################
 
     def __iter__(self):
-
         """ Return an iterator on the statements. """
-
         return iter(self._models + self._subcircuits + self._statements)
 
     ##############################################
 
     def append(self, statement):
-
         """ Append a statement to the statement's list. """
-
         self._statements.append(statement)
 
     def appendModel(self, statement):
@@ -658,7 +646,7 @@ class Element(Statement):
         self._dict_parameters = {}
 
         # Read nodes
-        if not prefix_data.npins:
+        if not prefix_data.has_variable_number_of_pins:
             number_of_pins = prefix_data.number_of_pins
             if number_of_pins:
                 self._nodes = args[:number_of_pins]
@@ -694,11 +682,6 @@ class Element(Statement):
         if (prefix_data.has_optionals or (prefix_data.prefix == 'X')) and (len(kwargs) > 0):
             for key in kwargs:
                 self._dict_parameters[key] = kwargs[key]
-                #if kwarg in ('off',) and prefix_data.has_flag:
-                #    self._dict_parameters['off'] = True
-                #else:
-                #    self._logger.warning(line_str)
-                #    # raise NameError('Bad element line:', line_str)
 
         if prefix_data.multi_devices:
             for element_class in prefix_data:
@@ -731,7 +714,6 @@ class Element(Statement):
     ##############################################
 
     def __repr__(self):
-
         return 'Element {0._prefix} {0._name} {0._nodes} {0._parameters} {0._dict_parameters}'.format(self)
 
     ##############################################
@@ -814,7 +796,6 @@ class Line:
 
     @property
     def is_comment(self):
-
         return self._is_comment
 
     ##############################################
@@ -881,7 +862,6 @@ class Line:
     ##############################################
 
     def right_of(self, text):
-
         return self._text[len(text):].strip()
 
     ##############################################
@@ -1268,7 +1248,7 @@ class SpiceParser:
                     # .lib filename libname
                     # .func .csparam .temp .if
                     # { expr } are allowed in .model lines and in device lines.
-                    self._logger.warn(line)
+                    self._logger.warn('Parser ignored: {}'.format(line))
             else:
                 try:
                     element = Element(line)
@@ -1305,13 +1285,11 @@ class SpiceParser:
     ##############################################
 
     def is_only_subcircuit(self):
-
         return bool(not self.circuit and self.subcircuits)
 
     ##############################################
 
     def is_only_model(self):
-
         return bool(not self.circuit and not self.subcircuits and self.models)
 
     ##############################################

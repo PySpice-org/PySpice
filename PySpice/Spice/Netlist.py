@@ -78,6 +78,7 @@ To simulate the circuit, we must create a simulator instance using the :meth:`Ci
 ####################################################################################################
 
 from collections import OrderedDict
+from pathlib import Path
 import keyword
 import logging
 import os
@@ -87,9 +88,11 @@ import networkx
 ####################################################################################################
 
 from ..Tools.StringTools import join_lines, join_list, join_dict
-from .ElementParameter import (ParameterDescriptor,
-                               PositionalElementParameter,
-                               FlagParameter, KeyValueParameter)
+from .ElementParameter import (
+    ParameterDescriptor,
+    PositionalElementParameter,
+    FlagParameter, KeyValueParameter,
+)
 from .Simulation import CircuitSimulator
 
 ####################################################################################################
@@ -196,13 +199,11 @@ class DeviceModel:
     ##############################################
 
     def __repr__(self):
-
         return str(self.__class__) + ' ' + self.name
 
     ##############################################
 
     def __str__(self):
-
         return ".model {0._name} {0._model_type} ({1})".format(self, join_dict(self._parameters))
 
 ####################################################################################################
@@ -223,7 +224,6 @@ class PinDefinition:
     ##############################################
 
     def clone(self):
-
         # Fixme: self.__class__ ???
         return PinDefinition(self._position, self._name, self._alias, self._optional)
 
@@ -296,13 +296,11 @@ class Pin(PinDefinition):
     ##############################################
 
     def __repr__(self):
-
         return "Pin {} of {} on node {}".format(self._name, self._element.name, self._node)
 
     ##############################################
 
     def disconnect(self):
-
         self._node.disconnect(self)
         self._node = None
 
@@ -537,13 +535,17 @@ class Element(metaclass=ElementParameterMetaClass):
             if key == 'raw_spice':
                 self.raw_spice = value
             else:
-                if key in self._positional_parameters_ or key in self._optional_parameters_:
+                if key in self._positional_parameters_ or
+                    key in self._optional_parameters_ or
+                    key in self._spice_to_parameters_:
                     setattr(self, key, value)
                 else:
                     for parameter in self._optional_parameters_:
                         if key.lower() == self._optional_parameters_[parameter].spice_name.lower():
                             setattr(self, parameter, value)
                             break
+                    else:
+                        raise ValueError('Unknown argument {}={}'.format(key, value))
 
         netlist._add_element(self)
 
@@ -677,7 +679,6 @@ class AnyPinElement(Element):
     ##############################################
 
     def copy_to(self, netlist):
-
         element = self.__class__(netlist, self._name)
         super().copy_to(element)
         return element
@@ -730,7 +731,6 @@ class FixedPinElement(Element):
     ##############################################
 
     def copy_to(self, netlist):
-
         element = self.__class__(netlist, self._name, *self.nodes)
         super().copy_to(element)
         return element
@@ -825,7 +825,6 @@ class Node:
     ##############################################
 
     def connect(self, pin):
-
         if pin not in self._pins:
             self._pins.add(pin)
         else:
@@ -834,7 +833,6 @@ class Node:
     ##############################################
 
     def disconnect(self, pin):
-
         self._pins.remove(pin)
 
 ####################################################################################################
@@ -1002,7 +1000,6 @@ class Netlist:
     ##############################################
 
     def has_ground_node(self):
-
         return bool(self._ground_node)
 
     ##############################################
@@ -1031,7 +1028,6 @@ class Netlist:
     ##############################################
 
     def _remove_element(self, element):
-
         try:
             del self._elements[element.name]
         except KeyError:
@@ -1261,7 +1257,6 @@ class SubCircuitFactory(SubCircuit):
     ##############################################
 
     def __init__(self, **kwargs):
-
         super().__init__(self.__name__, *self._nodes_, **kwargs)
 
 ####################################################################################################
@@ -1328,9 +1323,7 @@ class Circuit(Netlist):
     ##############################################
 
     def parameter(self, name, expression):
-
         """Set a parameter."""
-
         self._parameters[str(name)] = str(expression)
 
     ##############################################
@@ -1353,7 +1346,6 @@ class Circuit(Netlist):
     ##############################################
 
     def _str_title(self):
-
         return '.title {}'.format(self.title) + os.linesep
 
     ##############################################
@@ -1364,10 +1356,10 @@ class Circuit(Netlist):
             # ngspice don't like // in path, thus ensure we write real paths
             real_paths = []
             for path in self._includes:
-                path = os.path.realpath(str(path))
+                path = Path(str(path)).resolve()
                 if simulator:
-                    path_flavour = path + '@' + simulator
-                    if os.path.exists(path_flavour):
+                    path_flavour = Path(str(path) + '@' + simulator)
+                    if path_flavour.exists():
                         path = path_flavour
                 real_paths.append(path)
 
@@ -1387,7 +1379,6 @@ class Circuit(Netlist):
     ##############################################
 
     def _str_parameters(self):
-
         if self._parameters:
             return join_lines([key + ("" if value is None else " = " + str(value))
                                for key, value in self._parameters.items()], prefix='.param ') + os.linesep
@@ -1397,17 +1388,14 @@ class Circuit(Netlist):
     ##############################################
 
     def __str__(self):
-
         return self.str(simulator=None)
 
     ##############################################
 
     def str_end(self):
-
         return str(self) + '.end' + os.linesep
 
     ##############################################
 
     def simulator(self, *args, **kwargs):
-
         return CircuitSimulator.factory(self, *args, **kwargs)

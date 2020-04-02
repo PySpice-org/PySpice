@@ -14,12 +14,13 @@ On Windows
 
 Firstly, you have to install Ngspice for Windows from this `page
 <http://ngspice.sourceforge.net/download.html>`_.  Download the archive
-:file:`ngspice-28_dll_64.zip` from thex `release page
+:file:`ngspice-30_dll_64.zip` from thex `release page
 <https://sourceforge.net/projects/ngspice/files/ng-spice-rework/28>`_ and unzip the files in
-`C:\\Program Files\\Spice64`.
+`C:\\Program Files\\Spice64_dll`.
 
-Secondly, you have to install the `Anaconda Distribution <https://www.anaconda.com/download/>`_ so
-as to get a full featured Python 3 environment.
+Secondly, you have to install the `Anaconda Distribution <https://www.anaconda.com/download/>`_ or
+`Miniconda <https://docs.conda.io/en/latest/miniconda.html>`_ so as to get a full featured Python 3
+environment.
 
 Then open the `Anaconda Navigator <https://docs.continuum.io/anaconda/navigator/>`_ and launch a console for your root environment.
 
@@ -80,6 +81,9 @@ Examples are not installed by ``pip`` or ``setup.pip``. The installation process
 PySpice on your Python environment.
 
 **You have to download the PySpice archive or clone the Git repository to get the examples.** See "Installation from Source".
+
+Note: We could install examples with pip, but files would be more difficult to locate in the
+environment directory.
 
 Installation from PyPi Repository
 ---------------------------------

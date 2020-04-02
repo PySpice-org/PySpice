@@ -1,10 +1,7 @@
-#! /usr/bin/env python3
-# -*- Python -*-
-
 ####################################################################################################
 #
-# PySpice - A Spice Package for Python
-# Copyright (C) 2014 Fabrice Salvaire
+# PySpice - A Spice package for Python
+# Copyright (C) 2019 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,21 +20,19 @@
 
 ####################################################################################################
 
-from pathlib import Path
-import glob
-import os
-import subprocess
-import sys
+from invoke import task
 
 ####################################################################################################
 
-examples_path = Path(__file__).resolve().parent
+@task
+def flycheck(ctx):
+    with ctx.cd(ctx.Package):
+        ctx.run('find . -name "flycheck*.py" -exec rm {} \;')
 
-for topic in os.listdir(examples_path):
-    python_files = glob.glob(str(examples_path.joinpath(topic, '*.py')))
-    for file_name in python_files:
-        if file_name.islower():
-            print('Run {}'.format(file_name))
-            subprocess.call(('python', file_name))
-            print('To continue press Enter')
-            rc = sys.stdin.readline().strip()
+@task
+def emacs_backup(ctx):
+    ctx.run('find . -name "*~" -type f -exec rm -f {} \;')
+
+@task(flycheck, emacs_backup)
+def clean(ctx):
+    pass

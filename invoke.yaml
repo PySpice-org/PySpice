@@ -1,0 +1,4 @@
+Package: PySpice
+ngspice:
+  directory: [ngspice-build, 'ngspice-{}']
+  version: 30

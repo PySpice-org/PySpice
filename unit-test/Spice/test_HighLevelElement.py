@@ -1,10 +1,7 @@
-#! /usr/bin/env python3
-# -*- Python -*-
-
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
-# Copyright (C) 2014 Fabrice Salvaire
+# Copyright (C) 2019 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,21 +20,37 @@
 
 ####################################################################################################
 
-from pathlib import Path
-import glob
-import os
-import subprocess
-import sys
+import unittest
 
 ####################################################################################################
 
-examples_path = Path(__file__).resolve().parent
+from PySpice.Spice.HighLevelElement import *
+from PySpice.Spice.Netlist import Circuit
+from PySpice.Unit import *
 
-for topic in os.listdir(examples_path):
-    python_files = glob.glob(str(examples_path.joinpath(topic, '*.py')))
-    for file_name in python_files:
-        if file_name.islower():
-            print('Run {}'.format(file_name))
-            subprocess.call(('python', file_name))
-            print('To continue press Enter')
-            rc = sys.stdin.readline().strip()
+####################################################################################################
+
+class TestHighLevelElement(unittest.TestCase):
+
+    ##############################################
+
+    def _test_spice_declaration(self, element, spice_declaration):
+        self.assertEqual(str(element), spice_declaration)
+
+    ##############################################
+
+    def test(self):
+
+        self._test_spice_declaration(
+            PieceWiseLinearVoltageSource(
+                Circuit(''),
+                'pwl1', '1', '0',
+                values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
+            ),
+            'Vpwl1 1 0 PWL(0s 0V 10ms 0V 11ms 5V 20ms 5V r=0s td=0.0s)',
+        )
+
+####################################################################################################
+
+if __name__ == '__main__':
+    unittest.main()
