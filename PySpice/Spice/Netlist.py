@@ -83,7 +83,6 @@ import logging
 import os
 
 import networkx
-import SchemDraw
 
 ####################################################################################################
 
@@ -489,10 +488,6 @@ class ElementParameterMetaClass(type):
     @property
     def spice_to_parameters(self):
         return self._spice_to_parameters_
-    
-#     @property
-#     def schematic(self):
-#         return self.__schematic__
 
 ####################################################################################################
 
@@ -514,8 +509,6 @@ class Element(metaclass=ElementParameterMetaClass):
 
     #: SPICE element prefix
     _prefix_ = None
-    
-    schematic = None
 
     ##############################################
 
@@ -551,10 +544,8 @@ class Element(metaclass=ElementParameterMetaClass):
                         if key.lower() == self._optional_parameters_[parameter].spice_name.lower():
                             setattr(self, parameter, value)
                             break
-        schematic = kwargs.pop('schematic', {})
-        self._schematic = schematic
 
-        netlist._add_element(self, **schematic)
+        netlist._add_element(self)
 
     ##############################################
 
@@ -622,7 +613,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
-    def __getattr__(self, name): 
+    def __getattr__(self, name):
 
         # Implement alias for parameters
         if name in self._spice_to_parameters_:
@@ -728,13 +719,13 @@ class FixedPinElement(Element):
                     raise NameError("Node '{}' is missing for element {}".format(pin_definition.name, self.name))
                 pin_definition_nodes.append((pin_definition, node))
 
-        
+
 
         self._pins = [Pin(self, pin_definition, netlist.get_node(node, True))
                       for pin_definition, node in pin_definition_nodes]
-        
-        
-        super().__init__(netlist, name, *args, **kwargs)    
+
+
+        super().__init__(netlist, name, *args, **kwargs)
 
     ##############################################
 
@@ -865,7 +856,6 @@ class Netlist:
         self._ground_name = 0
         self._nodes = {}
         self._graph = networkx.Graph()
-        self._schematic = SchemDraw.Drawing()
         self._ground_node = self._add_node(self._ground_name)
 
         self._subcircuits = OrderedDict() # to keep the declaration order
@@ -932,14 +922,10 @@ class Netlist:
     @property
     def subcircuit_names(self):
         return self._subcircuits.keys()
-    
+
     @property
     def graph(self):
         return self._graph
-    
-    @property
-    def schematic(self):
-        return self._schematic
 
     ##############################################
 
@@ -982,9 +968,7 @@ class Netlist:
             node = Node(self, node_name)
             self._nodes[node_name] = node
             self._graph.add_node(node, name=node_name)
-            
-            #if(node_name == str(self._ground_name)):
-            #    self.schematic.add(SchemDraw.elements.GND)
+
             return node
         else:
             raise ValueError("Node {} is already defined".format(node_name))
@@ -1023,7 +1007,7 @@ class Netlist:
 
     ##############################################
 
-    def _add_element(self, element, **schematic_kwargs):
+    def _add_element(self, element):
 
         """Add an element."""
         if element.name not in self._elements:
@@ -1041,34 +1025,6 @@ class Netlist:
             if len(element.nodes) == 2:
                 self.graph.add_edge(element.nodes[0], element.nodes[1],
                                     x=element, name=element.name)
-            
-            #print(schematic_kwargs)
-            schematic = schematic_kwargs.pop('schematic', element.schematic)
-            if(schematic):
-                element.schematic = schematic
-                #label = schematic_kwargs.pop('label', element.name)
-                schematic_element = self.schematic.add(schematic,
-                                   **schematic_kwargs)
-                element.schematic_element = schematic_element
-                
-                show_start = schematic_kwargs.pop('show_start', False)
-                show_end = schematic_kwargs.pop('show_end', False)
-                
-                if(show_start):
-                    start_label = schematic_kwargs.pop('start_label',{})
-                  
-                    self.schematic.add(SchemDraw.elements.DOT_OPEN,
-                                       xy=schematic_element.start,
-                                       **start_label)
-                    
-                if(show_end):
-                    end_label = schematic_kwargs.pop('end_label',{})
-                    self.schematic.add(SchemDraw.elements.DOT_OPEN, 
-                                       xy=schematic_element.end,
-                                       **end_label)
-                #if(element.pins[1].node == self.get_node(0, False)):
-                #    self.schematic.add(SchemDraw.elements.GND)
-                    
         else:
             raise NameError("Element name {} is already defined".format(element.name))
 
@@ -1346,6 +1302,12 @@ class Circuit(Netlist):
 
     ##############################################
 
+    @property
+    def name(self):
+        return self.title
+
+    ##############################################
+
     def clone(self, title=None):
 
         if title is None:
@@ -1427,7 +1389,8 @@ class Circuit(Netlist):
     def _str_parameters(self):
 
         if self._parameters:
-            return join_lines(self._parameters, prefix='.param ') + os.linesep
+            return join_lines([key + ("" if value is None else " = " + str(value))
+                               for key, value in self._parameters.items()], prefix='.param ') + os.linesep
         else:
             return ''
 

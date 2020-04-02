@@ -99,7 +99,7 @@ See Ngspice documentation for details.
 
 from ..Tools.StringTools import str_spice, join_list, join_dict
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
-from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement, 
+from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement,
                       OptionalPin, Pin, PinDefinition)
 from .ElementParameter import (
     # KeyValueParameter,
@@ -116,8 +116,6 @@ from .ElementParameter import (
     IntKeyParameter,
     ModelPositionalParameter,
     )
-
-import SchemDraw as schem
 
 ####################################################################################################
 
@@ -158,7 +156,6 @@ class SubCircuitElement(NPinElement):
 
     def __init__(self, netlist, name, subcircuit_name, *nodes, **kwargs):
 
-        schematic_kwargs = kwargs.pop('schematic', {})
         # Fixme: match parameters to subcircuit
         self.parameters = kwargs
         self.parent = netlist
@@ -179,8 +176,7 @@ class SubCircuitElement(NPinElement):
         except:
             raise ValueError()
 
-        super().__init__(netlist, name, subcircuit_name,
-                         schematic=schematic_kwargs)
+        super().__init__(netlist, name, subcircuit_name)
 
     ##############################################
 
@@ -197,7 +193,7 @@ class SubCircuitElement(NPinElement):
 
         spice_parameters = super().format_spice_parameters()
         if self.parameters:
-            spice_parameters += ' ' + join_dict(self.parameters)
+            spice_parameters += ' params: ' + join_dict(self.parameters)
 
         return spice_parameters
 
@@ -254,8 +250,6 @@ class Resistor(DipoleElement):
 
     __alias__ = 'R'
     _prefix_ = 'R'
-    
-    schematic = schem.elements.RES
 
     resistance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_Ω)
     model = ModelPositionalParameter(position=0, key_parameter=True)
@@ -330,8 +324,6 @@ class SemiconductorResistor(DipoleElement):
     __alias__ = 'SemiconductorResistor'
     _prefix_ = 'R'
 
-    schematic = schem.elements.RES
-
     resistance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_Ω)
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
@@ -376,8 +368,6 @@ class BehavioralResistor(DipoleElement):
 
     __alias__ = 'BehavioralResistor'
     _prefix_ = 'R'
-
-    schematic = schem.elements.RES
 
     resistance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -433,8 +423,6 @@ class Capacitor(DipoleElement):
 
     __alias__ = 'C'
     _prefix_ = 'C'
-
-    schematic = schem.elements.CAP
 
     capacitance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_F)
     model = ModelPositionalParameter(position=0, key_parameter=True)
@@ -505,8 +493,6 @@ class SemiconductorCapacitor(DipoleElement):
     __alias__ = 'SemiconductorCapacitor'
     _prefix_ = 'C'
 
-    schematic = schem.elements.CAP
-
     capacitance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_F)
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
@@ -548,8 +534,6 @@ class BehavioralCapacitor(DipoleElement):
 
     __alias__ = 'BehavioralCapacitor'
     _prefix_ = 'C'
-
-    schematic = schem.elements.CAP
 
     capacitance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -608,8 +592,6 @@ class Inductor(DipoleElement):
     __alias__ = 'L'
     _prefix_ = 'L'
 
-    schematic = schem.elements.INDUCTOR2
-
     inductance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_H)
     model = ModelPositionalParameter(position=0, key_parameter=True)
     nt = FloatKeyParameter('nt')
@@ -650,8 +632,6 @@ class BehavioralInductor(DipoleElement):
 
     __alias__ = 'BehavioralInductor'
     _prefix_ = 'L'
-
-    schematic = schem.elements.INDUCTOR2
 
     inductance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -797,8 +777,6 @@ class VoltageSource(DipoleElement):
 
     __alias__ = 'V'
     _prefix_ = 'V'
-    
-    schematic = schem.elements.SOURCE_V
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_V)
@@ -834,8 +812,6 @@ class CurrentSource(DipoleElement):
 
     __alias__ = 'I'
     _prefix_ = 'I'
-
-    schematic = schem.elements.SOURCE_I
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_A)
@@ -1009,8 +985,6 @@ class BehavioralSource(DipoleElement):
     __alias__ = 'B'
     _prefix_ = 'B'
 
-    schematic = schem.elements.SOURCE
-
     current_expression = ExpressionKeyParameter('i')
     voltage_expression = ExpressionKeyParameter('v')
     tc1 = FloatKeyParameter('tc1')
@@ -1075,8 +1049,6 @@ class NonLinearVoltageSource(DipoleElement):
     table = ExpressionKeyParameter('table')
     smoothbsrc = ExpressionKeyParameter('smoothbsrc')
 
-    schematic = schem.elements.SOURCE_V
-
     ##############################################
 
     def __init__(self, name, *args, **kwargs):
@@ -1127,8 +1099,6 @@ class NonLinearCurrentSource(DipoleElement):
 
     __alias__ = 'NonLinearCurrentSource'
     _prefix_ = 'G'
-
-    schematic = schem.elements.SOURCE_I
 
     transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
 
@@ -1192,8 +1162,6 @@ class Diode(FixedPinElement):
     __alias__ = 'D'
     _prefix_ = 'D'
     _pins_ = (('cathode', 'plus'), ('anode', 'minus'))
-
-    schematic = schem.elements.DIODE_F
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
