@@ -394,6 +394,11 @@ class CircuitStatement(Statement):
         return self._title
 
     @property
+    def name(self):
+        """ Name of the circuit. """
+        return self._title
+
+    @property
     def models(self):
         """ Models of the circuit. """
         return self._models
