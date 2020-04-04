@@ -5,15 +5,6 @@ from multiprocessing import Pool, cpu_count
 import os
 
 
-def multiple_sim(simulate, values):
-    cpus = cpu_count() - 1
-    if cpus == 0:
-        cpus = 1
-    pools = min(cpus, len(values))
-    with Pool(pools) as p:
-        analysis = p.map(simulate, values)
-    return list(analysis)
-
 def circuit_gft(prb):
     circuit_file = SpiceParser('HSOP77case.net')
     circuit = circuit_file.build_circuit()
@@ -23,19 +14,17 @@ def circuit_gft(prb):
     return simulator.ac(start_frequency=10 - 2,
                         stop_frequency=1e9,
                         number_of_points=10,
-                        variation='dec')
+                        variation='dec'), simulator
 
 
 class TestSpiceParser(unittest.TestCase):
     def test_parser(self):
         results = list(map(circuit_gft, [-1, 1]))
-        result = results[0]
-        values = result.nodes['Ninp']
-        print(repr(values))
-        results = multiple_sim(circuit_gft, [-1, 1])
-        result = results[0]
-        values = result.nodes['Ninp']
-        print(repr(values))
+        self.assertEqual(len(results), 2)
+        self.assertIn('Ninp', results[0][0].nodes)
+        circuit = results[0][1]
+        values = str(circuit)
+        self.assertNotRegex(values, r'(\.ic)')
 
     def test_subcircuit(self):
         print(os.getcwd())

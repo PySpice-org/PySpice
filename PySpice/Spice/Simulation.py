@@ -635,7 +635,7 @@ class CircuitSimulation:
 
         netlist = self._circuit.str(simulator=self.SIMULATOR)
         netlist += self.str_options()
-        if self.initial_condition:
+        if self.initial_condition and len(self._initial_condition) > 0:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
         if self._saved_nodes:
             # Place 'all' first
