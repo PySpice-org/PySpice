@@ -1184,13 +1184,13 @@ class Circuit(Netlist):
         self._ground = ground
         self._global_nodes = set(global_nodes) # .global
         self._includes = [] # .include
+        self._libs = [] # .lib
         self._parameters = {} # .param
 
         # Fixme: not implemented
         #  .csparam
         #  .func
         #  .if
-        #  .lib
 
     ##############################################
 
@@ -1222,6 +1222,18 @@ class Circuit(Netlist):
 
     ##############################################
 
+    def lib(self, name, section=None):
+
+        """Load a library."""
+
+        v = (name, section)
+        if v not in self._libs:
+            self._libs.append(v)
+        else:
+            self._logger.warn("Duplicated lib")
+
+    ##############################################
+
     def parameter(self, name, expression):
         """Set a parameter."""
         self._parameters[str(name)] = str(expression)
@@ -1237,6 +1249,7 @@ class Circuit(Netlist):
 
         netlist = self._str_title()
         netlist += self._str_includes(simulator)
+        netlist += self._str_libs(simulator)
         netlist += self._str_globals()
         netlist += self._str_parameters()
         netlist += super().__str__()
@@ -1263,6 +1276,27 @@ class Circuit(Netlist):
                 real_paths.append(path)
 
             return join_lines(real_paths, prefix='.include ') + os.linesep
+        else:
+            return ''
+
+    ##############################################
+
+    def _str_libs(self, simulator=None):
+
+        if self._libs:
+            libs = []
+            for lib, section in self._libs:
+                lib = Path(str(lib)).resolve()
+                if simulator:
+                    lib_flavour = Path(str(lib) + '@' + simulator)
+                    if lib_flavour.exists():
+                        lib = lib_flavour
+                s = ".lib {}".format(lib)
+                if section:
+                    s += " {}".format(section)
+                libs.append(s)
+
+            return os.linesep.join(libs) + os.linesep
         else:
             return ''
 
