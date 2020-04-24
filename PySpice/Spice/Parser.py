@@ -44,15 +44,16 @@ from .Netlist import ElementParameterMetaClass, Circuit, SubCircuit
 
 _module_logger = logging.getLogger(__name__)
 
+
 ####################################################################################################
 
 class ParseError(NameError):
     pass
 
+
 ####################################################################################################
 
 class PrefixData:
-
     """This class represents a device prefix."""
 
     ##############################################
@@ -76,7 +77,7 @@ class PrefixData:
         self.has_optionals = has_optionals
 
         self.multi_devices = len(classes) > 1
-        self.has_variable_number_of_pins = prefix in ('Q', 'X') # NPinElement, Q has 3 to 4 pins
+        self.has_variable_number_of_pins = prefix in ('Q', 'X')  # NPinElement, Q has 3 to 4 pins
         if self.has_variable_number_of_pins:
             self.number_of_pins = None
         else:
@@ -108,6 +109,7 @@ class PrefixData:
         else:
             raise NameError()
 
+
 ####################################################################################################
 
 _prefix_cache = {}
@@ -115,6 +117,7 @@ for prefix, classes in ElementParameterMetaClass._classes_.items():
     prefix_data = PrefixData(prefix, classes)
     _prefix_cache[prefix] = prefix_data
     _prefix_cache[prefix.lower()] = prefix_data
+
 
 # for prefix_data in sorted(_prefix_cache.values(), key=lambda x: len(x)):
 #     print(prefix_data.prefix,
@@ -152,7 +155,6 @@ for prefix, classes in ElementParameterMetaClass._classes_.items():
 ####################################################################################################
 
 class Statement:
-
     """ This class implements a statement, in fact a line in a Spice netlist. """
 
     ##############################################
@@ -198,21 +200,21 @@ class Statement:
     def join_args(self, args):
         return ', '.join(args)
 
+
 ####################################################################################################
 
 class Comment(Statement):
     pass
 
+
 ####################################################################################################
 
 class Title(Statement):
-
     """ This class implements a title definition. """
 
     ##############################################
 
     def __init__(self, line):
-
         super().__init__(line, statement='title')
         self._title = self._line.right_of('.title')
 
@@ -226,16 +228,15 @@ class Title(Statement):
     def __repr__(self):
         return 'Title {}'.format(self._title)
 
+
 ####################################################################################################
 
 class Include(Statement):
-
     """ This class implements a include definition. """
 
     ##############################################
 
     def __init__(self, line):
-
         super().__init__(line, statement='include')
         self._include = self._line.right_of('.include')
 
@@ -252,13 +253,12 @@ class Include(Statement):
     ##############################################
 
     def to_python(self, netlist_name):
-
         return '{}.include({})'.format(netlist_name, self._include) + os.linesep
+
 
 ####################################################################################################
 
 class Model(Statement):
-
     """ This class implements a model definition.
 
     Spice syntax::
@@ -270,7 +270,6 @@ class Model(Statement):
     ##############################################
 
     def __init__(self, line):
-
         super().__init__(line, statement='model')
 
         base, self._parameters = line.split_keyword('.model')
@@ -301,10 +300,10 @@ class Model(Statement):
     def build(self, circuit):
         return circuit.model(self._name, self._model_type, **self._parameters)
 
+
 ####################################################################################################
 
 class Param(Statement):
-
     """ This class implements a model definition.
 
     Spice syntax::
@@ -316,13 +315,12 @@ class Param(Statement):
     ##############################################
 
     def __init__(self, line):
-
         super().__init__(line, statement='param')
 
         text = line.right_of('.param').strip().lower()
         idx = text.find('=')
         self._name = text[:idx].strip()
-        self._value = text[idx+1:].strip()
+        self._value = text[idx + 1:].strip()
 
     ##############################################
 
@@ -334,26 +332,23 @@ class Param(Statement):
     ##############################################
 
     def __repr__(self):
-
         return 'Param {}={}'.format(self._name, self._value)
 
     ##############################################
 
     def to_python(self, netlist_name):
-
         args = self.values_to_python((self._name, self._value))
         return '{}.param({})'.format(netlist_name, self.join_args(args)) + os.linesep
 
     ##############################################
 
     def build(self, circuit):
-
         circuit.parameter(self._name, self._value)
+
 
 ####################################################################################################
 
 class CircuitStatement(Statement):
-
     """ This class implements a circuit definition.
 
     Spice syntax::
@@ -478,10 +473,10 @@ class CircuitStatement(Statement):
                 statement.build(circuit, ground)
         return circuit
 
+
 ####################################################################################################
 
 class SubCircuitStatement(Statement):
-
     """ This class implements a sub-circuit definition.
 
     Spice syntax::
@@ -593,7 +588,7 @@ class SubCircuitStatement(Statement):
 
     ##############################################
 
-    def build(self, ground=0, parent = None):
+    def build(self, ground=0, parent=None):
         subcircuit = SubCircuit(self._name, *self._nodes, **self._parameters)
         subcircuit.parent = parent
         for statement in self._params:
@@ -608,10 +603,10 @@ class SubCircuitStatement(Statement):
                 statement.build(subcircuit, ground)
         return subcircuit
 
+
 ####################################################################################################
 
 class Element(Statement):
-
     """ This class implements an element definition.
 
     "{ expression }" are allowed in device line.
@@ -651,12 +646,12 @@ class Element(Statement):
             if number_of_pins:
                 self._nodes = args[:number_of_pins]
                 args = args[number_of_pins:]
-        else: # Q or X
+        else:  # Q or X
             if prefix_data.prefix == 'Q':
                 self._nodes = args[:3]
                 args = args[3:]
                 # Fixme: optional node
-            else: # X
+            else:  # X
                 if args[-1].lower() == 'params:':
                     args.pop()
                 self._parameters.append(args.pop())
@@ -665,7 +660,7 @@ class Element(Statement):
 
         # Read positionals
         number_of_positionals = prefix_data.number_of_positionals_min
-        if number_of_positionals and (len(args) > 0) and (prefix_data.prefix != 'X'): # model is optional
+        if number_of_positionals and (len(args) > 0) and (prefix_data.prefix != 'X'):  # model is optional
             self._parameters = args[:number_of_positionals]
             args = args[number_of_positionals:]
         if prefix_data.multi_devices and (len(args) > 0):
@@ -736,7 +731,7 @@ class Element(Statement):
         args = [self._name]
         if self._prefix != 'X':
             args += nodes + self._parameters
-        else: # != Spice
+        else:  # != Spice
             args += self._parameters + nodes
         args = self.values_to_python(args)
         kwargs = self.kwargs_to_python(self._dict_parameters)
@@ -744,24 +739,143 @@ class Element(Statement):
 
     ##############################################
 
+    def _check_params(self, elements=1):
+        params = []
+        for param in self._parameters:
+            values = param.replace(',', ' ')
+            if values[0] == '(' and values[-1] == ')':
+                values = values[1: -1].split()
+                if len(values) > elements:
+                    raise IndexError('Incorrect number of elements for (%r): %s' % (self, param))
+                params.extend(values)
+            else:
+                params.extend(values.split())
+        self._parameters = params
+
+    def _voltage_controlled_nodes(self, poly_arg):
+        result = ['v(%s,%s)' % nodes
+                  for nodes in zip(self._parameters[:(2 * poly_arg):2],
+                                   self._parameters[1:(2 * poly_arg):2])]
+        result += self._parameters[2 * poly_arg:]
+        return ' '.join(result)
+
+    def _current_controlled_nodes(self, poly_arg):
+        result = ['i(%s)' % node
+                  for node in self._parameters[:poly_arg]]
+        result += self._parameters[poly_arg:]
+        return ' '.join(result)
+
+    def _manage_controlled_sources(self, nodes):
+        try:
+            idx = self._nodes.index('POLY')
+            if idx == 2:
+                poly_arg = self._nodes[3]
+                if poly_arg[0] == '(' and poly_arg[-1] == ')':
+                    poly_arg = poly_arg[1:-1]
+                try:
+                    poly_arg = int(poly_arg)
+                except TypeError as te:
+                    raise TypeError('Not valid poly argument: %s' % poly_arg, te)
+                self._nodes = self._nodes[:2]
+                nodes = nodes[:2]
+                if self._prefix in 'EG':
+                    self._check_params(2)
+                    values = self._voltage_controlled_nodes(poly_arg)
+                    if self._prefix == 'E':
+                        key = 'v'
+                    else:
+                        key = 'i'
+                else:
+                    self._check_params(1)
+                    values = self._current_controlled_nodes(poly_arg)
+                    if self._prefix == 'F':
+                        key = 'v'
+                    else:
+                        key = 'i'
+                poly_str = '{ POLY (%d) %s }' % (poly_arg, values)
+
+                self._dict_parameters[key] = poly_str
+                self._parameters.clear()
+                self._name = self._prefix + self._name
+                self._prefix = 'B'
+                prefix_data = _prefix_cache[self._prefix]
+                self.factory = prefix_data.single
+                return nodes
+            raise IndexError('Incorrect position of POLY: %r' % self)
+        except ValueError:
+            pass
+        _correction = []
+        correction = []
+        for _node, node in zip(self._nodes, nodes):
+            _values = _node.replace(',', ' ')
+            try:
+                values = node.replace(',', ' ')
+            except AttributeError:
+                values = str(node)
+            if _values[0] == '(' and _values[-1] == ')':
+                _values = _values[1: -1]
+            if values[0] == '(' and values[-1] == ')':
+                values = values[1: -1]
+            _correction.extend(_values.split())
+            correction.extend(values.split())
+        self._parameters = correction[len(self._nodes):] + self._parameters
+        self._nodes = _correction[:len(self._nodes)]
+        parameters = self._parameters
+        correction = correction[:len(self._nodes)]
+        if self._prefix in 'EG':
+            if len(correction) + len(parameters) == 5:
+                parameters = correction[2:] + parameters
+                self._nodes = _correction[:2]
+                value = '{v(%s, %s) * %s}' % tuple(parameters)
+                if self._prefix == 'E':
+                    key = 'v'
+                else:
+                    key = 'i'
+                self._dict_parameters[key] = value
+                self._parameters.clear()
+                self._name = self._prefix + self._name
+                self._prefix = 'B'
+                prefix_data = _prefix_cache[self._prefix]
+                self.factory = prefix_data.single
+        else:
+            if len(correction) + len(parameters) == 4:
+                parameters = correction[2:] + parameters
+                self._nodes = _correction[:2]
+                value = '{i(%s) * %s}' % tuple(parameters)
+                if self._prefix == 'F':
+                    key = 'v'
+                else:
+                    key = 'i'
+                self._dict_parameters[key] = value
+                self._parameters.clear()
+                self._name = self._prefix + self._name
+                self._prefix = 'B'
+                prefix_data = _prefix_cache[self._prefix]
+                self.factory = prefix_data.single
+        return correction[:len(self._nodes)]
+
+    ##############################################
+
     def build(self, circuit, ground=0):
 
-        factory = getattr(circuit, self.factory.__alias__)
         nodes = self.translate_ground_node(ground)
         if self._prefix != 'X':
+            if self._prefix in ('EFGH'):
+                nodes = self._manage_controlled_sources(nodes)
             args = nodes + self._parameters
-        else: # != Spice
+        else:  # != Spice
             args = self._parameters + nodes
+        factory = getattr(circuit, self.factory.__alias__)
         kwargs = self._dict_parameters
-        message = ' '.join([str(x) for x in (self._prefix, self._name, nodes,
-                                             self._parameters, self._dict_parameters)])
+        message = ' '.join([str(x) for x in (self._prefix, self._name, args,
+                                             self._dict_parameters)])
         self._logger.debug(message)
         return factory(self._name, *args, **kwargs)
+
 
 ####################################################################################################
 
 class Line:
-
     """ This class implements a line in the netlist. """
 
     _logger = _module_logger.getChild('Element')
@@ -875,7 +989,7 @@ class Line:
 
         line_str = self._text
         number_of_words_read = 0
-        while number_of_words_read < number_of_words: # and start_location < len(line_str)
+        while number_of_words_read < number_of_words:  # and start_location < len(line_str)
             if line_str[start_location] == '{':
                 stop_location = line_str.find('}', start_location)
                 if stop_location > start_location:
@@ -883,23 +997,23 @@ class Line:
             else:
                 stop_location = line_str.find(' ', start_location)
             if stop_location == -1:
-                stop_location = None # read until end
+                stop_location = None  # read until end
             word = line_str[start_location:stop_location].strip()
             if word:
                 number_of_words_read += 1
                 words.append(word)
-            if stop_location is None: # we should stop
+            if stop_location is None:  # we should stop
                 if number_of_words_read != number_of_words:
                     template = 'Bad element line, looking for word {}/{}:' + os.linesep
                     message = (template.format(number_of_words_read, number_of_words) +
                                line_str + os.linesep +
-                               ' '*start_location + '^')
+                               ' ' * start_location + '^')
                     self._logger.warning(message)
                     raise ParseError(message)
             else:
                 if start_location < stop_location:
                     start_location = stop_location
-                else: # we have read a space
+                else:  # we have read a space
                     start_location += 1
 
         return words, stop_location
@@ -932,7 +1046,7 @@ class Line:
             expression += word.count('{') - word.count('}')
             if expression == 0:
                 if begin_idx < idx:
-                    result.append(' '.join(words[begin_idx:idx+1]))
+                    result.append(' '.join(words[begin_idx:idx + 1]))
                 else:
                     result.append(word)
         return result, stop_location
@@ -972,7 +1086,8 @@ class Line:
     @staticmethod
     def _partition(text):
         parts = []
-        for part in text.split():
+        values = text.replace(',', ' ')
+        for part in values.split():
             if '=' in part and part != '=':
                 left, right = [x for x in part.split('=')]
                 parts.append(left)
@@ -1084,10 +1199,10 @@ class Line:
 
         return Line._check_parameters(parts)
 
+
 ####################################################################################################
 
 class SpiceParser:
-
     """ This class parse a Spice netlist file and build a syntax tree.
 
     Public Attributes:
@@ -1139,7 +1254,7 @@ class SpiceParser:
             else:
                 line_string = line_string.strip(' \t\r\n')
                 if line_string:
-                    _slice = slice(line_index, line_index +1)
+                    _slice = slice(line_index, line_index + 1)
                     line = Line(line_string, _slice, self._end_of_line_comment)
                     lines.append(line)
                     # handle case with comment before line continuation
@@ -1215,7 +1330,7 @@ class SpiceParser:
         for line in lines[1:]:
             # print('>', repr(line))
             text = str(line)
-            lower_case_text = text.lower() # !
+            lower_case_text = text.lower()  # !
             if line.is_comment:
                 scope.append(Comment(line))
             elif lower_case_text.startswith('.'):
@@ -1307,7 +1422,7 @@ class SpiceParser:
             elif isinstance(statement, Model):
                 statement.build(circuit)
             elif isinstance(statement, SubCircuit):
-                subcircuit = statement.build(ground) # Fixme: ok ???
+                subcircuit = statement.build(ground)  # Fixme: ok ???
                 circuit.subcircuit(subcircuit)
 
     ##############################################
@@ -1320,8 +1435,8 @@ class SpiceParser:
 
         """
 
-        #circuit = Circuit(str(self._title))
-        circuit = self.circuit.build(ground)
+        # circuit = Circuit(str(self._title))
+        circuit = self.circuit.build(str(ground))
         return circuit
 
     ##############################################
