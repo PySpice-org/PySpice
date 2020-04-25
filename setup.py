@@ -83,7 +83,6 @@ setup_dict.update(dict(
         'ply',
         'scipy',
         'networkx',
-        'SchemDraw'
     ],
 ))
 
