@@ -22,7 +22,6 @@
 
 from pathlib import Path
 import os
-import subprocess
 
 from invoke import task
 
