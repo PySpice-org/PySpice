@@ -1,7 +1,7 @@
 export PySpice_source_path=${PWD}
 export PySpice_examples_path=${PySpice_source_path}/examples
 
-source /opt/python-virtual-env/py37/bin/activate
+source /opt/python-virtual-env/py38/bin/activate
 append_to_python_path_if_not ${PySpice_source_path}
 append_to_python_path_if_not ${PySpice_source_path}/tools
 
