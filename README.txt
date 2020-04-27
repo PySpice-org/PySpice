@@ -7,6 +7,8 @@
  PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
 =====================================================================================
 
+Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a Forum hosted at https://pyspice.discourse.group
+
 |Pypi License|
 |Pypi Python Version|
 
@@ -28,6 +30,11 @@ Where is the Documentation ?
 ----------------------------
 
 The documentation is available on the |PySpiceHomePage|_.
+
+Where to get help or talk about PySpice ?
+-----------------------------------------
+
+Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a Forum hosted at https://pyspice.discourse.group
 
 What are the main features ?
 ----------------------------
