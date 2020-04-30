@@ -353,6 +353,8 @@ class NgSpiceShared:
 
     ##############################################
 
+    already_read_ffi = False
+
     def _load_library(self):
 
         if ConfigInstall.OS.on_windows:
@@ -362,9 +364,11 @@ class NgSpiceShared:
             if 'SPICE_LIB_DIR' not in os.environ:
                 os.environ['SPICE_LIB_DIR'] = os.path.join(self.NGSPICE_PATH, 'share', 'ngspice')
 
-        api_path = os.path.join(os.path.dirname(__file__), 'api.h')
-        with open(api_path) as f:
-            ffi.cdef(f.read())
+        if not NgSpiceShared.already_read_ffi:
+            NgSpiceShared.already_read_ffi = True
+            api_path = os.path.join(os.path.dirname(__file__), 'api.h')
+            with open(api_path) as f:
+                ffi.cdef(f.read())
 
         if not self._ngspice_id:
             library_prefix = ''
