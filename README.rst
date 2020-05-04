@@ -152,7 +152,7 @@ pull requests blindly then there is a high risk this software will become a mess
 Credits
 =======
 
-Authors: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_
+Authors: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_ and contributors
 
 News
 ====
