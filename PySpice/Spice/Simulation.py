@@ -717,10 +717,17 @@ class CircuitSimulator(CircuitSimulation):
         if 'probes' in kwargs:
             self.save(* kwargs.pop('probes'))
 
-        method = getattr(CircuitSimulation, analysis_method)
-        method(self, *args, **kwargs)
+        _kwargs = dict(kwargs)
+        _kwargs.pop('log_desk', None)
 
-        self._logger.debug('desk' + os.linesep + str(self))
+        method = getattr(CircuitSimulation, analysis_method)
+        method(self, *args, **_kwargs)
+
+        message = 'desk' + os.linesep + str(self)
+        if kwargs.get('log_desk', False):
+            self._logger.info(message)
+        else:
+            self._logger.debug(message)
 
     ##############################################
 
