@@ -52,8 +52,8 @@ high_level_elements = _get_elements(HighLevelElement)
 for element_class in spice_elements + high_level_elements:
 
     def _make_function(element_class):
-        function = lambda self, *args, **kwargs: element_class(self, *args, **kwargs)
-
+        def function(self, *args, **kwargs):
+            return element_class(self, *args, **kwargs)
         # Preserve docstrings for element shortcuts
         function.__doc__ = element_class.__doc__
         return function
