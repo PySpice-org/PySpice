@@ -334,7 +334,7 @@ class NgSpiceShared:
 
     ##############################################
 
-    def __init__(self, ngspice_id=0, send_data=False):
+    def __init__(self, ngspice_id=0, send_data=False, verbose=False):
 
         """ Set the *send_data* flag if you want to enable the output callback.
 
@@ -346,14 +346,28 @@ class NgSpiceShared:
         self._stdout = []
         self._stderr = []
 
-        self._load_library()
+        self._library_path = None
+        self._load_library(verbose)
         self._init_ngspice(send_data)
 
         self._is_running = False
 
     ##############################################
 
-    def _load_library(self):
+    @property
+    def library_path(self):
+        if self._library_path is None:
+            if not self._ngspice_id:
+                library_prefix = ''
+            else:
+                library_prefix = '{}'.format(self._ngspice_id)
+            library_path = self.LIBRARY_PATH.format(library_prefix)
+            self._library_path = library_path
+        return self._library_path
+
+    ##############################################
+
+    def _load_library(self, verbose):
 
         if ConfigInstall.OS.on_windows:
             # https://sourceforge.net/p/ngspice/discussion/133842/thread/1cece652/#4e32/5ab8/9027
@@ -366,13 +380,11 @@ class NgSpiceShared:
         with open(api_path) as f:
             ffi.cdef(f.read())
 
-        if not self._ngspice_id:
-            library_prefix = ''
-        else:
-            library_prefix = '{}'.format(self._ngspice_id)
-        library_path = self.LIBRARY_PATH.format(library_prefix)
-        self._logger.debug('Load {}'.format(library_path))
-        self._ngspice_shared = ffi.dlopen(library_path)
+        message = 'Load library {}'.format(self.library_path)
+        self._logger.debug(message)
+        if verbose:
+            print(message)
+        self._ngspice_shared = ffi.dlopen(self.library_path)
 
         # Note: cannot yet execute command
 
