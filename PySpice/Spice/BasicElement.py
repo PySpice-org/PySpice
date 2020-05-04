@@ -1354,6 +1354,8 @@ class Mosfet(FixedPinElement):
       :attr:`width`
          alias `w`
 
+      :attr:`nfin`
+
       :attr:`drain_area`
           alias `ad`
 
@@ -1389,6 +1391,8 @@ class Mosfet(FixedPinElement):
 
       :attr:`width`
 
+      :attr:`nfin`
+
       :attr:`drain_area`
 
       :attr:`source_area`
@@ -1420,6 +1424,7 @@ class Mosfet(FixedPinElement):
     multiplier = IntKeyParameter('m')
     length = FloatKeyParameter('l', unit=U_m)
     width = FloatKeyParameter('w', unit=U_m)
+    nfin = IntKeyParameter('nfin')
     drain_area = FloatKeyParameter('ad')
     source_area = FloatKeyParameter('as')
     drain_perimeter = FloatKeyParameter('pd')
