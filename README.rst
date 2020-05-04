@@ -88,7 +88,9 @@
  PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
 =====================================================================================
 
-Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a Forum hosted at https://pyspice.discourse.group
+Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a **Forum** hosted at https://pyspice.discourse.group
+
+**Disclaimer: PySpice is developed on my free time actually, so I could be busy with other tasks and less reactive.**
 
 |Pypi License|
 |Pypi Python Version|
@@ -104,18 +106,19 @@ Overview
 What is PySpice ?
 -----------------
 
-PySpice is a Python module which interface |Python|_ to the |Ngspice|_ and |Xyce|_ circuit
-simulators.
+PySpice is a Python module which interface |Python|_ to the |Ngspice|_ and |Xyce|_ circuit simulators.
 
 Where is the Documentation ?
 ----------------------------
 
 The documentation is available on the |PySpiceHomePage|_.
 
+*Note: This site is hosted on my own infrastructure, if the site seems done, please create an issue to notify me.*
+
 Where to get help or talk about PySpice ?
 -----------------------------------------
 
-Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a Forum hosted at https://pyspice.discourse.group
+Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a **Forum** hosted at https://pyspice.discourse.group
 
 What are the main features ?
 ----------------------------
@@ -137,6 +140,14 @@ How to install it ?
 -------------------
 
 Look at the `installation <https://pyspice.fabrice-salvaire.fr/installation.html>`_ section in the documentation.
+
+Pull Request Recommendation
+===========================
+
+To make it easier to merge your pull request, you should divide your PR into smaller and easier-to-verify units.
+
+Please do not make a pull requests with a lot of modifications which are difficult to check.  **If I merge
+pull requests blindly then there is a high risk this software will become a mess quickly for everybody.**
 
 Credits
 =======
