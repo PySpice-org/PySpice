@@ -1105,18 +1105,24 @@ class NgSpiceShared:
                 vector_info = self._ngspice_shared.ngGet_Vec_Info(name.encode('utf8'))
                 vector_type = self._simulation_type[vector_info.v_type]
                 length = vector_info.v_length
-                # self._logger.debug("vector[{}] {} type {} flags {} length {}".format(i,
-                #                                                                      vector_name,
-                #                                                                      vector_type,
-                #                                                                      self._flags_to_str(vector_info.v_flags),
-                #                                                                      length))
+                # template = 'vector[{}] {} type {} flags {} length {}'
+                # self._logger.debug(template.format(
+                #     i,
+                #     vector_name,
+                #     vector_type,
+                #     self._flags_to_str(vector_info.v_flags),
+                #     length,
+                # ))
                 if vector_info.v_compdata == ffi.NULL:
-                    # for k in xrange(length):
+                    # for k in range(length):
                     #     print("  [{}] {}".format(k, vector_info.v_realdata[k]))
                     tmp_array = np.frombuffer(ffi.buffer(vector_info.v_realdata, length*8), dtype=np.float64)
                     array = np.array(tmp_array, dtype=tmp_array.dtype) # copy data
+                    # import json
+                    # with open(name + '.json', 'w') as fh:
+                    #     json.dump(list(array), fh)
                 else:
-                    # for k in xrange(length):
+                    # for k in range(length):
                     #     value = vector_info.v_compdata[k]
                     #     print(ffi.addressof(value, field='cx_real'), ffi.addressof(value, field='cx_imag'))
                     #     print("  [{}] {} + i {}".format(k, value.cx_real, value.cx_imag))

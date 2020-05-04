@@ -29,8 +29,8 @@ handlers:
 
 root:
   level: INFO
-  #level: WARNING
-  #level: DEBUG
+  # level: WARNING
+  # level: DEBUG
   handlers: [console]
 
 ####################################################################################################
