@@ -32,7 +32,17 @@ circuit.PulseVoltageSource('pulse', 'sw_drive', circuit.gnd, 0@u_V, 10@u_V, 1@u_
 
 circuit.V('input', 'input', circuit.gnd, 20@u_V)
 circuit.R('load', circuit.gnd, 'sw_node', 5@u_Ohm)
-circuit.VoltageControlledSwitch('input', 'sw_node', 'sw_drive', circuit.gnd, 'sw1', model=None)
+
+# circuit.VoltageControlledSwitch('input', 'sw_node', 'sw_drive', circuit.gnd, 'sw1', model=None)
+
+# circuit.VoltageControlledSwitch('sw1', 'sw_node', 'sw_drive', circuit.gnd, 'sw1', model=None, initial_state=True)
+# circuit.VoltageControlledSwitch('sw2', 'sw_node', 'sw_drive', circuit.gnd, 'sw1', model=None, initial_state=False)
+# circuit.VoltageControlledSwitch('sw3', input_plus='sw_drive', input_minus=circuit.gnd, output_minus='sw_node', output_plus='input', model='SW')
+
+circuit.VoltageControlledSwitch('input', 'sw_node', 'sw_drive', circuit.gnd, 'sw1', model='switch1')
+circuit.model('switch1', 'SW',  Ron=.002@u_Ohm,  Roff=1@u_MOhm,  Vt=3.0@u_V)
+
+print(circuit)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=0.1E-6, end_time=50E-3)
