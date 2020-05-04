@@ -22,10 +22,12 @@
 
 """This module implements high level elements built on top of Spice elements."""
 
+# Fixme: check NgSpice for discrepancies
+
 ####################################################################################################
 
 from ..Math import rms_to_amplitude, amplitude_to_rms
-from ..Tools.StringTools import join_list, join_dict, str_spice
+from ..Tools.StringTools import join_list, join_dict, str_spice, str_spice_list
 from ..Unit import as_s, as_V, as_A, as_Hz
 from .BasicElement import VoltageSource, CurrentSource
 
@@ -82,6 +84,8 @@ class SinusoidalMixin(SourceMixinAbc):
 
     Public Attributes:
 
+      :attr:`ac_magnitude`
+
       :attr:`amplitude`
 
       :attr:`damping_factor`
@@ -100,10 +104,12 @@ class SinusoidalMixin(SourceMixinAbc):
 
     def __init__(self,
                  dc_offset=0,
+                 ac_magnitude=1,
                  offset=0, amplitude=1, frequency=50,
                  delay=0, damping_factor=0):
 
         self.dc_offset = self.__as_unit__(dc_offset)
+        self.ac_magnitude = self.__as_unit__(ac_magnitude)
         self.offset = self.__as_unit__(offset)
         self.amplitude = self.__as_unit__(amplitude)
         self.frequency = as_Hz(frequency) # Fixme: protect by setter?
@@ -114,7 +120,8 @@ class SinusoidalMixin(SourceMixinAbc):
 
     @property
     def rms_voltage(self):
-        return amplitude_to_rms(self.amplitude)
+        # Fixme: ok ???
+        return amplitude_to_rms(self.amplitude * self.ac_magnitude)
 
     ##############################################
 
@@ -128,9 +135,8 @@ class SinusoidalMixin(SourceMixinAbc):
 
         sin_part = join_list((self.offset, self.amplitude, self.frequency, self.delay, self.damping_factor))
         return join_list((
-            'DC {}'.format(str_spice(self.dc_offset)),
-            # 'AC SIN({})'.format(sin_part), # Fixme: To be fixed
-            'AC 1 SIN({})'.format(sin_part),
+            'DC {} AC {}'.format(*str_spice_list(self.dc_offset, self.ac_magnitude)),
+            'SIN({})'.format(sin_part),
         ))
 
 ####################################################################################################
