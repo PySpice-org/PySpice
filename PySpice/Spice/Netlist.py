@@ -530,6 +530,11 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
+    def has_parameter(self, name):
+        return hasattr(self, '_' + name)
+
+    ##############################################
+
     def copy_to(self, element):
 
         for parameter_dict in self.__positional_parameters__, self.__optional_parameters__:

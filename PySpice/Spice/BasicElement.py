@@ -1423,7 +1423,7 @@ class LosslessTransmissionLine(TwoPortElement):
 
     .. code-block:: none
 
-        TXXXXXXX N1 N2 N3 N4 Z0=VALUE <TD=VALUE> <F=FREQ <NL=NRMLEN>>
+        TXXXXXXX N1 N2 N3 N4 Z0=VALUE <TD=VALUE> <F=FREQ <NL=NRMLEN>> <IC=V1, I1, V2, I2>
 
     where TD or F, NL must be specified.
 
@@ -1431,9 +1431,11 @@ class LosslessTransmissionLine(TwoPortElement):
 
       :attr:`impedance`
          alias:`Z0`
+         is the characteristic impedance
 
       :attr:`time_delay`
          alias:`TD`
+         is the transmission delay
 
       :attr:`frequency`
          alias:`F`
@@ -1451,6 +1453,13 @@ class LosslessTransmissionLine(TwoPortElement):
 
       :attr:`normalized_length`
 
+    The transmission delay, `td`, may be specified directly (as `td=10ns`, for example).
+    Alternatively, a frequency `f` may be given, together with `nl`, the normalized electrical
+    length of the transmission line with respect to the wavelength in the line at the frequency
+    `f`. If a frequency is specified but `nl` is omitted, 0.25 is assumed (that is, the frequency is
+    assumed to be the quarter-wave frequency). Note that although both forms for expressing the line
+    length are indicated as optional, one of the two must be specified.
+
     Note: Either time_delay or frequency must be given.
 
     """
@@ -1467,12 +1476,11 @@ class LosslessTransmissionLine(TwoPortElement):
 
     def __init__(self, name, *args, **kwargs):
 
-        # check: ^ xor, & bitwise and
-        if not (('time_delay' in kwargs) ^
-                (('frequency' in kwargs) & ('normalized_length' in kwargs))):
-            raise NameError('Either TD or F, NL must be specified')
-
         super().__init__(name, *args, **kwargs)
+
+        if not (self.has_parameter('time_delay') or
+                (self.has_parameter('frequency') and self.has_parameter('normalized_length'))):
+            raise NameError('Either TD or F, NL must be specified')
 
 ####################################################################################################
 
