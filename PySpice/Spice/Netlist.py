@@ -895,15 +895,26 @@ class Netlist:
 
     ##############################################
 
+    def element(self, name):
+        return self._elements[name]
+
+    def model(self, name):
+        return self._models[name]
+
+    def node(self, name):
+        return self._nodes[name]
+
+    ##############################################
+
     def __getitem__(self, attribute_name):
 
         if attribute_name in self._elements:
-            return self._elements[attribute_name]
+            return self.element(attribute_name)
         elif attribute_name in self._models:
-            return self._models[attribute_name]
+            return self.model(attribute_name)
         # Fixme: subcircuits
         elif attribute_name in self._nodes:
-            return self._nodes[attribute_name]
+            return self.node(attribute_name)
         else:
             raise IndexError(attribute_name) # KeyError
 

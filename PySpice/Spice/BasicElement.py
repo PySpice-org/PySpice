@@ -97,6 +97,8 @@ See Ngspice documentation for details.
 
 ####################################################################################################
 
+import logging
+
 from ..Tools.StringTools import str_spice, join_list, join_dict
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
 from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
@@ -115,6 +117,10 @@ from .ElementParameter import (
     IntKeyParameter,
     ModelPositionalParameter,
     )
+
+####################################################################################################
+
+_module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
@@ -656,13 +662,28 @@ class CoupledInductor(AnyPinElement):
     inductor2 = ElementNamePositionalParameter(position=1, key_parameter=False)
     coupling_factor = FloatPositionalParameter(position=2, key_parameter=False)
 
+    _logger = _module_logger.getChild('CoupledInductor')
+
  ##############################################
 
     def __init__(self, name, *args, **kwargs):
 
         super().__init__(name, *args, **kwargs)
 
-        self._inductors = (self.inductor1, self.inductor2)
+        self._inductors = []
+        for inductor in (self.inductor1, self.inductor2):
+            try:
+                self.netlist.element(inductor)
+            except KeyError:
+                try:
+                    inductor = 'L' + inductor
+                    self.netlist.element(inductor)
+                    self._logger.info('Prefixed element {}'.format(inductor))
+                except KeyError:
+                    raise ValueError('Element with name {} not found'.format(inductor))
+            # Fixme: str or Element instance ?
+            self._inductors.append(inductor)
+        self.inductor1, self.inductor2 = self._inductors
 
 ####################################################################################################
 

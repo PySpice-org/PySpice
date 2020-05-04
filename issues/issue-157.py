@@ -18,21 +18,25 @@ L_P1 = 1e-6
 L_S1 = 10e-6
 K_P1S1 = 0.1
 
-circuit = Circuit("2CoupledInductors")
+circuit = Circuit('2CoupledInductors')
 
 #Primary Side
-circuit.I("I2", circuit.gnd, "N1", "AC " + str(I_P1) + "")
-circuit.L("L_P1", circuit.gnd, "N1", str(L_P1))
+circuit.I('I2', circuit.gnd, 'N1', 'AC ' + str(I_P1) + '')
+circuit.L('L_P1', circuit.gnd, 'N1', str(L_P1))
 
 # Secondary Side
-circuit.L("L_S1", circuit.gnd,  "N2", str(L_S1) )
-circuit.K("K_P1S1", "L_P1", "L_S1", K_P1S1)
+circuit.L('L_S1', circuit.gnd,  'N2', str(L_S1) )
+circuit.K('K_P1S1', 'L_P1', 'L_S1', K_P1S1)
+# circuit.K('K_P1S1', 'L_P1', 'LL_S1', K_P1S1)
+# circuit.K('K_P1S1', 'LL_P1', 'LL_S1', K_P1S1)
+
+print(circuit)
 
 # Do the simulation
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.ac(variation="lin", number_of_points=1, start_frequency=frequency, stop_frequency=frequency)
+analysis = simulator.ac(variation='lin', number_of_points=1, start_frequency=frequency, stop_frequency=frequency)
 
 # Print the results
-print("--- Results ---")
+print('--- Results ---')
 for node in analysis.nodes.values():
   print('Node {}: {:5.2f} V'.format(str(node), float(abs(node))))
