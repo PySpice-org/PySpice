@@ -158,13 +158,11 @@ class WaveForm(UnitValues):
     ##############################################
 
     def __repr__(self):
-
         return '{0.__class__.__name__} {0._name} {1}'.format(self, super().__str__())
 
     ##############################################
 
     def __str__(self):
-
         if self._title is not None:
             return self._title
         else:
@@ -173,9 +171,7 @@ class WaveForm(UnitValues):
     ##############################################
 
     def str_data(self):
-
         # Fixme: ok ???
-
         return repr(self.as_ndarray())
 
 ####################################################################################################
@@ -294,7 +290,6 @@ class Analysis:
     ##############################################
 
     def __getitem__(self, name):
-
         try:
             return self._get_item(name)
         except IndexError:
@@ -304,7 +299,6 @@ class Analysis:
 
     @staticmethod
     def _format_dict(d):
-
         return os.linesep.join([' '*2 + str(x) for x in d])
 
     ##############################################
@@ -336,7 +330,6 @@ class SensitivityAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, elements, internal_parameters):
-
         super().__init__(simulation=simulation, elements=elements,
                          internal_parameters=internal_parameters)
 
@@ -415,3 +408,62 @@ class TransientAnalysis(Analysis):
     def time(self):
         """Return an Numpy array for the time abscissa"""
         return self._time
+
+####################################################################################################
+
+class PoleZeroAnalysis(Analysis):
+
+    """This class implements a Pole-Zero analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, nodes, branches, internal_parameters):
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
+
+####################################################################################################
+
+class NoiseAnalysis(Analysis):
+
+    """This class implements Noise analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, nodes, branches, internal_parameters):
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
+
+####################################################################################################
+
+class DistortionAnalysis(Analysis):
+
+    """This class implements Distortion analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, frequency, nodes, branches, internal_parameters):
+
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
+
+        self._frequency = frequency
+
+    ##############################################
+
+    @property
+    def frequency(self):
+        """Return an Numpy array for the frequency abscissa"""
+        return self._frequency
+
+####################################################################################################
+
+class TransferFunctionAnalysis(Analysis):
+
+    """This class implements Transfer Function (TF) analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, nodes, branches, internal_parameters):
+
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
