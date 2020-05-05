@@ -445,7 +445,7 @@ class NgSpiceShared:
         if send_data:
             self._send_data_c = ffi.callback('int (pvecvaluesall, int, int, void *)', self._send_data)
         else:
-            self._send_data_c = ffi.NULL
+            self._send_data_c = FFI.NULL
 
         self._get_vsrc_data_c = ffi.callback('int (double *, double, char *, int, void *)', self._get_vsrc_data)
         self._get_isrc_data_c = ffi.callback('int (double *, double, char *, int, void *)', self._get_isrc_data)
@@ -467,7 +467,7 @@ class NgSpiceShared:
         self._ngspice_id = ngspice_id_c # To prevent garbage collection
         rc = self._ngspice_shared.ngSpice_Init_Sync(self._get_vsrc_data_c,
                                                     self._get_isrc_data_c,
-                                                    ffi.NULL, # GetSyncData
+                                                    FFI.NULL, # GetSyncData
                                                     ngspice_id_c,
                                                     self_c)
         if rc:
@@ -634,7 +634,7 @@ class NgSpiceShared:
         strings = []
         i = 0
         while (True):
-            if array[i] == ffi.NULL:
+            if array[i] == FFI.NULL:
                 break
             else:
                 strings.append(ffi_string_utf8(array[i]))
@@ -1021,7 +1021,7 @@ class NgSpiceShared:
         circuit_lines = [line for line in str(circuit).split(os.linesep) if line]
         circuit_lines_keepalive = [ffi.new("char[]", line.encode('utf8'))
                                    for line in circuit_lines]
-        circuit_lines_keepalive += [ffi.NULL]
+        circuit_lines_keepalive += [FFI.NULL]
         circuit_array = ffi.new("char *[]", circuit_lines_keepalive)
         rc = self._ngspice_shared.ngSpice_Circ(circuit_array)
         if rc:
@@ -1031,6 +1031,12 @@ class NgSpiceShared:
         #     rc = self._ngspice_shared.ngSpice_Command('circbyline ' + line)
         #     if rc:
         #         raise NameError("ngSpice_Command circbyline returned {}".format(rc))
+
+    ##############################################
+
+    def listing(self):
+        command = 'listing'
+        return self.exec_command(command)
 
     ##############################################
 
@@ -1141,7 +1147,7 @@ class NgSpiceShared:
         all_vectors_c = self._ngspice_shared.ngSpice_AllVecs(plot_name.encode('utf8'))
         i = 0
         while (True):
-            if all_vectors_c[i] == ffi.NULL:
+            if all_vectors_c[i] == FFI.NULL:
                 break
             else:
                 vector_name = ffi_string_utf8(all_vectors_c[i])
@@ -1157,7 +1163,7 @@ class NgSpiceShared:
                 #     self._flags_to_str(vector_info.v_flags),
                 #     length,
                 # ))
-                if vector_info.v_compdata == ffi.NULL:
+                if vector_info.v_compdata == FFI.NULL:
                     # for k in range(length):
                     #     print("  [{}] {}".format(k, vector_info.v_realdata[k]))
                     tmp_array = np.frombuffer(ffi.buffer(vector_info.v_realdata, length*8), dtype=np.float64)
