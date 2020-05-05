@@ -420,6 +420,15 @@ class NgSpiceShared:
             if 'SPICE_LIB_DIR' not in os.environ:
                 os.environ['SPICE_LIB_DIR'] = os.path.join(self.NGSPICE_PATH, 'share', 'ngspice')
 
+        # https://sourceforge.net/p/ngspice/bugs/490
+        # ngspice and Kicad do setlocale(LC_NUMERIC, "C");
+        if ConfigInstall.OS.on_windows:
+            self._logger.warning('locale LC_NUMERIC is not forced to C')
+        elif ConfigInstall.OS.on_linux or ConfigInstall.OS.on_osx:
+            self._logger.warning('Set locale LC_NUMERIC to C')
+            import locale
+            locale.setlocale(locale.LC_NUMERIC, 'C')
+
         api_path = os.path.join(os.path.dirname(__file__), 'api.h')
         with open(api_path) as f:
             ffi.cdef(f.read())

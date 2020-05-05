@@ -1,5 +1,5 @@
 .title Pulse
-Bsource in 0 v=time^4*exp(-1000*time)
+Bsource in 0 v=time^4;*exp(-1000*time)
 R1 in out 9kOhm
 R2 out 0 1kOhm
 .options TEMP = 27°C
