@@ -7,10 +7,6 @@
  PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
 =====================================================================================
 
-Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a **Forum** hosted at https://pyspice.discourse.group
-
-**Disclaimer: PySpice is developed on my free time actually, so I could be busy with other tasks and less reactive.**
-
 |Pypi License|
 |Pypi Python Version|
 
@@ -18,6 +14,15 @@ Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a **Forum** 
 
 * Quick Link to `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
 * Quick Link to `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
+
+Brief Notes
+===========
+
+Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a **Forum** hosted at https://pyspice.discourse.group
+
+**Disclaimer: PySpice is developed on my free time actually, so I could be busy with other tasks and less reactive.**
+
+An issue was found with NgSpice Shared, we must `setlocale(LC_NUMERIC, "C");` see https://sourceforge.net/p/ngspice/bugs/490/
 
 Overview
 ========
