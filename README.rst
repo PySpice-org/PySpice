@@ -157,7 +157,7 @@ pull requests blindly then there is a high risk this software will become a mess
 Credits
 =======
 
-Authors: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_ and contributors
+Authors: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_ and `contributors <https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md>`_
 
 News
 ====
@@ -167,11 +167,30 @@ News
 
 .. no title here
 
-V1.4.0 (development release)
+V1.5.0 (development release)
 ----------------------------
 
-V1.3.2 (production release) 2019-03-11
+V1.4.0 (production release) 2020-05-05
 --------------------------------------
+
+* fixed nasty issue with NgSpice shared for `setlocale(LC_NUMERIC, "C");` cf. #172
+* fixed `AC AC_MAG AC_PASAE SIN` for new NgSpice syntax
+* fixed `initial_state` for `VoltageControlledSwitch`
+* fixed `LosslessTransmissionLine` #169
+* fixed docstrings for element shortcut methods (thanks to Kyle Dunn) #178
+* fixed parser for leading whitespace (thanks to Matt Huszagh) #182
+* fix for PyYAML newer API
+* support NgSpice 31 API (no change)
+* added check for `CoupledInductor` #157
+* added `check-installation` tool to help to fix broken installation
+* added pole-zero, noise, distorsion, transfer-function analyses (thanks to Peter Garrone) #191
+* added `.measure` support (thanks to ceprio) #160
+* added `log_desk` parameter to `CircuitSimulator`
+* added `listing` command method to `NgSpiceShared`
+* added Xyce Mosfet nfin #177
+
+V1.3.2  2019-03-11
+------------------
 
  * support Ngspice 30 and Xyce 6.10
  * fixed NgSpice and Xyce support on Windows 10

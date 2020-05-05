@@ -76,7 +76,7 @@ pull requests blindly then there is a high risk this software will become a mess
 Credits
 =======
 
-Authors: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_ and contributors
+Authors: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_ and `contributors <https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md>`_
 
 News
 ====

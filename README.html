@@ -439,17 +439,37 @@ pull requests blindly then there is a high risk this software will become a mess
 </div>
 <div class="section" id="credits">
 <h1>Credits</h1>
-<p>Authors: <a class="reference external" href="http://fabrice-salvaire.fr">Fabrice Salvaire</a> and contributors</p>
+<p>Authors: <a class="reference external" href="http://fabrice-salvaire.fr">Fabrice Salvaire</a> and <a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md">contributors</a></p>
 </div>
 <div class="section" id="news">
 <h1>News</h1>
 <!-- -*- Mode: rst -*- -->
 <!-- no title here -->
-<div class="section" id="v1-4-0-development-release">
-<h2>V1.4.0 (development release)</h2>
+<div class="section" id="v1-5-0-development-release">
+<h2>V1.5.0 (development release)</h2>
 </div>
-<div class="section" id="v1-3-2-production-release-2019-03-11">
-<h2>V1.3.2 (production release) 2019-03-11</h2>
+<div class="section" id="v1-4-0-production-release-2020-05-05">
+<h2>V1.4.0 (production release) 2020-05-05</h2>
+<ul class="simple">
+<li>fixed nasty issue with NgSpice shared for <cite>setlocale(LC_NUMERIC, &quot;C&quot;);</cite> cf. #172</li>
+<li>fixed <cite>AC AC_MAG AC_PASAE SIN</cite> for new NgSpice syntax</li>
+<li>fixed <cite>initial_state</cite> for <cite>VoltageControlledSwitch</cite></li>
+<li>fixed <cite>LosslessTransmissionLine</cite> #169</li>
+<li>fixed docstrings for element shortcut methods (thanks to Kyle Dunn) #178</li>
+<li>fixed parser for leading whitespace (thanks to Matt Huszagh) #182</li>
+<li>fix for PyYAML newer API</li>
+<li>support NgSpice 31 API (no change)</li>
+<li>added check for <cite>CoupledInductor</cite> #157</li>
+<li>added <cite>check-installation</cite> tool to help to fix broken installation</li>
+<li>added pole-zero, noise, distorsion, transfer-function analyses (thanks to Peter Garrone) #191</li>
+<li>added <cite>.measure</cite> support (thanks to ceprio) #160</li>
+<li>added <cite>log_desk</cite> parameter to <cite>CircuitSimulator</cite></li>
+<li>added <cite>listing</cite> command method to <cite>NgSpiceShared</cite></li>
+<li>added Xyce Mosfet nfin #177</li>
+</ul>
+</div>
+<div class="section" id="v1-3-2-2019-03-11">
+<h2>V1.3.2  2019-03-11</h2>
 <blockquote>
 <ul class="simple">
 <li>support Ngspice 30 and Xyce 6.10</li>
