@@ -23,10 +23,10 @@
 ####################################################################################################
 
 import glob
+import os
 import sys
 
 from setuptools import setup, find_packages
-setuptools_available = True
 
 ####################################################################################################
 
@@ -37,6 +37,12 @@ if sys.version_info < required_python_version:
 
 ####################################################################################################
 
+# ported from py2 execfile
+# exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
+from setup_data import setup_dict
+
+####################################################################################################
+
 # Fixme: could check for ngspice, Xyce, libngspice.so etc.
 
 # check a simulator is installed
@@ -44,10 +50,6 @@ if sys.version_info < required_python_version:
 #     rc = subprocess.check_call(('ngspice', '--version'), stdout=sys.stderr)
 # except FileNotFoundError:
 #     sys.stderr.write('\n\nWarning: You must install ngspice\n\n')
-
-####################################################################################################
-
-exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
 
 ####################################################################################################
 
