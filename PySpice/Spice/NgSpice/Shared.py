@@ -46,6 +46,7 @@ the shared library by worker as explained in the manual.
 
 ####################################################################################################
 
+from pathlib import Path
 import logging
 import os
 import platform
@@ -418,7 +419,7 @@ class NgSpiceShared:
             # When environment variable SPICE_LIB_DIR is empty, ngspice looks in C:\Spice64\share\ngspice\scripts
             # Else it tries %SPICE_LIB_DIR%\scripts\spinit
             if 'SPICE_LIB_DIR' not in os.environ:
-                os.environ['SPICE_LIB_DIR'] = os.path.join(self.NGSPICE_PATH, 'share', 'ngspice')
+                os.environ['SPICE_LIB_DIR'] = str(Path(self.NGSPICE_PATH).joinpath('share', 'ngspice'))
 
         # https://sourceforge.net/p/ngspice/bugs/490
         # ngspice and Kicad do setlocale(LC_NUMERIC, "C");
@@ -429,7 +430,7 @@ class NgSpiceShared:
             import locale
             locale.setlocale(locale.LC_NUMERIC, 'C')
 
-        api_path = os.path.join(os.path.dirname(__file__), 'api.h')
+        api_path = Path(__file__).parent.joinpath('api.h')
         with open(api_path) as f:
             ffi.cdef(f.read())
 
@@ -1199,22 +1200,19 @@ class NgSpiceShared:
 #
 
 if ConfigInstall.OS.on_windows:
-    drive = os.getenv('SystemDrive') or 'C:'
-    root = drive + os.sep
-
-    ngspice_dirname = 'Spice'
-    if platform.architecture()[0] == '64bit':
-        ngspice_dirname += '64'
-    ngspice_dirname += '_dll'
-
-    ngspice_path = os.path.join(root, 'Program Files', ngspice_dirname)
+    if platform.architecture()[0] != '64bit':
+        raise NameError('Windows 32bit is no longer supported by NgSpice')
+    ngspice_path = Path(__file__).parent.joinpath('Spice64_dll')
     NgSpiceShared.NGSPICE_PATH = ngspice_path
+    _path = ngspice_path.joinpath('dll-vs', 'ngspice{}.dll')
 
-    _path = os.path.join(ngspice_path, 'dll-vs', 'ngspice{}.dll')
 elif ConfigInstall.OS.on_osx:
     _path = 'libngspice{}.dylib'
+
 elif ConfigInstall.OS.on_linux:
     _path = 'libngspice{}.so'
+
 else:
     raise NotImplementedError
-NgSpiceShared.LIBRARY_PATH= _path
+
+NgSpiceShared.LIBRARY_PATH= str(_path)
