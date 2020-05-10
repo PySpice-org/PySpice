@@ -22,24 +22,17 @@
 
 ####################################################################################################
 
-import glob
-import os
 import sys
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 ####################################################################################################
 
+# Check for python3 setup.py install
 required_python_version = (3, 6)
 if sys.version_info < required_python_version:
     sys.stderr.write('ERROR: PySpice requires Python {}.{}\n'.format(*required_python_version))
     sys.exit(1)
-
-####################################################################################################
-
-# ported from py2 execfile
-# exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
-from setup_data import setup_dict
 
 ####################################################################################################
 
@@ -53,19 +46,5 @@ from setup_data import setup_dict
 
 ####################################################################################################
 
-install_requires = []
-
-if os.name == 'nt':
-    install_requires += [
-        'requests', # requests==2.23.0
-    ]
-
-####################################################################################################
-
-setup_dict.update(dict(
-    install_requires=install_requires,
-))
-
-####################################################################################################
-
+from setup_data import setup_dict
 setup(**setup_dict)
