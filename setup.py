@@ -53,38 +53,40 @@ from setup_data import setup_dict
 
 ####################################################################################################
 
+install_requires = []
+
+if os.name == 'nt':
+    install_requires += [
+        'requests', # requests==2.23.0
+    ]
+
+####################################################################################################
+
 setup_dict.update(dict(
     # include_package_data=True, # Look in MANIFEST.in
-    packages=find_packages(exclude=['unit-test']),
-    scripts=glob.glob('bin/*'),
+    # packages=find_packages(exclude=['unit-test']),
+    # scripts=glob.glob('bin/*'),
     # [
     #     'bin/...',
     # ],
-    package_data={
-        'PySpice.Config': ['logging.yml'],
-        'PySpice.Spice.NgSpice': ['api.h'],
-    },
+    # package_data={
+    #     'PySpice.Config': ['logging.yml'],
+    #     'PySpice.Spice.NgSpice': ['api.h'],
+    # },
 
-    platforms='any',
-    zip_safe=False, # due to data files
+    # platforms='any',
+    # zip_safe=False, # due to data files
 
-    classifiers=[
-        'Topic :: Scientific/Engineering',
-        'Intended Audience :: Education',
-        'Development Status :: 5 - Production/Stable',
-        'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.6',
-        ],
+    # classifiers=[
+    #     'Topic :: Scientific/Engineering',
+    #     'Intended Audience :: Education',
+    #     'Development Status :: 5 - Production/Stable',
+    #     'License :: OSI Approved :: GNU General Public License (GPL)',
+    #     'Operating System :: OS Independent',
+    #     'Programming Language :: Python :: 3.6',
+    #     ],
 
-    install_requires=[
-        'PyYAML',
-        'cffi',
-        'matplotlib',
-        'numpy',
-        'ply',
-        'scipy',
-    ],
+    install_requires=install_requires,
 ))
 
 ####################################################################################################
