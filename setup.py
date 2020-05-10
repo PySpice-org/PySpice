@@ -63,29 +63,6 @@ if os.name == 'nt':
 ####################################################################################################
 
 setup_dict.update(dict(
-    # include_package_data=True, # Look in MANIFEST.in
-    # packages=find_packages(exclude=['unit-test']),
-    # scripts=glob.glob('bin/*'),
-    # [
-    #     'bin/...',
-    # ],
-    # package_data={
-    #     'PySpice.Config': ['logging.yml'],
-    #     'PySpice.Spice.NgSpice': ['api.h'],
-    # },
-
-    # platforms='any',
-    # zip_safe=False, # due to data files
-
-    # classifiers=[
-    #     'Topic :: Scientific/Engineering',
-    #     'Intended Audience :: Education',
-    #     'Development Status :: 5 - Production/Stable',
-    #     'License :: OSI Approved :: GNU General Public License (GPL)',
-    #     'Operating System :: OS Independent',
-    #     'Programming Language :: Python :: 3.6',
-    #     ],
-
     install_requires=install_requires,
 ))
 
