@@ -124,8 +124,17 @@ def build(ctx):
 def install(ctx):
     ctx.run('python3 setup.py install')
 
+# @task(clean, build)
+# def sdist(ctx):
+#     ctx.run('python3 setup.py sdist')
+
+# @task(clean, build)
+# def bdist(ctx):
+#     ctx.run('python3 setup.py bdist')
+
 @task(clean, build)
 def wheel(ctx):
+    ctx.run('python3 setup.py sdist')
     ctx.run('python3 setup.py bdist_wheel')
 
 @task(wheel)
@@ -135,7 +144,8 @@ def upload(ctx):
     # Sign using
     #   BA24CE0F65CB8C67 Fabrice SALVAIRE <gpg AT fabrice-salvaire.fr>
     #   registered on key servers: hkps://hkps.pool.sks-keyservers.net hkp://pgp.mit.edu
-    ctx.run('gpg --detach-sign -a dist/*whl')
+    ctx.run('gpg --detach-sign --armor dist/*tar.gz')
+    ctx.run('gpg --detach-sign --armor dist/*whl')
     ctx.run('twine upload dist/*')
 
 def _get_pipy_json():
