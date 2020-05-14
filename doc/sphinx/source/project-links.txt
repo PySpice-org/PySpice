@@ -27,6 +27,9 @@
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice last version
 
+.. |PySpice@anaconda| replace:: https://anaconda.org/fabricesalvaire/pyspice
+.. .. _PySpice@anaconda: https://anaconda.org/fabricesalvaire/pyspice
+
 .. |Anaconda Version| image:: https://anaconda.org/fabricesalvaire/pyspice/badges/version.svg
    :target: https://anaconda.org/fabricesalvaire/pyspice/badges/version.svg
    :alt: Anaconda last version
