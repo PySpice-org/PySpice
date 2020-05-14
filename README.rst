@@ -98,10 +98,11 @@
 
 |Pypi License|
 |Pypi Python Version|
-|Anaconda Version|
-|Anaconda Downloads|
 
 |Pypi Version|
+
+|Anaconda Version|
+|Anaconda Downloads|
 
 * Quick Link to `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
 * Quick Link to `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
