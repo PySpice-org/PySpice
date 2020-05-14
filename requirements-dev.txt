@@ -5,6 +5,7 @@ invoke
 # Build documentation
 sphinx
 sphinxcontrib-getthecode
+pyterate
 
 # Check code style, errors, etc
 pylint
