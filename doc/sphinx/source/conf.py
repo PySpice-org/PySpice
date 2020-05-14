@@ -40,6 +40,8 @@ except:
     logger.warning('Failed to import sphinx_rtd_theme')
     pass
 
+import PySpice
+
 ####################################################################################################
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -97,7 +99,7 @@ copyright = '{0.year}, Fabrice Salvaire'.format(datetime.now())
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = setup_dict['version']
+release = PySpice.__version__
 # The short X.Y version.
 version = '.'.join(release.split('.')[:2])
 
