@@ -9,6 +9,8 @@
 
 |Pypi License|
 |Pypi Python Version|
+|Anaconda Version|
+|Anaconda Downloads|
 
 |Pypi Version|
 

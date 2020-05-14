@@ -29,6 +29,14 @@
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice last version
 
+.. |Anaconda Version| image:: https://anaconda.org/fabricesalvaire/pyspice/badges/version.svg
+   :target: https://anaconda.org/fabricesalvaire/pyspice/badges/version.svg
+   :alt: Anaconda last version
+
+.. |Anaconda Downloads| image:: https://anaconda.org/fabricesalvaire/pyspice/badges/downloads.svg
+   :target: https://anaconda.org/fabricesalvaire/pyspice/badges/downloads.svg
+   :alt: Anaconda donwloads
+
 .. |Pypi License| image:: https://img.shields.io/pypi/l/PySpice.svg
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice license
@@ -90,6 +98,8 @@
 
 |Pypi License|
 |Pypi Python Version|
+|Anaconda Version|
+|Anaconda Downloads|
 
 |Pypi Version|
 
