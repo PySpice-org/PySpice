@@ -4,7 +4,7 @@
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.13.0",
         "bootstrap": "^4.5",
-        "jquery": "3.3.1",
+        "jquery": "3.5.1",
         "outdatedbrowser": "^1.1.5",
 	"popper.js": "^1.16.0"
     },
