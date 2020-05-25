@@ -40,13 +40,13 @@ devel-test/
 devel/
 
 doc/extern/
+doc/logo/logo-square.png
+doc/logo/logo-v1.jpg
+doc/logo/logo-v1.png
+doc/logo/logo-v2.jpg
+doc/logo/logo-v2.png
+doc/logo/logo.png
 doc/sphinx/source/-to-be-removed.txt
-doc/sphinx/source/_static/logo-square.png
-doc/sphinx/source/_static/logo-v1.jpg
-doc/sphinx/source/_static/logo-v1.png
-doc/sphinx/source/_static/logo-v2.jpg
-doc/sphinx/source/_static/logo-v2.png
-doc/sphinx/source/_static/logo.png
 doc/sphinx/source/_static/stargazer.png
 doc/sphinx/source/project-links.txt-
 
