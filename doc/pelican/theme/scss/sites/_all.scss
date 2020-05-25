@@ -1,0 +1,50 @@
+// #############################################################################
+//
+// Besides /addons you will work mostly within the /private/sass/sites
+// folder. All custom elements that are in general not plug-and-playable,
+// fixed into the website somewhere or specific components, get thrown in
+// here.
+//
+// This will force you to devise and adhere to structure
+// patterns. Here are some examples depending on the requirements for
+// your project:
+//
+// Multisite Setup
+//  Let’s assume you create one style guide sharing different marketing
+//  websites or applications - your structure might look something
+//  like:
+//
+// sites/
+// ├─ application/
+// │  ├─ _all.scss
+// │  ├─ _general.scss
+// │  └─ _wizard.scss
+// ├─ marketing/
+// │  ├─ _all.scss
+// │  ├─ _layout.scss
+// │  └─ _addons.scss
+// ├─ _application.scss (imports application/_all.scss)
+// └─ _marketing.scss (imports marketing/_all.scss)
+//
+// Theme Setup
+//  If you are using different themes for the same markup, your
+//  structure might look something like:
+//
+// sites/
+// ├─ dark_theme/
+// │  ├─ _all.scss
+// │  ├─ _header.scss
+// │  └─ _footer.scss
+// ├─ white_theme/
+// │  ├─ _all.scss
+// │  ├─ _header.scss
+// │  └─ _footer.scss
+// ├─ dark_theme.scss (imports dark_theme/_all.scss)
+// └─ white_theme.scss (imports white_theme/_all.scss)
+//
+// this folder contains overrides and additional css which cannot be categorised
+// files can be split and included here
+//
+// #############################################################################
+
+//! @import "custom";

@@ -1,0 +1,34 @@
+// #############################################################################
+// Footer
+
+// all styles related to the global footer should be declared within this file
+// apply the "sites/" nesting described within the documentation if the file is
+// getting to large
+
+// .page-footer
+footer {
+    @extend .mt-3;
+    @extend .py-3;
+    @include rised-component();
+    @include white_on_dark();
+}
+
+.footer-container {
+    @extend .container;
+    @extend .d-flex;
+
+    #copyright-notice {
+    }
+
+    #page-top-link {
+	@extend .ml-auto;
+    }
+}
+
+@media(max-width: $grid-float-breakpoint) {
+    .footer-container {
+	// @extend .flex-column; // but don't work in media ...
+	flex-direction: column;
+    }
+}
+

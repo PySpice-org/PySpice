@@ -1,0 +1,36 @@
+/*
+* We consider the general look and feel as the layout of a website or
+* application. This might include the typography, header and footer,
+* icons or the printable version. The layout can be broken down into
+* further parts if a website gets very large. We advise in general
+* against this strategy and rather prefer to use /sass/sites to create
+* specific layouts and derive from a global common style guide.
+*
+* Warning
+* Everything that targets a specific element, such as custom styles for
+* Bootstrap components or a specific form error, belongs in /sass/addons
+* or /sass/sites.
+*/
+
+// #############################################################################
+// AUTOIMPORTS
+
+// this folder is for predefined parts of a website section like header/footer
+// or icons which are globally used there are very few occasions where
+// you want to add more files here
+
+// @import "fonts";
+@import "roboto";
+@import "gabriela";
+
+// @import "iconography";
+// @import "forms";
+// @import "buttons";
+@import "header";
+@import "breadcrumb";
+@import "footer";
+@import "content";
+@import "images";
+@import "codes";
+
+// @import "print";

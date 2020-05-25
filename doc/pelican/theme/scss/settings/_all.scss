@@ -1,0 +1,24 @@
+// #############################################################################
+//
+// It is very useful to store values, that are used more than twice,
+// within their own variable. We even encourage storing all colour values
+// within the settings. Don’t repeat yourself. Create a sub-structure,
+// similar to /sites if the structure becomes more complex.
+//
+// Warning
+// Do not add additional variables to
+// /private/sass/settings/_bootstrap.scss. This file is reserved for
+// Bootstrap-only variables. Use /private/sass/settings/_custom.scss
+// instead.
+//
+// this folder contains required variables for colors, sizes, styles and more
+// add additional files for encapsulated settings
+//
+// #############################################################################
+
+@import "pre_bootstrap";
+@import "bootstrap4";
+
+// @import "fontawesome_v5";
+
+//! @import "custom";
