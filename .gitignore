@@ -1,3 +1,7 @@
+# -*- mode: Conf -*-
+
+####################################################################################################
+
 *.stderr
 *.stdout
 */tex/auto
@@ -8,8 +12,12 @@ parser.out
 parsetab.py
 
 ####################################################################################################
+#
+# Secrets
+#
 
 .anaconda-login.txt
+doc/pelican/SECRET_CONFIG.py
 
 ####################################################################################################
 
@@ -24,18 +32,33 @@ PySpice.egg-info/
 PySpice/__init__.py
 build/
 dist/
+
+doc/logo/logo-v1.jpg
+doc/logo/logo-v1.png
+doc/logo/logo-v2.jpg
+doc/logo/logo-v2.png
+doc/logo/logo.png
+
+doc/pelican/output
+doc/pelican/pelican-plugins
+doc/pelican/pelican-themes
+doc/pelican/theme/.yarnclean
+doc/pelican/theme/node_modules
+doc/pelican/theme/static/css/base.css
+doc/pelican/theme/static/css/libs/bootstrap/bootstrap-grid.css
+doc/pelican/theme/static/css/libs/bootstrap/bootstrap-reboot.css
+doc/pelican/theme/static/css/libs/bootstrap/bootstrap.css
+doc/pelican/theme/static/css/libs/fontawesome/brands.css
+doc/pelican/theme/static/css/libs/fontawesome/fontawesome.css
+doc/pelican/theme/static/css/libs/fontawesome/regular.css
+doc/pelican/theme/static/css/libs/fontawesome/solid.css
+doc/pelican/theme/static/css/libs/fontawesome/v4-shims.css
+doc/pelican/theme/yarn-error.log
+doc/pelican/theme/yarn.lock
+
 doc/sphinx/build/
 doc/sphinx/source/api/
 doc/sphinx/source/examples/
-
-doc/pelican/output
-doc/pelican/SECRET_CONFIG.py
-doc/pelican/pelican-plugins
-doc/pelican/pelican-themes
-doc/pelican/theme/node/node_modules
-doc/pelican/theme/node/static
-doc/pelican/theme/node/yarn-error.log
-doc/pelican/theme/node/yarn.lock
 
 ####################################################################################################
 
@@ -50,11 +73,6 @@ devel/
 
 doc/extern/
 doc/logo/logo-square.png
-doc/logo/logo-v1.jpg
-doc/logo/logo-v1.png
-doc/logo/logo-v2.jpg
-doc/logo/logo-v2.png
-doc/logo/logo.png
 doc/sphinx/source/-to-be-removed.txt
 doc/sphinx/source/_static/stargazer.png
 doc/sphinx/source/project-links.txt-

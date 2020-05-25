@@ -105,7 +105,7 @@ OUTPUT_SOURCES_EXTENSION = '.text'
 
 # The list of plugins to load. See Plugins.
 PLUGINS = [
-    'i18n_subsites',
+    # 'i18n_subsites',
 ]
 # A list of directories where to look for plugins. See Plugins
 PLUGIN_PATHS = [
