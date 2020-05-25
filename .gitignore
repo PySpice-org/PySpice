@@ -28,6 +28,15 @@ doc/sphinx/build/
 doc/sphinx/source/api/
 doc/sphinx/source/examples/
 
+doc/pelican/output
+doc/pelican/SECRET_CONFIG.py
+doc/pelican/pelican-plugins
+doc/pelican/pelican-themes
+doc/pelican/theme/node/node_modules
+doc/pelican/theme/node/static
+doc/pelican/theme/node/yarn-error.log
+doc/pelican/theme/node/yarn.lock
+
 ####################################################################################################
 
 PySpice/Spice/notes.txt
