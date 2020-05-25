@@ -20,9 +20,9 @@
 
 ####################################################################################################
 
-__version__ = '@VERSION@'
-__git_tag__ = '@GIT_TAG@'
-__git_sha__ = '@GIT_SHA@'
+__version__ = '1.4.2'
+__git_tag__ = 'v1.4.2'
+__git_sha__ = 'dc5551cd4d4b18f3da94e25b49fb8187617344f8'
 
 def show_version():
     print('PySpice Version {}'.format(__version__))

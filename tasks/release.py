@@ -95,14 +95,16 @@ def update_git_sha(ctx):
     print(tag)
     print(version)
     filename = Path(ctx.Package, '__init__.py')
-    with open(str(filename) + '.in', 'r') as fh:
+    with open(str(filename), 'r') as fh:
         lines = fh.readlines()
     with open(filename, 'w') as fh:
         for line in lines:
-            if '@' in line:
-                line = line.replace('@VERSION@', version)
-                line = line.replace('@GIT_TAG@', tag)
-                line = line.replace('@GIT_SHA@', sha)
+            if line.startswith('__version__'):
+                line = "__version__ = '{}'\n".format(version)
+            if line.startswith('__git_tag__'):
+                line = "__git_tag__ = '{}'\n".format(tag)
+            if line.startswith('__git_sha__'):
+                line = "__git_sha__ = '{}'\n".format(sha)
             fh.write(line)
 
 ####################################################################################################
