@@ -7,23 +7,18 @@ include MANIFEST.in
 include README.html
 include README.rst
 include README.txt
-include TODO.rst
-include bin/cir2py
 include bower/bower.json
 include invoke.yaml
 include make-release.sh
-include pylintrc.ini
 include requirements.txt requirements-dev.txt
 include setenv.sh start.sh
 include setup_data.py
 include tox.ini
-recursive-include PySpice *.py *.yml *.h *py.in
+recursive-include PySpice *.py *.yml *.h
 recursive-include doc *
 recursive-include doc/sphinx/source/_static *
-recursive-include doc/sphinx/source/_templates *
 recursive-include examples *
 recursive-include gh-pages *
-recursive-include spec *.spec *.desktop
 recursive-include tools *
 recursive-include unit-test *.py
 recursive-include spice-examples *
