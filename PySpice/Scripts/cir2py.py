@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
@@ -35,36 +33,38 @@ from PySpice.Spice.Parser import SpiceParser
 
 ####################################################################################################
 
-parser = argparse.ArgumentParser(description='Convert a circuit file to PySpice')
+def main():
 
-parser.add_argument('circuit_file', # metavar='circuit_file',
-                    help='.cir file')
+    parser = argparse.ArgumentParser(description='Convert a circuit file to PySpice')
 
-parser.add_argument('-o', '--output',
-                    default=None,
-                    help='Output file')
+    parser.add_argument('circuit_file', # metavar='circuit_file',
+                        help='.cir file')
 
-parser.add_argument('--ground',
-                    type=int,
-                    default=0,
-                    help='Ground node')
+    parser.add_argument('-o', '--output',
+                        default=None,
+                        help='Output file')
 
-parser.add_argument('--build',
-                    default=False, action='store_true',
-                    help='Build circuit')
+    parser.add_argument('--ground',
+                        type=int,
+                        default=0,
+                        help='Ground node')
 
-args = parser.parse_args()
+    parser.add_argument('--build',
+                        default=False, action='store_true',
+                        help='Build circuit')
 
-####################################################################################################
+    args = parser.parse_args()
 
-parser = SpiceParser(path=args.circuit_file)
+    ##############################################
 
-if args.build:
-    parser.build_circuit()
+    parser = SpiceParser(path=args.circuit_file)
 
-circuit = parser.to_python_code(ground=args.ground)
-if args.output is not None:
-    with open(args.output, 'w') as f:
-        f.write(circuit)
-else:
-    print(circuit)
+    if args.build:
+        parser.build_circuit()
+
+    circuit = parser.to_python_code(ground=args.ground)
+    if args.output is not None:
+        with open(args.output, 'w') as f:
+            f.write(circuit)
+    else:
+        print(circuit)

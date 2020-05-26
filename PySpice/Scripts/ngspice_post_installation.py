@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
@@ -28,6 +26,8 @@
 
 import os
 
-if os.name == 'nt':
-    from PySpice.Spice.NgSpice.Installer import install_windows_dll
-    install_windows_dll()
+def main():
+
+    if os.name == 'nt':
+        from PySpice.Spice.NgSpice.Installer import install_windows_dll
+        install_windows_dll()
