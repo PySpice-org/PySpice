@@ -63,12 +63,11 @@ import tempfile
 import requests
 
 from . import NGSPICE_SUPPORTED_VERSION
-#! NGSPICE_SUPPORTED_VERSION = 31
 
 ####################################################################################################
 
 BASE_URL = 'https://sourceforge.net/projects/ngspice/files'
-RELEASE_URL = BASE_URL + '/ng-spice-rework/'
+RELEASE_URL = BASE_URL + '/ng-spice-rework'
 WINDOWS_DLL_URL = RELEASE_URL + '/{0}/ngspice-{0}_dll_64.zip'
 
 ####################################################################################################
@@ -82,11 +81,15 @@ def donwload_file(url, dst_path):
 
 ####################################################################################################
 
-def install_windows_dll():
+def install_windows_dll(version=None):
+
+    if version is None:
+        ngspice_version = NGSPICE_SUPPORTED_VERSION
+
     with tempfile.TemporaryDirectory() as tmp_directory:
         tmp_directory = Path(tmp_directory)
-        url = WINDOWS_DLL_URL.format(NGSPICE_SUPPORTED_VERSION)
-        zip_path = tmp_directory.joinpath('ngspice-{}_dll_64.zip'.format(NGSPICE_SUPPORTED_VERSION))
+        url = WINDOWS_DLL_URL.format(ngspice_version)
+        zip_path = tmp_directory.joinpath('ngspice-{}_dll_64.zip'.format(ngspice_version))
         dst_path = Path(__file__).parent
         donwload_file(url, zip_path)
         with ZipFile(zip_path) as zip_file:
