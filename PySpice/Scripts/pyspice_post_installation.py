@@ -24,10 +24,9 @@
 
 ####################################################################################################
 
+from pathlib import Path
 import argparse
-import ctypes.util
 import os
-import sys
 
 ####################################################################################################
 
@@ -63,12 +62,20 @@ class PySpicePostInstallation:
             help='check installation',
         )
 
+        parser.add_argument(
+            '--download-example',
+            action='store_true',
+            help='download examples',
+        )
+
         self._args = parser.parse_args()
 
         if self._args.install_dll:
             self.install_dll()
         if self._args.check_install:
             self.check_installation()
+        if self._args.download_example:
+            self.download_example()
 
     ##############################################
 
@@ -85,6 +92,8 @@ class PySpicePostInstallation:
         """Tool to check PySpice is correctly installed.
 
         """
+
+        import ctypes.util
 
         try:
             print('Load PySpice module')
@@ -158,6 +167,37 @@ class PySpicePostInstallation:
 
         print()
         print('PySpice should work as expected')
+
+    ##############################################
+
+    def download_example(self):
+
+        import shutil
+        import tempfile
+        from zipfile import ZipFile
+        import PySpice
+        from PySpice.Spice.NgSpice.Installer import donwload_file
+
+        version = PySpice.__version__
+
+        GITHUB_URL = 'https://github.com/FabriceSalvaire/PySpice'
+        RELEASE_URL = GITHUB_URL + '/archive/v{}.zip'.format(version)
+        zip_path = 'examples.zip'
+
+        dst_path = input("Enter the path where you want to extract examples: ")
+        dst_path = Path(dst_path).resolve()
+        dst_parent = dst_path.parent
+        if not dst_parent.exists():
+            print("Directory {} doesn't exists".format(dst_parent))
+            return
+
+        with tempfile.TemporaryDirectory() as tmp_directory:
+            donwload_file(RELEASE_URL, zip_path)
+            with ZipFile(zip_path) as zip_file:
+                zip_file.extractall(path=tmp_directory)
+            examples_path = Path(tmp_directory).joinpath('PySpice-{}'.format(version), 'examples')
+            shutil.copytree(examples_path, dst_path)
+            print('Extracted examples in {}'.format(dst_path))
 
 ####################################################################################################
 
