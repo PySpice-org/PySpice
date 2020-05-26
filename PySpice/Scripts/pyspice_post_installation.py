@@ -18,7 +18,7 @@
 #
 ####################################################################################################
 
-"""Tool to install NgSpice on Windows
+"""Tool to perform post installation.
 
 """
 
