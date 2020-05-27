@@ -122,7 +122,7 @@ class PySpicePostInstallation:
 
         if ConfigInstall.OS.on_windows:
             print('OS is Windows')
-            library = NGSPICE_PATH.LIBRARY_PATH
+            library = NgSpiceShared.LIBRARY_PATH
         elif ConfigInstall.OS.on_osx:
             print('OS is OSX')
             library = 'ngspice'
