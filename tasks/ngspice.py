@@ -34,7 +34,7 @@ import PySpice.Spice.NgSpice as NgSpice
 PYSPICE_SOURCE_PATH = Path(__file__).resolve().parents[1]
 
 BASE_URL = 'https://sourceforge.net/projects/ngspice/files'
-RELEASE_URL = BASE_URL + '/ng-spice-rework/'
+RELEASE_URL = BASE_URL + '/ng-spice-rework'
 RELEASE_NOTE_URL = RELEASE_URL + '/{}/ReleaseNotes.txt/download'
 MANUAL_URL = RELEASE_URL + '/{0}/ngspice-{0}-manual.pdf/download'
 LATEST_URL = BASE_URL + '/latest/download' # zip

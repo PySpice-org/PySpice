@@ -25,12 +25,58 @@
 ####################################################################################################
 
 from pathlib import Path
+from zipfile import ZipFile
 import argparse
 import os
+import shutil
+import tempfile
+
+import requests
+
+####################################################################################################
+
+# Archive:  resources/ngspice-31_dll_64.zip
+#   Spice64_dll/dll-mingw/
+#   Spice64_dll/dll-mingw/libgcc_s_seh-1.dll
+#   Spice64_dll/dll-mingw/libgomp-1.dll
+#   Spice64_dll/dll-mingw/libwinpthread-1.dll
+#   Spice64_dll/dll-mingw/msys-ngspice-0.dll
+#   Spice64_dll/dll-vs/
+#   Spice64_dll/dll-vs/ngspice.dll
+#   Spice64_dll/dll-vs/vcomp140.dll
+#   Spice64_dll/include/
+#   Spice64_dll/include/ngspice/
+#   Spice64_dll/include/ngspice/sharedspice.h
+#   Spice64_dll/lib/
+#   Spice64_dll/lib/about-libs.txt
+#   Spice64_dll/lib/lib-mingw/
+#   Spice64_dll/lib/lib-mingw/libngspice.dll.a
+#   Spice64_dll/lib/lib-mingw/libngspice.la
+#   Spice64_dll/lib/lib-vs/
+#   Spice64_dll/lib/lib-vs/ngspice.exp
+#   Spice64_dll/lib/lib-vs/ngspice.lib
+#   Spice64_dll/lib/ngspice/
+#   Spice64_dll/lib/ngspice/analog.cm
+#   Spice64_dll/lib/ngspice/digital.cm
+#   Spice64_dll/lib/ngspice/spice2poly.cm
+#   Spice64_dll/lib/ngspice/table.cm
+#   Spice64_dll/lib/ngspice/xtradev.cm
+#   Spice64_dll/lib/ngspice/xtraevt.cm
+#   Spice64_dll/share/
+#   Spice64_dll/share/ngspice/
+#   Spice64_dll/share/ngspice/scripts/
+#   Spice64_dll/share/ngspice/scripts/spinit
 
 ####################################################################################################
 
 class PySpicePostInstallation:
+
+    GITHUB_URL = 'https://github.com/FabriceSalvaire/PySpice'
+
+    NGSPICE_BASE_URL = 'https://sourceforge.net/projects/ngspice/files'
+    NGSPICE_RELEASE_URL = NGSPICE_BASE_URL + '/ng-spice-rework'
+    NGSPICE_WINDOWS_DLL_URL = NGSPICE_RELEASE_URL + '/{0}/ngspice-{0}_dll_64.zip'
+    NGSPICE_MANUAL_URL = NGSPICE_RELEASE_URL + '/{0}/ngspice-{0}-manual.pdf/download'
 
     ##############################################
 
@@ -39,7 +85,13 @@ class PySpicePostInstallation:
         parser = argparse.ArgumentParser(description='Tool to perform PySpice Post Installation.')
 
         parser.add_argument(
-            '--install-ngspsice-dll',
+            '--ngspice-version',
+            type=int, default=None,
+            help='NgSpice version to install',
+        )
+
+        parser.add_argument(
+            '--install-ngspice-dll',
             action='store_true',
             help='install Windows DLL',
         )
@@ -51,9 +103,9 @@ class PySpicePostInstallation:
         )
 
         parser.add_argument(
-            '--ngspice-version',
-            type=int, default=None,
-            help='NgSpice version to install',
+            '--download-ngspice-manual',
+            action='store_true',
+            help='download Ngspice manual',
         )
 
         parser.add_argument(
@@ -70,20 +122,71 @@ class PySpicePostInstallation:
 
         self._args = parser.parse_args()
 
+        count = 0
         if self._args.install_ngspice_dll:
             self.install_ngspice_dll()
+            count += 1
+
         if self._args.check_install:
             self.check_installation()
+            count += 1
+
         if self._args.download_example:
             self.download_example()
+            count += 1
+
+        if self._args.download_ngspice_manual:
+            self.download_ngspice_manual()
+            count += 1
+
+        if not count:
+            parser.print_help()
+
+    ##############################################
+
+    def _donwload_file(self, url, dst_path):
+        print('Get {} ... -> {}'.format(url, dst_path))
+        response = requests.get(url, allow_redirects=True)
+        assert(response.status_code == requests.codes.ok)
+        with open(dst_path, mode='wb') as fh:
+            fh.write(response.content)
+
+    ##############################################
+
+    @property
+    def ngspice_version(self):
+        if not hasattr(self, '_ngspice_version'):
+            version = self._args.ngspice_version
+            if version is None:
+                from PySpice.Spice.NgSpice import NGSPICE_SUPPORTED_VERSION
+                version = NGSPICE_SUPPORTED_VERSION
+            self._ngspice_version = version
+        return self._ngspice_version
 
     ##############################################
 
     def install_ngspice_dll(self):
 
-        if os.name == 'nt' or self._args.force_install_ngspice_dll:
-            from PySpice.Spice.NgSpice.Installer import install_windows_dll
-            install_windows_dll(self._args.ngspice_version)
+        if not(os.name == 'nt' or self._args.force_install_ngspice_dll):
+            return
+
+        from PySpice.Spice import NgSpice
+
+        with tempfile.TemporaryDirectory() as tmp_directory:
+            tmp_directory = Path(tmp_directory)
+            url = self.NGSPICE_WINDOWS_DLL_URL.format(self.ngspice_version)
+            zip_path = tmp_directory.joinpath('ngspice-{}_dll_64.zip'.format(self.ngspice_version))
+            dst_path = Path(NgSpice.__file__).parent
+            self._donwload_file(url, zip_path)
+            with ZipFile(zip_path) as zip_file:
+                zip_file.extractall(path=dst_path)
+            print('Extracted {} in {}'.format(zip_path, dst_path))
+
+    ##############################################
+
+    def download_ngspice_manual(self):
+        url = self.NGSPICE_MANUAL_URL.format(self.ngspice_version)
+        self._donwload_file(url, 'ngspice-manual-{}.pdf'.format(self.ngspice_version))
 
     ##############################################
 
@@ -122,7 +225,7 @@ class PySpicePostInstallation:
 
         if ConfigInstall.OS.on_windows:
             print('OS is Windows')
-            library = NGSPICE_PATH.LIBRARY_PATH
+            library = NgSpiceShared.LIBRARY_PATH
         elif ConfigInstall.OS.on_osx:
             print('OS is OSX')
             library = 'ngspice'
@@ -172,16 +275,11 @@ class PySpicePostInstallation:
 
     def download_example(self):
 
-        import shutil
-        import tempfile
-        from zipfile import ZipFile
         import PySpice
-        from PySpice.Spice.NgSpice.Installer import donwload_file
-
         version = PySpice.__version__
 
-        GITHUB_URL = 'https://github.com/FabriceSalvaire/PySpice'
-        RELEASE_URL = GITHUB_URL + '/archive/v{}.zip'.format(version)
+        RELEASE_URL = self.GITHUB_URL + '/archive/v{}.zip'.format(version)
+
         zip_path = 'examples.zip'
 
         dst_path = input("Enter the path where you want to extract examples: ")
@@ -192,7 +290,7 @@ class PySpicePostInstallation:
             return
 
         with tempfile.TemporaryDirectory() as tmp_directory:
-            donwload_file(RELEASE_URL, zip_path)
+            self._donwload_file(RELEASE_URL, zip_path)
             with ZipFile(zip_path) as zip_file:
                 zip_file.extractall(path=tmp_directory)
             examples_path = Path(tmp_directory).joinpath('PySpice-{}'.format(version), 'examples')
