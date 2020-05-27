@@ -673,11 +673,13 @@ class NgSpiceShared:
 
     @staticmethod
     def _lines_to_dicts(lines):
-
-        values = dict(description=lines[0])
-        values.update({parts[0]: NgSpiceShared._to_python(parts[1])
-                       for parts in map(str.split, lines)})
-        return values
+        if lines:
+            values = dict(description=lines[0])
+            values.update({parts[0]: NgSpiceShared._to_python(parts[1])
+                           for parts in map(str.split, lines)})
+            return values
+        else:
+            raise ValueError
 
     ##############################################
 
@@ -833,21 +835,23 @@ class NgSpiceShared:
 
     ##############################################
 
-    def show(self, device):
-
-        command = 'show ' + device.lower()
+    def _show(self, command):
         lines = self.exec_command(command, join_lines=False)
-        values = self._lines_to_dicts(lines)
-        return values
+        if lines:
+            values = self._lines_to_dicts(lines)
+            return values
+        else:
+            return ''
+
+    ##############################################
+
+    def show(self, device):
+        return self._show('show ' + device.lower())
 
     ##############################################
 
     def showmod(self, device):
-
-        command = 'showmod ' + device.lower()
-        lines = self.exec_command(command, join_lines=False)
-        values = self._lines_to_dicts(lines)
-        return values
+        return self._show('showmod ' + device.lower())
 
     ##############################################
 
@@ -1038,11 +1042,12 @@ class NgSpiceShared:
         circuit_lines_keepalive += [FFI.NULL]
         circuit_array = ffi.new("char *[]", circuit_lines_keepalive)
         rc = self._ngspice_shared.ngSpice_Circ(circuit_array)
+        # Fixme: https://sourceforge.net/p/ngspice/bugs/496/
         if rc:
             raise NameError("ngSpice_Circ returned {}".format(rc))
 
         # for line in circuit_lines:
-        #     rc = self._ngspice_shared.ngSpice_Command('circbyline ' + line)
+        #     rc = self._ngspice_shared.ngSpice_Command(('circbyline ' + line).encode('utf8'))
         #     if rc:
         #         raise NameError("ngSpice_Command circbyline returned {}".format(rc))
 
