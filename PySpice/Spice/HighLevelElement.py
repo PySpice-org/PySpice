@@ -220,12 +220,14 @@ class PulseMixin(SourceMixinAbc):
                  initial_value, pulsed_value,
                  pulse_width, period,
                  delay_time=0, rise_time=0, fall_time=0,
-                 phase=None):
+                 phase=None,
+                 dc_offset=0):
 
         # Fixme: default
         #  rise_time, fall_time = Tstep
         #  pulse_width, period = Tstop
 
+        self.dc_offset = self.__as_unit__(dc_offset) # Fixme: -> SourceMixinAbc
         self.initial_value = self.__as_unit__(initial_value)
         self.pulsed_value = self.__as_unit__(pulsed_value)
         self.delay_time = as_s(delay_time)
@@ -261,12 +263,17 @@ class PulseMixin(SourceMixinAbc):
 
     def format_spice_parameters(self):
 
+        # if DC is not provided, ngspice complains
+        #   Warning: vpulse: no DC value, transient time 0 value used
+
         # Fixme: to func?
-        return ('PULSE(' +
-                join_list((self.initial_value, self.pulsed_value, self.delay_time,
-                           self.rise_time, self.fall_time, self.pulse_width, self.period,
-                           self.phase)) +
-                ')')
+        return join_list((
+            'DC {}'.format(str_spice(self.dc_offset)),
+            'PULSE(' +
+            join_list((self.initial_value, self.pulsed_value, self.delay_time,
+                       self.rise_time, self.fall_time, self.pulse_width, self.period,
+                       self.phase)) +
+            ')'))
 
 ####################################################################################################
 
