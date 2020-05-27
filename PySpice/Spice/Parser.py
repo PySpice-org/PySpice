@@ -452,7 +452,8 @@ class Element(Statement):
                     if kwarg in ('off',) and prefix_data.has_flag:
                         self._dict_parameters['off'] = True
                     else:
-                        self._logger.warn(line_str)
+                        # Fixme: warning -> debug due to spam ...
+                        self._logger.debug(line_str)
                         # raise NameError('Bad element line:', line_str)
 
         if prefix_data.multi_devices:
@@ -889,13 +890,13 @@ class SpiceParser:
                     # .param
                     # .func .csparam .temp .if
                     # { expr } are allowed in .model lines and in device lines.
-                    self._logger.warn('Parser ignored: {}'.format(line))
+                    self._logger.warning('Parser ignored: {}'.format(line))
             else:
                 try:
                     element = Element(line)
                     scope.append(element)
                 except ParseError:
-                    self._logger.warn('Parse error on:\n{}'.format(line))
+                    self._logger.warning('Parse error on:\n{}'.format(line))
 
         return statements
 
