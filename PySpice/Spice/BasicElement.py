@@ -1015,6 +1015,9 @@ class NonLinearVoltageSource(DipoleElement):
     __alias__ = 'NonLinearVoltageSource'
     __prefix__ = 'E'
 
+    # Fixme:
+    __VALID_KWARGS__ = ('expression', 'table')
+
     ##############################################
 
     def __init__(self, name, *args, **kwargs):

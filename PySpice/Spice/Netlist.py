@@ -522,6 +522,8 @@ class Element(metaclass=ElementParameterMetaClass):
                   key in self.__optional_parameters__ or
                   key in self.__spice_to_parameters__):
                 setattr(self, key, value)
+            elif hasattr(self, '__VALID_KWARGS__') and key in self.__VALID_KWARGS__:
+                pass # cf. NonLinearVoltageSource
             else:
                 raise ValueError('Unknown argument {}={}'.format(key, value))
 
