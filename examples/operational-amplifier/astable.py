@@ -38,7 +38,7 @@ circuit.NonLinearVoltageSource(1, 'output', circuit.gnd,
                                )
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-simulator.initial_condition(comparator=0) # Fixme: simulator.nodes.comparator == 0
+simulator.initial_condition(comparator=0)  # Fixme: simulator.nodes.comparator == 0
 analysis = simulator.transient(step_time=1@u_us, end_time=500@u_us)
 # Fixme: Xyce fails with Time step too small
 
