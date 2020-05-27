@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+#skip#
 
 # Program to test pole-zero, noise, and distortion function of ngspice, PySpice
 
