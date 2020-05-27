@@ -39,13 +39,13 @@ class PySpicePostInstallation:
         parser = argparse.ArgumentParser(description='Tool to perform PySpice Post Installation.')
 
         parser.add_argument(
-            '--install-dll',
+            '--install-ngspsice-dll',
             action='store_true',
             help='install Windows DLL',
         )
 
         parser.add_argument(
-            '--force-install-dll',
+            '--force-install-ngspice-dll',
             action='store_true',
             help='force DLL installation (for debug only)',
         )
@@ -70,8 +70,8 @@ class PySpicePostInstallation:
 
         self._args = parser.parse_args()
 
-        if self._args.install_dll:
-            self.install_dll()
+        if self._args.install_ngspice_dll:
+            self.install_ngspice_dll()
         if self._args.check_install:
             self.check_installation()
         if self._args.download_example:
@@ -79,9 +79,9 @@ class PySpicePostInstallation:
 
     ##############################################
 
-    def install_dll(self):
+    def install_ngspice_dll(self):
 
-        if os.name == 'nt' or self._args.force_install_dll:
+        if os.name == 'nt' or self._args.force_install_ngspice_dll:
             from PySpice.Spice.NgSpice.Installer import install_windows_dll
             install_windows_dll(self._args.ngspice_version)
 
