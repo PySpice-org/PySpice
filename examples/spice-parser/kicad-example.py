@@ -1,5 +1,3 @@
-####################################################################################################
-
 #r#
 #r# ==============================
 #r#  Kicad Netlist Parser Example
@@ -98,7 +96,8 @@ class JackIn(SubCircuitFactory):
 
         super().__init__()
 
-        self.V('micro', 'ground', 'input', 'AC SIN(0 0.02 440)')
+        # could use SinusoidalVoltageSource as well
+        self.V('micro', 'ground', 'input', 'DC 0V AC 1V SIN(0 0.02 440)')
 
 ####################################################################################################
 
