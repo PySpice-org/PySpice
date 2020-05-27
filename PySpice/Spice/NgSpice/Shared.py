@@ -514,7 +514,11 @@ class NgSpiceShared:
         prefix, _, content = message.partition(' ')
         if prefix == 'stderr':
             self._stderr.append(content)
-            self._logger.error(content)
+            if content.startswith('Warning:'):
+                fn = self._logger.warning
+            else:
+                fn = self._logger.error
+            fn(content)
         else:
             self._stdout.append(content)
 
