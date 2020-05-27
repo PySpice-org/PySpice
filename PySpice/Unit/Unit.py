@@ -1631,7 +1631,7 @@ class UnitValues(np.ndarray):
     @classmethod
     def from_ndarray(cls, array, prefixed_unit):
 
-        # cls._logger.info('UnitValues.__new__ ' + str((cls, array, prefixed_unit)))
+        # cls._logger.debug('UnitValues.__new__ ' + str((cls, array, prefixed_unit)))
 
         # obj = cls(prefixed_unit, array.shape, array.dtype) # Fixme: buffer ???
         # obj[...] = array[...]
@@ -1653,7 +1653,7 @@ class UnitValues(np.ndarray):
         # Called for explicit constructor
         #  obj = UnitValues(prefixed_unit, shape)
 
-        # cls._logger.info('UnitValues.__new__ ' + str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
+        # cls._logger.debug('UnitValues.__new__ ' + str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
 
         obj = super(UnitValues, cls).__new__(cls, shape, dtype, buffer, offset, strides, order)
         # obj = np.asarray(input_array).view(cls)
@@ -1666,7 +1666,7 @@ class UnitValues(np.ndarray):
 
     def __array_finalize__(self, obj):
 
-        # self._logger.info('UnitValues.__new__ ' + '\n  {}'.format(obj))
+        # self._logger.debug('UnitValues.__new__ ' + '\n  {}'.format(obj))
 
         # self is a new object resulting from ndarray.__new__(UnitValues, ...)
         # therefore it only has attributes that the ndarray.__new__ constructor gave it
@@ -1708,7 +1708,7 @@ class UnitValues(np.ndarray):
         # ufunc.outer(A, B, **kwargs)                       Apply the ufunc op to all pairs (a, b) with a in A and b in B.
         # ufunc.at(a, indices[, b])                         Performs unbuffered in place operation on operand ‘a’ for elements specified by ‘indices’.
 
-        # self._logger.info(
+        # self._logger.debug(
         #     '\n  self={}\n  ufunc={}\n  method={}\n  inputs={}\n  kwargs={}'
         #     .format(self, ufunc, method, inputs, kwargs))
 
@@ -1728,7 +1728,7 @@ class UnitValues(np.ndarray):
         prefixed_unit = self._prefixed_unit
 
         conversion = self.UFUNC_MAP[ufunc]
-        self._logger.info("Conversion for {} is {}".format(ufunc, conversion))
+        self._logger.debug("Conversion for {} is {}".format(ufunc, conversion))
 
         # Cast inputs to ndarray
         args = []
@@ -1800,7 +1800,7 @@ class UnitValues(np.ndarray):
         else: # self.CONVERSION.NOT_IMPLEMENTED
             raise NotImplementedError
 
-        # self._logger.info("Output unit is {}".format(prefixed_unit))
+        # self._logger.debug("Output unit is {}".format(prefixed_unit))
 
         # Cast outputs to ndarray
         outputs = kwargs.pop('out', None)
@@ -1840,7 +1840,7 @@ class UnitValues(np.ndarray):
 
 #   def __array_wrap__(self, out_array, context=None):
 #
-#       self._logger.info('\n  self={}\n  out_array={}\n  context={}'.format(self, out_array, context))
+#       self._logger.debug('\n  self={}\n  out_array={}\n  context={}'.format(self, out_array, context))
 #
 #       return super(UnitValues, self).__array_wrap__(out_array, context)
 

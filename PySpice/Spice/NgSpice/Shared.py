@@ -372,7 +372,7 @@ class NgSpiceShared:
         if ngspice_id in cls._instances:
             return cls._instances[ngspice_id]
         else:
-            cls._logger.info("New instance for id {}".format(ngspice_id))
+            cls._logger.debug("New instance for id {}".format(ngspice_id))
             instance = cls(ngspice_id=ngspice_id, send_data=send_data)
             cls._instances[ngspice_id] = instance
             return instance
@@ -424,9 +424,9 @@ class NgSpiceShared:
         # https://sourceforge.net/p/ngspice/bugs/490
         # ngspice and Kicad do setlocale(LC_NUMERIC, "C");
         if ConfigInstall.OS.on_windows:
-            self._logger.warning('locale LC_NUMERIC is not forced to C')
+            self._logger.debug('locale LC_NUMERIC is not forced to C')
         elif ConfigInstall.OS.on_linux or ConfigInstall.OS.on_osx:
-            self._logger.warning('Set locale LC_NUMERIC to C')
+            self._logger.debug('Set locale LC_NUMERIC to C')
             import locale
             locale.setlocale(locale.LC_NUMERIC, 'C')
 
