@@ -56,8 +56,10 @@ class TestNetlist(unittest.TestCase):
     ##############################################
 
     def _test_spice_declaration(self, circuit, spice_declaration):
-
-        self.assertEqual(str(circuit), spice_declaration[1:])
+        # Ignore line endings and blank lines
+        circuit_lines = [*filter(None, str(circuit).splitlines(False))]
+        expected_lines = [*filter(None, spice_declaration.splitlines(False))]
+        self.assertEqual(circuit_lines, expected_lines)
 
     ##############################################
 
