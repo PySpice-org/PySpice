@@ -1,3 +1,4 @@
+
 ####################################################################################################
 #
 # PySpice - A Spice package for Python
@@ -109,12 +110,16 @@ def run_sphinx(ctx):
 
 @task()
 def make_readme(ctx):
+    # File "/usr/bin/rst2html", line 17, in <module>
+    # from docutils.core import publish_cmdline, default_description
+    # ModuleNotFoundError: No module named 'docutils'
+
     from setup_data import long_description
     with open('README.rst', 'w') as fh:
         fh.write(long_description)
     # import subprocess
     # subprocess.call(('rst2html', 'README.rst', 'README.html'))
-    ctx.run('rst2html README.rst README.html')
+    ctx.run('rst2html5.py README.rst README.html')
 
 ####################################################################################################
 
