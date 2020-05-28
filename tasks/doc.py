@@ -148,3 +148,9 @@ def publish(ctx):
         **SSH_CONFIG)
     print(command)
     ctx.run(command)
+
+####################################################################################################
+
+@task()
+def open(ctx):
+    ctx.run('xdg-open doc/sphinx/build/html/index.html')
