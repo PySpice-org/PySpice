@@ -15,8 +15,11 @@
 |Anaconda Version|
 |Anaconda Downloads|
 
-* Quick Link to `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
-* Quick Link to `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
+**Quick Links**
+
+* `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
+* `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
+* `pyspice@conda-forge <https://github.com/conda-forge/pyspice-feedstock>`_
 
 Brief Notes
 ===========
