@@ -24,7 +24,4 @@ $(document).ready(function() {
 	button.find('.fa-eye').toggle();
 	button.find('.fa-eye-slash').toggle();
     });
-
-    // Add icon to download link
-    $('li.getthecode-filename-link > a').append('<i class="fa fa-download" aria-hidden="true"></i>');
 });
