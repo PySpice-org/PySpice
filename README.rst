@@ -14,16 +14,16 @@
 .. |PySpice@pypi| replace:: https://pypi.python.org/pypi/PySpice
 
 
-.. |PySpice@anaconda| replace:: https://anaconda.org/condaforge/pyspice
+.. |PySpice@anaconda| replace:: https://anaconda.org/conda-forge/pyspice
 
 .. |PySpice@fs-anaconda| replace:: https://anaconda.org/fabricesalvaire/pyspice
 
-.. |Anaconda Version| image:: https://anaconda.org/condaforge/pyspice/badges/version.svg
-   :target: https://anaconda.org/condaforge/pyspice/badges/version.svg
+.. |Anaconda Version| image:: https://anaconda.org/conda-forge/pyspice/badges/version.svg
+   :target: https://anaconda.org/conda-forge/pyspice/badges/version.svg
    :alt: Anaconda last version
 
-.. |Anaconda Downloads| image:: https://anaconda.org/condaforge/pyspice/badges/downloads.svg
-   :target: https://anaconda.org/condaforge/pyspice/badges/downloads.svg
+.. |Anaconda Downloads| image:: https://anaconda.org/conda-forge/pyspice/badges/downloads.svg
+   :target: https://anaconda.org/conda-forge/pyspice/badges/downloads.svg
    :alt: Anaconda donwloads
 
 
@@ -87,8 +87,11 @@
 |Anaconda Version|
 |Anaconda Downloads|
 
-* Quick Link to `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
-* Quick Link to `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
+**Quick Links**
+
+* `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
+* `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
+* `pyspice@conda-forge <https://github.com/conda-forge/pyspice-feedstock>`_
 
 Brief Notes
 ===========
