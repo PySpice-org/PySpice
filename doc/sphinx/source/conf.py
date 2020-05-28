@@ -312,6 +312,37 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 
 ####################################################################################################
 #
-# End
+# Getthecode
 #
-####################################################################################################
+
+getthecode_header_template = '''
+<div class="getthecode-header">
+  <ul>
+    {# <li class="getthecode-filename">{{ filename }}</li> #}
+    <li class="getthecode-filename-link">
+      <a href="{{ url }}" download={{ filename }} type="text/x-python" target="_blank" rel="noreferrer noopener"><span>
+        {{ filename }}
+        <i class="fa fa-download" aria-hidden="true"></i>
+      </span></a>
+    </li>
+{% if notebook_url %}
+    <li class="getthecode-notebook-link">
+      <a href="{{ notebook_url }}" download={{ notebook_filename }} type="application/x-ipynb+json" target="_blank" rel="noreferrer noopener"><span>
+        {{ notebook_filename }}
+        <i class="fa fa-download" aria-hidden="true"></i>
+      </span></a>
+    </li>
+
+    <li class="getthecode-notebook-link">
+      <a href="{{ 'https://nbviewer.jupyter.org/urls/pyspice.fabrice-salvaire.fr/releases/v@VERSION@/' + notebook_url|replace('../', '') }}"
+         target="_blank" rel="noreferrer noopener"><span>
+        Open in nbviewer
+         <i class="fa fa-external-link" aria-hidden="true"></i>
+      </span></a>
+    </li>
+{% endif %}
+  </ul>
+</div>
+'''
+
+getthecode_header_template = getthecode_header_template.replace('@VERSION@', version)
