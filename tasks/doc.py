@@ -97,7 +97,7 @@ def make_examples(ctx, clean=False, no_html=False, force=False):
 
 ####################################################################################################
 
-@task()
+@task
 def run_sphinx(ctx):
     print('\nRun Sphinx')
     working_path = SPHINX_PATH
@@ -108,12 +108,11 @@ def run_sphinx(ctx):
 
 ####################################################################################################
 
-@task()
+@task
 def make_readme(ctx):
     # File "/usr/bin/rst2html", line 17, in <module>
     # from docutils.core import publish_cmdline, default_description
     # ModuleNotFoundError: No module named 'docutils'
-
     from setup_data import long_description
     with open('README.rst', 'w') as fh:
         fh.write(long_description)
@@ -130,7 +129,7 @@ def update_authors(ctx):
 
 ####################################################################################################
 
-@task()
+@task
 def publish(ctx):
     from .SECRET_CONFIG import SSH_CONFIG
     import PySpice
@@ -151,6 +150,6 @@ def publish(ctx):
 
 ####################################################################################################
 
-@task()
-def open(ctx):
+@task
+def xdg_open(ctx):
     ctx.run('xdg-open doc/sphinx/build/html/index.html')
