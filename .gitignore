@@ -16,8 +16,9 @@ parsetab.py
 # Secrets
 #
 
-.anaconda-login.txt
 doc/pelican/SECRET_CONFIG.py
+tasks/anaconda-login.txt
+tasks/SECRET_CONFIG.py
 
 ####################################################################################################
 

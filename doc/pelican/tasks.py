@@ -144,8 +144,8 @@ def publish(ctx):
         ' --delete -pthrvz -c'
         ' --exclude ".DS_Store"'
         ' --filter "protect releases/"'
-        ' -e "ssh -p {ssh_port}" {dst_path} {ssh_user}@{ssh_host}:{ssh_path}'
+        ' -e "ssh -p {ssh_port}" {src_path} {ssh_user}@{ssh_host}:{ssh_path}'
     )
     ctx.run(command_template.format(
-        dst_path=CONFIG['deploy_path'].rstrip('/') + '/',
+        src_path=CONFIG['deploy_path'].rstrip('/') + '/',
         **CONFIG))
