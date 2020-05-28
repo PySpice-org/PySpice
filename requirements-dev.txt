@@ -6,9 +6,11 @@ invoke
 sphinx
 sphinxcontrib-getthecode
 pyterate
+pelican
 
 # Check code style, errors, etc
 pylint
+flake8
 
 # Test runners
 tox
