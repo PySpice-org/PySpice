@@ -27,6 +27,8 @@ from invoke import task
 
 ####################################################################################################
 
+# https://github.com/conda-forge/pyspice-feedstock
+
 # enable anaconda environment
 #   source .../miniconda3/bin/activate
 
