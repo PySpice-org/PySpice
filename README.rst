@@ -29,6 +29,9 @@
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice last version
 
+.. |PySpice@anaconda| replace:: https://anaconda.org/fabricesalvaire/pyspice
+.. .. _PySpice@anaconda: https://anaconda.org/fabricesalvaire/pyspice
+
 .. |Anaconda Version| image:: https://anaconda.org/fabricesalvaire/pyspice/badges/version.svg
    :target: https://anaconda.org/fabricesalvaire/pyspice/badges/version.svg
    :alt: Anaconda last version
@@ -181,8 +184,32 @@ News
 V1.5.0 (development release)
 ----------------------------
 
+V1.4.? (production release) 2020-0?-??
+--------------------------------------
+
+* PySpice is now available on Anaconda(conda-forge) as well as a wheel on PyPI
+* Added a post installation tool to download the Ngspice DLL on Windows and to check the installation.
+  It should now simplify considerably the PySpice installation on Windows.
+* This tool can also download the examples and the Ngspice PDF manual.
+* On Linux and OSX, a Ngspice package is now available on Anaconda(conda-forge).
+  Note that theses two platforms do not download a binary from Ngspice since a compiler can easily be installed on theses platforms.
+* Updated installation documentation for Linux, the main distributions now provide a ngspice shared package.
+
+* Added a front-end web site so as to keep older releases documentation available on the web.
+* fixed and rebuilt all examples (but mistakes could happen ...)
+* examples are now available as Python files and Jupyter notebooks
+  (but some issues must be fixed, e.g. due to the way Jupyter handles Matplotlib plots)
+
+* support NgSpice 32 API (no change)
+* removed @substitution@ in PySpice/__init__.py, beacause it breaks pip install from git
+* fixed some logging spams
+* fixed NonLinearVoltageSource
+* cir2py has been converted to an entry point so as to work on all platforms
+
 V1.4.0 (production release) 2020-05-05
 --------------------------------------
+
+This release is yanked due to broken Windows support.
 
 * fixed nasty issue with NgSpice shared for `setlocale(LC_NUMERIC, "C");` cf. #172
 * fixed `AC AC_MAG AC_PASAE SIN` for new NgSpice syntax
