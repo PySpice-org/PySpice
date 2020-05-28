@@ -74,22 +74,26 @@ L23 = amplitude_tri * np.cos(t*w - math.pi/2)
 L31 = amplitude_tri * np.cos(t*w - 7*math.pi/6)
 
 #r# Now we plot the waveforms:
-figure = plt.figure(1, (20, 10))
-plt.plot(t, L1, t, L2, t, L3,
-         t, L12, t, L23, t, L31,
-         # t, L1-L2, t, L2-L3, t, L3-L1,
+figure, ax = plt.subplots(figsize=(20, 10))
+ax.plot(
+    t, L1, t, L2, t, L3,
+    t, L12, t, L23, t, L31,
+    # t, L1-L2, t, L2-L3, t, L3-L1,
 )
-plt.grid()
-plt.title('Three-phase electric power: Y and Delta configurations (230V Mono/400V Tri 50Hz Europe)')
-plt.legend(('L1-N', 'L2-N', 'L3-N',
-            'L1-L2', 'L2-L3', 'L3-L1'),
-           loc=(.7,.5))
-plt.xlabel('t [s]')
-plt.ylabel('[V]')
-plt.axhline(y=rms_mono, color='blue')
-plt.axhline(y=-rms_mono, color='blue')
-plt.axhline(y=rms_tri, color='blue')
-plt.axhline(y=-rms_tri, color='blue')
+ax.grid()
+ax.set_title('Three-phase electric power: Y and Delta configurations (230V Mono/400V Tri 50Hz Europe)')
+ax.legend(
+    ('L1-N', 'L2-N', 'L3-N',
+     'L1-L2', 'L2-L3', 'L3-L1'),
+    loc=(.7,.5),
+)
+ax.set_xlabel('t [s]')
+ax.set_ylabel('[V]')
+ax.axhline(y=rms_mono, color='blue')
+ax.axhline(y=-rms_mono, color='blue')
+ax.axhline(y=rms_tri, color='blue')
+ax.axhline(y=-rms_tri, color='blue')
+
 plt.show()
 
 #f# save_figure('figure', 'three-phase.png')

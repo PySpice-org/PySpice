@@ -40,35 +40,33 @@ circuit.X('DZ1', 'd1n5919brl', 'out', circuit.gnd)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vinput=slice(-10, 2, .05)) # 10mV
 
-figure = plt.figure(1, (20, 10))
+figure, (ax1, ax2) = plt.subplots(2, figsize=(20, 10))
 
 zener_part = analysis.out <= -5.4@u_V
 # compute derivate
 # fit linear part
 
-axe = plt.subplot(121)
-axe.grid()
+ax1.grid()
 # Fixme: scale
-axe.plot(analysis.out, -analysis.Vinput*1000)
-axe.axvline(x=0, color='black')
-axe.axvline(x=-5.6, color='red')
-axe.axvline(x=1, color='red')
-axe.legend(('Diode curve',), loc=(.1,.8))
-axe.set_xlabel('Voltage [V]')
-axe.set_ylabel('Current [mA]')
+ax1.plot(analysis.out, -analysis.Vinput*1000)
+ax1.axvline(x=0, color='black')
+ax1.axvline(x=-5.6, color='red')
+ax1.axvline(x=1, color='red')
+ax1.legend(('Diode curve',), loc=(.1,.8))
+ax1.set_xlabel('Voltage [V]')
+ax1.set_ylabel('Current [mA]')
 
-axe = plt.subplot(122)
-axe.grid()
+ax2.grid()
 # Fixme:
 # U = RI   R = U/I
 dynamic_resistance = np.diff(-analysis.out) / np.diff(analysis.Vinput)
-# axe.plot(analysis.out[:-1], dynamic_resistance/1000)
-axe.semilogy(analysis.out[10:-1], dynamic_resistance[10:], basey=10)
-axe.axvline(x=0, color='black')
-axe.axvline(x=-5.6, color='red')
-axe.legend(('Dynamic Resistance',), loc=(.1,.8))
-axe.set_xlabel('Voltage [V]')
-axe.set_ylabel('Dynamic Resistance [Ohm]')
+# ax2.plot(analysis.out[:-1], dynamic_resistance/1000)
+ax2.semilogy(analysis.out[10:-1], dynamic_resistance[10:], basey=10)
+ax2.axvline(x=0, color='black')
+ax2.axvline(x=-5.6, color='red')
+ax2.legend(('Dynamic Resistance',), loc=(.1,.8))
+ax2.set_xlabel('Voltage [V]')
+ax2.set_ylabel('Dynamic Resistance [Ohm]')
 
 # coefficients = np.polyfit(analysis.out[zener_part], dynamic_resistance[zener_part], deg=1)
 # x = np.array((min(analysis.out[zener_part]), max(analysis.out[zener_part])))

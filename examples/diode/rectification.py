@@ -24,7 +24,7 @@ spice_library = SpiceLibrary(libraries_path)
 
 ####################################################################################################
 
-figure1 = plt.figure(1, (20, 10))
+figure1, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(20, 10))
 
 ####################################################################################################
 
@@ -37,15 +37,14 @@ circuit.R('load', 'output', circuit.gnd, 100@u_Ω)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
 
-axe = plt.subplot(221)
-plt.title('Half-Wave Rectification')
-plt.xlabel('Time [s]')
-plt.ylabel('Voltage [V]')
-plt.grid()
-plot(analysis['in'], axis=axe)
-plot(analysis.output, axis=axe)
-plt.legend(('input', 'output'), loc=(.05,.1))
-plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
+ax1.set_title('Half-Wave Rectification')
+ax1.set_xlabel('Time [s]')
+ax1.set_ylabel('Voltage [V]')
+ax1.grid()
+ax1.plot(analysis['in'])
+ax1.plot(analysis.output)
+ax1.legend(('input', 'output'), loc=(.05,.1))
+ax1.set_ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 ####################################################################################################
 
@@ -56,15 +55,14 @@ circuit.C('1', 'output', circuit.gnd, 1@u_mF)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
 
-axe = plt.subplot(222)
-plt.title('Half-Wave Rectification with filtering')
-plt.xlabel('Time [s]')
-plt.ylabel('Voltage [V]')
-plt.grid()
-plot(analysis['in'], axis=axe)
-plot(analysis.output, axis=axe)
-plt.legend(('input', 'output'), loc=(.05,.1))
-plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
+ax2.set_title('Half-Wave Rectification with filtering')
+ax2.set_xlabel('Time [s]')
+ax2.set_ylabel('Voltage [V]')
+ax2.grid()
+ax2.plot(analysis['in'])
+ax2.plot(analysis.output)
+ax2.legend(('input', 'output'), loc=(.05,.1))
+ax2.set_ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 ####################################################################################################
 
@@ -80,15 +78,14 @@ circuit.X('D4', '1N4148', 'output_minus', 'in')
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
 
-axe = plt.subplot(223)
-plt.title('Full-Wave Rectification')
-plt.xlabel('Time [s]')
-plt.ylabel('Voltage [V]')
-plt.grid()
-plot(analysis['in'], axis=axe)
-plot(analysis.output_plus - analysis.output_minus, axis=axe)
-plt.legend(('input', 'output'), loc=(.05,.1))
-plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
+ax3.set_title('Full-Wave Rectification')
+ax3.set_xlabel('Time [s]')
+ax3.set_ylabel('Voltage [V]')
+ax3.grid()
+ax3.plot(analysis['in'])
+ax3.plot(analysis.output_plus - analysis.output_minus)
+ax3.legend(('input', 'output'), loc=(.05,.1))
+ax3.set_ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 ####################################################################################################
 
@@ -99,15 +96,14 @@ circuit.C('1', 'output_plus', 'output_minus', 1@u_mF)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
 
-axe = plt.subplot(224)
-plt.title('Full-Wave Rectification with filtering')
-plt.xlabel('Time [s]')
-plt.ylabel('Voltage [V]')
-plt.grid()
-plot(analysis['in'], axis=axe)
-plot(analysis.output_plus - analysis.output_minus, axis=axe)
-plt.legend(('input', 'output'), loc=(.05,.1))
-plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
+ax4.set_title('Full-Wave Rectification with filtering')
+ax4.set_xlabel('Time [s]')
+ax4.set_ylabel('Voltage [V]')
+ax4.grid()
+ax4.plot(analysis['in'])
+ax4.plot(analysis.output_plus - analysis.output_minus)
+ax4.legend(('input', 'output'), loc=(.05,.1))
+ax4.set_ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 plt.tight_layout()
 
@@ -140,21 +136,18 @@ if on_115:
     simulator.initial_condition(node_115=0)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
 
-figure2 = plt.figure(1, (20, 10))
-axe = plt.subplot(111)
-plt.title('115/230V Rectifier')
-plt.xlabel('Time [s]')
-plt.ylabel('Voltage [V]')
-plt.grid()
-plot(analysis['in'], axis=axe)
-plot(analysis.output_plus - analysis.output_minus, axis=axe)
-plt.legend(('input', 'output'), loc=(.05,.1))
-# plt.ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
+figure2, ax = plt.subplots(figsize=(20, 10))
+ax.set_title('115/230V Rectifier')
+ax.set_xlabel('Time [s]')
+ax.set_ylabel('Voltage [V]')
+ax.grid()
+ax.plot(analysis['in'])
+ax.plot(analysis.output_plus - analysis.output_minus)
+ax.legend(('input', 'output'), loc=(.05,.1))
+# ax.set_ylim(float(-source.amplitude*1.1), float(source.amplitude*1.1))
 
 plt.tight_layout()
 
 #f# save_figure('figure2', 'universal-rectifier.png')
-
-####################################################################################################
 
 plt.show()

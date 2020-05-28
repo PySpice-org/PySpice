@@ -134,19 +134,18 @@ def two_scales_tick_formatter(value, position):
         return '{} nA'.format(value/100)
 formatter = ticker.FuncFormatter(two_scales_tick_formatter)
 
-figure = plt.figure(1, (20, 10))
+figure, (ax1, ax2) = plt.subplots(2, figsize=(20, 10))
 
-axe = plt.subplot(121)
-axe.set_title('1N4148 Characteristic Curve ')
-axe.set_xlabel('Voltage [V]')
-axe.set_ylabel('Current')
-axe.grid()
-axe.set_xlim(-2, 2)
-axe.axvspan(-2, 0, facecolor='green', alpha=.2)
-axe.axvspan(0, silicon_forward_voltage_threshold, facecolor='blue', alpha=.1)
-axe.axvspan(silicon_forward_voltage_threshold, 2, facecolor='blue', alpha=.2)
-axe.set_ylim(-500, 750) # Fixme: round
-axe.yaxis.set_major_formatter(formatter)
+ax1.set_title('1N4148 Characteristic Curve ')
+ax1.set_xlabel('Voltage [V]')
+ax1.set_ylabel('Current')
+ax1.grid()
+ax1.set_xlim(-2, 2)
+ax1.axvspan(-2, 0, facecolor='green', alpha=.2)
+ax1.axvspan(0, silicon_forward_voltage_threshold, facecolor='blue', alpha=.1)
+ax1.axvspan(silicon_forward_voltage_threshold, 2, facecolor='blue', alpha=.2)
+ax1.set_ylim(-500, 750) # Fixme: round
+ax1.yaxis.set_major_formatter(formatter)
 Vd = analyses[25].out
 # compute scale for reverse and forward region
 forward_region = Vd >= 0@u_V
@@ -155,16 +154,16 @@ scale =  reverse_region*1e11 + forward_region*1e3
 #?# check temperature
 for temperature in temperatures:
     analysis = analyses[float(temperature)]
-    axe.plot(Vd, - analysis.Vinput * scale)
-axe.plot(Vd, shockley_diode.I(Vd) * scale, 'black')
-axe.legend(['@ {} °C'.format(temperature)
+    ax1.plot(Vd, - analysis.Vinput * scale)
+ax1.plot(Vd, shockley_diode.I(Vd) * scale, 'black')
+ax1.legend(['@ {} °C'.format(temperature)
             for temperature in temperatures] + ['Shockley Diode Model Is = 4 nA'],
            loc=(.02,.8))
-axe.axvline(x=0, color='black')
-axe.axhline(y=0, color='black')
-axe.axvline(x=silicon_forward_voltage_threshold, color='red')
-axe.text(-1, -100, 'Reverse Biased Region', ha='center', va='center')
-axe.text( 1, -100, 'Forward Biased Region', ha='center', va='center')
+ax1.axvline(x=0, color='black')
+ax1.axhline(y=0, color='black')
+ax1.axvline(x=silicon_forward_voltage_threshold, color='red')
+ax1.text(-1, -100, 'Reverse Biased Region', ha='center', va='center')
+ax1.text( 1, -100, 'Forward Biased Region', ha='center', va='center')
 
 #r# Now we compute and plot the static and dynamic resistance.
 #r#
@@ -176,25 +175,24 @@ axe.text( 1, -100, 'Forward Biased Region', ha='center', va='center')
 #r#
 #r#   r_d = \frac{d V_d}{d I_d} \approx \frac{n V_T}{I_d}
 
-axe = plt.subplot(122)
-axe.set_title('Resistance @ 25 °C')
-axe.grid()
-axe.set_xlim(-2, 3)
-axe.axvspan(-2, 0, facecolor='green', alpha=.2)
-axe.axvspan(0, silicon_forward_voltage_threshold, facecolor='blue', alpha=.1)
-axe.axvspan(silicon_forward_voltage_threshold, 3, facecolor='blue', alpha=.2)
+ax2.set_title('Resistance @ 25 °C')
+ax2.grid()
+ax2.set_xlim(-2, 3)
+ax2.axvspan(-2, 0, facecolor='green', alpha=.2)
+ax2.axvspan(0, silicon_forward_voltage_threshold, facecolor='blue', alpha=.1)
+ax2.axvspan(silicon_forward_voltage_threshold, 3, facecolor='blue', alpha=.2)
 analysis = analyses[25]
 static_resistance = -analysis.out / analysis.Vinput
 dynamic_resistance = np.diff(-analysis.out) / np.diff(analysis.Vinput)
-axe.semilogy(analysis.out, static_resistance, basey=10)
-axe.semilogy(analysis.out[10:-1], dynamic_resistance[10:], basey=10)
-axe.axvline(x=0, color='black')
-axe.axvline(x=silicon_forward_voltage_threshold, color='red')
-axe.axhline(y=1, color='red')
-axe.text(-1.5, 1.1, 'R limitation = 1 Ω', color='red')
-axe.legend(['{} Resistance'.format(x) for x in ('Static', 'Dynamic')], loc=(.05,.2))
-axe.set_xlabel('Voltage [V]')
-axe.set_ylabel('Resistance [Ω]')
+ax2.semilogy(analysis.out, static_resistance, basey=10)
+ax2.semilogy(analysis.out[10:-1], dynamic_resistance[10:], basey=10)
+ax2.axvline(x=0, color='black')
+ax2.axvline(x=silicon_forward_voltage_threshold, color='red')
+ax2.axhline(y=1, color='red')
+ax2.text(-1.5, 1.1, 'R limitation = 1 Ω', color='red')
+ax2.legend(['{} Resistance'.format(x) for x in ('Static', 'Dynamic')], loc=(.05,.2))
+ax2.set_xlabel('Voltage [V]')
+ax2.set_ylabel('Resistance [Ω]')
 
 plt.tight_layout()
 plt.show()

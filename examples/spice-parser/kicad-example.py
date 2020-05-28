@@ -137,13 +137,13 @@ for subcircuit in (PowerIn(), Opamp(), JackIn(), JackOut()):
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=100@u_us, end_time=3@u_ms)
 
-figure = plt.figure(1, (20, 10))
-plot(analysis['2']) # JackIn input
-plot(analysis['7']) # Opamp output
-plt.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
-plt.grid()
-plt.xlabel('t [s]')
-plt.ylabel('[V]')
+figure, ax = plt.subplots(figsize=(20, 10))
+ax.plot(analysis['2']) # JackIn input
+ax.plot(analysis['7']) # Opamp output
+ax.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
+ax.grid()
+ax.set_xlabel('t [s]')
+ax.set_ylabel('[V]')
 
 plt.tight_layout()
 plt.show()

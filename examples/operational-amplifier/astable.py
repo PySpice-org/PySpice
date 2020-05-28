@@ -42,10 +42,12 @@ simulator.initial_condition(comparator=0)  # Fixme: simulator.nodes.comparator =
 analysis = simulator.transient(step_time=1@u_us, end_time=500@u_us)
 # Fixme: Xyce fails with Time step too small
 
-figure = plt.figure(1, (20, 10))
-plot(analysis.reference)
-plot(analysis.comparator)
-plot(analysis.output)
+figure, ax = plt.subplots(figsize=(20, 10))
+ax.grid()
+ax.plot(analysis.reference)
+ax.plot(analysis.comparator)
+ax.plot(analysis.output)
+
 plt.tight_layout()
 plt.show()
 

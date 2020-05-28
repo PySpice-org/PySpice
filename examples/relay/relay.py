@@ -50,22 +50,21 @@ diode = circuit.X('D', '1N5822', 'collector', 'VccAnalog')
 
 ####################################################################################################
 
-figure = plt.figure(1, (20, 10))
+figure, ax = plt.subplots(figsize=(20, 10))
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=period/1000, end_time=period*1.1)
 
-axe = plt.subplot(111)
-plt.title('')
-plt.xlabel('Time [s]')
-plt.ylabel('Voltage [V]')
-plt.grid()
-plot(analysis.base, axis=axe)
-plot(analysis.collector, axis=axe)
+ax.set_title('')
+ax.set_xlabel('Time [s]')
+ax.set_ylabel('Voltage [V]')
+ax.grid()
+ax.plot(analysis.base)
+ax.plot(analysis.collector)
 # Fixme: current probe
-# plot((analysis['1'] - analysis.collector)/circuit.Rrelay.resistance, axis=axe)
-plot(analysis['1'] - analysis.collector, axis=axe)
-plt.legend(('Vbase', 'Vcollector'), loc=(.05,.1))
+# ax.plot((analysis['1'] - analysis.collector)/circuit.Rrelay.resistance)
+ax.plot(analysis['1'] - analysis.collector)
+ax.legend(('Vbase', 'Vcollector'), loc=(.05,.1))
 
 plt.tight_layout()
 plt.show()
