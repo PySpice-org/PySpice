@@ -40,7 +40,7 @@
 #r#         V_{th} & = I_{No} R_{no}
 #r#       \end{align}
 
-#f# circuit_macros('thévenin-norton-theorem.m4')
+#f# circuit_macros('thevenin-norton-theorem.m4')
 
 #r# In circuit theory terms, these theorems allows any one-port network to be reduced to a single
 #r# voltage or current source and a single impedance.
