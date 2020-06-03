@@ -13,6 +13,7 @@ pylint
 flake8
 
 # Test runners
+pytest
 tox
 
 # Check that MANIFEST.in matches Git repo contents before making a release
