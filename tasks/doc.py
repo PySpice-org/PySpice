@@ -77,7 +77,7 @@ def make_examples(ctx, clean=False, no_html=False, force=False):
     # PySpiceLogLevel=WARNING
 
     os.environ['PySpiceLibraryPath'] = str(PYSPICE_SOURCE_PATH.joinpath('examples', 'libraries'))
-    os.environ['PySpiceLogLevel'] = 'ERROR'
+    os.environ['PySpiceLogLevel'] = 'ERROR'  # set logging level
 
     setting_path = PYSPICE_SOURCE_PATH.joinpath('examples', 'Settings.py')
     # subprocess.run(('pyterate',
