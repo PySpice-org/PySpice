@@ -509,6 +509,7 @@ class NgSpiceShared:
         """Callback for sending output from stdout, stderr to caller"""
 
         self = ffi.from_handle(user_data)
+        _module_logger.info(str(ffi.string(message_c)))
         message = ffi_string_utf8(message_c)
 
         prefix, _, content = message.partition(' ')
