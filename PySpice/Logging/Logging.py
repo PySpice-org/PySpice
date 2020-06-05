@@ -51,7 +51,7 @@ def setup_logging(application_name='PySpice',
         formatter_config = logging_config['formatters']['ansi']['format']
         logging_config['formatters']['ansi']['format'] = formatter_config.replace('<ESC>', '\033')
 
-    if ConfigInstall.OS.on_windows:
+    if ConfigInstall.OS.on_windows or ConfigInstall.OS.on_osx:
         formatter = 'simple'
     else:
         formatter = 'ansi'
