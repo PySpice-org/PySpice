@@ -828,6 +828,7 @@ class PrefixedUnit:
                 string = ''
             else:
                 # Ngspice don't support utf-8
+                # degree symbole can be encoded str(176) in Extended ASCII
                 string = string.replace('°', '')  # U+00B0
                 string = string.replace('℃', '')  # U+2103
                 # U+2109 ℉
