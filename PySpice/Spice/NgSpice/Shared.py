@@ -83,7 +83,11 @@ from .SimulationType import SIMULATION_TYPE
 ####################################################################################################
 
 def ffi_string_utf8(x):
-    return ffi.string(x).decode('utf8') # Fixme: ascii ?
+    _ = ffi.string(x)
+    try:
+        return _.decode('utf8')
+    except UnicodeDecodeError:
+        return _
 
 ####################################################################################################
 
