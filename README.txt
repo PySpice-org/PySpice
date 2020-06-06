@@ -20,6 +20,10 @@
 * `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
 * `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
 * `pyspice@conda-forge <https://github.com/conda-forge/pyspice-feedstock>`_
+* `ngspice@conda-forge <https://github.com/conda-forge/ngspice-feedstock/issues/10>`_
+* `Ngspice <http://ngspice.sourceforge.net>`_
+* `Ngspice Bug Tracker <https://sourceforge.net/p/ngspice/bugs>`_
+* `Xyce of Sandia National Laboratories <https://xyce.sandia.gov>`_
 
 Brief Notes
 ===========
