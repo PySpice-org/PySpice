@@ -128,7 +128,6 @@ class UnitPrefix(metaclass=UnitPrefixMetaclass):
 
     @property
     def spice_prefix(self):
-
         if hasattr(self, '__spice_prefix__'):
             return self.__spice_prefix__
         else:
@@ -819,16 +818,22 @@ class PrefixedUnit:
         # Fixme: unit clash, e.g. mm ???
 
         string = self._power.str(spice)
+
         if unit:
             string += str(self._unit)
+
         if spice:
             # F is interpreted as f = femto
             if string == 'F':
                 string = ''
             else:
                 # Ngspice don't support utf-8
-                string = string.replace('Ω', 'Ohm') # utf-8 cea0
-                string = string.replace('μ',   'u') # utf-8 cebc
+                string = string.replace('°', '')  # U+00B0
+                string = string.replace('℃', '')  # U+2103
+                # U+2109 ℉
+                string = string.replace('Ω', 'Ohm')  # U+CEA0
+                string = string.replace('μ',   'u')  # U+CEBC
+
         return string
 
     ##############################################
