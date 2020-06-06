@@ -11,6 +11,11 @@ V1.5.0 (development release)
 V1.4.? (production release) 2020-0?-??
 --------------------------------------
 
+A huge effort, thanks to @stuarteberg Stuart Berg, has been made to make Ngspice and PySpice
+available on Anaconda (conda-forge) for the Window, OSX and Linux platforms.  Thanks to the
+conda-forge continuous integration platform, we can now run unit tests and the examples on theses
+platforms automatically.  Hope this will make the software more robust and easier to run !
+
 * PySpice is now available on Anaconda(conda-forge) as well as a wheel on PyPI
 * Added a post installation tool to download the Ngspice DLL on Windows and to check the installation.
   It should now simplify considerably the PySpice installation on Windows.
@@ -28,10 +33,18 @@ V1.4.? (production release) 2020-0?-??
 * removed @substitution@ in PySpice/__init__.py, beacause it breaks pip install from git
 * fixed some logging spams
 * fixed NonLinearVoltageSource
+* fixed Unicode issue with °C (° is Extended ASCII)
+* fixed ffi_string_utf8 for UnicodeDecodeError
+* fixed logging formater for OSX (removed ANSI codes)
+* reworded "Invalid plot name" exception
+* removed diacritics in example filenames
 * cir2py has been converted to an entry point so as to work on all platforms
+* updated Matplotlib subplots in examples
+* added a unit example
+* added a NMOS example (thanks to cyber-g) cf. #221
 
-V1.4.0 (production release) 2020-05-05
---------------------------------------
+V1.4.0 2020-05-05
+-----------------
 
 This release is yanked due to broken Windows support.
 
