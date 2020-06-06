@@ -9,7 +9,6 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Probe.Plot import plot
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit import *
 
