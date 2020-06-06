@@ -679,6 +679,10 @@ pull requests blindly then there is a high risk this software will become a mess
 </div>
 <div class="section" id="v1-4-production-release-2020-0">
 <h2>V1.4.? (production release) 2020-0?-??</h2>
+<p>A huge effort, thanks to &#64;stuarteberg Stuart Berg, has been made to make Ngspice and PySpice
+available on Anaconda (conda-forge) for the Window, OSX and Linux platforms.  Thanks to the
+conda-forge continuous integration platform, we can now run unit tests and the examples on theses
+platforms automatically.  Hope this will make the software more robust and easier to run !</p>
 <ul class="simple">
 <li><p>PySpice is now available on Anaconda(conda-forge) as well as a wheel on PyPI</p></li>
 <li><p>Added a post installation tool to download the Ngspice DLL on Windows and to check the installation.
@@ -695,11 +699,19 @@ Note that theses two platforms do not download a binary from Ngspice since a com
 <li><p>removed &#64;substitution&#64; in PySpice/__init__.py, beacause it breaks pip install from git</p></li>
 <li><p>fixed some logging spams</p></li>
 <li><p>fixed NonLinearVoltageSource</p></li>
+<li><p>fixed Unicode issue with °C (° is Extended ASCII)</p></li>
+<li><p>fixed ffi_string_utf8 for UnicodeDecodeError</p></li>
+<li><p>fixed logging formater for OSX (removed ANSI codes)</p></li>
+<li><p>reworded &quot;Invalid plot name&quot; exception</p></li>
+<li><p>removed diacritics in example filenames</p></li>
 <li><p>cir2py has been converted to an entry point so as to work on all platforms</p></li>
+<li><p>updated Matplotlib subplots in examples</p></li>
+<li><p>added a unit example</p></li>
+<li><p>added a NMOS example (thanks to cyber-g) cf. #221</p></li>
 </ul>
 </div>
-<div class="section" id="v1-4-0-production-release-2020-05-05">
-<h2>V1.4.0 (production release) 2020-05-05</h2>
+<div class="section" id="v1-4-0-2020-05-05">
+<h2>V1.4.0 2020-05-05</h2>
 <p>This release is yanked due to broken Windows support.</p>
 <ul class="simple">
 <li><p>fixed nasty issue with NgSpice shared for <cite>setlocale(LC_NUMERIC, &quot;C&quot;);</cite> cf. #172</p></li>
