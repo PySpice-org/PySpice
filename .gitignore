@@ -114,5 +114,5 @@ resources
 
 unit-test/test.py
 
-anaconda-test/conda-bld
+anaconda-recipe/conda-bld
 doc/pelican/BUGS.md
