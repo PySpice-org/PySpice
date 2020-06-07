@@ -6,6 +6,7 @@ python:
 install:
   # - pip install invoke
   - pip install -r requirements.txt
+  - pip install .
 
 script:
-  - pytest
+  - pytest unit-test
