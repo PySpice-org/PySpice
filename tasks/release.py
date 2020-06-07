@@ -111,7 +111,7 @@ def update_git_sha(ctx):
 
 @task()
 def clean(ctx):
-    for directory in ('build', 'dist'):
+    for directory in ('build', 'dist', 'PySpice.egg-info'):
         shutil.rmtree(directory, ignore_errors=True)
 
 @task()
