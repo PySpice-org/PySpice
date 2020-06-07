@@ -98,8 +98,10 @@ def get_source(ctx, extract=True):
     if extract:
         import tarfile
         tar_file = tarfile.open(dst_path)
+        ctx.ngspice_base_path = PYSPICE_SOURCE_PATH.joinpath('ngspice-{}'.format(ctx.ngspice_last_version))
+        ctx.ngspice_source_path = Path(str(ctx.ngspice_base_path) + '-src')
         tar_file.extractall()
-        ctx.ngspice_source_path = PYSPICE_SOURCE_PATH.joinpath('ngspice-{}-src'.format(ctx.ngspice_last_version))
+        ctx.ngspice_base_path.rename(ctx.ngspice_source_path)
 
 ####################################################################################################
 
@@ -108,12 +110,12 @@ def init(ctx):
     if hasattr(ctx, 'ctx.ngspice_build_path'):
         return
 
-    ctx.ngspice_build_path = Path(str(ctx.ngspice_source_path) + '-build')
+    ctx.ngspice_build_path = Path(str(ctx.ngspice_base_path) + '-build')
     print('ngspice source path', ctx.ngspice_source_path)
     print('ngspice source build', ctx.ngspice_build_path)
 
     # ctx.install_path = Path('/usr', 'local', 'stow', 'ngspice-{}'.format(ctx.ngspice.version))
-    ctx.install_path = PYSPICE_SOURCE_PATH.joinpath('ngspice-{}'.format(ctx.ngspice_last_version))
+    ctx.install_path = ctx.ngspice_base_path
     print('ngspice install path', ctx.install_path)
 
 ####################################################################################################

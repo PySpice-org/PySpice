@@ -55,6 +55,7 @@ script:
   - pytest unit-test
   - pyspice-post-installation --install-ngspice-dll
   - pyspice-post-installation --check-install
+  - invoke test.run-examples
   # - setx PySpiceLibraryPath %SRC_DIR%\examples\libraries  # [win]
   # - pyterate --config=%SRC_DIR%\examples\Settings.py --only-run  # [win]
   # run on OSX but zmq.error.ZMQError: Too many open files
