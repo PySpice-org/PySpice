@@ -36,7 +36,7 @@ install:
   # all three OSes agree about 'pip3'
   - pip3 install --upgrade pip
   - pip3 install -r requirements.txt
-  - pip3 install invoke
+  - pip3 install beautifulsoup4 invoke requests
   - invoke ngspice.install  # only linux
   - pip3 install pytest
   - pip3 install pyterate

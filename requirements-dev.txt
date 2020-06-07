@@ -1,5 +1,7 @@
 # Automate tasks
 # http://www.pyinvoke.org
+requests
+beautifulsoup4
 invoke
 
 # Build documentation
