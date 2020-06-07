@@ -38,6 +38,6 @@
    :alt: PySpice python version
 
 
-.. |Build Status| image:: https://travis-ci.org/FabriceSalvaire/PySpice.svg?branch=master
-   :target: https://travis-ci.org/FabriceSalvaire/PySpice
+.. |Tavis CI master| image:: https://travis-ci.com/FabriceSalvaire/PySpice.svg?branch=master
+   :target: https://travis-ci.com/FabriceSalvaire/PySpice
    :alt: PySpice build status @travis-ci.org

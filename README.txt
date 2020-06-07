@@ -15,10 +15,13 @@
 |Anaconda Version|
 |Anaconda Downloads|
 
+|Tavis CI master|
+
 **Quick Links**
 
 * `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
 * `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
+* `Travis CI <https://travis-ci.com/github/FabriceSalvaire/PySpice>`_
 * `pyspice@conda-forge <https://github.com/conda-forge/pyspice-feedstock>`_
 * `ngspice@conda-forge <https://github.com/conda-forge/ngspice-feedstock>`_
 * `Ngspice <http://ngspice.sourceforge.net>`_
