@@ -1,4 +1,11 @@
 dist: bionic
+
+# language: c
+cache:
+  - ccache
+  - pip
+  # directories:
+
 language: python  # this works for Linux but is an error on macOS or Windows
 
 # python:
@@ -37,6 +44,7 @@ install:
   - pip3 install --upgrade pip
   - pip3 install -r requirements.txt
   - pip3 install beautifulsoup4 invoke requests
+  # /bin/mkdir: cannot create directory ‘/usr/local/include/ngspice’: Permission denied
   - invoke ngspice.install  # only linux
   - pip3 install pytest
   - pip3 install pyterate
