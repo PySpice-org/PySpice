@@ -22,6 +22,7 @@
 
 from pathlib import Path
 import os
+import sys
 
 from invoke import task
 
@@ -37,73 +38,11 @@ BASE_URL = 'https://sourceforge.net/projects/ngspice/files'
 RELEASE_URL = BASE_URL + '/ng-spice-rework'
 RELEASE_NOTE_URL = RELEASE_URL + '/{}/ReleaseNotes.txt/download'
 MANUAL_URL = RELEASE_URL + '/{0}/ngspice-{0}-manual.pdf/download'
-LATEST_URL = BASE_URL + '/latest/download' # zip
+# LATEST_URL = BASE_URL + '/latest/download' # zip
 TAR_URL = RELEASE_URL + '/{0}/ngspice-{0}.tar.gz'
 OSX_URL = RELEASE_URL + '/{0}/ngspice-{0}.pkg'
 WINDOWS_URL = RELEASE_URL + '/{0}/ngspice-{0}_64.zip'
 WINDOWS_DLL_URL = RELEASE_URL + '/{0}/ngspice-{0}_dll_64.zip'
-
-####################################################################################################
-
-def init(ctx):
-
-    if hasattr(ctx, 'install_path'):
-        return
-
-    ctx.ngspice_source_path = PYSPICE_SOURCE_PATH.joinpath(
-        *ctx.ngspice.directory[:-1],
-        ctx.ngspice.directory[-1].format(ctx.ngspice.version)
-    )
-    ctx.ngspice_source_build = Path(str(ctx.ngspice_source_path) + '-build')
-    ctx.install_path = Path('/usr', 'local', 'stow', 'ngspice-{}'.format(ctx.ngspice.version))
-    print('ngspice source path', ctx.ngspice_source_path)
-    print('ngspice source build', ctx.ngspice_source_build)
-    print('ngspice install path', ctx.install_path)
-
-####################################################################################################
-
-@task
-def configure(ctx):
-    init(ctx)
-    configure_path = ctx.ngspice_source_path.joinpath('configure')
-    command = [
-        str(configure_path),
-        '--prefix={}'.format(ctx.install_path),
-    	'--disable-debug',
-	'--enable-cider',
-	'--enable-openmp',
-	'--enable-xspice',
-	'--with-readline=yes',
-	'--with-ngshared',
-    ]
-    if not ctx.ngspice_source_build.exists():
-        os.mkdir(ctx.ngspice_source_build)
-    with ctx.cd(str(ctx.ngspice_source_build)):
-        ctx.run(' '.join(command))
-
-####################################################################################################
-
-@task
-def build(ctx):
-    init(ctx)
-    with ctx.cd(str(ctx.ngspice_source_build)):
-        ctx.run('make -j4')
-
-####################################################################################################
-
-@task
-def clean(ctx):
-    init(ctx)
-    with ctx.cd(str(ctx.ngspice_source_build)):
-        ctx.run('make clean')
-
-####################################################################################################
-
-@task(configure, clean, build)
-def install(ctx):
-    init(ctx)
-    with ctx.cd(str(ctx.ngspice_source_build)):
-        ctx.run('make install')
 
 ####################################################################################################
 
@@ -152,10 +91,76 @@ def donwload_file(url, dst_path):
 ####################################################################################################
 
 @task(get_last_version)
-def get_source(ctx):
-    url = LATEST_URL.format(ctx.ngspice_last_version)
-    dst_path = 'ngspice-{}.zip'.format(ctx.ngspice_last_version)
+def get_source(ctx, extract=True):
+    url = TAR_URL.format(ctx.ngspice_last_version)
+    dst_path = 'ngspice-{}.tar.gz'.format(ctx.ngspice_last_version)
     donwload_file(url, dst_path)
+    if extract:
+        import tarfile
+        tar_file = tarfile.open(dst_path)
+        tar_file.extractall()
+        ctx.ngspice_source_path = PYSPICE_SOURCE_PATH.joinpath('ngspice-{}'.format(ctx.ngspice_last_version))
+
+####################################################################################################
+
+def init(ctx):
+
+    if hasattr(ctx, 'ctx.ngspice_build_path'):
+        return
+
+    ctx.ngspice_build_path = Path(str(ctx.ngspice_source_path) + '-build')
+    print('ngspice source path', ctx.ngspice_source_path)
+    print('ngspice source build', ctx.ngspice_build_path)
+
+    # ctx.install_path = Path('/usr', 'local', 'stow', 'ngspice-{}'.format(ctx.ngspice.version))
+    # print('ngspice install path', ctx.install_path)
+
+####################################################################################################
+
+@task
+def configure(ctx):
+    init(ctx)
+    configure_path = ctx.ngspice_source_path.joinpath('configure')
+    command = [
+        str(configure_path),
+        # '--prefix={}'.format(ctx.install_path),
+    	'--disable-debug',
+	'--enable-cider',
+	'--enable-openmp',
+	'--enable-xspice',
+	'--with-readline=yes',
+	'--with-ngshared',
+    ]
+    if not ctx.ngspice_build_path.exists():
+        os.mkdir(ctx.ngspice_build_path)
+    with ctx.cd(str(ctx.ngspice_build_path)):
+        ctx.run(' '.join(command))
+
+####################################################################################################
+
+@task
+def build(ctx):
+    init(ctx)
+    with ctx.cd(str(ctx.ngspice_build_path)):
+        ctx.run('make -j4')
+
+####################################################################################################
+
+@task
+def clean(ctx):
+    init(ctx)
+    with ctx.cd(str(ctx.ngspice_build_path)):
+        ctx.run('make clean')
+
+####################################################################################################
+
+@task(get_source, configure, clean, build)
+def install(ctx):
+    if sys.platform != 'linux':
+        return
+    init(ctx)
+    with ctx.cd(str(ctx.ngspice_build_path)):
+        ctx.run('make install')
 
 ####################################################################################################
 

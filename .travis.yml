@@ -9,7 +9,9 @@ jobs:
   include:
     - name: "Python 3.8.0 on Bionic Linux"
       python: 3.8
-      # before_install:
+      before_install:
+        - sudo apt-get -y install ngspice
+        - sudo apt-get -y install gcc libreadline-dev
       #  - sudo apt-get -y install libngspice0  # from eoan (19.10)
     - name: "Python 3.7.4 on macOS"
       os: osx
@@ -35,6 +37,7 @@ install:
   - pip3 install --upgrade pip
   - pip3 install -r requirements.txt
   - pip3 install invoke
+  - invoke ngspice-install  # only linux
   - pip3 install pytest
   - pip3 install pyterate
   - pip3 install .
@@ -46,4 +49,9 @@ script:
   - pyspice-post-installation --check-install
   # - setx PySpiceLibraryPath %SRC_DIR%\examples\libraries  # [win]
   # - pyterate --config=%SRC_DIR%\examples\Settings.py --only-run  # [win]
-  - PySpiceLogLevel=DEBUG PySpiceLibraryPath=$PWD/examples/libraries pyterate --config=./examples/Settings.py --only-run
+  # run on OSX but zmq.error.ZMQError: Too many open files
+  # run on Windows but
+  #  circuit.R('load', 'output', circuit.gnd, 50@u_Ω)
+  #  SyntaxError: invalid character in identifier
+  #  and ...
+  # - PySpiceLogLevel=DEBUG PySpiceLibraryPath=$PWD/examples/libraries pyterate --config=./examples/Settings.py --only-run
