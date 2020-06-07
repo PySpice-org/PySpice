@@ -22,6 +22,7 @@
 
 from pathlib import Path
 import os
+import shutil
 import sys
 
 from invoke import task
@@ -90,33 +91,50 @@ def donwload_file(url, dst_path):
 
 ####################################################################################################
 
+def init(ctx):
+
+    if hasattr(ctx, 'ctx.ngspice_base_path'):
+        return
+
+    ctx.ngspice_base_path = PYSPICE_SOURCE_PATH.joinpath('ngspice-{}'.format(ctx.ngspice_last_version))
+
+    ctx.ngspice_source_path = Path(str(ctx.ngspice_base_path) + '-src')
+    print('ngspice source path', ctx.ngspice_source_path)
+
+    ctx.ngspice_build_path = Path(str(ctx.ngspice_base_path) + '-build')
+    print('ngspice source build', ctx.ngspice_build_path)
+
+    # ctx.install_path = Path('/usr', 'local', 'stow', 'ngspice-{}'.format(ctx.ngspice.version))
+    ctx.install_path = ctx.ngspice_base_path
+    print('ngspice install path', ctx.install_path)
+
+####################################################################################################
+
+def remove_directories(ctx):
+    init(ctx)
+    for path in (
+            ctx.ngspice_source_path,
+            ctx.ngspice_build_path,
+            ctx.install_path,
+    ):
+        rc = input('remove {} ? [n]/y '.format(path))
+        if rc == 'y':
+            shutil.rmtree(path, ignore_errors=True)
+
+####################################################################################################
+
 @task(get_last_version)
 def get_source(ctx, extract=True):
+    init(ctx)
+    remove_directories(ctx)
     url = TAR_URL.format(ctx.ngspice_last_version)
     dst_path = 'ngspice-{}.tar.gz'.format(ctx.ngspice_last_version)
     donwload_file(url, dst_path)
     if extract:
         import tarfile
         tar_file = tarfile.open(dst_path)
-        ctx.ngspice_base_path = PYSPICE_SOURCE_PATH.joinpath('ngspice-{}'.format(ctx.ngspice_last_version))
-        ctx.ngspice_source_path = Path(str(ctx.ngspice_base_path) + '-src')
         tar_file.extractall()
         ctx.ngspice_base_path.rename(ctx.ngspice_source_path)
-
-####################################################################################################
-
-def init(ctx):
-
-    if hasattr(ctx, 'ctx.ngspice_build_path'):
-        return
-
-    ctx.ngspice_build_path = Path(str(ctx.ngspice_base_path) + '-build')
-    print('ngspice source path', ctx.ngspice_source_path)
-    print('ngspice source build', ctx.ngspice_build_path)
-
-    # ctx.install_path = Path('/usr', 'local', 'stow', 'ngspice-{}'.format(ctx.ngspice.version))
-    ctx.install_path = ctx.ngspice_base_path
-    print('ngspice install path', ctx.install_path)
 
 ####################################################################################################
 
