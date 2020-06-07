@@ -46,4 +46,4 @@ script:
   - pyspice-post-installation --check-install
   # - setx PySpiceLibraryPath %SRC_DIR%\examples\libraries  # [win]
   # - pyterate --config=%SRC_DIR%\examples\Settings.py --only-run  # [win]
-  # - PySpiceLogLevel=DEBUG PySpiceLibraryPath=$PWD/examples/libraries pyterate --config=./examples/Settings.py --only-run  # [unix]
+  - PySpiceLogLevel=DEBUG PySpiceLibraryPath=$PWD/examples/libraries pyterate --config=./examples/Settings.py --only-run
