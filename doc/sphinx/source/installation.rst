@@ -128,6 +128,13 @@ The Ngspice shared library is also available from Brew:
 
   brew install libngspice
 
+Brew links:
+
+ * https://formulae.brew.sh/formula/ngspice
+   https://github.com/Homebrew/homebrew-core/blob/master/Formula/ngspice.rb
+ * https://formulae.brew.sh/formula/libngspice
+   https://github.com/Homebrew/homebrew-core/blob/master/Formula/libngspice.rb
+
 
 How to get the Examples
 -----------------------
