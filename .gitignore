@@ -62,22 +62,31 @@ doc/sphinx/source/examples/
 
 ####################################################################################################
 
+examples/spice-examples/eg6.dat
+examples/spice-examples/gnucap.cir
+examples/spice-examples/mosfet-characterization.cir
+examples/spice-examples/ring-modulator.cir
+examples/spice-examples/xyce-error.cir
+examples/spice-examples/xyce-error.cir.FD.prn
+examples/spice-examples/xyce-raw.data
+examples/spice-examples/xyce-test.cir
+examples/spice-examples/xyce-test2.cir
+examples/spice-examples/xyce-test2.csv
+
+####################################################################################################
+
+no-git
+
 PySpice/Spice/notes.txt
 PySpice/Spice/rf.diff
 PySpice/Unit/numpy-notes.txt
 
-TRASH/
-
-devel-test/
-devel/
+__TRASH__/
 
 doc/extern/
 doc/logo/logo-square.png
 doc/sphinx/source/-to-be-removed.txt
 doc/sphinx/source/_static/stargazer.png
-doc/sphinx/source/project-links.txt-
-
-example-test/
 
 examples/diode/tex/auto/
 examples/libraries/2N2907A.SP3.TXT
@@ -98,34 +107,12 @@ issues/multi-shared.py
 issues/nazir/
 issues/warning-example/
 
-make-examples-log.txt
-
-ngspice-build
-ngspice-shared/log
-ngspice-shared/sharedspice.h
-
-notes/
-
-open-doc.sh
+examples/c-examples/ngspice-shared/log
+examples/c-examples/ngspice-shared/sharedspice.h
 
 resources
 
-rsync-vps.sh
-
-spice-examples/eg6.dat
-spice-examples/gnucap.cir
-spice-examples/mosfet-characterization.cir
-spice-examples/ring-modulator.cir
-spice-examples/xyce-error.cir
-spice-examples/xyce-error.cir.FD.prn
-spice-examples/xyce-raw.data
-spice-examples/xyce-test.cir
-spice-examples/xyce-test2.cir
-spice-examples/xyce-test2.csv
-
-tools/run-tox
-tools/upload-www
-
-trash/
-
 unit-test/test.py
+
+anaconda-test/conda-bld
+doc/pelican/BUGS.md
