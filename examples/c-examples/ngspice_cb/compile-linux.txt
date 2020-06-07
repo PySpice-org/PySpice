@@ -1,0 +1,31 @@
+** compile with LINUX
+*create shared ngspice:
+
+cd ngspice
+./autogen.sh
+mkdir debug-sh
+cd debug-sh
+../configure --with-ngshared --enable-xspice --enable-cider --enable-openmp --enable-pss
+make
+sudo make install
+
+
+* create calling console executable
+cd ngspice_cb
+
+* static linking of ngspice
+cd ng_shared_test_sl
+
+gcc -g -Wall -lgomp -lngspice -o ./bin/Debug/ng_sh main.c
+
+* run example
+./bin/Debug/ng_sh
+
+
+* dynamic linking ngspice during runtime
+cd ng_shared_test
+
+gcc -Wall -g -lgomp -ldl -o ./bin/Debug/ng_sh main.c
+
+* run example
+./bin/Debug/ng_sh

@@ -116,3 +116,13 @@ unit-test/test.py
 
 anaconda-recipe/conda-bld
 doc/pelican/BUGS.md
+
+examples/c-examples/ngspice_cb/ng_shared_test/ng_shared_test.cbp
+examples/c-examples/ngspice_cb/ng_shared_test/ng_shared_test.depend
+examples/c-examples/ngspice_cb/ng_shared_test/ng_shared_test.layout
+examples/c-examples/ngspice_cb/ng_shared_test_sl/libngspice.dll.a
+examples/c-examples/ngspice_cb/ng_shared_test_sl/ng_shared_test_sl.cbp
+examples/c-examples/ngspice_cb/ng_shared_test_sl/ng_shared_test_sl.depend
+examples/c-examples/ngspice_cb/ng_shared_test_sl/ng_shared_test_sl.layout
+examples/c-examples/ngspice_cb/ng_shared_test_sl_v/
+examples/c-examples/ngspice_cb/ng_shared_test_v/

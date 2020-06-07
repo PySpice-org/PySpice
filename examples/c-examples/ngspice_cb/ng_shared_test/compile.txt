@@ -1,0 +1,1 @@
+g++-3.exe  -o bin/Debug/ng_shared_test.exe obj/Debug/main.o   -m32  -lpthread 
