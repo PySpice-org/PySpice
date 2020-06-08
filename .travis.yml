@@ -14,8 +14,8 @@ dist: bionic # Ubuntu
 cache:
   - ccache
   - pip
-   directories:
-     - ngspice-32
+  directories:
+    - ngspice-32
 
 language: python  # this works for Linux but is an error on macOS or Windows
 
