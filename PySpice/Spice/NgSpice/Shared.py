@@ -458,7 +458,14 @@ class NgSpiceShared:
             # When environment variable SPICE_LIB_DIR is empty, ngspice looks in C:\Spice64\share\ngspice\scripts
             # Else it tries %SPICE_LIB_DIR%\scripts\spinit
             if 'SPICE_LIB_DIR' not in os.environ:
-                os.environ['SPICE_LIB_DIR'] = str(Path(self.NGSPICE_PATH).joinpath('share', 'ngspice'))
+                _ = str(Path(self.NGSPICE_PATH).joinpath('share', 'ngspice'))
+                os.environ['SPICE_LIB_DIR'] = _
+                # self._logger.warning('Set SPICE_LIB_DIR = %s', _)
+
+        if 'CONDA_PREFIX' in os.environ:
+            _ = str(Path(os.environ['CONDA_PREFIX']).joinpath('share', 'ngspice'))
+            os.environ['SPICE_LIB_DIR'] = _
+            self._logger.warning('Set SPICE_LIB_DIR = %s', _)
 
         # https://sourceforge.net/p/ngspice/bugs/490
         # ngspice and Kicad do setlocale(LC_NUMERIC, "C");
