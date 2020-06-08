@@ -12,8 +12,8 @@ dist: bionic # Ubuntu
 
 # language: c
 cache:
-  - ccache
-  - pip
+  ccache: true
+  pip: true
   directories:
     - ngspice-32
 
