@@ -126,7 +126,7 @@ def remove_directories(ctx):
 @task(get_last_version)
 def get_source(ctx, extract=True):
     init(ctx)
-    remove_directories(ctx)
+    # remove_directories(ctx)
     url = TAR_URL.format(ctx.ngspice_last_version)
     dst_path = 'ngspice-{}.tar.gz'.format(ctx.ngspice_last_version)
     donwload_file(url, dst_path)

@@ -72,7 +72,6 @@ script:
   - pytest unit-test
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then pyspice-post-installation --install-ngspice-dll; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/ngspice-32/lib ; fi
-  - ls $TRAVIS_BUILD_DIR/ngspice-32/
   - pyspice-post-installation --check-install
   - cd TRAVIS_BUILD_DIR ; invoke test.run-examples
   # - setx PySpiceLibraryPath %SRC_DIR%\examples\libraries  # [win]
