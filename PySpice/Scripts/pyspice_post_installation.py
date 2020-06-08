@@ -181,11 +181,13 @@ class PySpicePostInstallation:
             self._donwload_file(url, zip_path)
             with ZipFile(zip_path) as zip_file:
                 zip_file.extractall(path=dst_path)
-            print('Extracted {} in {}'.format(zip_path, dst_path))
+                print('Extracted {} in {}'.format(zip_path, dst_path.joinpath('Spice64_dll')))
             dst_path = dst_path.joinpath('Spice64_dll', 'dll-vs')
             # src = dst_path.joinpath('ngspice-{}.dll'.format(self.ngspice_version))
             src = 'ngspice-{}.dll'.format(self.ngspice_version)
             target = dst_path.joinpath('ngspice.dll')
+            if target.exists():
+                  target.unlink()
             target.symlink_to(src)
 
     ##############################################
