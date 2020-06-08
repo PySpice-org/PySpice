@@ -396,7 +396,7 @@ class NgSpiceShared:
     _instances = {}
 
     @classmethod
-    def new_instance(cls, ngspice_id=0, send_data=False):
+    def new_instance(cls, ngspice_id=0, send_data=False, verbose=False):
 
         # Fixme: send_data
 
@@ -404,7 +404,7 @@ class NgSpiceShared:
             return cls._instances[ngspice_id]
         else:
             cls._logger.debug("New instance for id {}".format(ngspice_id))
-            instance = cls(ngspice_id=ngspice_id, send_data=send_data)
+            instance = cls(ngspice_id=ngspice_id, send_data=send_data, verbose=verbose)
             cls._instances[ngspice_id] = instance
             return instance
 

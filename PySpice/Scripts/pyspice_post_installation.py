@@ -70,6 +70,38 @@ import requests
 
 ####################################################################################################
 
+class CircuitTest:
+
+    ##############################################
+
+    def test_spinit(self):
+
+        from PySpice.Spice.Netlist import Circuit
+        import PySpice.Unit as U
+
+        circuit = Circuit('Astable Multivibrator')
+
+        source = circuit.V('cc', 'vcc', circuit.gnd, 15@U.u_V)
+        circuit.R(1, 'output', 'comparator', 1@U.u_kΩ)
+        circuit.C(1, 'comparator', circuit.gnd, 100@U.u_nF)
+        circuit.R(2, 'output', 'reference', 100@U.u_kΩ)
+        circuit.R(3, 'vcc', 'reference', 100@U.u_kΩ)
+        circuit.R(4, 'reference', circuit.gnd, 100@U.u_kΩ)
+        circuit.NonLinearVoltageSource(1, 'output', circuit.gnd,
+                                       expression='V(reference, comparator)',
+                                       table=((-U.micro(1), 0),
+                                              (U.micro(1), source.dc_value))
+        )
+
+        simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+        simulator.initial_condition(comparator=0)  # Fixme: simulator.nodes.comparator == 0
+        analysis = simulator.transient(step_time=1@U.u_us, end_time=500@U.u_us)
+
+        if (len(analysis.output)) < 500:
+            raise NameError('Simualtion failed')
+
+####################################################################################################
+
 class PySpicePostInstallation:
 
     GITHUB_URL = 'https://github.com/FabriceSalvaire/PySpice'
@@ -323,7 +355,7 @@ class PySpicePostInstallation:
         ##############################################
 
         print('\nLoad NgSpiceShared')
-        ngspice = NgSpiceShared(verbose=True)
+        ngspice = NgSpiceShared.new_instance(verbose=True)
 
         if ConfigInstall.OS.on_linux:
             # For Linux see DLOPEN(3)
@@ -356,6 +388,9 @@ class PySpicePostInstallation:
         print('> ' + command)
         print(ngspice.exec_command(command))
         print()
+
+        circuit_test = CircuitTest()
+        circuit_test.test_spinit()
 
         print('PySpice should work as expected')
 
