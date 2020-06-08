@@ -81,7 +81,7 @@ class PySpicePostInstallation:
 
     ##############################################
 
-    def __init__(self):
+    def run(self):
 
         parser = argparse.ArgumentParser(description='Tool to perform PySpice Post Installation.')
 
@@ -231,6 +231,7 @@ class PySpicePostInstallation:
         logger = Logging.setup_logging(logging_level='INFO')
 
         from PySpice.Config import ConfigInstall
+        from PySpice.Spice import NgSpice
         from PySpice.Spice.NgSpice import NGSPICE_SUPPORTED_VERSION
         from PySpice.Spice.NgSpice.Shared import NgSpiceShared
 
@@ -260,6 +261,14 @@ class PySpicePostInstallation:
                 for filename in filenames:
                     print(root, filename)
             print()
+
+
+        ngspice_module_path = Path(NgSpice.__file__).parent
+        print('NgSpice:', ngspice_module_path)
+        for root, _, filenames in os.walk(ngspice_module_path):
+            for filename in filenames:
+                print(root, filename)
+        print()
 
         ##############################################
 
@@ -346,4 +355,5 @@ class PySpicePostInstallation:
 ####################################################################################################
 
 def main():
-    return PySpicePostInstallation()
+    _ = PySpicePostInstallation()
+    return _.run()

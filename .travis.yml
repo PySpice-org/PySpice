@@ -57,6 +57,7 @@ install:
   - pip3 install beautifulsoup4 invoke requests
   - pip3 install pytest
   - pip3 install pyterate
+  - pip3 install pint
   - pip3 install .
   # - python3 setup.py -q install
   - echo $TRAVIS_BUILD_DIR
@@ -64,7 +65,7 @@ install:
   - ls $TRAVIS_BUILD_DIR/
   - ls $TRAVIS_BUILD_DIR/ngspice-32/
   # Note: /bin/mkdir: cannot create directory ‘/usr/local/include/ngspice’: Permission denied
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then invoke ngspice.install ; fi  #  -a ! -e "ngspice-32"
+  - if [ "$TRAVIS_OS_NAME" = "linux" -a ! -e "ngspice-32/lib" ]; then invoke ngspice.install ; fi
 
 script:
   # - echo $TRAVIS_BUILD_DIR # /home/travis/build/FabriceSalvaire/PySpice
