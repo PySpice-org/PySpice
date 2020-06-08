@@ -213,6 +213,8 @@ class PySpicePostInstallation:
         for _ in (
                 'PATH',
                 'LD_LIBRARY_PATH',
+                'PYTHONPATH',
+
                 'NGSPICE_LIBRARY_PATH',
                 'SPICE_LIB_DIR',
                 'SPICE_EXEC_DIR',
@@ -224,6 +226,30 @@ class PySpicePostInstallation:
         ):
             print(_, os.environ.get(_, 'undefined'))
         print()
+
+        if 'VIRTUAL_ENV' in os.environ:
+            print('On Virtual Environment:')
+            for _ in (
+                    'VIRTUAL_ENV',
+            ):
+                print(_, os.environ.get(_, 'undefined'))
+            print()
+
+        if 'CONDA_PREFIX' in os.environ:
+            print('On Anaconda:')
+            for _ in (
+                    # not specific
+                    'CONDA_EXE',
+                    'CONDA_PYTHON_EXE',
+                    # 'CONDA_SHLVL', # shell level, 1 in conda else 0
+                    # '_CE_CONDA', # empty
+                    # specific
+                    'CONDA_DEFAULT_ENV',
+                    'CONDA_PREFIX',
+                    # 'CONDA_PROMPT_MODIFIER',
+            ):
+                print(_, os.environ.get(_, 'undefined'))
+            print()
 
         try:
             print('Load PySpice module')
