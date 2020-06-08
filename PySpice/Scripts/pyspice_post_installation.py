@@ -124,7 +124,7 @@ class PySpicePostInstallation:
         self._args = parser.parse_args()
 
         count = 0
-        if self._args.install_ngspice_dll:
+        if self._args.install_ngspice_dll or self._args.force_install_ngspice_dll:
             self.install_ngspice_dll()
             count += 1
 
@@ -182,6 +182,11 @@ class PySpicePostInstallation:
             with ZipFile(zip_path) as zip_file:
                 zip_file.extractall(path=dst_path)
             print('Extracted {} in {}'.format(zip_path, dst_path))
+            dst_path = dst_path.joinpath('Spice64_dll', 'dll-vs')
+            # src = dst_path.joinpath('ngspice-{}.dll'.format(self.ngspice_version))
+            src = 'ngspice-{}.dll'.format(self.ngspice_version)
+            target = dst_path.joinpath('ngspice.dll')
+            target.symlink_to(src)
 
     ##############################################
 

@@ -444,7 +444,7 @@ class NgSpiceShared:
             if not self._ngspice_id:
                 library_prefix = ''
             else:
-                library_prefix = '{}'.format(self._ngspice_id)
+                library_prefix = '{}'.format(self._ngspice_id)  # id =
             library_path = self.LIBRARY_PATH.format(library_prefix)
             self._library_path = library_path
         return self._library_path
@@ -1262,6 +1262,7 @@ else:
     if ConfigInstall.OS.on_windows:
         ngspice_path = Path(__file__).parent.joinpath('Spice64_dll')
         NgSpiceShared.NGSPICE_PATH = ngspice_path
+        # path = ngspice_path.joinpath('dll-vs', 'ngspice-{version}{id}.dll')
         path = ngspice_path.joinpath('dll-vs', 'ngspice{}.dll')
 
     elif ConfigInstall.OS.on_osx:
