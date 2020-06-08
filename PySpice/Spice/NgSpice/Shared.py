@@ -46,6 +46,33 @@ the shared library by worker as explained in the manual.
 
 ####################################################################################################
 
+# 16.7 Environmental variables
+# 16.7.1 Ngspice specific variables
+#
+# SPICE_LIB_DIR
+#   default: /usr/local/share/ngspice (Linux, CYGWIN), C:\Spice\share\ngspice (Windows)
+# SPICE_EXEC_DIR
+#   default: /usr/local/bin (Linux, CYGWIN), C:\Spice\bin (Windows)
+# SPICE_ASCIIRAWFILE
+#   default: 0
+#   Format of the rawfile. 0 for binary, and 1 for ascii.
+# SPICE_SCRIPTS
+#   default: $SPICE_LIB_DIR/scripts
+#   In this directory the spinit file will be searched.
+# NGSPICE_MEAS_PRECISION
+#   default: 5
+#   Sets the number of digits if output values are printed by the meas(ure) command.
+# SPICE_NO_DATASEG_CHECK
+#   default: undefined
+#   If defined, will suppress memory resource info (probably obsolete, not used on Windows
+#   or where the /proc information system is available.)
+# NGSPICE_INPUT_DIR
+#   default: undefined
+#   If defined, using a valid directory name, will add the given directory to the search path
+#   when looking for input files (*.cir, *.inc, *.lib).
+
+####################################################################################################
+
 from pathlib import Path
 import logging
 import os
@@ -392,6 +419,8 @@ class NgSpiceShared:
 
         self._ngspice_id = ngspice_id
 
+        self._spinit_not_found = False
+
         self._stdout = []
         self._stderr = []
 
@@ -400,6 +429,12 @@ class NgSpiceShared:
         self._init_ngspice(send_data)
 
         self._is_running = False
+
+    ##############################################
+
+    @property
+    def spinit_not_found(self):
+        return self._spinit_not_found
 
     ##############################################
 
@@ -523,6 +558,9 @@ class NgSpiceShared:
                 fn = self._logger.warning
             else:
                 fn = self._logger.error
+                if content.strip() == "Note: can't find init file.":
+                    self._logger.warning('spinit was not found')
+                    self._spinit_not_found = True
             fn(content)
         else:
             self._stdout.append(content)
@@ -1216,17 +1254,23 @@ class NgSpiceShared:
 if ConfigInstall.OS.on_windows:
     if platform.architecture()[0] != '64bit':
         raise NameError('Windows 32bit is no longer supported by NgSpice')
-    ngspice_path = Path(__file__).parent.joinpath('Spice64_dll')
-    NgSpiceShared.NGSPICE_PATH = ngspice_path
-    _path = ngspice_path.joinpath('dll-vs', 'ngspice{}.dll')
 
-elif ConfigInstall.OS.on_osx:
-    _path = 'libngspice{}.dylib'
-
-elif ConfigInstall.OS.on_linux:
-    _path = 'libngspice{}.so'
-
+_ = os.environ.get('NGSPICE_LIBRARY_PATH', None)
+if _ is not None:
+    NgSpiceShared.LIBRARY_PATH = _
 else:
-    raise NotImplementedError
+    if ConfigInstall.OS.on_windows:
+        ngspice_path = Path(__file__).parent.joinpath('Spice64_dll')
+        NgSpiceShared.NGSPICE_PATH = ngspice_path
+        path = ngspice_path.joinpath('dll-vs', 'ngspice{}.dll')
 
-NgSpiceShared.LIBRARY_PATH= str(_path)
+    elif ConfigInstall.OS.on_osx:
+        path = 'libngspice{}.dylib'
+
+    elif ConfigInstall.OS.on_linux:
+        path = 'libngspice{}.so'
+
+    else:
+        raise NotImplementedError
+
+    NgSpiceShared.LIBRARY_PATH = str(path)

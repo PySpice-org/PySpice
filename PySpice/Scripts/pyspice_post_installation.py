@@ -29,6 +29,7 @@ from zipfile import ZipFile
 import argparse
 import os
 import shutil
+import sys
 import tempfile
 
 import requests
@@ -198,10 +199,30 @@ class PySpicePostInstallation:
 
         import ctypes.util
 
+        print('OS:', sys.platform)
+        print()
+
+        print('Environments:')
+        for _ in (
+                'PATH',
+                'LD_LIBRARY_PATH',
+                'NGSPICE_LIBRARY_PATH',
+                'SPICE_LIB_DIR',
+                'SPICE_EXEC_DIR',
+                'SPICE_ASCIIRAWFILE',
+                'SPICE_SCRIPTS',
+                'NGSPICE_MEAS_PRECISION',
+                'SPICE_NO_DATASEG_CHECK',
+                'NGSPICE_INPUT_DIR',
+        ):
+            print(_, os.environ.get(_, 'undefined'))
+        print()
+
         try:
             print('Load PySpice module')
             import PySpice
             print('loaded {} version {}'.format(PySpice.__file__, PySpice.__version__))
+            print()
         except ModuleNotFoundError:
             print('PySpice module not found')
             return
@@ -210,16 +231,35 @@ class PySpicePostInstallation:
         logger = Logging.setup_logging(logging_level='INFO')
 
         from PySpice.Config import ConfigInstall
+        from PySpice.Spice.NgSpice import NGSPICE_SUPPORTED_VERSION
         from PySpice.Spice.NgSpice.Shared import NgSpiceShared
+
+        print('ngspice supported version:', NGSPICE_SUPPORTED_VERSION)
+        print()
 
         ##############################################
 
-        message = '''
-        NgSpiceShared configuration is
-          NgSpiceShared.NGSPICE_PATH = {0.NGSPICE_PATH}
-          NgSpiceShared.LIBRARY_PATH = {0.LIBRARY_PATH}
-        '''
+        message = os.linesep.join((
+            'NgSpiceShared configuration is',
+            '  NgSpiceShared.NGSPICE_PATH = {0.NGSPICE_PATH}',
+            '  NgSpiceShared.LIBRARY_PATH = {0.LIBRARY_PATH}',
+        ))
         print(message.format(NgSpiceShared))
+        print()
+
+        ##############################################
+
+        cwd = Path(os.curdir).resolve()
+        print('Working directory:', cwd)
+        print()
+
+        locale_ngspice = cwd.joinpath('ngspice-{}'.format(NGSPICE_SUPPORTED_VERSION))
+        if locale_ngspice.exists() and locale_ngspice.is_dir():
+            print('Found local ngspice:')
+            for root, _, filenames in os.walk(locale_ngspice):
+                for filename in filenames:
+                    print(root, filename)
+            print()
 
         ##############################################
 
@@ -256,19 +296,25 @@ class PySpicePostInstallation:
                         path = parts[-1]
                         print('loaded {}'.format(path))
                         break
+        print()
 
-        message = '''
-        Ngspice version is {0.ngspice_version}
-          has xspice: {0.has_xspice}
-          has cider {0.has_cider}
-        '''
+        if ngspice.spinit_not_found:
+            print('WARNING: spinit was not found')
+            print()
+
+        message = os.linesep.join((
+            'Ngspice version is {0.ngspice_version}',
+            '  has xspice: {0.has_xspice}',
+            '  has cider {0.has_cider}',
+        ))
         print(message.format(ngspice))
+        print()
 
         command = 'version -f'
         print('> ' + command)
         print(ngspice.exec_command(command))
-
         print()
+
         print('PySpice should work as expected')
 
     ##############################################
@@ -300,4 +346,4 @@ class PySpicePostInstallation:
 ####################################################################################################
 
 def main():
-    _ = PySpicePostInstallation()
+    return PySpicePostInstallation()
