@@ -61,6 +61,7 @@ install:
   # - python3 setup.py -q install
   # /bin/mkdir: cannot create directory ‘/usr/local/include/ngspice’: Permission denied
   - ls $TRAVIS_BUILD_DIR/
+  - ls $TRAVIS_BUILD_DIR/ngspice-32/
   - if [ "$TRAVIS_OS_NAME" = "linux" -a ! -e "ngspice-32" ]; then invoke ngspice.install ; fi
 
 script:
