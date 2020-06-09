@@ -21,12 +21,21 @@
 ####################################################################################################
 
 from pathlib import Path
-# import glob
 import os
 import subprocess
 import sys
+import tempfile
 
 from invoke import task
+
+####################################################################################################
+
+_ = sys.platform
+on_linux = _.startswith('linux')
+on_osx = _.startswith('darwin')
+on_windows = _.startswith('win')
+if not (on_linux or on_osx or on_windows):
+    raise NotImplementedError
 
 ####################################################################################################
 
@@ -48,14 +57,47 @@ def is_example(root, filename):
 
 ####################################################################################################
 
+def example_iter():
+
+    for root, _, filenames in os.walk(EXAMPLES_PATH):
+        root = Path(root)
+        for filename in filenames:
+            filename = Path(filename)
+            path = is_example(root, filename)
+            if path is not None:
+                yield path
+
+####################################################################################################
+
 def run_example(path):
-    print('Run {}'.format(path))
-    subprocess.check_call((sys.executable, path))
+
+    with tempfile.NamedTemporaryFile(dir=path.parent) as tmp_fh:
+
+        tmp_path = tmp_fh.name
+
+        with open(path) as fh:
+            content = fh.read()
+        content = content.replace('plt.show()', '#plt.show()')
+        tmp_fh.write(content.encode('utf-8'))
+        tmp_fh.seek(0)
+        # print(tmp_fh.read())
+
+        print('Run {}'.format(path))
+        # print('Run {}'.format(tmp_path))
+        # subprocess.call(('cat', tmp_path))
+        # subprocess.check_call((sys.executable, tmp_path))
+        process = subprocess.run((sys.executable, tmp_path), capture_output=True)
+        if process.returncode:
+            print(process.stdout.decode('utf-8'))
+            print(process.stderr.decode('utf-8'))
+            return False
+        else:
+            return True
 
 ####################################################################################################
 
 def on_linux(path):
-    run_example(path)
+    return run_example(path)
 
 ####################################################################################################
 
@@ -65,15 +107,9 @@ def on_osx(path):
             'external-source.py',
     ):
         print('Skip {}'.format(path))
-        return
+        return 'skipped'
 
-    with open(path) as fh:
-        content = fh.read()
-    content = content.replace('plt.show()', '#plt.show()')
-    with open(path, 'w') as fh:
-        fh.write(content)
-
-    run_example(path)
+    return run_example(path)
 
 ####################################################################################################
 
@@ -83,27 +119,50 @@ def on_windows(path):
             'internal-device-parameters.py',
     ):
         print('Skip {}'.format(path))
-        return
+        return 'skipped'
 
-    run_example(path)
+    return run_example(path)
 
 ####################################################################################################
 
 @task()
 def run_examples(ctx):
 
+    # os.environ['PySpiceLibraryPath'] = str(EXAMPLES_PATH.joinpath('libraries'))
+
     # for topic in os.listdir(examples_path):
     #     python_files = glob.glob(str(examples_path.joinpath(topic, '*.py')))
 
-    for root, _, filenames in os.walk(EXAMPLES_PATH):
-        root = Path(root)
-        for filename in filenames:
-            filename = Path(filename)
-            path = is_example(root, filename)
-            if path is not None:
-                if sys.platform.startswith('linux'):
-                    on_linux(path)
-                if sys.platform.startswith('darwin'):
-                    on_osx(path)
-                if sys.platform.startswith('win'):
-                    on_windows(path)
+    succeed = []
+    failed = []
+    skipped = []
+
+    examples = sorted(example_iter(), key=lambda _: str(_))
+    for path in examples:
+        if on_linux:
+            rc = on_linux(path)
+        elif on_osx:
+            rc = on_osx(path)
+        elif on_windows:
+            rc = on_windows(path)
+
+        if rc == 'skipped':
+            skipped.append(path)
+        elif rc:
+            succeed.append(path)
+        else:
+            failed.append(path)
+
+    print()
+    for path in skipped:
+        print('SKIPPED', path)
+    print()
+    for path in succeed:
+        print('SUCCEED', path)
+    print()
+    for path in failed:
+        print('FAILED', path)
+    print()
+
+    if failed:
+        raise NameError('Some tests failed')
