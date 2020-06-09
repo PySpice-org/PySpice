@@ -31,10 +31,10 @@ from invoke import task
 ####################################################################################################
 
 _ = sys.platform
-on_linux = _.startswith('linux')
-on_osx = _.startswith('darwin')
-on_windows = _.startswith('win')
-if not (on_linux or on_osx or on_windows):
+is_linux = _.startswith('linux')
+is_osx = _.startswith('darwin')
+is_windows = _.startswith('win')
+if not (is_linux or is_osx or is_windows):
     raise NotImplementedError
 
 ####################################################################################################
@@ -71,7 +71,7 @@ def example_iter():
 
 def run_example(path):
 
-    with tempfile.NamedTemporaryFile(dir=path.parent) as tmp_fh:
+    with tempfile.NamedTemporaryFile(dir=path.parent, suffix='.py') as tmp_fh:
 
         tmp_path = tmp_fh.name
 
@@ -97,11 +97,29 @@ def run_example(path):
 ####################################################################################################
 
 def on_linux(path):
+
     return run_example(path)
 
 ####################################################################################################
 
 def on_osx(path):
+
+    # Run /Users/travis/build/FabriceSalvaire/PySpice/examples/ngspice-shared/external-source.py
+    # 2020-06-09 19:37:21,629 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - 
+    # Circuit: Voltage Divider
+    # Error on line 2 :
+    # vinput input 0 dc 0 external
+    # parameter value out of range or the wrong type
+    # Traceback (most recent call last):
+    #   File "/Users/travis/build/FabriceSalvaire/PySpice/examples/ngspice-shared/tmp8dzdmtt3", line 70, in <module>
+    #     analysis = simulator.transient(step_time=period/200, end_time=period*2)
+    #   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/Simulation.py", line 1166, in transient
+    #     return self._run('transient', *args, **kwargs)
+    #   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Simulation.py", line 117, in _run
+    #     self._ngspice_shared.load_circuit(str(self))
+    #   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Shared.py", line 1145, in load_circuit
+    #     raise NgSpiceCircuitError('')
+    # PySpice.Spice.NgSpice.Shared.NgSpiceCircuitError
 
     if path.name in (
             'external-source.py',
@@ -139,11 +157,11 @@ def run_examples(ctx):
 
     examples = sorted(example_iter(), key=lambda _: str(_))
     for path in examples:
-        if on_linux:
+        if is_linux:
             rc = on_linux(path)
-        elif on_osx:
+        elif is_osx:
             rc = on_osx(path)
-        elif on_windows:
+        elif is_windows:
             rc = on_windows(path)
 
         if rc == 'skipped':
