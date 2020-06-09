@@ -66,5 +66,5 @@ def run_examples(ctx):
                         content = fh.read()
                     content = content.replace('plt.show()', '#plt.show()')
                     with open(path, 'w') as fh:
-                        fh.write()
+                        fh.write(content)
                 subprocess.check_call((sys.executable, path))
