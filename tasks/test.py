@@ -103,11 +103,11 @@ def run_example(path):
         #   character maps to <undefined>
         #  str('\u03a9') = 'Ω'
         try:
-            print(process.stdout).decode('utf-8'))
+            print(process.stdout).decode('utf-8')
         except UnicodeEncodeError:
             print(process.stdout)
         try:
-            print(process.stderr).decode('utf-8'))
+            print(process.stderr).decode('utf-8')
         except UnicodeEncodeError:
             print(process.stderr)
         return False
