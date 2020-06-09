@@ -3,8 +3,7 @@
 #r# =======================
 
 #r# This example shows how to manipulate netlist.
-1/0
-raise 
+
 ####################################################################################################
 
 import PySpice.Logging.Logging as Logging
