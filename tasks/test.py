@@ -102,14 +102,18 @@ def run_example(path):
         #   UnicodeEncodeError: 'charmap' codec can't encode character '\u03a9' in position ...:
         #   character maps to <undefined>
         #  str('\u03a9') = 'Ω'
+        stdout = process.stdout
+        stderr = process.stderr
         try:
-            print(process.stdout).decode('utf-8')
+            stdout = stdout.decode('utf-8')
         except UnicodeEncodeError:
-            print(process.stdout)
+            pass
         try:
-            print(process.stderr).decode('utf-8')
+            stderr = stderr.decode('utf-8')
         except UnicodeEncodeError:
-            print(process.stderr)
+            pass
+        print(stdout)
+        print(stderr)
         return False
     else:
         return True
