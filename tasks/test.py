@@ -48,6 +48,45 @@ def is_example(root, filename):
 
 ####################################################################################################
 
+def run_example(path):
+    print('Run {}'.format(path))
+    subprocess.check_call((sys.executable, path))
+
+####################################################################################################
+
+def on_linux(path):
+    run_example(path)
+
+####################################################################################################
+
+def on_osx(path):
+
+    if path.name in (
+            'external-source.py',
+    ):
+        print('Skip {}'.format(path))
+        return
+
+    with open(path) as fh:
+        content = fh.read()
+    content = content.replace('plt.show()', '#plt.show()')
+    with open(path, 'w') as fh:
+        fh.write(content)
+
+####################################################################################################
+
+def on_windows(path):
+
+    if path.name in (
+            'internal-device-parameters.py',
+    ):
+        print('Skip {}'.format(path))
+        return
+
+    run_example(path)
+
+####################################################################################################
+
 @task()
 def run_examples(ctx):
 
@@ -60,11 +99,9 @@ def run_examples(ctx):
             filename = Path(filename)
             path = is_example(root, filename)
             if path is not None:
-                print('Run {}'.format(path))
+                if sys.platform.startswith('linux'):
+                    on_linux(path)
                 if sys.platform.startswith('darwin'):
-                    with open(path) as fh:
-                        content = fh.read()
-                    content = content.replace('plt.show()', '#plt.show()')
-                    with open(path, 'w') as fh:
-                        fh.write(content)
-                subprocess.check_call((sys.executable, path))
+                    on_osx(patj)
+                if sys.platform.startswith('win'):
+                    on_windows(path)
