@@ -1,3 +1,3 @@
 # Travis test
-##skip#
+#skip#
 raise NameError('Failure')
