@@ -71,28 +71,22 @@ def example_iter():
 
 def run_example(path):
 
-    with tempfile.NamedTemporaryFile(dir=path.parent, suffix='.py') as tmp_fh:
-
-        tmp_path = tmp_fh.name
-
+    with tempfile.NamedTemporaryFile(dir=path.parent, suffix='.py', delete=False) as tmp_fh:
+        tmp_path = Path(tmp_fh.name)
         with open(path) as fh:
             content = fh.read()
         content = content.replace('plt.show()', '#plt.show()')
         tmp_fh.write(content.encode('utf-8'))
-        tmp_fh.seek(0)
-        # print(tmp_fh.read())
 
-        print('Run {}'.format(path))
-        # print('Run {}'.format(tmp_path))
-        # subprocess.call(('cat', tmp_path))
-        # subprocess.check_call((sys.executable, tmp_path))
-        process = subprocess.run((sys.executable, tmp_path), capture_output=True)
-        if process.returncode:
-            print(process.stdout.decode('utf-8'))
-            print(process.stderr.decode('utf-8'))
-            return False
-        else:
-            return True
+    print('Run {}'.format(path))
+    process = subprocess.run((sys.executable, tmp_path), capture_output=True)
+    tmp_path.unlink()
+    if process.returncode:
+        print(process.stdout.decode('utf-8'))
+        print(process.stderr.decode('utf-8'))
+        return False
+    else:
+        return True
 
 ####################################################################################################
 
@@ -105,13 +99,10 @@ def on_linux(path):
 def on_osx(path):
 
     # Run /Users/travis/build/FabriceSalvaire/PySpice/examples/ngspice-shared/external-source.py
-    # 2020-06-09 19:37:21,629 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - 
-    # Circuit: Voltage Divider
     # Error on line 2 :
     # vinput input 0 dc 0 external
     # parameter value out of range or the wrong type
     # Traceback (most recent call last):
-    #   File "/Users/travis/build/FabriceSalvaire/PySpice/examples/ngspice-shared/tmp8dzdmtt3", line 70, in <module>
     #     analysis = simulator.transient(step_time=period/200, end_time=period*2)
     #   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/Simulation.py", line 1166, in transient
     #     return self._run('transient', *args, **kwargs)
@@ -119,7 +110,6 @@ def on_osx(path):
     #     self._ngspice_shared.load_circuit(str(self))
     #   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Shared.py", line 1145, in load_circuit
     #     raise NgSpiceCircuitError('')
-    # PySpice.Spice.NgSpice.Shared.NgSpiceCircuitError
 
     if path.name in (
             'external-source.py',
