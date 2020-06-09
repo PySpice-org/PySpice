@@ -214,13 +214,30 @@ class PySpicePostInstallation:
             with ZipFile(zip_path) as zip_file:
                 zip_file.extractall(path=dst_path)
                 print('Extracted {} in {}'.format(zip_path, dst_path.joinpath('Spice64_dll')))
-            dst_path = dst_path.joinpath('Spice64_dll', 'dll-vs')
-            # src = dst_path.joinpath('ngspice-{}.dll'.format(self.ngspice_version))
-            src = 'ngspice-{}.dll'.format(self.ngspice_version)
-            target = dst_path.joinpath('ngspice.dll')
-            if target.exists():
-                  target.unlink()
-            target.symlink_to(src)
+
+        spice64_path = dst_path.joinpath('Spice64_dll')
+        dll_path = spice64_path.joinpath('dll-vs')
+        # src = dll_path.joinpath('ngspice-{}.dll'.format(self.ngspice_version))
+        src = 'ngspice-{}.dll'.format(self.ngspice_version)
+        target = dll_path.joinpath('ngspice.dll')
+        if target.exists():
+            target.unlink()
+        target.symlink_to(src)
+
+        spinit_path = spice64_path.joinpath('share', 'ngspice', 'scripts', 'spinit')
+        with open(spinit_path) as fh:
+            content = fh.read()
+        rule = '='*80
+        print(rule)
+        print(content)
+        print(rule)
+        cm_path = spice64_path.joinpath('lib', 'ngspice')
+        content = content.replace('../lib/ngspice/', str(cm_path) + '/')
+        print(rule)
+        print(content)
+        print(rule)
+        with open(spinit_path, 'w') as fh:
+            fh.write(content)
 
     ##############################################
 
