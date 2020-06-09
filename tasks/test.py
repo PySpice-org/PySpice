@@ -102,6 +102,6 @@ def run_examples(ctx):
                 if sys.platform.startswith('linux'):
                     on_linux(path)
                 if sys.platform.startswith('darwin'):
-                    on_osx(patj)
+                    on_osx(path)
                 if sys.platform.startswith('win'):
                     on_windows(path)
