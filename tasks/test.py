@@ -73,6 +73,8 @@ def on_osx(path):
     with open(path, 'w') as fh:
         fh.write(content)
 
+    run_example(path)
+
 ####################################################################################################
 
 def on_windows(path):
