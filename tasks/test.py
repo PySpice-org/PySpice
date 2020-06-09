@@ -165,6 +165,12 @@ def on_windows(path):
     #     return codecs.charmap_encode(input,self.errors,encoding_table)[0]
     # UnicodeEncodeError: 'charmap' codec can't encode character '\u03a9' in position 4: character maps to <undefined>
 
+    # examples\switched-power-supplies\buck-converter.py
+    # print('RLoad =', Rload)
+    #   File "c:\python38\lib\encodings\cp1252.py", line 19, in encode
+    #     return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+    # UnicodeEncodeError: 'charmap' codec can't encode character '\u03a9' in position 6: character maps to <undefined>
+
     # examples\ngspice-shared\ngspice-interpreter.py
     # Error: no circuit loaded
     # Traceback (most recent call last):
@@ -177,7 +183,7 @@ def on_windows(path):
     # PySpice.Spice.NgSpice.Shared.NgSpiceCommandError: Command 'listing' failed
 
     if path.name in (
-            # 'buck-converter.py',
+            'buck-converter.py',
             'internal-device-parameters.py',
             'ngspice-interpreter.py',
             'rectification.py',
