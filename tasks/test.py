@@ -183,13 +183,13 @@ def on_windows(path):
     # PySpice.Spice.NgSpice.Shared.NgSpiceCommandError: Command 'listing' failed
 
     if path.name in (
+            'rectification.py', # symlink, file contains  '../diode/rectification.py'
+
             'buck-converter.py', # unicode
             'unit.py', # unicode
 
             'ngspice-interpreter.py', # ?
-
-            # 'internal-device-parameters.py', # ?
-            # 'rectification.py', # ?
+            'internal-device-parameters.py', # ?
     ):
         print('Skip {}'.format(path))
         return 'skipped'
