@@ -73,27 +73,23 @@ the shared library by worker as explained in the manual.
 
 ####################################################################################################
 
+__all__ = [
+    'NgSpiceCircuitError',
+    'NgSpiceCommandError',
+    'NgSpiceShared',
+]
+
+####################################################################################################
+
 from pathlib import Path
 import logging
 import os
 import platform
 import re
-# import time
 
 import numpy as np
 
-####################################################################################################
-
 from cffi import FFI
-ffi = FFI()
-
-####################################################################################################
-
-from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F
-
-####################################################################################################
-
-_module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
@@ -105,12 +101,30 @@ from PySpice.Probe.WaveForm import (
     WaveForm,
 )
 from PySpice.Tools.EnumFactory import EnumFactory
+from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F
+
 from .SimulationType import SIMULATION_TYPE
 
 ####################################################################################################
 
-def ffi_string_utf8(x):
-    _ = ffi.string(x)
+ffi = FFI()
+
+####################################################################################################
+
+_module_logger = logging.getLogger(__name__)
+
+####################################################################################################
+
+class NgSpiceCircuitError(NameError):
+    pass
+
+class NgSpiceCommandError(NameError):
+    pass
+
+####################################################################################################
+
+def ffi_string_utf8(_):
+    _ = ffi.string(_)
     try:
         return _.decode('utf8')
     except UnicodeDecodeError:
@@ -287,7 +301,7 @@ class Plot(dict):
         # Fixme: separate v(vinput), analysis.R2.m
         return SensitivityAnalysis(
             simulation=self._simulation,
-            elements=self.elements(), # Fixme: internal parameters ???
+            elements=self.elements(),  # Fixme: internal parameters ???
             internal_parameters=self.internal_parameters(),
         )
 
@@ -393,10 +407,41 @@ class NgSpiceShared:
 
     ##############################################
 
+    @classmethod
+    def setup_platform(cls):
+
+        if ConfigInstall.OS.on_windows:
+            if platform.architecture()[0] != '64bit':
+                raise NameError('Windows 32bit is no longer supported by NgSpice')
+
+        _ = os.environ.get('NGSPICE_LIBRARY_PATH', None)
+        if _ is not None:
+            cls.LIBRARY_PATH = _
+        else:
+            if ConfigInstall.OS.on_windows:
+                ngspice_path = Path(__file__).parent.joinpath('Spice64_dll')
+                cls.NGSPICE_PATH = ngspice_path
+                # path = ngspice_path.joinpath('dll-vs', 'ngspice-{version}{id}.dll')
+                path = ngspice_path.joinpath('dll-vs', 'ngspice{}.dll')
+
+            elif ConfigInstall.OS.on_osx:
+                path = 'libngspice{}.dylib'
+
+            elif ConfigInstall.OS.on_linux:
+                path = 'libngspice{}.so'
+
+            else:
+                raise NotImplementedError
+
+            cls.LIBRARY_PATH = str(path)
+
+    ##############################################
+
     _instances = {}
 
     @classmethod
     def new_instance(cls, ngspice_id=0, send_data=False, verbose=False):
+        """Create a NgSpiceShared instance"""
 
         # Fixme: send_data
 
@@ -423,6 +468,13 @@ class NgSpiceShared:
 
         self._stdout = []
         self._stderr = []
+        self._error_in_stdout = None
+        self._error_in_stderr = None
+
+        self._has_cider = None
+        self._has_xspice = None
+        self._ngspice_version = None
+        self._extensions = []
 
         self._library_path = None
         self._load_library(verbose)
@@ -477,8 +529,8 @@ class NgSpiceShared:
             locale.setlocale(locale.LC_NUMERIC, 'C')
 
         api_path = Path(__file__).parent.joinpath('api.h')
-        with open(api_path) as f:
-            ffi.cdef(f.read())
+        with open(api_path) as fh:
+            ffi.cdef(fh.read())
 
         message = 'Load library {}'.format(self.library_path)
         self._logger.debug(message)
@@ -491,6 +543,8 @@ class NgSpiceShared:
     ##############################################
 
     def _init_ngspice(self, send_data):
+
+        # Ngspice API: ngSpice_Init ngSpice_Init_Sync
 
         self._send_char_c = ffi.callback('int (char *, int, void *)', self._send_char)
         self._send_stat_c = ffi.callback('int (char *, int, void *)', self._send_stat)
@@ -507,7 +561,7 @@ class NgSpiceShared:
         self._get_isrc_data_c = ffi.callback('int (double *, double, char *, int, void *)', self._get_isrc_data)
 
         self_c = ffi.new_handle(self)
-        self._self_c = self_c # To prevent garbage collection
+        self._self_c = self_c  # To prevent garbage collection
 
         rc = self._ngspice_shared.ngSpice_Init(self._send_char_c,
                                                self._send_stat_c,
@@ -520,10 +574,10 @@ class NgSpiceShared:
             raise NameError("Ngspice_Init returned {}".format(rc))
 
         ngspice_id_c = ffi.new('int *', self._ngspice_id)
-        self._ngspice_id = ngspice_id_c # To prevent garbage collection
+        self._ngspice_id = ngspice_id_c  # To prevent garbage collection
         rc = self._ngspice_shared.ngSpice_Init_Sync(self._get_vsrc_data_c,
                                                     self._get_isrc_data_c,
-                                                    FFI.NULL, # GetSyncData
+                                                    FFI.NULL,  # GetSyncData
                                                     ngspice_id_c,
                                                     self_c)
         if rc:
@@ -555,22 +609,30 @@ class NgSpiceShared:
         """Callback for sending output from stdout, stderr to caller"""
 
         self = ffi.from_handle(user_data)
-        _module_logger.info(str(ffi.string(message_c)))
+        _module_logger.debug(str(ffi.string(message_c)))
         message = ffi_string_utf8(message_c)
 
+        # split message in "<prefix><match = ' '><content>"
         prefix, _, content = message.partition(' ')
         if prefix == 'stderr':
             self._stderr.append(content)
             if content.startswith('Warning:'):
-                fn = self._logger.warning
+                func = self._logger.warning
+            # elif content.startswith('Warning:'):
             else:
-                fn = self._logger.error
+                self._error_in_stderr = True
+                func = self._logger.error
                 if content.strip() == "Note: can't find init file.":
-                    self._logger.warning('spinit was not found')
                     self._spinit_not_found = True
-            fn(content)
+                    self._logger.warning('spinit was not found')
+            func(content)
         else:
             self._stdout.append(content)
+            # Fixme: Ngspice writes error on stdout and stderr ...
+            if 'error' in content.lower():
+                self._error_in_stdout = True
+            # if self._error_in_stdout:
+            #     self._logger.warning(content)
 
         # Fixme: ???
         return self.send_char(message, ngspice_id)
@@ -615,7 +677,7 @@ class NgSpiceShared:
     ##############################################
 
     @staticmethod
-    def _send_init_data(data,  ngspice_id, user_data):
+    def _send_init_data(data, ngspice_id, user_data):
         """Callback to send back initialization vector data"""
         self = ffi.from_handle(user_data)
         # if self._logger.isEnabledFor(logging.DEBUG):
@@ -623,7 +685,7 @@ class NgSpiceShared:
         #     number_of_vectors = data.veccount
         #     for i in range(number_of_vectors):
         #         self._logger.debug('  Vector: ' + ffi_string_utf8(data.vecs[i].vecname))
-        return self.send_init_data(data, ngspice_id) # Fixme: should be a Python object
+        return self.send_init_data(data, ngspice_id)  # Fixme: should be a Python object
 
     ##############################################
 
@@ -672,7 +734,7 @@ class NgSpiceShared:
 
     ##############################################
 
-    def send_init_data(self, data,  ngspice_id):
+    def send_init_data(self, data, ngspice_id):
         """ Reimplement this callback in a subclass to process the initial data. """
         return 0
 
@@ -694,14 +756,12 @@ class NgSpiceShared:
 
     @staticmethod
     def _convert_string_array(array):
-
         strings = []
         i = 0
-        while (True):
+        while True:
             if array[i] == FFI.NULL:
                 break
-            else:
-                strings.append(ffi_string_utf8(array[i]))
+            strings.append(ffi_string_utf8(array[i]))
             i += 1
         return strings
 
@@ -709,7 +769,6 @@ class NgSpiceShared:
 
     @staticmethod
     def _to_python(value):
-
         try:
             return int(value)
         except ValueError:
@@ -725,8 +784,10 @@ class NgSpiceShared:
     def _lines_to_dicts(lines):
         if lines:
             values = dict(description=lines[0])
-            values.update({parts[0]: NgSpiceShared._to_python(parts[1])
-                           for parts in map(str.split, lines)})
+            values.update({
+                parts[0]: NgSpiceShared._to_python(parts[1])
+                for parts in map(str.split, lines)
+            })
             return values
         else:
             raise ValueError
@@ -740,9 +801,10 @@ class NgSpiceShared:
     ##############################################
 
     def clear_output(self):
-
         self._stdout = []
         self._stderr = []
+        self._error_in_stdout = False
+        self._error_in_stderr = False
 
     ##############################################
 
@@ -760,14 +822,24 @@ class NgSpiceShared:
 
         """ Execute a command and return the output. """
 
+        # Ngspice API: ngSpice_Command
+
         if len(command) > self.__MAX_COMMAND_LENGTH__:
             raise ValueError('Command must not exceed {} characters'.format(self.__MAX_COMMAND_LENGTH__))
 
         self._logger.debug('Execute command: {}'.format(command))
+
         self.clear_output()
-        rc = self._ngspice_shared.ngSpice_Command(command.encode('ascii'))
-        if rc:
+
+        encoded_command = command.encode('ascii')
+        rc = self._ngspice_shared.ngSpice_Command(encoded_command)
+
+        if rc:  # Fixme: when not 0 ???
             raise NameError("ngSpice_Command '{}' returned {}".format(command, rc))
+
+        if self._error_in_stdout or self._error_in_stderr:
+            raise NgSpiceCommandError("Command '{}' failed".format(command))
+
         if join_lines:
             return self.stdout
         else:
@@ -784,7 +856,7 @@ class NgSpiceShared:
 
         output = self.exec_command('version -f')
         for line in output.split('\n'):
-            match = re.match('\*\* ngspice\-(\d+)', line)
+            match = re.match(r'\*\* ngspice\-(\d+)', line)
             if match is not None:
                 self._ngspice_version = int(match.group(1))
             # if '** XSPICE extensions included' in line:
@@ -796,10 +868,11 @@ class NgSpiceShared:
                 self._has_cider = True
                 self._extensions.append('CIDER')
 
-        self._logger.debug('Ngspice version {} with extensions: {}'.format(
+        self._logger.debug(
+            'Ngspice version %s with extensions: %s',
             self._ngspice_version,
             ', '.join(self._extensions),
-        ))
+        )
 
     ##############################################
 
@@ -824,13 +897,11 @@ class NgSpiceShared:
         return self._simulation_type
 
     def type_to_unit(self, vector_type):
-
-        return  self._type_to_unit.get(vector_type, None)
+        return self._type_to_unit.get(vector_type, None)
 
     ##############################################
 
     def _alter(self, command, device, kwargs):
-
         device_name = device.lower()
         for key, value in kwargs.items():
             if isinstance(value, (list, tuple)):
@@ -840,47 +911,36 @@ class NgSpiceShared:
     ##############################################
 
     def alter_device(self, device, **kwargs):
-
         """Alter device parameters"""
-
         self._alter('alter', device, kwargs)
 
     ##############################################
 
     def alter_model(self, model, **kwargs):
-
         """Alter model parameters"""
-
         self._alter('altermod', model, kwargs)
 
     ##############################################
 
     def delete(self, debug_number):
-
         """Remove a trace or breakpoint"""
-
         self.exec_command('delete {}'.format(debug_number))
 
     ##############################################
 
     def destroy(self, plot_name='all'):
-
         """Release the memory holding the output data (the given plot or all plots) for the specified runs."""
-
         self.exec_command('destroy ' + plot_name)
 
     ##############################################
 
     def device_help(self, device):
-
         """Shows the user information about the devices available in the simulator. """
-
         return self.exec_command('devhelp ' + device.lower())
 
     ##############################################
 
     def save(self, vector):
-
         self.exec_command('save ' + vector)
 
     ##############################################
@@ -906,45 +966,36 @@ class NgSpiceShared:
     ##############################################
 
     def source(self, file_path):
-
         """Read a ngspice input file"""
-
         self.exec_command('source ' + file_path)
 
     ##############################################
 
     def option(self, **kwargs):
-
         """Set any of the simulator variables."""
-
         for key, value in kwargs.items():
             self.exec_command('option {} = {}'.format(key, value))
 
     ##############################################
 
     def quit(self):
-
         self.set('noaskquit')
         return self.exec_command('quit')
 
     ##############################################
 
     def remove_circuit(self):
-
         """Removes the current circuit from the list of circuits sourced into ngspice."""
-
         self.exec_command('remcirc')
 
     ##############################################
 
     def reset(self):
-
         """Throw out any intermediate data in the circuit (e.g, after a breakpoint or after one or more
         analyses have been done already), and re-parse the input file. The circuit can then be
         re-run from it’s initial state, overriding the affect of any set or alter commands.
 
         """
-
         self.exec_command('reset')
 
     ##############################################
@@ -993,15 +1044,13 @@ class NgSpiceShared:
                 parts = line.split(' = ')
             else:
                 parts = line.split(': ')
-            values[parts[0]] =  NgSpiceShared._to_python(parts[1])
+            values[parts[0]] = NgSpiceShared._to_python(parts[1])
         return values
 
     ##############################################
 
     def set(self, *args, **kwargs):
-
         """Set the value of variables"""
-
         for key in args:
             self.exec_command('set {}'.format(key))
         for key, value in kwargs.items():
@@ -1010,25 +1059,19 @@ class NgSpiceShared:
     ##############################################
 
     def set_circuit(self, name):
-
         """Change the current circuit"""
-
         self.exec_command('setcirc {}'.format(name))
 
     ##############################################
 
     def status(self):
-
         """Display breakpoint information"""
-
         return self.exec_command('status')
 
     ##############################################
 
     def step(self, number_of_steps=None):
-
         """Run a fixed number of time-points"""
-
         if number_of_steps is not None:
             self.exec_command('step {}'.format(number_of_steps))
         else:
@@ -1058,26 +1101,20 @@ class NgSpiceShared:
     ##############################################
 
     def trace(self, *args):
-
         """Trace nodes"""
-
         self.exec_command('trace ' + ' '.join(args))
 
     ##############################################
 
     def unset(self, *args):
-
         """Unset variables"""
-
         for key in args:
             self.exec_command('unset {}'.format(key))
 
     ##############################################
 
     def where(self):
-
         """Identify troublesome node or device"""
-
         return self.exec_command('where')
 
     ##############################################
@@ -1086,15 +1123,26 @@ class NgSpiceShared:
 
         """Load the given circuit string."""
 
+        # Ngspice API: ngSpice_Circ
+
         circuit_lines = [line for line in str(circuit).split(os.linesep) if line]
+        self._logger.debug('ngSpice_Circ\n' + str(circuit))
+
         circuit_lines_keepalive = [ffi.new("char[]", line.encode('utf8'))
                                    for line in circuit_lines]
         circuit_lines_keepalive += [FFI.NULL]
         circuit_array = ffi.new("char *[]", circuit_lines_keepalive)
+        self.clear_output()
         rc = self._ngspice_shared.ngSpice_Circ(circuit_array)
-        # Fixme: https://sourceforge.net/p/ngspice/bugs/496/
-        if rc:
+
+        if rc:  # Fixme: when not 0 ???
             raise NameError("ngSpice_Circ returned {}".format(rc))
+
+        # Fixme: when Ngspice found an error in the circuit, it reports the error in stdout
+        # Fixme: https://sourceforge.net/p/ngspice/bugs/496/
+        if self._error_in_stdout:
+            self._logger.error('\n' + self.stdout)
+            raise NgSpiceCircuitError('')
 
         # for line in circuit_lines:
         #     rc = self._ngspice_shared.ngSpice_Command(('circbyline ' + line).encode('utf8'))
@@ -1115,10 +1163,8 @@ class NgSpiceShared:
 
         #  in the background thread and wait until the simulation is done
 
-        command = b'bg_run' if background else b'run'
-        rc = self._ngspice_shared.ngSpice_Command(command)
-        if rc:
-            raise NameError("ngSpice_Command run returned {}".format(rc))
+        command = 'bg_run' if background else 'run'
+        self.exec_command(command)
 
         if background:
             self._is_running = True
@@ -1133,40 +1179,29 @@ class NgSpiceShared:
     ##############################################
 
     def halt(self):
-
         """ Halt the simulation in the background thread. """
-
-        rc = self._ngspice_shared.ngSpice_Command(b'bg_halt')
-        if rc:
-            raise NameError("ngSpice_Command bg_halt returned {}".format(rc))
+        self.exec_command('bg_halt')
 
     ##############################################
 
     def resume(self, background=True):
-
         """ Halt the simulation in the background thread. """
-
-        command = b'bg_resume' if background else b'resume'
-        rc = self._ngspice_shared.ngSpice_Command(command)
-        if rc:
-            raise NameError("ngSpice_Command bg_resume returned {}".format(rc))
+        command = 'bg_resume' if background else 'resume'
+        self.exec_command(command)
 
     ##############################################
 
     @property
     def plot_names(self):
-
         """ Return the list of plot names. """
-
+        # Ngspice API: ngSpice_AllPlots
         return self._convert_string_array(self._ngspice_shared.ngSpice_AllPlots())
 
     ##############################################
 
     @property
     def last_plot(self):
-
         """ Return the last plot name. """
-
         return self.plot_names[0]
 
     ##############################################
@@ -1189,19 +1224,19 @@ class NgSpiceShared:
             return 'real'
         elif flags & 2:
             return 'complex'
+        else:
+            raise NotImplementedError
 
     ##############################################
 
     @staticmethod
     def _vector_is_real(flags):
-
         return flags & 1
 
     ##############################################
 
     @staticmethod
     def _vector_is_complex(flags):
-
         return flags & 2
 
     ##############################################
@@ -1210,45 +1245,48 @@ class NgSpiceShared:
 
         """ Return the corresponding plot. """
 
+        # Ngspice API: ngSpice_AllVecs ngGet_Vec_Info
+
         # plot_name is for example dc with an integer suffix which is increment for each run
 
         plot = Plot(simulation, plot_name)
         all_vectors_c = self._ngspice_shared.ngSpice_AllVecs(plot_name.encode('utf8'))
         i = 0
-        while (True):
+        while True:
             if all_vectors_c[i] == FFI.NULL:
                 break
+
+            vector_name = ffi_string_utf8(all_vectors_c[i])
+            name = '.'.join((plot_name, vector_name))
+            vector_info = self._ngspice_shared.ngGet_Vec_Info(name.encode('utf8'))
+            vector_type = self._simulation_type[vector_info.v_type]
+            length = vector_info.v_length
+            # template = 'vector[{}] {} type {} flags {} length {}'
+            # self._logger.debug(template.format(
+            #     i,
+            #     vector_name,
+            #     vector_type,
+            #     self._flags_to_str(vector_info.v_flags),
+            #     length,
+            # ))
+            if vector_info.v_compdata == FFI.NULL:
+                # for k in range(length):
+                #     print("  [{}] {}".format(k, vector_info.v_realdata[k]))
+                tmp_array = np.frombuffer(ffi.buffer(vector_info.v_realdata, length*8), dtype=np.float64)
+                array = np.array(tmp_array, dtype=tmp_array.dtype)  # copy data
+                # import json
+                # with open(name + '.json', 'w') as fh:
+                #     json.dump(list(array), fh)
             else:
-                vector_name = ffi_string_utf8(all_vectors_c[i])
-                name = '.'.join((plot_name, vector_name))
-                vector_info = self._ngspice_shared.ngGet_Vec_Info(name.encode('utf8'))
-                vector_type = self._simulation_type[vector_info.v_type]
-                length = vector_info.v_length
-                # template = 'vector[{}] {} type {} flags {} length {}'
-                # self._logger.debug(template.format(
-                #     i,
-                #     vector_name,
-                #     vector_type,
-                #     self._flags_to_str(vector_info.v_flags),
-                #     length,
-                # ))
-                if vector_info.v_compdata == FFI.NULL:
-                    # for k in range(length):
-                    #     print("  [{}] {}".format(k, vector_info.v_realdata[k]))
-                    tmp_array = np.frombuffer(ffi.buffer(vector_info.v_realdata, length*8), dtype=np.float64)
-                    array = np.array(tmp_array, dtype=tmp_array.dtype) # copy data
-                    # import json
-                    # with open(name + '.json', 'w') as fh:
-                    #     json.dump(list(array), fh)
-                else:
-                    # for k in range(length):
-                    #     value = vector_info.v_compdata[k]
-                    #     print(ffi.addressof(value, field='cx_real'), ffi.addressof(value, field='cx_imag'))
-                    #     print("  [{}] {} + i {}".format(k, value.cx_real, value.cx_imag))
-                    tmp_array = np.frombuffer(ffi.buffer(vector_info.v_compdata, length*8*2), dtype=np.float64)
-                    array = np.array(tmp_array[0::2], dtype=np.complex64)
-                    array.imag = tmp_array[1::2]
-                plot[vector_name] = Vector(self, vector_name, vector_type, array)
+                # for k in range(length):
+                #     value = vector_info.v_compdata[k]
+                #     print(ffi.addressof(value, field='cx_real'), ffi.addressof(value, field='cx_imag'))
+                #     print("  [{}] {} + i {}".format(k, value.cx_real, value.cx_imag))
+                tmp_array = np.frombuffer(ffi.buffer(vector_info.v_compdata, length*8*2), dtype=np.float64)
+                array = np.array(tmp_array[0::2], dtype=np.complex64)
+                array.imag = tmp_array[1::2]
+            plot[vector_name] = Vector(self, vector_name, vector_type, array)
+
             i += 1
 
         return plot
@@ -1258,27 +1296,4 @@ class NgSpiceShared:
 # Platform setup
 #
 
-if ConfigInstall.OS.on_windows:
-    if platform.architecture()[0] != '64bit':
-        raise NameError('Windows 32bit is no longer supported by NgSpice')
-
-_ = os.environ.get('NGSPICE_LIBRARY_PATH', None)
-if _ is not None:
-    NgSpiceShared.LIBRARY_PATH = _
-else:
-    if ConfigInstall.OS.on_windows:
-        ngspice_path = Path(__file__).parent.joinpath('Spice64_dll')
-        NgSpiceShared.NGSPICE_PATH = ngspice_path
-        # path = ngspice_path.joinpath('dll-vs', 'ngspice-{version}{id}.dll')
-        path = ngspice_path.joinpath('dll-vs', 'ngspice{}.dll')
-
-    elif ConfigInstall.OS.on_osx:
-        path = 'libngspice{}.dylib'
-
-    elif ConfigInstall.OS.on_linux:
-        path = 'libngspice{}.so'
-
-    else:
-        raise NotImplementedError
-
-    NgSpiceShared.LIBRARY_PATH = str(path)
+NgSpiceShared.setup_platform()
