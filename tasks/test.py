@@ -71,19 +71,21 @@ def example_iter():
 
 def run_example(path):
 
-    # tempfile must be closed on Windows
+    # Windows: tempfile must be closed else
     # c:\python38\python.exe: can't open file
     #  'C:\Users\travis\build\FabriceSalvaire\PySpice\examples\...\tmpgx3uzlad.py':
     #  [Errno 13] Permission denied
 
     # Comment plt.show()
-    #  annoying on Linux but works on Travis
-    #  hang on OWX
+    #  annoying on a Linux terminal but works on Travis
+    #  hang on OSX
     with tempfile.NamedTemporaryFile(dir=path.parent, suffix='.py', delete=False) as tmp_fh:
         tmp_path = Path(tmp_fh.name)
         with open(path) as fh:
             content = fh.read()
         content = content.replace('plt.show()', '#plt.show()')
+        if is_windows:
+            content = content.replace('Ω', 'Ohm')
         tmp_fh.write(content.encode('utf-8'))
 
     print('Run {}'.format(path))
@@ -95,6 +97,7 @@ def run_example(path):
         # on Windows
         #   UnicodeEncodeError: 'charmap' codec can't encode character '\u03a9' in position ...:
         #   character maps to <undefined>
+        #  str('\u03a9') = 'Ω'
         print(process.stdout)  # .decode('utf-8'))
         print(process.stderr)  # .decode('utf-8'))
         return False
@@ -138,6 +141,9 @@ def on_osx(path):
 
 def on_windows(path):
 
+    # circuit.R(1, 'output', 'comparator', 1@u_k\xce\xa9)
+    # SyntaxError: invalid character in identifier
+
     if path.name in (
             'internal-device-parameters.py',
     ):
@@ -152,9 +158,6 @@ def on_windows(path):
 def run_examples(ctx):
 
     # os.environ['PySpiceLibraryPath'] = str(EXAMPLES_PATH.joinpath('libraries'))
-
-    # for topic in os.listdir(examples_path):
-    #     python_files = glob.glob(str(examples_path.joinpath(topic, '*.py')))
 
     succeed = []
     failed = []
