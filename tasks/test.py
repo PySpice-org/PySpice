@@ -71,6 +71,14 @@ def example_iter():
 
 def run_example(path):
 
+    # tempfile must be closed on Windows
+    # c:\python38\python.exe: can't open file
+    #  'C:\Users\travis\build\FabriceSalvaire\PySpice\examples\...\tmpgx3uzlad.py':
+    #  [Errno 13] Permission denied
+
+    # Comment plt.show()
+    #  annoying on Linux but works on Travis
+    #  hang on OWX
     with tempfile.NamedTemporaryFile(dir=path.parent, suffix='.py', delete=False) as tmp_fh:
         tmp_path = Path(tmp_fh.name)
         with open(path) as fh:
@@ -79,11 +87,16 @@ def run_example(path):
         tmp_fh.write(content.encode('utf-8'))
 
     print('Run {}'.format(path))
-    process = subprocess.run((sys.executable, tmp_path), capture_output=True)
+    # _ = path
+    _ = tmp_path
+    process = subprocess.run((sys.executable, _), capture_output=True)
     tmp_path.unlink()
     if process.returncode:
-        print(process.stdout.decode('utf-8'))
-        print(process.stderr.decode('utf-8'))
+        # on Windows
+        #   UnicodeEncodeError: 'charmap' codec can't encode character '\u03a9' in position ...:
+        #   character maps to <undefined>
+        print(process.stdout)  # .decode('utf-8'))
+        print(process.stderr)  # .decode('utf-8'))
         return False
     else:
         return True
@@ -98,10 +111,12 @@ def on_linux(path):
 
 def on_osx(path):
 
-    # Run /Users/travis/build/FabriceSalvaire/PySpice/examples/ngspice-shared/external-source.py
+    # Run examples/ngspice-shared/external-source.py
+    #
     # Error on line 2 :
-    # vinput input 0 dc 0 external
-    # parameter value out of range or the wrong type
+    #   vinput input 0 dc 0 external
+    #   parameter value out of range or the wrong type
+    #
     # Traceback (most recent call last):
     #     analysis = simulator.transient(step_time=period/200, end_time=period*2)
     #   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/Simulation.py", line 1166, in transient
