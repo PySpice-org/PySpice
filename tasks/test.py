@@ -85,6 +85,7 @@ def run_example(path):
             content = fh.read()
         content = content.replace('plt.show()', '#plt.show()')
         if is_windows:
+            content = content.replace('\xce\xa9', 'Ohm')
             content = content.replace('Ω', 'Ohm')
         tmp_fh.write(content.encode('utf-8'))
 
