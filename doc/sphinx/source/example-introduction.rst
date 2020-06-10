@@ -2,6 +2,8 @@
 
 .. _example-introduction-page:
 
+.. TO BE CHECKED
+
 ==============================
  Introduction to the Examples
 ==============================
@@ -24,7 +26,7 @@ the right to show the content of the file.**
 
 Some links to learn about Python programming and Scientific Framework:
 
-* `The Python Tutorial <https://docs.python.org/2.7/tutorial/index.html>`_
+* `The Python Tutorial <https://docs.python.org/3.8/tutorial/index.html>`_
 * `Pyplot tutorial <http://matplotlib.org/users/pyplot_tutorial.html>`_
 * `Python Scientific Lecture Notes <https://scipy-lectures.github.io/>`_
 * `Scientific Python Lectures <http://nbviewer.ipython.org/github/jrjohansson/scientific-python-lectures/tree/master/>`_
@@ -32,6 +34,8 @@ Some links to learn about Python programming and Scientific Framework:
 ---------------------------
  How to Run these Examples
 ---------------------------
+
+.. CHECK JUPYTER
 
 There are several ways to run the examples: as a script from the console, in the |IPython|_
 interactive environment or in a web browser using a IPython Notebook. Each of them has their
@@ -91,4 +95,81 @@ Obviously it is not easy to write a netlist from scratch.  The best approach is 
 sketch and to bless each node.  However you can also use a schematic capture progam like |Kicad|_
 and then export the netlist to SPICE.
 
+You can also use `SKiDL <https://xesscorp.github.io/skidl/docs/_site>`_ which is a Python module
+that allows you to compactly describe the interconnection of electronic circuits and components, see
+this full example
+https://github.com/xesscorp/skidl/blob/master/examples/spice-sim-intro/spice-sim-intro.ipynb
+
 .. You can sketch on a sheet of paper or using a pen display in a modern way.
+
+-----------------------
+ How to Draw a Circuit
+-----------------------
+
+There are several ways to draw a circuit, depending on whether you want a high-quality figure or
+just something quickly:
+
+* Sketch a circuit on a sheet of paper and scan it, or better use a tablet.  Note that this can be
+  artistic if you are skilled.
+
+* Use a schematic editor like KiCad and export the circuit as SVG, KiCad allows you to choose the
+  line width, a color or black pen and to remove the frame.  You can then edit the SVG using
+  `Inkscape <https://inkscape.org>`_.  Usually KiCad SVG output might not be perfect and the lake of
+  Python interface to the schematic editor does not help.
+
+* Use `Schemdraw <https://schemdraw.readthedocs.io/en/latest/>`_ a Python package for producing
+  high-quality electrical circuit schematic diagrams (SVG).  Circuit elements are added, one at a
+  time, similar to how you might draw them by hand, using Python methods.
+
+* Use complex graphic languages like `CircuiTikZ <https://ctan.org/pkg/circuitikz?lang=en>`_ or
+  `Circuit_macros <https://ece.uwaterloo.ca/~aplevich/Circuit_macros>`_.  The first one is a LaTeX
+  Tikz package and the second use M4 macro and LaTeX to render circuits.  These tools are well
+  suited for publications or books.
+
+A vector graphic format like SVG is preferable for web publications, rather PDF is preferable for
+paper publications.  The main difference between SVG and PDF is the way they handle fonts, else they
+are interchangeable and convertible to each other.
+
+----------------------------------------------------
+ Should I Use a Python File or a Jupyter Notebook ?
+----------------------------------------------------
+
+`JupyterLab <https://jupyter.org>`_ provides an environment as a web application similar to Matlab
+for Python and other languages.
+
+To answer this question in a few words, if you are looking for an environment similar to Matlab,
+then Jupyter could be an option.  But if you want to do complex programming, then standard Python
+files are the way to go.
+
+From a technical point of view, a `Jupyter Notebook <https://nbformat.readthedocs.io/en/latest/>`_
+is a JSON file, i.e. a Python dictionary encoded in a text file, that embed cells which are either
+Python code, Markdown text, or images (base-64 encoded).
+
+Form the Git point of view, a plain Python file is more suited than a JSON file that embed codes and
+outputs.
+
+As an alternative to a Jupyter Notebook, we can implement the concept of **literate programming**,
+the idea is to mix rich texts and codes in source files.  Some implementations will embed rich texts
+as comments, other will require a tool to split the text and the code.  Conceptually, it is similar
+to a Jupyter Notebook, excepted a notebook can embed results and is not designed to be human
+readable.
+
+PySpice examples use the `Pyterate <https://fabricesalvaire.github.io/Pyterate>`_ documentation
+generator where a file is a plain Python file with texts encoded as comments.  You can also look to
+`Pweave <http://mpastell.com/pweave>`_ as an alternative.
+
+A Jupyter Notebook has also the following drawbacks :
+
+* a Notebook imposes to use a web browser as an editor, a workaround is to use an editor plugin like
+  `Emacs IPython Notebook (EIn) <http://millejoh.github.io/emacs-ipython-notebook/>`_,
+* JupyterLab is a very bad code editor and doesn't implement common features found in an IDE like
+  completion, `linting <https://github.com/jupyter/notebook/issues/2872>`_ etc.
+* JupyterLab require extensions, e.g. https://github.com/matplotlib/ipympl to get interactive plots,
+* outputs should not be committed, a workaround is to run the command `jupyter nbconvert
+  my_input_notebook.ipynb --to notebook --ClearOutputPreprocessor.enabled=True --output
+  my_output_notebook`,
+* a JSON diff is not so readable by humans,
+* it is risky to apply a text replacement on files,
+* Jupyter hang on OSX continuous platform virtual machines,
+  this prevents to run notebooks,
+* SVG image support seems broken in JupyterLab,
