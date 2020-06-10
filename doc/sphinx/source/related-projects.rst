@@ -17,7 +17,7 @@ Netlist Tools
 SKIDL
 -----
 
-`SKiDL <https://xesscorp.github.io/skidl/docs/_site>`_ SKiDL is a module that allows you to
+`SKiDL <https://xesscorp.github.io/skidl/docs/_site>`_ is a module that allows you to
 compactly describe the interconnection of electronic circuits and components using Python.  The
 resulting Python program performs electrical rules checking for common mistakes and outputs a
 netlist that serves as input to a PCB layout tool (e.g. Kicad).
