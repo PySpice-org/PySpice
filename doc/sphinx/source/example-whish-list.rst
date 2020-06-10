@@ -95,5 +95,3 @@ SCR
 * Diac
 * Triac
 * Zero Crossing Detector
-
-.. End
