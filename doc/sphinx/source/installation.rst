@@ -247,6 +247,8 @@ Tips to Set the Development Environment
 
 In some circumstance Windows uses the CP1252 encoding, to change this use: ``$env:PYTHONIOENCODING="utf_8"``.
 
+**Set PySpice logging level on Windows:** ``$env:PySpiceLogLevel="debug"``
+
 
 Dependencies
 ------------
