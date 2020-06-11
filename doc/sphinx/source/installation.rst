@@ -78,19 +78,15 @@ Miniconda.
 Once Anaconda is installed, open the `Anaconda Navigator
 <https://docs.continuum.io/anaconda/navigator/>`_ and launch a **console** for your root environment.
 
-You can now install PySpice using the `conda` or `pip` command:
+Then the only thing to do to get PySpice on Anaconda is to run this command:
 
 .. code-block:: sh
 
-  # preferred and the ONLY THING TO DO to get PySpice on Anaconda !
-
   conda install -c conda-forge pyspice
 
-  # or
+**The following steps are not required for the conda-forge package.**
 
-  pip install PySpice
-
-**The next steps are not required for the conda-forge package.**
+As an alternative to conda, you can use the pip tool: ``pip install PySpice``
 
 The easiest solution to install Ngspice on Windows is to use the PySpice tool to donwload and
 install the Windows 64-bit DLL library for you:
@@ -244,8 +240,8 @@ Tips to Set the Development Environment
 
 **Set the PYTHONPATH on Windows:**
 
- * To set this variable from the Command Prompt, use: ``set PYTHONPATH=list;of;paths``.
  * To set this variable from PowerShell, use: ``$env:PYTHONPATH=’list;of;paths’`` just before you launch Python.
+ * To set this variable from the Command Prompt, use: ``set PYTHONPATH=list;of;paths``
 
 **Fix CP1252 / Unicode errors on Windows:**
 
