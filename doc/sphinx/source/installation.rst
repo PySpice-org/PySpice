@@ -7,22 +7,66 @@
  Installation
 ==============
 
-**Note to Linux Packagers: Please do not create a PySpice package, PyPI and Anaconda do the job.**
+You must install a Python environment and the Ngspice/Xyce simulator to use PySpice on your
+computer.  Since there are many ways to do this, we will only explain the easiest ones in details.
 
-You must install a Python environment and the NgSpice/Xyce simulator to use PySpice on your
-computer.
+In Python, the standard way is to use a **Virtual Environment** and the **pip** tool, look at this
+`guide <https://packaging.python.org/guides/installing-using-pip-and-virtual-environments>`_ for
+further information.
 
-If you are mainly doing data science, the easiest solution is probably to install the `Anaconda
+But if you are mainly doing data science, the **easiest solution** is probably to install the `Anaconda
 Distribution <https://www.anaconda.com/products/individual>`_ which is specialised for this purpose.
 You can also prefer its lightweight counterpart `Miniconda
 <https://docs.conda.io/en/latest/miniconda.html>`_.
 
-PySpice is available as a `conda <https://anaconda.org/condaforge/pyspice>`_ and `PyPI
+Anaconda has the advantage to provide a self consistent environment to the user, for example it
+installs automatically Ngspice for you when you install PySpice.  But for this reason, especially on
+Linux, an Anaconda distribution will require much more disk space than a virtual environment.
+
+.. note:: **We recommend that you read the documentation in this order, first Windows to get the
+	  novice story, then Linux to get the Unix OS story and finally OSX if you are concerned.**
+
+
+PySpice Packages
+----------------
+
+**Note to Linux Packagers: Please do not create a PySpice package, PyPI and Anaconda do the job.**
+
+PySpice is available as a `Anaconda <https://anaconda.org/condaforge/pyspice>`_ and `PyPI
 <https://pypi.org/project/PySpice>`_ package.  For Anaconda there is two channels, the official one is
 `conda-forge`, the second one `fabricesalvaire` **is only used for testing**.
 
-**We recommend that you read the documentation in this order, first Windows to get the novice story,
-then Linux to get the Unix OS story and finally OSX if you are concerned.**
+
+Ngspice on conda-forge
+----------------------
+
+.. note:: If you decide to use the conda-forge package, you do not need to install Ngspice manually
+          since it is provided as a dependency package: ngspice-lib.
+
+However if you want the Ngspice executable on your system, then run this command:
+
+.. code-block:: sh
+
+  conda install -c conda-forge ngspice-exe  # install the ngspice executable
+
+  conda install -c conda-forge ngspice      # install the master package
+  conda install -c conda-forge ngspice-lib  # install the ngspice library
+
+
+PySpice Continuous Integration
+------------------------------
+
+PySpice is tested on theses platforms:
+
+* Travis CI :
+
+  * Bionic Ubuntu Linux  (Ngspice is compiled manually)
+  * macOS 10.14.4 Mojave  (use Brew)
+  * Windows 10.0.17134  (use `Chocolatey <https://chocolatey.org>`_)
+
+* Azure CI
+
+* Fedora
 
 
 On Windows
@@ -38,36 +82,46 @@ You can now install PySpice using the `conda` or `pip` command:
 
 .. code-block:: sh
 
+  # preferred and the ONLY THING TO DO to get PySpice on Anaconda !
+
   conda install -c conda-forge pyspice
 
   # or
 
   pip install PySpice
 
-The easiest solution to install NgSpice on Windows is to use the PySpice tool to donwload and
-install the DLL library for you.
+**The next steps are not required for the conda-forge package.**
+
+The easiest solution to install Ngspice on Windows is to use the PySpice tool to donwload and
+install the Windows 64-bit DLL library for you:
 
 .. code-block:: sh
 
     pyspice-post-installation --install-ngspice-dll
 
+
+Then check your installation using the *multi-platform* command:
+
+.. code-block:: sh
+
     pyspice-post-installation --check-install
+
 
 On Linux
 --------
 
-On Linux, you can use the packages of your distribution.
+You are free to install the packages of your Linux distribution.
 
-NgSpice Installation
+Ngspice Installation
 ~~~~~~~~~~~~~~~~~~~~
 
-If you do not want to use the Anaconda NgSpice package, NgSpice and its shared library are available on many distributions:
+If you do not want to use Anaconda, Ngspice and its shared library are available on many distributions:
 
 * Fedora: **libngspice**  https://apps.fedoraproject.org/packages/libngspice
 * Ubuntu: **libngspice0** https://packages.ubuntu.com/search?suite=default&section=all&arch=any&keywords=libngspice&searchon=names
 * Debian: **libngspice0** https://packages.debian.org/search?keywords=libngspice0
 
-.. warning:: However it is advisable to check how NgSpice is compiled, especially if the maintainer
+.. warning:: However it is advisable to check how Ngspice is compiled, especially if the maintainer
              has enabled experimental features !
 
 For RPM distributions, such Fedora, RHEL and Centos, you can use this Copr repository
@@ -85,7 +139,7 @@ the Ngspice program, then you can use the "subprocess" mode instead of the "shar
 case, you must define the default simulator globally using the attribute
 ``PySpice.Spice.Simulation.CircuitSimulator.DEFAULT_SIMULATOR = 'ngspice-subprocess'``.
 
-Install the Python environment
+Install the Python Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 On Linux, you have several possibilities to install the required Python environment:
@@ -99,7 +153,6 @@ Then you can install PySpice using the `conda` command if you are using Anaconda
 
 .. code-block:: sh
 
-  conda install -c conda-forge ngspice-lib # optional
   conda install -c conda-forge pyspice
 
   # or
@@ -118,7 +171,7 @@ There are several ways to get Python on OSX:
  * use the built in Python (but check the version)
  * install `Miniconda <https://conda.io/miniconda.html>`_
  * install a full `Anaconda Distribution <https://www.anaconda.com/download/>`_.
- * install from Brew: ``brew install python3`` **(reported to work)**
+ * install from Brew: ``brew install python3``
 
 To install PySpice, please read the Linux instructions.
 
@@ -139,19 +192,18 @@ Brew links:
 How to get the Examples
 -----------------------
 
-The examples are not installed by ``pip`` or ``setup.py``. The installation process only install
-the PySpice module on your Python environment.
-
-**You have to download the PySpice archive or clone the Git repository to get the examples.** See "Installation from Source".
-
-Or you can simply run this command:
+Short answer, you can simply run this command:
 
 .. code-block:: sh
 
     pyspice-post-installation --download-example
 
+Long answer, the examples are not installed by ``pip`` or ``setup.py``.  The installation process only install the
+PySpice module on your Python environment.  You have to download the PySpice archive or clone the
+Git repository to get the examples.  See "Installation from Source".
 
-Install a more recent version from GitHub using pip
+
+Install a more Recent Version from GitHub using pip
 ---------------------------------------------------
 
 If you want to install a version that is not yet released on Pypi, you can use one of theses
@@ -185,6 +237,19 @@ Then to build and install PySpice run these commands:
 
   python setup.py build
   python setup.py install
+
+
+Tips to Set the Development Environment
+---------------------------------------
+
+**Set the PYTHONPATH on Windows:**
+
+ * To set this variable from the Command Prompt, use: ``set PYTHONPATH=list;of;paths``.
+ * To set this variable from PowerShell, use: ``$env:PYTHONPATH=’list;of;paths’`` just before you launch Python.
+
+**Fix CP1252 / Unicode errors on Windows:**
+
+In some circumstance Windows uses the CP1252 encoding, to change this use: ``$env:PYTHONIOENCODING="utf_8"``.
 
 
 Dependencies
@@ -223,17 +288,17 @@ Then the procedure is basically to run these commands:
 Ngspice Compilation
 -------------------
 
-Usually Ngspice is available as a package on the most popular Linux distributions. But I recommend
+Usually Ngspice is available as a package on the most popular Linux distributions. But we recommend
 to **check the compilation options** before to use it for serious projects.
 
-The recommended way to compile Ngspice is given in the manual and in the ``INSTALLATION``
-file. Ngspice is an example of complex software where we should not enable everything without care.
+The procedure to compile Ngspice is explained in the manual and in the ``INSTALLATION`` file. Ngspice is
+an example of complex software where we should not enable everything without care.
 
 .. warning::
 
   The compilation option **--enable-ndev** is known to broke the server mode.
 
-The recommended way to compile Ngspice on Fedora is:
+The recommended way to compile Ngspice on Linux is:
 
 .. code-block:: sh
 
@@ -242,7 +307,7 @@ The recommended way to compile Ngspice on Fedora is:
 
   /.../ngspice-32/configure \
     --prefix=/usr/local \
-  --enable-xspice \
+    --enable-xspice \
     --disable-debug \
     --enable-cider \
     --with-readline=yes \
@@ -251,6 +316,9 @@ The recommended way to compile Ngspice on Fedora is:
 
    make # -j4
    make install
+
+.. note:: PySpice source has invoke tasks to compile the Ngspice shared library on Unix, look at
+	  *ngspice.* tasks using the command ``inv -l`` to list them.
 
 
 How to get Xyce ?
