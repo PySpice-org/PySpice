@@ -514,10 +514,11 @@ class NgSpiceShared:
                 os.environ['SPICE_LIB_DIR'] = _
                 # self._logger.warning('Set SPICE_LIB_DIR = %s', _)
 
-        if 'CONDA_PREFIX' in os.environ:
-            _ = str(Path(os.environ['CONDA_PREFIX']).joinpath('share', 'ngspice'))
-            os.environ['SPICE_LIB_DIR'] = _
-            self._logger.warning('Set SPICE_LIB_DIR = %s', _)
+        # Fixme: not compatible with supra
+        # if 'CONDA_PREFIX' in os.environ:
+        #     _ = str(Path(os.environ['CONDA_PREFIX']).joinpath('share', 'ngspice'))
+        #     os.environ['SPICE_LIB_DIR'] = _
+        #     self._logger.warning('Set SPICE_LIB_DIR = %s', _)
 
         # https://sourceforge.net/p/ngspice/bugs/490
         # ngspice and Kicad do setlocale(LC_NUMERIC, "C");
