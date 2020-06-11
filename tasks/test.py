@@ -67,7 +67,11 @@ def example_iter():
             filename = Path(filename)
             path = is_example(root, filename)
             if path is not None:
-                yield path
+                # Windows: check file is not a Git symlink
+                with open(path) as fh:
+                    content = fh.readlines()
+                if not (len(content) == 1 and content[0].strip().endswith('.py')):
+                    yield path
 
 ####################################################################################################
 
