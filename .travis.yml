@@ -74,7 +74,9 @@ script:
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then pyspice-post-installation --install-ngspice-dll; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/ngspice-32/lib ; fi
   - pyspice-post-installation --check-install
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export PYTHONIOENCODING="utf_8"; fi
   - invoke test.run-examples
+
   # - setx PySpiceLibraryPath %SRC_DIR%\examples\libraries  # [win]
   # - pyterate --config=%SRC_DIR%\examples\Settings.py --only-run  # [win]
   # run on OSX but zmq.error.ZMQError: Too many open files
