@@ -1125,7 +1125,7 @@ class NgSpiceShared:
 
         # Ngspice API: ngSpice_Circ
 
-        circuit_lines = [line for line in str(circuit).split(os.linesep) if line]
+        circuit_lines = [line for line in str(circuit).splitlines() if line]
         self._logger.debug('ngSpice_Circ\n' + str(circuit))
 
         circuit_lines_keepalive = [ffi.new("char[]", line.encode('utf8'))
