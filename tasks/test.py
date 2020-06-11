@@ -130,21 +130,6 @@ def on_linux(path):
 
 def on_osx(path):
 
-    # Run examples/ngspice-shared/external-source.py
-    #
-    # Error on line 2 :
-    #   vinput input 0 dc 0 external
-    #   parameter value out of range or the wrong type
-    #
-    # Traceback (most recent call last):
-    #     analysis = simulator.transient(step_time=period/200, end_time=period*2)
-    #   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/Simulation.py", line 1166, in transient
-    #     return self._run('transient', *args, **kwargs)
-    #   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Simulation.py", line 117, in _run
-    #     self._ngspice_shared.load_circuit(str(self))
-    #   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Shared.py", line 1145, in load_circuit
-    #     raise NgSpiceCircuitError('')
-
     if str(path.relative_to(EXAMPLES_PATH)) in (
             'ngspice-shared/external-source.py',
     ):

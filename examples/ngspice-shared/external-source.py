@@ -10,6 +10,19 @@
 
 ####################################################################################################
 
+# Fixme: Travis CI macOS
+#
+# Error on line 2 :
+#   vinput input 0 dc 0 external
+#   parameter value out of range or the wrong type
+#
+# Traceback (most recent call last):
+#     analysis = simulator.transient(step_time=period/200, end_time=period*2)
+#   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Shared.py", line 1145, in load_circuit
+#     raise NgSpiceCircuitError('')
+
+####################################################################################################
+
 import math
 
 import matplotlib.pyplot as plt
