@@ -61,7 +61,7 @@ print(str(circuit))
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 # Fixme: python return code is not 0 on Windows if the following line is executed
 #        but any error is reported
-# analysis = simulator.dc(Vdd=slice(0, 5, .1)) # Fixme: ,Vsig=slice(1, 5, 1)
+## analysis = simulator.dc(Vdd=slice(0, 5, .1)) # Fixme: ,Vsig=slice(1, 5, 1)
 
 #r# To be completed ...
 
