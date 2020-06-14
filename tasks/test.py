@@ -136,7 +136,7 @@ def on_osx(path):
 
     if os.environ.get('CI', None) == 'azure':
         #   Error: ngspice.dll cannot recover and awaits to be detached
-        skipped_files.append('examples/ngspice-shared/ngspice-interpreter.py')
+        skipped_files.append('ngspice-shared/ngspice-interpreter.py')
 
     if str(path.relative_to(EXAMPLES_PATH)) in skipped_files:
         print('Skip {}'.format(path))
