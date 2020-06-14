@@ -347,7 +347,7 @@ class PySpicePostInstallation:
         locale_ngspice = cwd.joinpath('ngspice-{}'.format(NGSPICE_SUPPORTED_VERSION))
         if locale_ngspice.exists() and locale_ngspice.is_dir():
             print('Found local ngspice:')
-            for root, _, filenames in os.walk(locale_ngspice):
+            for root, _, filenames in os.walk(locale_ngspice, followlinks=True):
                 for filename in filenames:
                     print(root, filename)
             print()
