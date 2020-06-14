@@ -180,6 +180,7 @@ def get_wheel(ctx):
 
 @task()
 def get_github_tar_sha(ctx):
+    # Fixme: check git sha
     result = ctx.run('git describe --tags --abbrev=0 --always', hide='out')
     tag = result.stdout.strip()
     url = 'https://github.com/FabriceSalvaire/PySpice/archive/{}.tar.gz'.format(tag)

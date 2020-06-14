@@ -35,6 +35,8 @@ except:
 
 @task
 def push_tags(ctx):
+    # git push --delete origin v1.4.3_beta0
+    # git tag -d v1.4.3_beta0
     ctx.run('git push --tags')
 
 ####################################################################################################
