@@ -160,7 +160,7 @@ def on_windows(path):
 def run_examples(ctx):
 
     # subprocess capture_output requires 3.7
-    if sys.version_info.minor >= 7:
+    if sys.version_info.minor <= 7:
         print('WARNING: Skip tests because Python < 3.7')
         return
 
