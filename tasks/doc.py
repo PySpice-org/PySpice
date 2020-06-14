@@ -35,11 +35,13 @@ from .release import update_git_sha as _update_git_sha
 
 PYSPICE_SOURCE_PATH = Path(__file__).resolve().parents[1]
 
+EXAMPLES_PATH = PYSPICE_SOURCE_PATH.joinpath('examples')
+
 SPHINX_PATH = PYSPICE_SOURCE_PATH.joinpath('doc', 'sphinx')
 BUILD_PATH = SPHINX_PATH.joinpath('build')
-SOURCE_PATH = SPHINX_PATH.joinpath('source')
-API_PATH = SOURCE_PATH.joinpath('api')
-EXAMPLES_PATH = SOURCE_PATH.joinpath('examples')
+RST_SOURCE_PATH = SPHINX_PATH.joinpath('source')
+RST_API_PATH = RST_SOURCE_PATH.joinpath('api')
+RST_EXAMPLES_PATH = RST_SOURCE_PATH.joinpath('examples')
 
 ####################################################################################################
 
@@ -53,9 +55,9 @@ def clean_build(ctx):
 
 @task
 def clean_api(ctx):
-    # ctx.run('rm -rf {}'.format(API_PATH))
-    if API_PATH.exists():
-        shutil.rmtree(API_PATH)
+    # ctx.run('rm -rf {}'.format(RST_API_PATH))
+    if RST_API_PATH.exists():
+        shutil.rmtree(RST_API_PATH)
 
 @task(_update_git_sha, _clean_flycheck, clean_api)
 def make_api(ctx):
@@ -69,17 +71,17 @@ def make_api(ctx):
 def make_examples(ctx, clean=False, no_html=False, force=False):
 
     # Regenerate from scratch
-    if clean and EXAMPLES_PATH.exists():
-        shutil.rmtree(EXAMPLES_PATH)
+    if clean and RST_EXAMPLES_PATH.exists():
+        shutil.rmtree(RST_EXAMPLES_PATH)
 
     # pyterate --skip-external-figure --skip-figure
     # PYTHONPATH=$PWD/examples/:${PYTHONPATH}
     # PySpiceLogLevel=WARNING
 
-    os.environ['PySpiceLibraryPath'] = str(PYSPICE_SOURCE_PATH.joinpath('examples', 'libraries'))
+    os.environ['PySpiceLibraryPath'] = str(EXAMPLES_PATH.joinpath('libraries'))
     os.environ['PySpiceLogLevel'] = 'ERROR'  # set logging level
 
-    setting_path = PYSPICE_SOURCE_PATH.joinpath('examples', 'Settings.py')
+    setting_path = EXAMPLES_PATH.joinpath('Settings.py')
     # subprocess.run(('pyterate',
     #                 '--config', str(setting_path))
     # )
