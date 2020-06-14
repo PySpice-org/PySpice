@@ -175,3 +175,19 @@ def get_wheel(ctx):
     ctx.run('curl --output {} {}'.format(filename_asc, wheel_url + asc_suffix))
     # ctx.run('gpg --keyserver pgp.mit.edu --search-keys {}'.format(key_id))
     ctx.run('gpg --verify {} {}'.format(filename_asc, filename))
+
+####################################################################################################
+
+@task()
+def get_github_tar_sha(ctx):
+    result = ctx.run('git describe --tags --abbrev=0 --always', hide='out')
+    tag = result.stdout.strip()
+    url = 'https://github.com/FabriceSalvaire/PySpice/archive/{}.tar.gz'.format(tag)
+    print('Get', url)
+    import hashlib
+    import requests
+    response = requests.get(url, allow_redirects=True)
+    assert(response.status_code == requests.codes.ok)
+    sha = hashlib.sha256(response.content)
+    print(sha.hexdigest())
+
