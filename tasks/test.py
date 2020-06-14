@@ -130,9 +130,9 @@ def on_linux(path):
 
 def on_osx(path):
 
-    skipped_files =  (
+    skipped_files =  [
         'ngspice-shared/external-source.py',
-    )
+    ]
 
     if os.environ.get('CI', None) == 'azure':
         #   Error: ngspice.dll cannot recover and awaits to be detached
