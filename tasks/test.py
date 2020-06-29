@@ -39,6 +39,10 @@ if not (is_linux or is_osx or is_windows):
 
 ####################################################################################################
 
+on_azure = os.environ.get('CI', None) == 'azure'
+
+####################################################################################################
+
 if is_windows:
     # Windows uses CP1252 encoding for io
     # $env:PYTHONIOENCODING="utf_8"
@@ -130,11 +134,11 @@ def on_linux(path):
 
 def on_osx(path):
 
-    skipped_files =  [
+    skipped_files = [
         'ngspice-shared/external-source.py',
     ]
 
-    if os.environ.get('CI', None) == 'azure':
+    if on_azure:
         #   Error: ngspice.dll cannot recover and awaits to be detached
         skipped_files.append('ngspice-shared/ngspice-interpreter.py')
 
@@ -148,9 +152,17 @@ def on_osx(path):
 
 def on_windows(path):
 
-    # if str(path.relative_to(EXAMPLES_PATH)) in (
-    #     print('Skip {}'.format(path))
-    #     return 'skipped'
+    skipped_files = []
+
+    if on_azure:
+        skipped_files += [
+            'basic-usages\unit.py',
+            'switched-power-supplies\buck-converter.py',
+        ]
+
+    if str(path.relative_to(EXAMPLES_PATH)) in skipped_files:
+        print('Skip {}'.format(path))
+        return 'skipped'
 
     return run_example(path)
 
