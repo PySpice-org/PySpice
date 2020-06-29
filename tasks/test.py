@@ -156,8 +156,8 @@ def on_windows(path):
 
     if on_azure:
         skipped_files += [
-            'basic-usages\unit.py',
-            'switched-power-supplies\buck-converter.py',
+            r'basic-usages\unit.py',
+            r'switched-power-supplies\buck-converter.py',
         ]
 
     if str(path.relative_to(EXAMPLES_PATH)) in skipped_files:
