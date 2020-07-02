@@ -155,12 +155,13 @@ def on_windows(path):
 
     skipped_files = []
 
-    if on_azure:
-        # %SRC_DIR%\examples\switched-power-supplies\buck-converter.py
-        skipped_files += [
-            make_path('basic-usages', 'unit.py'),
-            make_path('switched-power-supplies', 'buck-converter.py'),
-        ]
+    print('on_azure', on_azure, os.environ.get('CI', None))
+    # if on_azure:
+    # %SRC_DIR%\examples\switched-power-supplies\buck-converter.py
+    skipped_files += [
+        make_path('basic-usages', 'unit.py'),
+        make_path('switched-power-supplies', 'buck-converter.py'),
+    ]
 
 
     if str(path) in skipped_files:
