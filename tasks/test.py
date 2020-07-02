@@ -57,6 +57,11 @@ EXAMPLES_PATH = PYSPICE_SOURCE_PATH.joinpath('examples')
 
 ####################################################################################################
 
+def make_path(*args):
+    return str(Path(EXAMPLES_PATH, *args))
+
+####################################################################################################
+
 def is_example(root, filename):
     if filename.suffix == '.py' and str(filename).islower():
         path = root.joinpath(filename)
@@ -122,12 +127,6 @@ def run_example(path):
 ####################################################################################################
 
 def on_linux(path):
-
-    # if str(path.relative_to(EXAMPLES_PATH)) in (
-    # ):
-    #     print('Skip {}'.format(path))
-    #     return 'skipped'
-
     return run_example(path)
 
 ####################################################################################################
@@ -135,14 +134,16 @@ def on_linux(path):
 def on_osx(path):
 
     skipped_files = [
-        'ngspice-shared/external-source.py',
+        make_path('ngspice-shared', 'external-source.py'),
     ]
 
     if on_azure:
-        #   Error: ngspice.dll cannot recover and awaits to be detached
-        skipped_files.append('ngspice-shared/ngspice-interpreter.py')
+        skipped_files += [
+            # Error: ngspice.dll cannot recover and awaits to be detached
+            make_path('ngspice-shared', 'ngspice-interpreter.py'),
+        ]
 
-    if str(path.relative_to(EXAMPLES_PATH)) in skipped_files:
+    if str(path) in skipped_files:
         print('Skip {}'.format(path))
         return 'skipped'
 
@@ -155,16 +156,14 @@ def on_windows(path):
     skipped_files = []
 
     if on_azure:
+        # %SRC_DIR%\examples\switched-power-supplies\buck-converter.py
         skipped_files += [
-            r'basic-usages\unit.py',
-            r'switched-power-supplies\buck-converter.py',
+            make_path('basic-usages', 'unit.py'),
+            make_path('switched-power-supplies', 'buck-converter.py'),
         ]
 
-    print(path)
-    print(EXAMPLES_PATH)
-    print(path.relative_to(EXAMPLES_PATH))
 
-    if str(path.relative_to(EXAMPLES_PATH)) in skipped_files:
+    if str(path) in skipped_files:
         print('Skip {}'.format(path))
         return 'skipped'
 
