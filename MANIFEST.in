@@ -31,3 +31,4 @@ prune build
 prune doc/sphinx/build
 prune doc/sphinx/source/api
 prune doc/sphinx/source/examples
+prune doc/pelican
