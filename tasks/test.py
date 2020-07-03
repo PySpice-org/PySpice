@@ -163,7 +163,6 @@ def on_windows(path):
         make_path('switched-power-supplies', 'buck-converter.py'),
     ]
 
-
     if str(path) in skipped_files:
         print('Skip {}'.format(path))
         return 'skipped'
