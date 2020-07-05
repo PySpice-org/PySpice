@@ -8,7 +8,7 @@
 V1.5.0 (development release)
 ----------------------------
 
-V1.4.? (production release) 2020-0?-??
+V1.4.3 (production release) 2020-07-04
 --------------------------------------
 
 A huge effort, thanks to @stuarteberg Stuart Berg, has been made to make Ngspice and PySpice
