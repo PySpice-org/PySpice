@@ -81,6 +81,7 @@ def find_package(ctx, name):
 
 @task()
 def update_git_sha(ctx):
+    # Fixme: wrong workflow, must tag the last commit
     result = ctx.run('git describe --tags --abbrev=0 --always', hide='out')
     tag = result.stdout.strip()
     if tag.startswith('v'):
