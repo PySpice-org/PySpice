@@ -95,6 +95,7 @@
 * `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
 * `Travis CI <https://travis-ci.com/github/FabriceSalvaire/PySpice>`_
 * `pyspice@conda-forge <https://github.com/conda-forge/pyspice-feedstock>`_
+* `conda-forge/pyspice <https://anaconda.org/conda-forge/pyspice>`_
 * `ngspice@conda-forge <https://github.com/conda-forge/ngspice-feedstock>`_
 * `Ngspice <http://ngspice.sourceforge.net>`_
 * `Ngspice Bug Tracker <https://sourceforge.net/p/ngspice/bugs>`_
@@ -148,7 +149,7 @@ What are the main features ?
 How to install it ?
 -------------------
 
-Look at the `installation <https://pyspice.fabrice-salvaire.fr/installation.html>`_ section in the documentation.
+Look at the `installation <https://pyspice.fabrice-salvaire.fr/releases/latest/installation.html>`_ section in the documentation.
 
 Pull Request Recommendation
 ===========================
@@ -174,7 +175,7 @@ News
 V1.5.0 (development release)
 ----------------------------
 
-V1.4.? (production release) 2020-0?-??
+V1.4.3 (production release) 2020-07-04
 --------------------------------------
 
 A huge effort, thanks to @stuarteberg Stuart Berg, has been made to make Ngspice and PySpice
