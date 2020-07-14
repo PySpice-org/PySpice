@@ -240,16 +240,11 @@ class TransientAnalysisParameters(AnalysisParameters):
 
     def __init__(self, step_time, end_time, start_time=0, max_time=None, use_initial_condition=False):
 
-        if use_initial_condition:
-            uic = 'uic'
-        else:
-            uic = None
-
         self._step_time = as_s(step_time)
         self._end_time = as_s(end_time)
         self._start_time = as_s(start_time)
         self._max_time = as_s(max_time, none=True)
-        self._use_initial_condition = uic
+        self._use_initial_condition = use_initial_condition
 
     ##############################################
 
@@ -281,7 +276,7 @@ class TransientAnalysisParameters(AnalysisParameters):
             self._end_time,
             self._start_time,
             self._max_time,
-            self._use_initial_condition,
+            'uic' if self._use_initial_condition else None,
         )
 
 ####################################################################################################
