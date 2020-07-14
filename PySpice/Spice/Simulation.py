@@ -577,7 +577,7 @@ class CircuitSimulation:
 
     def initial_condition(self, **kwargs):
 
-        """ Set initial condition for voltage nodes.
+        """Set initial condition for voltage nodes.
 
         Usage::
 
@@ -1039,7 +1039,7 @@ class CircuitSimulation:
 
         netlist = self._circuit.str(simulator=self.SIMULATOR)
         netlist += self.str_options()
-        if self.initial_condition:
+        if self._initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
         if self._saved_nodes:
             # Place 'all' first
