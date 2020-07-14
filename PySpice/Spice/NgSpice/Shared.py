@@ -403,7 +403,7 @@ class NgSpiceShared:
     NGSPICE_PATH = None
     LIBRARY_PATH = None
 
-    __MAX_COMMAND_LENGTH__ = 1023
+    MAX_COMMAND_LENGTH = 1023
 
     ##############################################
 
@@ -825,8 +825,8 @@ class NgSpiceShared:
 
         # Ngspice API: ngSpice_Command
 
-        if len(command) > self.__MAX_COMMAND_LENGTH__:
-            raise ValueError('Command must not exceed {} characters'.format(self.__MAX_COMMAND_LENGTH__))
+        if len(command) > self.MAX_COMMAND_LENGTH:
+            raise ValueError('Command must not exceed {} characters'.format(self.MAX_COMMAND_LENGTH))
 
         self._logger.debug('Execute command: {}'.format(command))
 

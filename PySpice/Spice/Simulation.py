@@ -42,13 +42,13 @@ class AnalysisParameters:
 
     """Base class for analysis parameters"""
 
-    __analysis_name__ = None
+    ANALYSIS_NAME = None
 
     ##############################################
 
     @property
     def analysis_name(self):
-        return self.__analysis_name__
+        return self.ANALYSIS_NAME
 
     ##############################################
 
@@ -66,7 +66,7 @@ class OperatingPointAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for operating point analysis."""
 
-    __analysis_name__ = 'op'
+    ANALYSIS_NAME = 'op'
 
 ####################################################################################################
 
@@ -74,7 +74,7 @@ class DcSensitivityAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for DC sensitivity analysis."""
 
-    __analysis_name__ = 'sens'
+    ANALYSIS_NAME = 'sens'
 
     ##############################################
 
@@ -98,7 +98,7 @@ class AcSensitivityAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for AC sensitivity analysis."""
 
-    __analysis_name__ = 'sens'
+    ANALYSIS_NAME = 'sens'
 
     ##############################################
 
@@ -152,7 +152,7 @@ class DCAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for DC analysis."""
 
-    __analysis_name__ = 'dc'
+    ANALYSIS_NAME = 'dc'
 
     ##############################################
 
@@ -184,7 +184,7 @@ class ACAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for AC analysis."""
 
-    __analysis_name__ = 'ac'
+    ANALYSIS_NAME = 'ac'
 
     ##############################################
 
@@ -234,7 +234,7 @@ class TransientAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for transient analysis."""
 
-    __analysis_name__ = 'tran'
+    ANALYSIS_NAME = 'tran'
 
     ##############################################
 
@@ -292,7 +292,7 @@ class MeasureParameters(AnalysisParameters):
 
     """
 
-    __analysis_name__ = 'meas'
+    ANALYSIS_NAME = 'meas'
 
     ##############################################
 
@@ -321,7 +321,7 @@ class PoleZeroAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for pole-zero analysis."""
 
-    __analysis_name__ = 'pz'
+    ANALYSIS_NAME = 'pz'
 
     ##############################################
 
@@ -367,7 +367,7 @@ class NoiseAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for noise analysis."""
 
-    __analysis_name__ = 'noise'
+    ANALYSIS_NAME = 'noise'
 
     ##############################################
 
@@ -436,7 +436,7 @@ class DistortionAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for distortion analysis."""
 
-    __analysis_name__ = 'disto'
+    ANALYSIS_NAME = 'disto'
 
     ##############################################
 
@@ -492,7 +492,7 @@ class TransferFunctionAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for transfer function (.tf) analysis."""
 
-    __analysis_name__ = 'tf'
+    ANALYSIS_NAME = 'tf'
 
     ##############################################
 

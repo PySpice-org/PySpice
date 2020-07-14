@@ -335,7 +335,7 @@ class ElementParameterMetaClass(type):
     """
 
      #: Dictionary for SPICE prefix -> [cls,]
-    __classes__ = {}
+    _classes = {}
 
     _logger = _module_logger.getChild('ElementParameterMetaClass')
 
@@ -361,25 +361,25 @@ class ElementParameterMetaClass(type):
                 d[attribute_name] = obj
 
         # Dictionary for positional parameters : attribute_name -> parameter
-        namespace['__positional_parameters__'] = OrderedDict(
+        namespace['_positional_parameters'] = OrderedDict(
             sorted(list(positional_parameters.items()), key=lambda t: t[1]))
 
         # Dictionary for optional parameters
         #   order is not required for SPICE, but for unit test
-        namespace['__optional_parameters__'] = OrderedDict(
+        namespace['_optional_parameters'] = OrderedDict(
             sorted(list(parameters.items()), key=lambda t: t[0]))
 
         # Positional parameter array
-        namespace['__parameters_from_args__'] = [
+        namespace['_parameters_from_args'] = [
             parameter
             for parameter in sorted(positional_parameters.values())
             if not parameter.key_parameter]
 
         # Implement alias for parameters: spice name -> parameter
-        namespace['__spice_to_parameters__'] = {
+        namespace['_spice_to_parameters'] = {
             parameter.spice_name:parameter
-            for parameter in namespace['__optional_parameters__'].values()}
-        for parameter in namespace['__spice_to_parameters__'].values():
+            for parameter in namespace['_optional_parameters'].values()}
+        for parameter in namespace['_spice_to_parameters'].values():
             if (parameter.spice_name in namespace
                 and parameter.spice_name != parameter.attribute_name):
                 _module_logger.error("Spice parameter '{}' clash with namespace".format(parameter.spice_name))
@@ -396,10 +396,10 @@ class ElementParameterMetaClass(type):
                 return self._pins[position] if position < len(self._pins) else None
             return getter
 
-        if '__pins__' in namespace and namespace['__pins__'] is not None:
+        if 'PINS' in namespace and namespace['PINS'] is not None:
             number_of_optional_pins = 0
             pins = []
-            for position, pin_definition in enumerate(namespace['__pins__']):
+            for position, pin_definition in enumerate(namespace['PINS']):
                 # ensure pin_definition is a tuple
                 if isinstance(pin_definition, OptionalPin):
                     optional = True
@@ -420,10 +420,10 @@ class ElementParameterMetaClass(type):
                 # Add pin
                 pin = PinDefinition(position, *pin_definition, optional=optional)
                 pins.append(pin)
-            namespace['__pins__'] = pins
+            namespace['PINS'] = pins
             namespace['__number_of_optional_pins__'] = number_of_optional_pins
         else:
-            _module_logger.debug("{} don't define a __pins__ attribute".format(class_name))
+            _module_logger.debug("{} don't define a PINS attribute".format(class_name))
 
         return type.__new__(meta_cls, class_name, base_classes, namespace)
 
@@ -436,10 +436,10 @@ class ElementParameterMetaClass(type):
         type.__init__(meta_cls, class_name, base_classes, namespace)
 
         # Collect basic element classes
-        if '__prefix__' in namespace:
-            prefix = namespace['__prefix__']
+        if 'PREFIX' in namespace:
+            prefix = namespace['PREFIX']
             if prefix is not None:
-                classes = ElementParameterMetaClass.__classes__
+                classes = ElementParameterMetaClass._classes
                 if prefix in classes:
                     classes[prefix].append(meta_cls)
                 else:
@@ -453,7 +453,7 @@ class ElementParameterMetaClass(type):
     @property
     def number_of_pins(cls):
         #! Fixme: many pins ???
-        number_of_pins = len(cls.__pins__)
+        number_of_pins = len(cls.PINS)
         if cls.__number_of_optional_pins__:
             return slice(number_of_pins - cls.__number_of_optional_pins__, number_of_pins +1)
         else:
@@ -461,23 +461,23 @@ class ElementParameterMetaClass(type):
 
     @property
     def number_of_positional_parameters(cls):
-        return len(cls.__positional_parameters__)
+        return len(cls._positional_parameters)
 
     @property
     def positional_parameters(cls):
-        return cls.__positional_parameters__
+        return cls._positional_parameters
 
     @property
     def optional_parameters(cls):
-        return cls.__optional_parameters__
+        return cls._optional_parameters
 
     @property
     def parameters_from_args(cls):
-        return cls.__parameters_from_args__
+        return cls._parameters_from_args
 
     @property
     def spice_to_parameters(cls):
-        return cls.__spice_to_parameters__
+        return cls._spice_to_parameters
 
 ####################################################################################################
 
@@ -490,14 +490,14 @@ class Element(metaclass=ElementParameterMetaClass):
     """
 
     # These class attributes are defined in subclasses or via the metaclass.
-    __pins__ = None
-    __positional_parameters__ = None
-    __optional_parameters__ = None
-    __parameters_from_args__ = None
-    __spice_to_parameters__ = None
+    PINS = None
+    _positional_parameters = None
+    _optional_parameters = None
+    _parameters_from_args = None
+    _spice_to_parameters = None
 
     #: SPICE element prefix
-    __prefix__ = None
+    PREFIX = None
 
     ##############################################
 
@@ -509,20 +509,20 @@ class Element(metaclass=ElementParameterMetaClass):
         self.enabled = True
 
         # Process remaining args
-        if len(self.__parameters_from_args__) < len(args):
+        if len(self._parameters_from_args) < len(args):
             raise NameError("Number of args mismatch")
-        for parameter, value in zip(self.__parameters_from_args__, args):
+        for parameter, value in zip(self._parameters_from_args, args):
             setattr(self, parameter.attribute_name, value)
 
         # Process kwargs
         for key, value in kwargs.items():
             if key == 'raw_spice':
                 self.raw_spice = value
-            elif (key in self.__positional_parameters__ or
-                  key in self.__optional_parameters__ or
-                  key in self.__spice_to_parameters__):
+            elif (key in self._positional_parameters or
+                  key in self._optional_parameters or
+                  key in self._spice_to_parameters):
                 setattr(self, key, value)
-            elif hasattr(self, '__VALID_KWARGS__') and key in self.__VALID_KWARGS__:
+            elif hasattr(self, 'VALID_KWARGS') and key in self.VALID_KWARGS:
                 pass # cf. NonLinearVoltageSource
             else:
                 raise ValueError('Unknown argument {}={}'.format(key, value))
@@ -539,7 +539,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     def copy_to(self, element):
 
-        for parameter_dict in self.__positional_parameters__, self.__optional_parameters__:
+        for parameter_dict in self._positional_parameters, self._optional_parameters:
             for parameter in parameter_dict.values():
                 if hasattr(self, parameter.attribute_name):
                     value = getattr(self, parameter.attribute_name)
@@ -556,7 +556,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     @property
     def name(self):
-        return self.__prefix__ + self._name
+        return self.PREFIX + self._name
 
     @property
     def pins(self):
@@ -593,8 +593,8 @@ class Element(metaclass=ElementParameterMetaClass):
     def __setattr__(self, name, value):
 
         # Implement alias for parameters
-        if name in self.__spice_to_parameters__:
-            parameter = self.__spice_to_parameters__[name]
+        if name in self._spice_to_parameters:
+            parameter = self._spice_to_parameters[name]
             object.__setattr__(self, parameter.attribute_name, value)
         else:
             object.__setattr__(self, name, value)
@@ -604,8 +604,8 @@ class Element(metaclass=ElementParameterMetaClass):
     def __getattr__(self, name):
 
         # Implement alias for parameters
-        if name in self.__spice_to_parameters__:
-            parameter = self.__spice_to_parameters__[name]
+        if name in self._spice_to_parameters:
+            parameter = self._spice_to_parameters[name]
             return object.__getattribute__(self, parameter.attribute_name)
         else:
             raise AttributeError(name)
@@ -624,7 +624,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
         # Fixme: .parameters ???
 
-        for parameter_dict in self.__positional_parameters__, self.__optional_parameters__:
+        for parameter_dict in self._positional_parameters, self._optional_parameters:
             for parameter in parameter_dict.values():
                 if parameter.nonzero(self):
                     yield parameter
@@ -651,7 +651,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
 class AnyPinElement(Element):
 
-    __pins__ = ()
+    PINS = ()
 
     ##############################################
 
@@ -682,9 +682,9 @@ class FixedPinElement(Element):
             else:
                 nodes = args[:expected_number_of_pins]
                 args = args[expected_number_of_pins:]
-                pin_definition_nodes = zip(self.__pins__, nodes)
+                pin_definition_nodes = zip(self.PINS, nodes)
         else:
-            for pin_definition in self.__pins__:
+            for pin_definition in self.PINS:
                 if pin_definition.name in kwargs:
                     node = kwargs[pin_definition.name]
                     del kwargs[pin_definition.name]
@@ -713,7 +713,7 @@ class FixedPinElement(Element):
 
 class NPinElement(Element):
 
-    __pins__ = '*'
+    PINS = '*'
 
     ##############################################
 
@@ -1148,12 +1148,12 @@ class SubCircuit(Netlist):
 class SubCircuitFactory(SubCircuit):
 
     __name__ = None
-    __nodes__ = None
+    _nodes = None
 
     ##############################################
 
     def __init__(self, **kwargs):
-        super().__init__(self.__name__, *self.__nodes__, **kwargs)
+        super().__init__(self.__name__, *self._nodes, **kwargs)
 
 ####################################################################################################
 

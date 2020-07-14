@@ -110,7 +110,7 @@ class PrefixData:
 ####################################################################################################
 
 _prefix_cache = {}
-for prefix, classes in ElementParameterMetaClass.__classes__.items():
+for prefix, classes in ElementParameterMetaClass._classes.items():
     prefix_data = PrefixData(prefix, classes)
     _prefix_cache[prefix] = prefix_data
     _prefix_cache[prefix.lower()] = prefix_data
@@ -518,7 +518,7 @@ class Element(Statement):
 
     def build(self, circuit, ground=0):
 
-        factory = getattr(circuit, self.factory.__alias__)
+        factory = getattr(circuit, self.factory.ALIAS)
         nodes = self.translate_ground_node(ground)
         if self._prefix != 'X':
             args = nodes + self._parameters

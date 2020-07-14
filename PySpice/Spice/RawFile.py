@@ -189,7 +189,7 @@ class RawFileAbc:
 
     ##############################################
 
-    __name_to_unit__ = {
+    _name_to_unit = {
         'time': u_s,
         'voltage': u_V,
         'current': u_A,
@@ -277,8 +277,8 @@ class RawFileAbc:
             # 0 frequency frequency grid=3
             index, name, unit = items[:3]
             #  unit = time, voltage, current
-            unit = self.__name_to_unit__[unit] # convert to Unit
-            self.variables[name] = self.__variable_cls__(index, name, unit)
+            unit = self._name_to_unit[unit] # convert to Unit
+            self.variables[name] = self._variable_cls(index, name, unit)
         # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
 
     ##############################################
