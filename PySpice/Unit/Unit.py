@@ -1754,6 +1754,33 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
+    # def __getstate__(self):
+    #     # https://docs.python.org/3/library/pickle.html#object.__getstate__
+    #     return {
+    #         'data': super(UnitValues, self).__getstate__(),
+    #         'prefixed_unit': self._prefixed_unit,
+    #     }
+
+    ##############################################
+
+    def __reduce__(self):
+        # https://docs.python.org/3/library/pickle.html#object.__reduce__
+        np_state = super(UnitValues, self).__reduce__()
+        # ( <built-in function _reconstruct>,
+        #   (<class 'PySpice.Unit.Unit.UnitValues'>, (0,), b'b'),
+        #   (1, (1, 1), dtype('float64'), False, b'\x00\x00\x80?\x00\x00\x80?') )
+        obj_state = (self._prefixed_unit,) + np_state[2]
+        return np_state[:2] + (obj_state,) + np_state[3:]
+
+    ##############################################
+
+    def __setstate__(self, state):
+        # https://docs.python.org/3/library/pickle.html#object.__setstate__
+        super(UnitValues, self).__setstate__(state[1:])
+        self._prefixed_unit = state[0]
+
+    ##############################################
+
     def __contains__(self, value):
         raise NotImplementedError
 
