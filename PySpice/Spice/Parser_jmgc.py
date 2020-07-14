@@ -1,7 +1,7 @@
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
-# Copyright (C) 2014 Fabrice Salvaire
+# Copyright (C) 2020 jmgc / Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ class ParseError(NameError):
 ####################################################################################################
 
 class PrefixData:
+
     """This class represents a device prefix."""
 
     ##############################################
@@ -152,7 +153,7 @@ for prefix, classes in ElementParameterMetaClass._classes_.items():
 
 class Statement:
 
-    """ This class implements a statement, in fact a line in a Spice netlist. """
+    """This class implements a statement, in fact a line in a Spice netlist."""
 
     ##############################################
 
@@ -202,7 +203,7 @@ class Comment(Statement):
 
 class Title(Statement):
 
-    """ This class implements a title definition. """
+    """This class implements a title definition."""
 
     ##############################################
 
@@ -224,7 +225,7 @@ class Title(Statement):
 
 class Include(Statement):
 
-    """ This class implements a include definition. """
+    """This class implements a include definition."""
 
     ##############################################
 
@@ -251,7 +252,7 @@ class Include(Statement):
 
 class Model(Statement):
 
-    """ This class implements a model definition.
+    """This class implements a model definition.
 
     Spice syntax::
 
@@ -272,7 +273,7 @@ class Model(Statement):
 
     @property
     def name(self):
-        """ Name of the model """
+        """Name of the model"""
         return self._name
 
     ##############################################
@@ -296,7 +297,7 @@ class Model(Statement):
 
 class Param(Statement):
 
-    """ This class implements a model definition.
+    """This class implements a model definition.
 
     Spice syntax::
 
@@ -318,7 +319,7 @@ class Param(Statement):
 
     @property
     def name(self):
-        """ Name of the model """
+        """Name of the model"""
         return self._name
 
     ##############################################
@@ -341,7 +342,7 @@ class Param(Statement):
 
 class CircuitStatement(Statement):
 
-    """ This class implements a circuit definition.
+    """This class implements a circuit definition.
 
     Spice syntax::
 
@@ -371,27 +372,27 @@ class CircuitStatement(Statement):
 
     @property
     def title(self):
-        """ Title of the circuit. """
+        """Title of the circuit."""
         return self._title
 
     @property
     def name(self):
-        """ Name of the circuit. """
+        """Name of the circuit."""
         return self._title
 
     @property
     def models(self):
-        """ Models of the circuit. """
+        """Models of the circuit."""
         return self._models
 
     @property
     def subcircuits(self):
-        """ Subcircuits of the circuit. """
+        """Subcircuits of the circuit."""
         return self._subcircuits
 
     @property
     def params(self):
-        """ Parameters of the circuit. """
+        """Parameters of the circuit."""
         return self._params
 
     ##############################################
@@ -406,31 +407,31 @@ class CircuitStatement(Statement):
     ##############################################
 
     def __iter__(self):
-        """ Return an iterator on the statements. """
+        """Return an iterator on the statements."""
         return iter(self._models + self._subcircuits + self._statements)
 
     ##############################################
 
     def append(self, statement):
-        """ Append a statement to the statement's list. """
+        """Append a statement to the statement's list."""
         self._statements.append(statement)
 
     ##############################################
 
     def append_model(self, statement):
-        """ Append a model to the statement's list. """
+        """Append a model to the statement's list."""
         self._models.append(statement)
 
     ##############################################
 
     def append_param(self, statement):
-        """ Append a param to the statement's list. """
+        """Append a param to the statement's list."""
         self._params.append(statement)
 
     ##############################################
 
     def append_subcircuit(self, statement):
-        """ Append a model to the statement's list. """
+        """Append a subcircuit to the statement's list."""
         self._subcircuits.append(statement)
 
     ##############################################
@@ -463,7 +464,7 @@ class CircuitStatement(Statement):
 
 class SubCircuitStatement(Statement):
 
-    """ This class implements a sub-circuit definition.
+    """This class implements a sub-circuit definition.
 
     Spice syntax::
 
@@ -496,27 +497,27 @@ class SubCircuitStatement(Statement):
 
     @property
     def name(self):
-        """ Name of the sub-circuit. """
+        """Name of the sub-circuit."""
         return self._name
 
     @property
     def nodes(self):
-        """ Nodes of the sub-circuit. """
+        """Nodes of the sub-circuit."""
         return self._nodes
 
     @property
     def models(self):
-        """ Models of the sub-circuit. """
+        """Models of the sub-circuit."""
         return self._models
 
     @property
     def params(self):
-        """ Params of the sub-circuit. """
+        """Params of the sub-circuit."""
         return self._params
 
     @property
     def subcircuits(self):
-        """ Subcircuits of the sub-circuit. """
+        """Subcircuits of the sub-circuit."""
         return self._subcircuits
 
     ##############################################
@@ -534,31 +535,31 @@ class SubCircuitStatement(Statement):
     ##############################################
 
     def __iter__(self):
-        """ Return an iterator on the statements. """
+        """Return an iterator on the statements."""
         return iter(self._models + self._subcircuits + self._statements)
 
     ##############################################
 
     def append(self, statement):
-        """ Append a statement to the statement's list. """
+        """Append a statement to the statement's list."""
         self._statements.append(statement)
 
     ##############################################
 
     def append_model(self, statement):
-        """ Append a model to the statement's list. """
+        """Append a model to the statement's list."""
         self._models.append(statement)
 
     ##############################################
 
     def append_param(self, statement):
-        """ Append a param to the statement's list. """
+        """Append a param to the statement's list."""
         self._params.append(statement)
 
     ##############################################
 
     def append_subcircuit(self, statement):
-        """ Append a model to the statement's list. """
+        """Append a model to the statement's list."""
         self._subcircuits.append(statement)
 
     ##############################################
@@ -592,7 +593,7 @@ class SubCircuitStatement(Statement):
 
 class Element(Statement):
 
-    """ This class implements an element definition.
+    """This class implements an element definition.
 
     "{ expression }" are allowed in device line.
 
@@ -688,7 +689,7 @@ class Element(Statement):
 
     @property
     def name(self):
-        """ Name of the element """
+        """Name of the element"""
         return self._name
 
     ##############################################
@@ -866,7 +867,7 @@ class Element(Statement):
 
 class Line:
 
-    """ This class implements a line in the netlist. """
+    """This class implements a line in the netlist."""
 
     _logger = _module_logger.getChild('Element')
 
@@ -1203,7 +1204,7 @@ class Line:
 
 class SpiceParser:
 
-    """ This class parse a Spice netlist file and build a syntax tree.
+    """This class parse a Spice netlist file and build a syntax tree.
 
     Public Attributes:
 
@@ -1244,6 +1245,7 @@ class SpiceParser:
         """Merge broken lines and return a new list of lines.
 
         A line starting with "+" continues the preceding line.
+
         """
 
         lines = []
@@ -1316,7 +1318,7 @@ class SpiceParser:
 
     def _parse(self, lines):
 
-        """ Parse the lines and return a list of statements. """
+        """Parse the lines and return a list of statements."""
 
         # The first line in the input file must be the title, which is the only comment line that does
         # not need any special character in the first place.
@@ -1388,17 +1390,17 @@ class SpiceParser:
 
     @property
     def circuit(self):
-        """ Circuit statements. """
+        """Circuit statements."""
         return self._statements
 
     @property
     def models(self):
-        """ Models of the sub-circuit. """
+        """Models of the sub-circuit."""
         return self._statements.models
 
     @property
     def subcircuits(self):
-        """ Subcircuits of the sub-circuit. """
+        """Subcircuits of the sub-circuit."""
         return self._statements.subcircuits
 
     ##############################################
