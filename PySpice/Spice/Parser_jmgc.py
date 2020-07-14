@@ -417,19 +417,19 @@ class CircuitStatement(Statement):
 
     ##############################################
 
-    def appendModel(self, statement):
+    def append_model(self, statement):
         """ Append a model to the statement's list. """
         self._models.append(statement)
 
     ##############################################
 
-    def appendParam(self, statement):
+    def append_param(self, statement):
         """ Append a param to the statement's list. """
         self._params.append(statement)
 
     ##############################################
 
-    def appendSubCircuit(self, statement):
+    def append_subcircuit(self, statement):
         """ Append a model to the statement's list. """
         self._subcircuits.append(statement)
 
@@ -545,19 +545,19 @@ class SubCircuitStatement(Statement):
 
     ##############################################
 
-    def appendModel(self, statement):
+    def append_model(self, statement):
         """ Append a model to the statement's list. """
         self._models.append(statement)
 
     ##############################################
 
-    def appendParam(self, statement):
+    def append_param(self, statement):
         """ Append a param to the statement's list. """
         self._params.append(statement)
 
     ##############################################
 
-    def appendSubCircuit(self, statement):
+    def append_subcircuit(self, statement):
         """ Append a model to the statement's list. """
         self._subcircuits.append(statement)
 
@@ -1344,7 +1344,7 @@ class SpiceParser:
                     scope = SubCircuitStatement(line)
                 elif lower_case_text.startswith('ends'):
                     parent = stack.pop()
-                    parent.appendSubCircuit(scope)
+                    parent.append_subcircuit(scope)
                     scope = parent
                 elif lower_case_text.startswith('title'):
                     # override fist line
@@ -1354,13 +1354,13 @@ class SpiceParser:
                     pass
                 elif lower_case_text.startswith('model'):
                     model = Model(line)
-                    scope.appendModel(model)
+                    scope.append_model(model)
                 elif lower_case_text.startswith('include'):
                     include = Include(line)
                     scope.append(include)
                 elif lower_case_text.startswith('param'):
                     param = Param(line)
-                    scope.appendParam(param)
+                    scope.append_param(param)
                 else:
                     # options param ...
                     # .global
