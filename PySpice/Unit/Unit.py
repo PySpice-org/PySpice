@@ -1884,6 +1884,7 @@ class UnitValues(np.ndarray):
 
 # Reset
 PrefixedUnit._value_ctor = UnitValue
+PrefixedUnit._values_ctor = UnitValues
 
 _simple_prefixed_unit = PrefixedUnit()
 
