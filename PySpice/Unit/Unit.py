@@ -728,14 +728,10 @@ class PrefixedUnit:
         else:
             self._power = power
 
-        if value_ctor is None:
-            self._value_ctor = self._value_ctor
-        else:
+        if value_ctor is not None:
             self._value_ctor = value_ctor
 
-        if values_ctor is None:
-            self._values_ctor = self._values_ctor
-        else:
+        if values_ctor is not None:
             self._values_ctor = values_ctor
 
     ##############################################
