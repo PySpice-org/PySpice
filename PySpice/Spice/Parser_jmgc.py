@@ -111,7 +111,7 @@ class PrefixData:
 ####################################################################################################
 
 _prefix_cache = {}
-for prefix, classes in ElementParameterMetaClass._classes_.items():
+for prefix, classes in ElementParameterMetaClass._classes.items():
     prefix_data = PrefixData(prefix, classes)
     _prefix_cache[prefix] = prefix_data
     _prefix_cache[prefix.lower()] = prefix_data
