@@ -1726,9 +1726,9 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def __getitem__(self, _slice):
+    def __getitem__(self, slice_):
 
-        value = super(UnitValues, self).__getitem__(_slice)
+        value = super(UnitValues, self).__getitem__(slice_)
 
         if isinstance(value, UnitValue): # slice
             return value
@@ -1737,7 +1737,7 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def __setitem__(self, _slice, value):
+    def __setitem__(self, slice_, value):
 
         if isinstance(value, UnitValue):
             self._check_unit(value)
@@ -1746,7 +1746,7 @@ class UnitValues(np.ndarray):
             self._check_unit(value)
             value = self._convert_value(value)
 
-        super(UnitValues, self).__setitem__(_slice, value)
+        super(UnitValues, self).__setitem__(slice_, value)
 
     ##############################################
 
