@@ -1147,13 +1147,13 @@ class SubCircuit(Netlist):
 
 class SubCircuitFactory(SubCircuit):
 
-    __name__ = None
-    _nodes = None
+    NAME = None
+    NODES = None
 
     ##############################################
 
     def __init__(self, **kwargs):
-        super().__init__(self.__name__, *self._nodes, **kwargs)
+        super().__init__(self.NAME, *self.NODES, **kwargs)
 
 ####################################################################################################
 

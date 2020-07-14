@@ -7,9 +7,9 @@ from PySpice.Unit import *
 
 class Transformer(SubCircuitFactory):
 
-    __name__ = 'Transformer'
-    __nodes__ = ('input_plus', 'input_minus',
-                 'output_plus', 'output_minus')
+    NAME = 'Transformer'
+    NODES = ('input_plus', 'input_minus',
+             'output_plus', 'output_minus')
 
     ##############################################
 
