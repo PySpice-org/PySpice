@@ -44,12 +44,10 @@ from .Netlist import ElementParameterMetaClass, Circuit, SubCircuit
 
 _module_logger = logging.getLogger(__name__)
 
-
 ####################################################################################################
 
 class ParseError(NameError):
     pass
-
 
 ####################################################################################################
 
@@ -109,7 +107,6 @@ class PrefixData:
         else:
             raise NameError()
 
-
 ####################################################################################################
 
 _prefix_cache = {}
@@ -117,7 +114,6 @@ for prefix, classes in ElementParameterMetaClass._classes_.items():
     prefix_data = PrefixData(prefix, classes)
     _prefix_cache[prefix] = prefix_data
     _prefix_cache[prefix.lower()] = prefix_data
-
 
 # for prefix_data in sorted(_prefix_cache.values(), key=lambda x: len(x)):
 #     print(prefix_data.prefix,
@@ -155,6 +151,7 @@ for prefix, classes in ElementParameterMetaClass._classes_.items():
 ####################################################################################################
 
 class Statement:
+
     """ This class implements a statement, in fact a line in a Spice netlist. """
 
     ##############################################
@@ -200,16 +197,15 @@ class Statement:
     def join_args(self, args):
         return ', '.join(args)
 
-
 ####################################################################################################
 
 class Comment(Statement):
     pass
 
-
 ####################################################################################################
 
 class Title(Statement):
+
     """ This class implements a title definition. """
 
     ##############################################
@@ -228,10 +224,10 @@ class Title(Statement):
     def __repr__(self):
         return 'Title {}'.format(self._title)
 
-
 ####################################################################################################
 
 class Include(Statement):
+
     """ This class implements a include definition. """
 
     ##############################################
@@ -255,10 +251,10 @@ class Include(Statement):
     def to_python(self, netlist_name):
         return '{}.include({})'.format(netlist_name, self._include) + os.linesep
 
-
 ####################################################################################################
 
 class Model(Statement):
+
     """ This class implements a model definition.
 
     Spice syntax::
@@ -300,10 +296,10 @@ class Model(Statement):
     def build(self, circuit):
         return circuit.model(self._name, self._model_type, **self._parameters)
 
-
 ####################################################################################################
 
 class Param(Statement):
+
     """ This class implements a model definition.
 
     Spice syntax::
@@ -345,10 +341,10 @@ class Param(Statement):
     def build(self, circuit):
         circuit.parameter(self._name, self._value)
 
-
 ####################################################################################################
 
 class CircuitStatement(Statement):
+
     """ This class implements a circuit definition.
 
     Spice syntax::
@@ -428,17 +424,23 @@ class CircuitStatement(Statement):
 
         self._statements.append(statement)
 
+    ##############################################
+
     def appendModel(self, statement):
 
         """ Append a model to the statement's list. """
 
         self._models.append(statement)
 
+    ##############################################
+
     def appendParam(self, statement):
 
         """ Append a param to the statement's list. """
 
         self._params.append(statement)
+
+    ##############################################
 
     def appendSubCircuit(self, statement):
 
@@ -473,10 +475,10 @@ class CircuitStatement(Statement):
                 statement.build(circuit, ground)
         return circuit
 
-
 ####################################################################################################
 
 class SubCircuitStatement(Statement):
+
     """ This class implements a sub-circuit definition.
 
     Spice syntax::
@@ -557,17 +559,23 @@ class SubCircuitStatement(Statement):
         """ Append a statement to the statement's list. """
         self._statements.append(statement)
 
+    ##############################################
+
     def appendModel(self, statement):
 
         """ Append a model to the statement's list. """
 
         self._models.append(statement)
 
+    ##############################################
+
     def appendParam(self, statement):
 
         """ Append a param to the statement's list. """
 
         self._params.append(statement)
+
+    ##############################################
 
     def appendSubCircuit(self, statement):
 
@@ -603,10 +611,10 @@ class SubCircuitStatement(Statement):
                 statement.build(subcircuit, ground)
         return subcircuit
 
-
 ####################################################################################################
 
 class Element(Statement):
+
     """ This class implements an element definition.
 
     "{ expression }" are allowed in device line.
@@ -752,6 +760,8 @@ class Element(Statement):
                 params.extend(values.split())
         self._parameters = params
 
+    ##############################################
+
     def _voltage_controlled_nodes(self, poly_arg):
         result = ['v(%s,%s)' % nodes
                   for nodes in zip(self._parameters[:(2 * poly_arg):2],
@@ -759,11 +769,15 @@ class Element(Statement):
         result += self._parameters[2 * poly_arg:]
         return ' '.join(result)
 
+    ##############################################
+
     def _current_controlled_nodes(self, poly_arg):
         result = ['i(%s)' % node
                   for node in self._parameters[:poly_arg]]
         result += self._parameters[poly_arg:]
         return ' '.join(result)
+
+    ##############################################
 
     def _manage_controlled_sources(self, nodes):
         try:
@@ -876,6 +890,7 @@ class Element(Statement):
 ####################################################################################################
 
 class Line:
+
     """ This class implements a line in the netlist. """
 
     _logger = _module_logger.getChild('Element')
@@ -1098,6 +1113,8 @@ class Line:
                 parts.append(part)
         return parts
 
+    ##############################################
+
     @staticmethod
     def _partition_parentheses(text):
         p = regex.compile(r'\(([^\(\)]|(?R))*?\)')
@@ -1110,6 +1127,8 @@ class Line:
         parts.extend(Line._partition(text[previous_start:]))
         return parts
 
+    ##############################################
+
     @staticmethod
     def _partition_braces(text):
         p = regex.compile(r'\{([^\{\}]|(?R))*?\}')
@@ -1121,6 +1140,8 @@ class Line:
             previous_start = m.end()
         parts.extend(Line._partition_parentheses(text[previous_start:]))
         return parts
+
+    ##############################################
 
     @staticmethod
     def _check_parameters(parts):
@@ -1139,6 +1160,8 @@ class Line:
                 i += 1
 
         return parameters, dict_parameters
+
+    ##############################################
 
     def split_keyword(self, keyword):
 
@@ -1178,6 +1201,8 @@ class Line:
                 parts.extend(Line._partition(text))
         return Line._check_parameters(parts)
 
+    ##############################################
+
     def split_element(self, prefix):
 
         """Split the line according to the following pattern::
@@ -1199,10 +1224,10 @@ class Line:
 
         return Line._check_parameters(parts)
 
-
 ####################################################################################################
 
 class SpiceParser:
+
     """ This class parse a Spice netlist file and build a syntax tree.
 
     Public Attributes:
@@ -1275,6 +1300,8 @@ class SpiceParser:
             if model not in p_available_models:
                 raise ValueError("model (%s) not available in (%s)" % (model, circuit.name))
 
+    ##############################################
+
     @staticmethod
     def _sort_subcircuits(circuit, available_subcircuits=set()):
         p_available_subcircuits = available_subcircuits.copy()
@@ -1309,6 +1336,8 @@ class SpiceParser:
             raise ValueError("Crossed dependencies (%s)" % [(key.name, value) for key, value in items])
         circuit._subcircuits = result
         return circuit._required_subcircuits - set(names)
+
+    ##############################################
 
     def _parse(self, lines):
 
