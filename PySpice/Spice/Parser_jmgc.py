@@ -157,9 +157,7 @@ class Statement:
     ##############################################
 
     def __init__(self, line, statement=None):
-
         self._line = line
-
         if statement is not None:
             self._line.lower_case_statement(statement)
 
@@ -171,7 +169,6 @@ class Statement:
     ##############################################
 
     def value_to_python(self, x):
-
         if x:
             if str(x)[0].isdigit():
                 return str(x)
@@ -183,7 +180,6 @@ class Statement:
     ##############################################
 
     def values_to_python(self, values):
-
         return [self.value_to_python(x) for x in values]
 
     ##############################################
@@ -401,7 +397,6 @@ class CircuitStatement(Statement):
     ##############################################
 
     def __repr__(self):
-
         text = 'Circuit {}'.format(self._title) + os.linesep
         text += os.linesep.join([repr(model) for model in self._models]) + os.linesep
         text += os.linesep.join([repr(subcircuit) for subcircuit in self._subcircuits]) + os.linesep
@@ -411,47 +406,36 @@ class CircuitStatement(Statement):
     ##############################################
 
     def __iter__(self):
-
         """ Return an iterator on the statements. """
-
         return iter(self._models + self._subcircuits + self._statements)
 
     ##############################################
 
     def append(self, statement):
-
         """ Append a statement to the statement's list. """
-
         self._statements.append(statement)
 
     ##############################################
 
     def appendModel(self, statement):
-
         """ Append a model to the statement's list. """
-
         self._models.append(statement)
 
     ##############################################
 
     def appendParam(self, statement):
-
         """ Append a param to the statement's list. """
-
         self._params.append(statement)
 
     ##############################################
 
     def appendSubCircuit(self, statement):
-
         """ Append a model to the statement's list. """
-
         self._subcircuits.append(statement)
 
     ##############################################
 
     def to_python(self, ground=0):
-
         subcircuit_name = 'subcircuit_' + self._name
         args = self.values_to_python([subcircuit_name] + self._nodes)
         source_code = ''
@@ -562,31 +546,24 @@ class SubCircuitStatement(Statement):
     ##############################################
 
     def appendModel(self, statement):
-
         """ Append a model to the statement's list. """
-
         self._models.append(statement)
 
     ##############################################
 
     def appendParam(self, statement):
-
         """ Append a param to the statement's list. """
-
         self._params.append(statement)
 
     ##############################################
 
     def appendSubCircuit(self, statement):
-
         """ Append a model to the statement's list. """
-
         self._subcircuits.append(statement)
 
     ##############################################
 
     def to_python(self, ground=0):
-
         subcircuit_name = 'subcircuit_' + self._name
         args = self.values_to_python([subcircuit_name] + self._nodes)
         source_code = ''
@@ -722,13 +699,11 @@ class Element(Statement):
     ##############################################
 
     def translate_ground_node(self, ground):
-
         nodes = []
         for node in self._nodes:
             if str(node) == str(ground):
                 node = 0
             nodes.append(node)
-
         return nodes
 
     ##############################################
@@ -1457,13 +1432,11 @@ class SpiceParser:
     ##############################################
 
     def build_circuit(self, ground=0):
-
         """Build a :class:`Circuit` instance.
 
         Use the *ground* parameter to specify the node which must be translated to 0 (SPICE ground node).
 
         """
-
         # circuit = Circuit(str(self._title))
         circuit = self.circuit.build(str(ground))
         return circuit
