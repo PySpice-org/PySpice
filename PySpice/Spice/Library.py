@@ -21,6 +21,7 @@
 ####################################################################################################
 
 import logging
+import re
 
 ####################################################################################################
 
@@ -73,7 +74,12 @@ class SpiceLibrary:
             extension = path.extension.lower()
             if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
-                spice_parser = SpiceParser(path)
+                try:
+                    spice_parser = SpiceParser(path)
+                except Exception as e:
+                    # Parse problem with this file, so skip it and keep going.
+                    self._logger.warn("Problem parsing {path} - {e}".format(**locals()))
+                    continue
                 if spice_parser.is_only_subcircuit():
                     for subcircuit in spice_parser.subcircuits:
                         name = self._suffix_name(subcircuit.name, extension)
@@ -127,3 +133,14 @@ class SpiceLibrary:
 
     # def iter_on_models(self):
     #     return self._models.itervalues()
+
+    # ##############################################
+
+    def search(self, s):
+        """ Return dict of all models/subcircuits with names matching regex s. """
+        matches = {}
+        models_subcircuits = {**self._models, **self._subcircuits}
+        for name, mdl_subckt in models_subcircuits.items():
+            if re.search(s, name):
+                matches[name] = mdl_subckt
+        return matches

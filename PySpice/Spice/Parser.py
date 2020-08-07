@@ -854,10 +854,19 @@ class SpiceParser:
         if self._title.startswith(title_statement):
             self._title = self._title[len(title_statement):]
 
+        # SUBCKT and MODEL files often start with their commands as the
+        # first line so they'll parse incorrectly if that line is removed.
+        # For everything else, assume the first line is a TITLE line and
+        # remove it.
+        if str(lines[0]).startswith(('.model', '.subckt')):
+            start_index = 0
+        else:
+            start_index = 1
+
         statements = []
         sub_circuit = None
         scope = statements
-        for line in lines[1:]:
+        for line in lines[start_index:]:
             # print('>', repr(line))
             text = str(line)
             lower_case_text = text.lower() # !
@@ -873,7 +882,7 @@ class SpiceParser:
                     sub_circuit = None
                     scope = statements
                 elif lower_case_text.startswith('title'):
-                    # override fist line
+                    # override first line
                     self._title = Title(line)
                     scope.append(self._title)
                 elif lower_case_text.startswith('end'):
