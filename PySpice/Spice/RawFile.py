@@ -300,7 +300,7 @@ class RawFileAbc:
         # np.savetxt('raw.txt', input_data)
         if self.flags == 'complex':
             raw_data = input_data
-            input_data = np.array(raw_data[0::2], dtype='complex64')
+            input_data = np.array(raw_data[0::2], dtype='complex128')
             input_data.imag = raw_data[1::2]
         for variable in self.variables.values():
             variable.data = input_data[variable.index]
