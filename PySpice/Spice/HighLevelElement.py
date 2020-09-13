@@ -379,23 +379,28 @@ class PieceWiseLinearMixin(SourceMixinAbc):
 
     ##############################################
 
-    def __init__(self, values, repeate_time=0, delay_time=.0):
-
-        # Fixme: default
+    def __init__(self, values, repeat_time=None, delay_time=None, dc=None):
 
         self.values = sum(([as_s(t), self.__as_unit__(x)] for (t, x) in values), [])
-        self.repeate_time = as_s(repeate_time)
-        self.delay_time = as_s(delay_time)
+        self.repeat_time = as_s(repeat_time, none=True)
+        self.delay_time = as_s(delay_time, none=True)
+        self.dc = self.__as_unit__(dc, none=True)
 
     ##############################################
 
     def format_spice_parameters(self):
 
         # Fixme: to func?
-        return ('PWL(' +
+        optdict = {}
+        if self.repeat_time is not None:
+            optdict["r"] = self.repeat_time
+        if self.delay_time is not None:
+            optdict["td"] = self.delay_time
+        return (("" if self.dc is None else "DC {} ".format(str_spice(self.dc))) +
+                'PWL(' +
                 join_list(self.values) +
                 ' ' +
-                join_dict({'r':self.repeate_time, 'td':self.delay_time}) + # OrderedDict(
+                join_dict(optdict) + # OrderedDict(
                 ')')
 
 ####################################################################################################
