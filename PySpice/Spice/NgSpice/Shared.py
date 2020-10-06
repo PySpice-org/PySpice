@@ -830,7 +830,6 @@ class NgSpiceShared:
         # Prevent memory leaks by periodically freeing
         # ngspice history of past commands
         if self._nb_exec_calls > 10000:
-            from cffi import FFI
             self._ngspice_shared.ngSpice_Command(FFI.NULL)
             self._nb_exec_calls = 0
         self._nb_exec_calls += 1
