@@ -402,6 +402,8 @@ class NgSpiceShared:
 
     NGSPICE_PATH = None
     LIBRARY_PATH = None
+    
+    _nb_exec_calls = 0
 
     __MAX_COMMAND_LENGTH__ = 1023
 
@@ -824,6 +826,14 @@ class NgSpiceShared:
         """ Execute a command and return the output. """
 
         # Ngspice API: ngSpice_Command
+
+        # Prevent memory leaks by periodically freeing
+        # ngspice history of past commands
+        if self._nb_exec_calls > 10000:
+            from cffi import FFI
+            self._ngspice_shared.ngSpice_Command(FFI.NULL)
+            self._nb_exec_calls = 0
+        self._nb_exec_calls += 1
 
         if len(command) > self.__MAX_COMMAND_LENGTH__:
             raise ValueError('Command must not exceed {} characters'.format(self.__MAX_COMMAND_LENGTH__))
