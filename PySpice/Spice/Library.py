@@ -55,6 +55,7 @@ class SpiceLibrary:
     _logger = _module_logger.getChild('Library')
 
     EXTENSIONS = (
+        '.spice',
         '.lib',
         '.mod',
         '.lib@xyce',
