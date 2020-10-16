@@ -236,7 +236,7 @@ class Include(Statement):
     def __init__(self, line):
 
         super().__init__(line, statement='include')
-        self._include = self._line.right_of('.include')
+        self._include = self._line.right_of('.include').strip('"')
 
     ##############################################
 
@@ -272,16 +272,14 @@ class Model(Statement):
 
         super().__init__(line, statement='model')
 
-        text = line.right_of('.model')
-        kwarg_start = text.find('(')
-        kwarg_stop = text.find(')')
-        if kwarg_start == -1 or kwarg_stop == -1:
-            # raise ParseError("Bad model: {}".format(line))
-            parts, self._parameters = line.split_line('.model')
-            self._name, self._model_type = parts
-        else:
-            self._name, self._model_type = text[:kwarg_start].split()
-            self._parameters = Line.get_kwarg(text[kwarg_start+1:kwarg_stop])
+        text = line.right_of('.model').strip()
+        import re
+        mtch = re.match('\s*([^ \t]+)\s*([^ \t(]+)(.*)', text)
+        self._name = mtch[1]
+        self._model_type = mtch[2]
+        params = mtch[3]
+        params = params.strip('() ')
+        self._parameters = Line.get_kwarg(params)
 
     ##############################################
 
@@ -781,15 +779,19 @@ class SpiceParser:
 
       :attr:`subcircuits`
 
+      :attr:`incl_libs`
+
     """
 
     _logger = _module_logger.getChild('SpiceParser')
 
     ##############################################
 
-    def __init__(self, path=None, source=None, end_of_line_comment=('$', '//', ';')):
+    def __init__(self, path=None, source=None, end_of_line_comment=('$', '//', ';'), recurse=False):
 
         # Fixme: empty source
+
+        self._path = path  # For use by _parse() when recursing through files.
 
         if path is not None:
             with open(str(path), 'r') as f:
@@ -803,7 +805,7 @@ class SpiceParser:
 
         lines = self._merge_lines(raw_lines)
         self._title = None
-        self._statements = self._parse(lines)
+        self._statements = self._parse(lines, recurse)
         self._find_sections()
 
     ##############################################
@@ -835,7 +837,7 @@ class SpiceParser:
 
     ##############################################
 
-    def _parse(self, lines):
+    def _parse(self, lines, recurse=False):
 
         """ Parse the lines and return a list of statements. """
 
@@ -845,7 +847,8 @@ class SpiceParser:
         # The last line must be .end
 
         if len(lines) <= 1:
-            raise NameError('Netlist is empty')
+            self._logger.warning('Empty Spice file: {self._path}'.format(**locals()))
+            # raise NameError('Netlist is empty')
         # if lines[-1] != '.end':
         #     raise NameError('".end" is expected at the end of the netlist')
 
@@ -866,6 +869,7 @@ class SpiceParser:
         statements = []
         sub_circuit = None
         scope = statements
+        self.incl_libs = []  # Libraries found during recursive descent into includes.
         for line in lines[start_index:]:
             # print('>', repr(line))
             text = str(line)
@@ -891,7 +895,12 @@ class SpiceParser:
                     model = Model(line)
                     scope.append(model)
                 elif lower_case_text.startswith('include'):
-                    scope.append(Include(line))
+                    incl = Include(line)
+                    scope.append(incl)
+                    if recurse:
+                        from .Library import SpiceLibrary
+                        incl_path = os.path.join(str(self._path.directory_part()), str(incl))
+                        self.incl_libs.append(SpiceLibrary(root_path=incl_path, recurse=recurse))
                 else:
                     # options param ...
                     # .global
