@@ -116,14 +116,14 @@ Overview
 What is PySpice ?
 -----------------
 
-PySpice is a Python module which interface |Python|_ to the |Ngspice|_ and |Xyce|_ circuit simulators.
+PySpice is a Python module which interfaces |Python|_ to the |Ngspice|_ and |Xyce|_ circuit simulators.
 
 Where is the Documentation ?
 ----------------------------
 
 The documentation is available on the |PySpiceHomePage|_.
 
-*Note: This site is hosted on my own infrastructure, if the site seems done, please create an issue to notify me.*
+*Note: This site is hosted on my own infrastructure, if the site seems down, please create an issue to notify me.*
 
 Where to get help or talk about PySpice ?
 -----------------------------------------
