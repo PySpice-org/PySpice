@@ -227,6 +227,35 @@ class Title(Statement):
 
 ####################################################################################################
 
+class Lib(Statement):
+
+    """ This class implements a library definition. """
+
+    ##############################################
+
+    def __init__(self, line):
+
+        super().__init__(line, statement='lib')
+        self._lib = self._line.right_of('.lib')
+
+    ##############################################
+
+    def __str__(self):
+        return self._lib
+
+    ##############################################
+
+    def __repr__(self):
+        return 'Lib {}'.format(self._lib)
+
+    ##############################################
+
+    def to_python(self, netlist_name):
+
+        return '{}.lib({})'.format(netlist_name, self._lib) + os.linesep
+
+####################################################################################################
+
 class Include(Statement):
 
     """ This class implements a include definition. """
@@ -787,7 +816,7 @@ class SpiceParser:
 
     ##############################################
 
-    def __init__(self, path=None, source=None, end_of_line_comment=('$', '//', ';'), recurse=False):
+    def __init__(self, path=None, source=None, end_of_line_comment=('$', '//', ';'), recurse=False, section=None):
 
         # Fixme: empty source
 
@@ -805,7 +834,7 @@ class SpiceParser:
 
         lines = self._merge_lines(raw_lines)
         self._title = None
-        self._statements = self._parse(lines, recurse)
+        self._statements = self._parse(lines=lines, recurse=recurse, section=section)
         self._find_sections()
 
     ##############################################
@@ -837,7 +866,7 @@ class SpiceParser:
 
     ##############################################
 
-    def _parse(self, lines, recurse=False):
+    def _parse(self, lines, recurse=False, section=None):
 
         """ Parse the lines and return a list of statements. """
 
@@ -867,6 +896,7 @@ class SpiceParser:
             start_index = 1
 
         statements = []
+        skip_lines = [False]  # True on top of stack means skip lines.
         sub_circuit = None
         scope = statements
         self.incl_libs = []  # Libraries found during recursive descent into includes.
@@ -874,7 +904,10 @@ class SpiceParser:
             # print('>', repr(line))
             text = str(line)
             lower_case_text = text.lower() # !
-            if line.is_comment:
+            if skip_lines[-1]:
+                if lower_case_text.startswith('.endl'):
+                    skip_lines.pop()
+            elif line.is_comment:
                 scope.append(Comment(line))
             elif lower_case_text.startswith('.'):
                 lower_case_text = lower_case_text[1:]
@@ -900,7 +933,17 @@ class SpiceParser:
                     if recurse:
                         from .Library import SpiceLibrary
                         incl_path = os.path.join(str(self._path.directory_part()), str(incl))
+                        print(f"Recursing into {incl_path}")
                         self.incl_libs.append(SpiceLibrary(root_path=incl_path, recurse=recurse))
+                elif lower_case_text.startswith('lib'):
+                    lib = Lib(line)
+                    if section and str(lib) != section.lower():
+                        # If the .lib statement is only followed by the name of a section,
+                        # then skip any lines in a library section whose name does not match
+                        # the library section argument.
+                        skip_lines.append(True)
+                    else:
+                        scope.append(lib)
                 else:
                     # options param ...
                     # .global
@@ -908,7 +951,8 @@ class SpiceParser:
                     # .param
                     # .func .csparam .temp .if
                     # { expr } are allowed in .model lines and in device lines.
-                    self._logger.warning('Parser ignored: {}'.format(line))
+                    # self._logger.warning('Parser ignored: {}'.format(line))
+                    pass
             else:
                 try:
                     element = Element(line)

@@ -64,7 +64,7 @@ class SpiceLibrary:
 
     ##############################################
 
-    def __init__(self, root_path, recurse=False):
+    def __init__(self, root_path, recurse=False, section=None):
 
         self._directory = Directory(root_path).expand_vars_and_user()
 
@@ -76,7 +76,7 @@ class SpiceLibrary:
             if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
                 try:
-                    spice_parser = SpiceParser(path=path, recurse=recurse)
+                    spice_parser = SpiceParser(path=path, recurse=recurse, section=section)
                     for lib in spice_parser.incl_libs:
                         self._subcircuits.update(lib._subcircuits)
                         self._models.update(lib._models)
