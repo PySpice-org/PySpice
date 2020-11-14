@@ -933,7 +933,6 @@ class SpiceParser:
                     if recurse:
                         from .Library import SpiceLibrary
                         incl_path = os.path.join(str(self._path.directory_part()), str(incl))
-                        print(f"Recursing into {incl_path}")
                         self.incl_libs.append(SpiceLibrary(root_path=incl_path, recurse=recurse))
                 elif lower_case_text.startswith('lib'):
                     lib = Lib(line)
