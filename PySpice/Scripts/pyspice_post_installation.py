@@ -177,7 +177,7 @@ class PySpicePostInstallation:
 
     ##############################################
 
-    def _donwload_file(self, url, dst_path):
+    def _download_file(self, url, dst_path):
         print('Get {} ... -> {}'.format(url, dst_path))
         response = requests.get(url, allow_redirects=True)
         assert(response.status_code == requests.codes.ok)
@@ -210,7 +210,7 @@ class PySpicePostInstallation:
             url = self.NGSPICE_WINDOWS_DLL_URL.format(self.ngspice_version)
             zip_path = tmp_directory.joinpath('ngspice-{}_dll_64.zip'.format(self.ngspice_version))
             dst_path = Path(NgSpice.__file__).parent
-            self._donwload_file(url, zip_path)
+            self._download_file(url, zip_path)
             with ZipFile(zip_path) as zip_file:
                 zip_file.extractall(path=dst_path)
                 print('Extracted {} in {}'.format(zip_path, dst_path.joinpath('Spice64_dll')))
@@ -251,7 +251,7 @@ class PySpicePostInstallation:
 
     def download_ngspice_manual(self):
         url = self.NGSPICE_MANUAL_URL.format(self.ngspice_version)
-        self._donwload_file(url, 'ngspice-manual-{}.pdf'.format(self.ngspice_version))
+        self._download_file(url, 'ngspice-manual-{}.pdf'.format(self.ngspice_version))
 
     ##############################################
 
@@ -438,7 +438,7 @@ class PySpicePostInstallation:
             return
 
         with tempfile.TemporaryDirectory() as tmp_directory:
-            self._donwload_file(RELEASE_URL, zip_path)
+            self._download_file(RELEASE_URL, zip_path)
             with ZipFile(zip_path) as zip_file:
                 zip_file.extractall(path=tmp_directory)
             examples_path = Path(tmp_directory).joinpath('PySpice-{}'.format(version), 'examples')
