@@ -109,6 +109,7 @@ class PySpicePostInstallation:
     NGSPICE_BASE_URL = 'https://sourceforge.net/projects/ngspice/files'
     NGSPICE_RELEASE_URL = NGSPICE_BASE_URL + '/ng-spice-rework'
     NGSPICE_WINDOWS_DLL_URL = NGSPICE_RELEASE_URL + '/{0}/ngspice-{0}_dll_64.zip'
+    NGSPICE_WINDOWS_DLL_OLD_URL = NGSPICE_RELEASE_URL + '/old-releases/{0}/ngspice-{0}_dll_64.zip'
     NGSPICE_MANUAL_URL = NGSPICE_RELEASE_URL + '/{0}/ngspice-{0}-manual.pdf/download'
 
     ##############################################
@@ -180,7 +181,8 @@ class PySpicePostInstallation:
     def _download_file(self, url, dst_path):
         print('Get {} ... -> {}'.format(url, dst_path))
         response = requests.get(url, allow_redirects=True)
-        assert(response.status_code == requests.codes.ok)
+        if response.status_code != requests.codes.ok:
+            response.raise_for_status()
         with open(dst_path, mode='wb') as fh:
             fh.write(response.content)
 
@@ -210,7 +212,12 @@ class PySpicePostInstallation:
             url = self.NGSPICE_WINDOWS_DLL_URL.format(self.ngspice_version)
             zip_path = tmp_directory.joinpath('ngspice-{}_dll_64.zip'.format(self.ngspice_version))
             dst_path = Path(NgSpice.__file__).parent
-            self._download_file(url, zip_path)
+            try:
+                self._download_file(url, zip_path)
+            except requests.exceptions.HTTPError:
+                print('Download failed, trying another URL...')
+                url = self.NGSPICE_WINDOWS_DLL_OLD_URL.format(self.ngspice_version)
+                self._download_file(url, zip_path)
             with ZipFile(zip_path) as zip_file:
                 zip_file.extractall(path=dst_path)
                 print('Extracted {} in {}'.format(zip_path, dst_path.joinpath('Spice64_dll')))
