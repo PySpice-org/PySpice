@@ -11,29 +11,19 @@
    |PySpice@readthedocs-badge|
    |PySpice@pypi|_
 
-.. |ohloh| image:: https://www.openhub.net/accounts/230426/widgets/account_tiny.gif
-   :target: https://www.openhub.net/accounts/fabricesalvaire
-   :alt: Fabrice Salvaire's Ohloh profile
-   :height: 15px
-   :width:  80px
-
 .. |PySpiceUrl| replace:: https://pyspice.fabrice-salvaire.fr
 
 .. |PySpiceHomePage| replace:: PySpice Home Page
 .. _PySpiceHomePage: https://pyspice.fabrice-salvaire.fr
 
-.. |PySpice@readthedocs-badge| image:: https://readthedocs.org/projects/pyspice/badge/?version=latest
-   :target: http://pyspice.readthedocs.org/en/latest
+.. .. |PySpice@readthedocs-badge| image:: https://readthedocs.org/projects/pyspice/badge/?version=latest
+..   :target: http://pyspice.readthedocs.org/en/latest
 
 .. |PySpice@github| replace:: https://github.com/FabriceSalvaire/PySpice
 .. .. _PySpice@github: https://github.com/FabriceSalvaire/PySpice
 
 .. |PySpice@pypi| replace:: https://pypi.python.org/pypi/PySpice
 .. .. _PySpice@pypi: https://pypi.python.org/pypi/PySpice
-
-.. |Build Status| image:: https://travis-ci.org/FabriceSalvaire/PySpice.svg?branch=master
-   :target: https://travis-ci.org/FabriceSalvaire/PySpice
-   :alt: PySpice build status @travis-ci.org
 
 .. |Pypi Version| image:: https://img.shields.io/pypi/v/PySpice.svg
    :target: https://pypi.python.org/pypi/PySpice
@@ -46,6 +36,16 @@
 .. |Pypi Python Version| image:: https://img.shields.io/pypi/pyversions/PySpice.svg
    :target: https://pypi.python.org/pypi/PySpice
    :alt: PySpice python version
+
+.. |Build Status| image:: https://travis-ci.org/FabriceSalvaire/PySpice.svg?branch=master
+   :target: https://travis-ci.org/FabriceSalvaire/PySpice
+   :alt: PySpice build status @travis-ci.org
+
+.. |ohloh| image:: https://www.openhub.net/accounts/230426/widgets/account_tiny.gif
+   :target: https://www.openhub.net/accounts/fabricesalvaire
+   :alt: Fabrice Salvaire's Ohloh profile
+   :height: 15px
+   :width:  80px
 
 ..  coverage test
 ..  https://img.shields.io/pypi/status/Django.svg
@@ -144,11 +144,18 @@ News
 
 .. no title here
 
-V1.3.0 (development release)
+V1.4.0 (development release)
 ----------------------------
 
-V1.2.0 (production release) 2018-02-xx
+V1.3.2 (production release) 2019-03-11
 --------------------------------------
+
+ * support Ngspice 30 and Xyce 6.10
+ * fixed NgSpice and Xyce support on Windows 10
+ * bug fixes
+
+V1.2.0 2018-06-07
+-----------------
 
  * Initial support of the |Xyce|_ simulator.  Xyce is an open source, SPICE-compatible,
    high-performance analog circuit simulator, capable of solving extremely large circuit problems

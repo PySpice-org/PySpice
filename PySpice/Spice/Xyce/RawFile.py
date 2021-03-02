@@ -44,7 +44,6 @@ _module_logger = logging.getLogger(__name__)
 
 class Variable(VariableAbc):
 
-
     ##############################################
 
     def is_voltage_node(self):
@@ -55,7 +54,6 @@ class Variable(VariableAbc):
     ##############################################
 
     def is_branch_current(self):
-
         return self.name.endswith('#branch')
 
     ##############################################
@@ -129,7 +127,10 @@ class RawFile(RawFileAbc):
 
         """ Parse the header """
 
-        binary_line = b'Binary:' + os.linesep.encode('ascii')
+        # see https://github.com/FabriceSalvaire/PySpice/issues/132
+        #   Xyce open the file in binary mode and print using: os << "Binary:" << std::endl;
+        #   endl is thus \n
+        binary_line = b'Binary:\n'
         binary_location = output.find(binary_line)
         if binary_location < 0:
             raise NameError('Cannot locate binary data')
@@ -157,8 +158,8 @@ class RawFile(RawFileAbc):
         """ Ngspice return lower case names. This method fixes the case of the variable names. """
 
         circuit = self.circuit
-        element_translation = {element.upper():element for element in circuit.element_names()}
-        node_translation = {node.upper():node for node in circuit.node_names()}
+        element_translation = {element.upper():element for element in circuit.element_names}
+        node_translation = {node.upper():node for node in circuit.node_names}
         for variable in self.variables.values():
             variable.fix_case(element_translation, node_translation)
 

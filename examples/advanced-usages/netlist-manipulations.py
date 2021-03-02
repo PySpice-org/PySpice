@@ -1,3 +1,7 @@
+#r# =======================
+#r#  Netlist Manipulations
+#r# =======================
+
 #r# This example shows how to manipulate netlist.
 
 ####################################################################################################
@@ -7,8 +11,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Spice.Netlist import Circuit, SubCircuit, SubCircuitFactory
+from PySpice.Spice.Netlist import Circuit, SubCircuitFactory
 from PySpice.Unit import *
 
 ####################################################################################################

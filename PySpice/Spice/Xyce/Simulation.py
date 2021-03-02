@@ -49,7 +49,7 @@ class XyceCircuitSimulator(CircuitSimulator):
         super().__init__(circuit, **kwargs)
 
         xyce_command = kwargs.get('xyce_command', None)
-        self._spice_server = XyceServer(spice_command=xyce_command)
+        self._xyce_server = XyceServer(xyce_command=xyce_command)
 
     ##############################################
 
@@ -63,7 +63,7 @@ class XyceCircuitSimulator(CircuitSimulator):
 
         super()._run(analysis_method, *args, **kwargs)
 
-        raw_file = self._spice_server(spice_input=str(self))
+        raw_file = self._xyce_server(spice_input=str(self))
         self.reset_analysis()
         raw_file.simulation = self
 

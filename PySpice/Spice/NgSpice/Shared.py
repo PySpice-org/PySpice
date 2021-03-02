@@ -95,6 +95,8 @@ class Vector:
 
     """
 
+    _logger = _module_logger.getChild('Vector')
+
     ##############################################
 
     def __init__(self, ngspice_shared, name, type_, data):
@@ -104,6 +106,8 @@ class Vector:
         self._type = type_
         self._data = data
         self._unit = ngspice_shared.type_to_unit(type_)
+        if self._unit is None:
+            self._logger.warning('Unit is None for {0._name} {0._type}'.format(self))
 
     ##############################################
 
@@ -155,7 +159,10 @@ class Vector:
         # if to_float:
         #     data = float(data[0])
 
-        return WaveForm.from_unit_values(self.simplified_name, self._unit(data), abscissa=abscissa)
+        if self._unit is not None:
+            return WaveForm.from_unit_values(self.simplified_name, self._unit(data), abscissa=abscissa)
+        else:
+            return WaveForm.from_array(self.simplified_name, data, abscissa=abscissa)
 
 ####################################################################################################
 
@@ -415,7 +422,8 @@ class NgSpiceShared:
         try:
             self._simulation_type = EnumFactory('SimulationType', SIMULATION_TYPE[self._ngspice_version])
         except KeyError:
-            self._logger.error("Unsupported Ngspice version {}".format(self._ngspice_version))
+            self._simulation_type = EnumFactory('SimulationType', SIMULATION_TYPE['last'])
+            self._logger.warning("Unsupported Ngspice version {}".format(self._ngspice_version))
         self._type_to_unit = {
             self._simulation_type.time: u_s,
             self._simulation_type.voltage: u_V,
@@ -1120,11 +1128,12 @@ if ConfigInstall.OS.on_windows:
     ngspice_dirname = 'Spice'
     if platform.architecture()[0] == '64bit':
         ngspice_dirname += '64'
+    ngspice_dirname += '_dll'
 
     ngspice_path = os.path.join(root, 'Program Files', ngspice_dirname)
     NgSpiceShared.NGSPICE_PATH = ngspice_path
 
-    _path = os.path.join(ngspice_path, 'bin_dll', 'ngspice{}.dll')
+    _path = os.path.join(ngspice_path, 'dll-vs', 'ngspice{}.dll')
 elif ConfigInstall.OS.on_osx:
     _path = 'libngspice{}.dylib'
 elif ConfigInstall.OS.on_linux:

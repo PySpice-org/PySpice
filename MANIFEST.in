@@ -1,6 +1,5 @@
-include	.bzrignore
 include .gitignore
-include .pyflymakerc
+include .travis.yml
 include CHANGES.txt
 include GPL-V3.0.txt
 include LICENSE.txt
@@ -9,14 +8,15 @@ include README.html
 include README.rst
 include README.txt
 include TODO.rst
-include make-release.sh
-include pylintrc.ini
-include setenv.sh start.sh
-include setup_data.py
-include requirements.txt requirements-dev.txt
-include .travis.yml
 include bin/cir2py
 include bower/bower.json
+include invoke.yaml
+include make-release.sh
+include pylintrc.ini
+include requirements.txt requirements-dev.txt
+include setenv.sh start.sh
+include setup_data.py
+include tox.ini
 recursive-include PySpice *.py *.yml *.h *py.in
 recursive-include doc *
 recursive-include doc/sphinx/source/_static *

@@ -31,7 +31,25 @@ from .BasicElement import VoltageSource, CurrentSource
 
 ####################################################################################################
 
-class SinusoidalMixin:
+class SourceMixinAbc:
+
+    __as_unit__ = None
+
+####################################################################################################
+
+class VoltageSourceMixinAbc:
+
+    __as_unit__ = as_V
+
+####################################################################################################
+
+class CurrentSourceMixinAbc:
+
+    __as_unit__ = as_A
+
+####################################################################################################
+
+class SinusoidalMixin(SourceMixinAbc):
 
     r"""This class implements a sinusoidal waveform.
 
@@ -85,9 +103,9 @@ class SinusoidalMixin:
                  offset=0, amplitude=1, frequency=50,
                  delay=0, damping_factor=0):
 
-        self.dc_offset = as_V(dc_offset)
-        self.offset = as_V(offset)
-        self.amplitude = as_V(amplitude)
+        self.dc_offset = self.__as_unit__(dc_offset)
+        self.offset = self.__as_unit__(offset)
+        self.amplitude = self.__as_unit__(amplitude)
         self.frequency = as_Hz(frequency) # Fixme: protect by setter?
         self.delay = as_s(delay)
         self.damping_factor = as_Hz(damping_factor)
@@ -116,7 +134,7 @@ class SinusoidalMixin:
 
 ####################################################################################################
 
-class PulseMixin:
+class PulseMixin(SourceMixinAbc):
 
     """This class implements a pulse waveform.
 
@@ -201,8 +219,8 @@ class PulseMixin:
         #  rise_time, fall_time = Tstep
         #  pulse_width, period = Tstop
 
-        self.initial_value = as_V(initial_value)
-        self.pulsed_value = as_V(pulsed_value)
+        self.initial_value = self.__as_unit__(initial_value)
+        self.pulsed_value = self.__as_unit__(pulsed_value)
         self.delay_time = as_s(delay_time)
         self.rise_time = as_s(rise_time)
         self.fall_time = as_s(fall_time)
@@ -245,7 +263,7 @@ class PulseMixin:
 
 ####################################################################################################
 
-class ExponentialMixin:
+class ExponentialMixin(SourceMixinAbc):
 
     r"""This class implements a Exponential waveform.
 
@@ -296,8 +314,8 @@ class ExponentialMixin:
 
         # Fixme: default
 
-        self.initial_value = as_V(initial_value)
-        self.pulsed_value = as_V(pulsed_value)
+        self.initial_value = self.__as_unit__(initial_value)
+        self.pulsed_value = self.__as_unit__(pulsed_value)
         self.rise_delay_time = as_s(rise_delay_time)
         self.rise_time_constant = as_s(rise_time_constant)
         self.fall_delay_time = as_s(fall_delay_time)
@@ -317,7 +335,7 @@ class ExponentialMixin:
 
 ####################################################################################################
 
-class PieceWiseLinearMixin:
+class PieceWiseLinearMixin(SourceMixinAbc):
 
     r"""This class implements a Piece-Wise Linear waveform.
 
@@ -335,6 +353,14 @@ class PieceWiseLinearMixin:
     delay time time = td. The current source still needs to be patched, td and r are not yet
     available.
 
+    `values` should be given as a list of (`Time`, `Value`)-tuples, e.g.::
+
+        PieceWiseLinearVoltageSource(
+            circuit,
+            'pwl1', '1', '0',
+            values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
+        )
+
     """
 
     ##############################################
@@ -343,7 +369,7 @@ class PieceWiseLinearMixin:
 
         # Fixme: default
 
-        self.values = [as_V(x) for x in values]
+        self.values = sum(([as_s(t), self.__as_unit__(x)] for (t, x) in values), [])
         self.repeate_time = as_s(repeate_time)
         self.delay_time = as_s(delay_time)
 
@@ -354,12 +380,13 @@ class PieceWiseLinearMixin:
         # Fixme: to func?
         return ('PWL(' +
                 join_list(self.values) +
+                ' ' +
                 join_dict({'r':self.repeate_time, 'td':self.delay_time}) + # OrderedDict(
                 ')')
 
 ####################################################################################################
 
-class SingleFrequencyFMMixin:
+class SingleFrequencyFMMixin(SourceMixinAbc):
 
     r"""This class implements a Single-Frequency FM waveform.
 
@@ -393,8 +420,8 @@ class SingleFrequencyFMMixin:
 
     def __init__(self, offset, amplitude, carrier_frequency, modulation_index, signal_frequency):
 
-        self.offset = as_V(offset)
-        self.amplitude = as_V(amplitude)
+        self.offset = self.__as_unit__(offset)
+        self.amplitude = self.__as_unit__(amplitude)
         self.carrier_frequency = as_Hz(carrier_frequency)
         self.modulation_index = modulation_index
         self.signal_frequency = as_Hz(signal_frequency)
@@ -411,7 +438,7 @@ class SingleFrequencyFMMixin:
 
 ####################################################################################################
 
-class AmplitudeModulatedMixin:
+class AmplitudeModulatedMixin(SourceMixinAbc):
 
     r"""This class implements a Amplitude Modulated source.
 
@@ -447,8 +474,8 @@ class AmplitudeModulatedMixin:
 
         # Fixme: default
 
-        self.offset = as_V(offset)
-        self.amplitude = as_V(amplitude)
+        self.offset = self.__as_unit__(offset)
+        self.amplitude = self.__as_unit__(amplitude)
         self.carrier_frequency = as_Hz(carrier_frequency)
         self.modulating_frequency = as_Hz(modulating_frequency)
         self.signal_delay = as_s(signal_delay)
@@ -465,7 +492,7 @@ class AmplitudeModulatedMixin:
 
 ####################################################################################################
 
-class RandomMixin:
+class RandomMixin(SourceMixinAbc):
 
     r"""This class implements a Random Voltage source.
 
@@ -534,7 +561,7 @@ class RandomMixin:
 
 ####################################################################################################
 
-class SinusoidalVoltageSource(VoltageSource, SinusoidalMixin):
+class SinusoidalVoltageSource(VoltageSource, VoltageSourceMixinAbc, SinusoidalMixin):
 
     r"""This class implements a sinusoidal waveform voltage source.
 
@@ -555,7 +582,7 @@ class SinusoidalVoltageSource(VoltageSource, SinusoidalMixin):
 
 ####################################################################################################
 
-class SinusoidalCurrentSource(CurrentSource, SinusoidalMixin):
+class SinusoidalCurrentSource(CurrentSource, CurrentSourceMixinAbc, SinusoidalMixin):
 
     r"""This class implements a sinusoidal waveform current source.
 
@@ -588,7 +615,7 @@ class AcLine(SinusoidalVoltageSource):
 
 ####################################################################################################
 
-class PulseVoltageSource(VoltageSource, PulseMixin):
+class PulseVoltageSource(VoltageSource, VoltageSourceMixinAbc, PulseMixin):
 
     r"""This class implements a pulse waveform voltage source.
 
@@ -609,7 +636,7 @@ class PulseVoltageSource(VoltageSource, PulseMixin):
 
 ####################################################################################################
 
-class PulseCurrentSource(CurrentSource, PulseMixin):
+class PulseCurrentSource(CurrentSource, CurrentSourceMixinAbc, PulseMixin):
 
     r"""This class implements a pulse waveform current source.
 
@@ -630,7 +657,7 @@ class PulseCurrentSource(CurrentSource, PulseMixin):
 
 ####################################################################################################
 
-class ExponentialVoltageSource(VoltageSource, ExponentialMixin):
+class ExponentialVoltageSource(VoltageSource, VoltageSourceMixinAbc, ExponentialMixin):
 
     r"""This class implements a exponential waveform voltage source.
 
@@ -651,7 +678,7 @@ class ExponentialVoltageSource(VoltageSource, ExponentialMixin):
 
 ####################################################################################################
 
-class ExponentialCurrentSource(CurrentSource, ExponentialMixin):
+class ExponentialCurrentSource(CurrentSource, CurrentSourceMixinAbc, ExponentialMixin):
 
     r"""This class implements a exponential waveform current source.
 
@@ -672,7 +699,7 @@ class ExponentialCurrentSource(CurrentSource, ExponentialMixin):
 
 ####################################################################################################
 
-class PieceWiseLinearVoltageSource(VoltageSource, PieceWiseLinearMixin):
+class PieceWiseLinearVoltageSource(VoltageSource, VoltageSourceMixinAbc, PieceWiseLinearMixin):
 
     r"""This class implements a piece wise linear waveform voltage source.
 
@@ -693,7 +720,7 @@ class PieceWiseLinearVoltageSource(VoltageSource, PieceWiseLinearMixin):
 
 ####################################################################################################
 
-class PieceWiseLinearCurrentSource(CurrentSource, PieceWiseLinearMixin):
+class PieceWiseLinearCurrentSource(CurrentSource, CurrentSourceMixinAbc, PieceWiseLinearMixin):
 
     r"""This class implements a piece wise linear waveform current source.
 
@@ -714,7 +741,7 @@ class PieceWiseLinearCurrentSource(CurrentSource, PieceWiseLinearMixin):
 
 ####################################################################################################
 
-class SingleFrequencyFMVoltageSource(VoltageSource, SingleFrequencyFMMixin):
+class SingleFrequencyFMVoltageSource(VoltageSource, VoltageSourceMixinAbc, SingleFrequencyFMMixin):
 
     r"""This class implements a single frequency FM waveform voltage source.
 
@@ -735,7 +762,7 @@ class SingleFrequencyFMVoltageSource(VoltageSource, SingleFrequencyFMMixin):
 
 ####################################################################################################
 
-class SingleFrequencyFMCurrentSource(CurrentSource, SingleFrequencyFMMixin):
+class SingleFrequencyFMCurrentSource(CurrentSource, CurrentSourceMixinAbc, SingleFrequencyFMMixin):
 
     r"""This class implements a single frequency FM waveform current source.
 
@@ -756,7 +783,7 @@ class SingleFrequencyFMCurrentSource(CurrentSource, SingleFrequencyFMMixin):
 
 ####################################################################################################
 
-class AmplitudeModulatedVoltageSource(VoltageSource, AmplitudeModulatedMixin):
+class AmplitudeModulatedVoltageSource(VoltageSource, VoltageSourceMixinAbc, AmplitudeModulatedMixin):
 
     r"""This class implements a amplitude modulated waveform voltage source.
 
@@ -777,7 +804,7 @@ class AmplitudeModulatedVoltageSource(VoltageSource, AmplitudeModulatedMixin):
 
 ####################################################################################################
 
-class AmplitudeModulatedCurrentSource(CurrentSource, AmplitudeModulatedMixin):
+class AmplitudeModulatedCurrentSource(CurrentSource, CurrentSourceMixinAbc, AmplitudeModulatedMixin):
 
     r"""This class implements a amplitude modulated waveform current source.
 
@@ -798,7 +825,7 @@ class AmplitudeModulatedCurrentSource(CurrentSource, AmplitudeModulatedMixin):
 
 ####################################################################################################
 
-class RandomVoltageVoltageSource(VoltageSource, RandomMixin):
+class RandomVoltageSource(VoltageSource, VoltageSourceMixinAbc, RandomMixin):
 
     r"""This class implements a random waveform voltage source.
 
@@ -819,7 +846,7 @@ class RandomVoltageVoltageSource(VoltageSource, RandomMixin):
 
 ####################################################################################################
 
-class RandomCurrentSource(CurrentSource, RandomMixin):
+class RandomCurrentSource(CurrentSource, CurrentSourceMixinAbc, RandomMixin):
 
     r"""This class implements a random waveform current source.
 

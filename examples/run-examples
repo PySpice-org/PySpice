@@ -23,6 +23,7 @@
 
 ####################################################################################################
 
+from pathlib import Path
 import glob
 import os
 import subprocess
@@ -30,10 +31,10 @@ import sys
 
 ####################################################################################################
 
-examples_path = os.path.dirname(__file__)
+examples_path = Path(__file__).resolve().parent
 
 for topic in os.listdir(examples_path):
-    python_files = glob.glob(os.path.join(os.path.dirname(__file__), topic, '*.py'))
+    python_files = glob.glob(str(examples_path.joinpath(topic, '*.py')))
     for file_name in python_files:
         if file_name.islower():
             print('Run {}'.format(file_name))

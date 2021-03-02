@@ -214,8 +214,8 @@ class RawFile(RawFileAbc):
         """ Ngspice return lower case names. This method fixes the case of the variable names. """
 
         circuit = self.circuit
-        element_translation = {element.lower():element for element in circuit.element_names()}
-        node_translation = {node.lower():node for node in circuit.node_names()}
+        element_translation = {element.lower():element for element in circuit.element_names}
+        node_translation = {node.lower():node for node in circuit.node_names}
         for variable in self.variables.values():
             variable.fix_case(element_translation, node_translation)
 

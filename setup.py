@@ -30,11 +30,10 @@ setuptools_available = True
 
 ####################################################################################################
 
-if sys.version_info < (3,):
-    print('PySpice requires Python 3', file=sys.stderr)
+required_python_version = (3, 6)
+if sys.version_info < required_python_version:
+    sys.stderr.write('ERROR: PySpice requires Python {}.{}\n'.format(*required_python_version))
     sys.exit(1)
-if sys.version_info < (3,4):
-    print('WARNING: PySpice could require Python 3.4 ...', file=sys.stderr)
 
 ####################################################################################################
 
@@ -48,8 +47,8 @@ if sys.version_info < (3,4):
 
 ####################################################################################################
 
-exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
-
+#exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
+from setup_data import setup_dict
 ####################################################################################################
 
 setup_dict.update(dict(
@@ -83,6 +82,7 @@ setup_dict.update(dict(
         'numpy',
         'ply',
         'scipy',
+        'networkx',
     ],
 ))
 

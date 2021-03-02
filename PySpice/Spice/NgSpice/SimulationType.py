@@ -21,12 +21,13 @@
 ####################################################################################################
 
 __all__ = [
+    'LAST_VERSION',
     'SIMULATION_TYPE',
 ]
 
 ####################################################################################################
 
-# cf. ngspice-27/include/ngspice/sim.h
+# cf. ngspice-xx/include/ngspice/sim.h
 
 SIMULATION_TYPE = {}
 
@@ -79,3 +80,10 @@ SIMULATION_TYPE[27] = (
     'capacitance',
     'charge',
 )
+
+LAST_VERSION = 30
+
+for version in range(28, LAST_VERSION +1):
+    SIMULATION_TYPE[version] = SIMULATION_TYPE[27]
+
+SIMULATION_TYPE['last'] = SIMULATION_TYPE[LAST_VERSION]

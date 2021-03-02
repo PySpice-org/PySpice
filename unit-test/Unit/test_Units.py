@@ -187,7 +187,7 @@ class TestUnits(unittest.TestCase):
     # @unittest.skip('')
     def test_unit_conversion(self):
 
-        # for units in UnitMetaclass.__hash_map__.values():
+        # for units in UnitMetaclass._hash_map_.values():
         #     print(units, [x for x in units if x.is_default_unit()])
 
         self.assertEqual(u_V(10) / u_A(2), u_Ω(5))

@@ -37,7 +37,7 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-from PySpice.Unit.Unit import UnitValues
+from PySpice.Unit.Unit import UnitValues, UnitValue
 
 ####################################################################################################
 
@@ -62,10 +62,30 @@ class WaveForm(UnitValues):
 
     ##############################################
 
-    @classmethod
-    def from_unit_values(cls, name, array, title=None, abscissa=None):
+    @staticmethod
+    def from_unit_values(name, array, title=None, abscissa=None):
 
-        obj = cls(name, array.prefixed_unit, array.shape, title=title, abscissa=abscissa)
+        shape = array.shape
+        obj = WaveForm(
+            name,
+            array.prefixed_unit,
+            array.shape,
+            dtype=array.dtype,
+            title=title,
+            abscissa=abscissa,
+        )
+        obj[...] = array[...]
+
+        return obj
+
+    ##############################################
+
+    @staticmethod
+    def from_array(name, array, title=None, abscissa=None):
+
+        # Fixme: ok ???
+
+        obj = WaveForm(name, None, array.shape, title=title, abscissa=abscissa)
         obj[...] = array[...]
 
         return obj
@@ -81,11 +101,16 @@ class WaveForm(UnitValues):
         obj = super(WaveForm, cls).__new__(cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)
         # obj = np.asarray(data).view(cls)
 
-        obj._name = str(name)
-        obj._title = title # str(title)
-        obj._abscissa = abscissa
-
         return obj
+
+    ##############################################
+
+    def __init__(self, name, prefixed_unit,
+                shape, dtype=float, buffer=None, offset=0, strides=None, order=None,
+                title=None, abscissa=None):
+        self._name = str(name)
+        self._title = title # str(title)
+        self._abscissa = abscissa
 
     ##############################################
 
@@ -114,7 +139,10 @@ class WaveForm(UnitValues):
         # self._logger.info("result\n{}".format(result))
 
         if isinstance(result, UnitValues):
-            return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
+            if len(result.shape) == 0:
+                return UnitValue(result.prefixed_unit, result)
+            else:
+                return self.__class__.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
         else:
             return result # e.g. foo <= 0
 
@@ -122,7 +150,10 @@ class WaveForm(UnitValues):
 
     @property
     def name(self):
-        return self._name
+        if hasattr(self, '_name'):
+            return self._name
+        else:
+            return ''
 
     @property
     def abscissa(self):
@@ -140,16 +171,16 @@ class WaveForm(UnitValues):
 
     def __repr__(self):
 
-        return '{0.__class__.__name__} {0._name} {1}'.format(self, super().__str__())
+        return '{0.__class__.__name__} {0.name} {1}'.format(self, super().__str__())
 
     ##############################################
 
     def __str__(self):
 
-        if self._title is not None:
+        if hasattr(self, '_title') and self._title is not None:
             return self._title
         else:
-            return self._name
+            return self.name
 
     ##############################################
 
@@ -279,7 +310,7 @@ class Analysis:
         try:
             return self._get_item(name)
         except IndexError:
-            return self._get_item(name.lower())
+            return self._get_item(str(name).lower())
 
     ##############################################
 
@@ -288,19 +319,6 @@ class Analysis:
 
         return os.linesep.join([' '*2 + str(x) for x in d])
 
-    ##############################################
-
-    def __getattr__(self, name):
-
-        try:
-            return self.__getitem__(name)
-        except IndexError:
-            raise AttributeError(name + os.linesep +
-                                 'Nodes :' + os.linesep + self._format_dict(self._nodes) + os.linesep +
-                                 'Branches :' + os.linesep + self._format_dict(self._branches) + os.linesep +
-                                 'Elements :' + os.linesep + self._format_dict(self._elements) + os.linesep +
-                                 'Internal Parameters :' + os.linesep + self._format_dict(self._internal_parameters)
-            )
 
 ####################################################################################################
 

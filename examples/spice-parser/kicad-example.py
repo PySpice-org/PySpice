@@ -23,7 +23,7 @@
 
 ####################################################################################################
 
-import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 
@@ -118,10 +118,9 @@ class JackOut(SubCircuitFactory):
 ####################################################################################################
 
 #r# We read the generated netlist.
-kicad_netlist_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
-                                  'kicad-pyspice-example',
-                                  'kicad-pyspice-example.cir')
-parser = SpiceParser(path=kicad_netlist_path)
+directory_path = Path(__file__).resolve().parent
+kicad_netlist_path = directory_path.joinpath('kicad-pyspice-example', 'kicad-pyspice-example.cir')
+parser = SpiceParser(path=str(kicad_netlist_path))
 
 #r# We build the circuit and translate the ground (5 to 0).
 circuit = parser.build_circuit(ground=5)

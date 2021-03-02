@@ -38,7 +38,7 @@ def str_spice(obj, unit=True):
         else: # Fixme: ok ???
             return obj.str(spice=False, space=False, unit=False)
     else:
-        return str(obj)
+        return str(obj).lower()
 
 ####################################################################################################
 
@@ -64,6 +64,7 @@ def join_list(items):
 ####################################################################################################
 
 def join_dict(d):
-    return ' '.join(["{}={}".format(key, str_spice(value))
+    return ' '.join(["{}={}".format(key[:-1] if key.endswith('_') else key, str_spice(value))
                      for key, value in d.items()
                      if value is not None])
+

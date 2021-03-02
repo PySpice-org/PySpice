@@ -24,6 +24,8 @@
 
 ####################################################################################################
 
+import pathlib
+
 import sys, os
 from datetime import datetime
 
@@ -45,12 +47,12 @@ except:
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 # for directory in ,:
 
-pyspice_path = os.path.abspath(os.path.join(__file__, *['..']*4))
-sys.path.insert(0, pyspice_path)
+pyspice_path = pathlib.Path(__file__).parents[3]
+sys.path.insert(0, str(pyspice_path))
 
 ####################################################################################################
 
-exec(compile(open(os.path.join(pyspice_path, 'setup_data.py')).read(), 'setup_data.py', 'exec'))
+exec(compile(open(pyspice_path.joinpath('setup_data.py')).read(), 'setup_data.py', 'exec'))
 
 ####################################################################################################
 #

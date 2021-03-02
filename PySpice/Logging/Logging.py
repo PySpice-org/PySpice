@@ -32,7 +32,16 @@ import PySpice.Config.ConfigInstall as ConfigInstall
 ####################################################################################################
 
 def setup_logging(application_name='PySpice',
-                  config_file=ConfigInstall.Logging.default_config_file):
+                  config_file=ConfigInstall.Logging.default_config_file,
+                  logging_level=None):
+
+    """Setup the logging.
+
+    Logging configuration is set by a YAML file given by *config_file*.  Alternatively we can set
+    the logging level using the environment variable 'PySpiceLogLevel' or using *logging_level*,
+    level can be a integer or a string
+
+    """
 
     logging_config_file_name = ConfigInstall.Logging.find(config_file)
     logging_config = yaml.load(open(logging_config_file_name, 'r'))
@@ -51,8 +60,10 @@ def setup_logging(application_name='PySpice',
     logging.config.dictConfig(logging_config)
 
     logger = logging.getLogger(application_name)
-    if 'PySpiceLogLevel' in os.environ:
-        numeric_level = getattr(logging, os.environ['PySpiceLogLevel'], None)
-        logger.setLevel(numeric_level)
+    if logging_level:
+        logger.setLevel(logging_level)
+    elif 'PySpiceLogLevel' in os.environ: # used by tools/make-examples
+        level = getattr(logging, os.environ['PySpiceLogLevel'], None)
+        logger.setLevel(level) # level can be int or string
 
     return logger

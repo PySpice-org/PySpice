@@ -34,7 +34,7 @@ from PySpice.Unit import *
 
 class VoltageDivider(SubCircuitFactory):
     __name__ = 'VoltageDivider'
-    __nodes__ = ('input', 'output_plus', 'output_minus')
+    _nodes_ = ('input', 'output_plus', 'output_minus')
     def __init__(self):
         super().__init__()
         self.R(1, 'input', 'output_plus', 9@u_kΩ)
@@ -76,10 +76,10 @@ class TestSubCircuit(TestNetlist):
     def test(self):
 
         spice_declaration = """
-.subckt VoltageDivider input output_plus output_minus
-R1 input output_plus 9kOhm
-R2 output_plus output_minus 1kOhm
-.ends VoltageDivider
+.subckt voltagedivider input output_plus output_minus
+r1 input output_plus 9kohm
+r2 output_plus output_minus 1kohm
+.ends voltagedivider
 """
         self._test_spice_declaration(VoltageDivider(), spice_declaration)
 
@@ -93,16 +93,17 @@ class TestCircuit(TestNetlist):
 
         spice_declaration = """
 .title Voltage Divider
-Vinput in 0 10V
-R1 in out 9kOhm
-R2 out 0 1kOhm
+
+vinput in 0 10v
+r1 in out 9kohm
+r2 out 0 1kohm
 """
 # .end
 
         circuit = Circuit('Voltage Divider')
         circuit.V('input', 'in', circuit.gnd, '10V')
         circuit.R(1, 'in', 'out', 9@u_kΩ)
-        circuit.R(2, circuit.out, circuit.gnd, 1@u_kΩ) # out node is defined
+        circuit.R(2, circuit['out'], circuit.gnd, 1@u_kΩ) # out node is defined
         self._test_spice_declaration(circuit, spice_declaration)
 
         circuit = VoltageDividerCircuit()
@@ -110,24 +111,24 @@ R2 out 0 1kOhm
 
         self._test_nodes(circuit, (0, 'in', 'out'))
 
-        self.assertTrue(circuit.R1.minus.node is circuit.out)
+        self.assertTrue(circuit['R1'].minus.node is circuit['out'])
 
-        self.assertEqual(str(circuit.R1.plus.node), 'in')
-        self.assertEqual(str(circuit.R1.minus.node), 'out')
+        self.assertEqual(str(circuit['R1'].plus.node), 'in')
+        self.assertEqual(str(circuit['R1'].minus.node), 'out')
 
         self.assertEqual(str(circuit['in']), 'in')
         self.assertEqual(str(circuit['out']), 'out')
-        self.assertEqual(str(circuit.out), 'out')
+        #self.assertEqual(str(circuit.out), 'out')
 
         # for pin in circuit.out:
         #     print(pin)
 
-        self.assertEqual(circuit.out.pins, set((circuit.R1.minus, circuit.R2.plus)))
+        self.assertEqual(circuit['out'].pins, set((circuit['R1'].minus, circuit['R2'].plus)))
 
-        self.assertEqual(circuit.R1.resistance, 9@u_kΩ)
+        self.assertEqual(circuit['R1'].resistance, 9@u_kΩ)
         self.assertEqual(circuit['R2'].resistance, 1@u_kΩ)
 
-        circuit.R1.resistance = 10@u_kΩ
+        circuit['R1'].resistance = 10@u_kΩ
         self._test_spice_declaration(circuit, spice_declaration.replace('9k', '10k'))
 
         # .global .param .include .model
@@ -156,9 +157,10 @@ R2 out 0 1kOhm
 
         spice_declaration = """
 .title Voltage Divider
+
 R2 out 0 1kOhm
-Vinput in 0 10V
-R1 in out 9kOhm
+vinput in 0 10v
+r1 in out 9kohm
 """
 # .end
 
@@ -174,9 +176,19 @@ R1 in out 9kOhm
 
         circuit = Circuit('')
         model = circuit.model('Diode', 'D', is_=1, rs=2)
-        self.assertEqual(model.is_, 1)
-        self.assertEqual(model['is'], 1)
-        self.assertEqual(str(model), '.model Diode D (is=1 rs=2)')
+        self.assertEqual(model['is_'], 1)
+        self.assertEqual(str(model), '.model diode D (is=1 rs=2)')
+
+    def test_transformer(self):
+        import os
+        from PySpice.Spice.Netlist import Circuit
+        circuit = Circuit('Diode Characteristic Curve')
+        circuit.L('primary', 'Vlp', 'Vdrain', '{l_trf}')
+        circuit.C('resonance', 'Vlv', 'Vdrain', '{cap_r}')
+        circuit.L('secondary', 'Vls', 'ghv', '{Ls}')
+        circuit.R('secondary', 'Vls', 1, 5.15)
+        circuit.K('flyback', 'Lprimary', 'Lsecondary', 1)
+
 
 ####################################################################################################
 

@@ -32,88 +32,88 @@ from .Unit import UnitPrefix, SiBaseUnit, Unit
 # Define SI unit prefixes
 
 class Yotta(UnitPrefix):
-    __power__ = 24
-    __prefix__ = 'Y'
-    __spice_prefix__ = None
+    _power_ = 24
+    _prefix_ = 'Y'
+    _spice_prefix_ = None
 
 class Zetta(UnitPrefix):
-    __power__ = 21
-    __prefix__ = 'Z'
-    __spice_prefix__ = None
+    _power_ = 21
+    _prefix_ = 'Z'
+    _spice_prefix_ = None
 
 class Exa(UnitPrefix):
-    __power__ = 18
-    __prefix__ = 'E'
-    __spice_prefix__ = None
+    _power_ = 18
+    _prefix_ = 'E'
+    _spice_prefix_ = None
 
 class Peta(UnitPrefix):
-    __power__ = 15
-    __prefix__ = 'P'
-    __spice_prefix__ = None
+    _power_ = 15
+    _prefix_ = 'P'
+    _spice_prefix_ = None
 
 class Tera(UnitPrefix):
-    __power__ = 12
-    __prefix__ = 'T'
+    _power_ = 12
+    _prefix_ = 'T'
 
 class Giga(UnitPrefix):
-    __power__ = 9
-    __prefix__ = 'G'
+    _power_ = 9
+    _prefix_ = 'G'
 
 class Mega(UnitPrefix):
-    __power__ = 6
-    __prefix__ = 'M'
-    __spice_prefix__ = 'Meg'
+    _power_ = 6
+    _prefix_ = 'M'
+    _spice_prefix_ = 'Meg'
 
 class Kilo(UnitPrefix):
-    __power__ = 3
-    __prefix__ = 'k'
+    _power_ = 3
+    _prefix_ = 'k'
 
 class Hecto(UnitPrefix):
-    __power__ = 2
-    __prefix__ = 'h'
-    __spice_prefix__ = None
+    _power_ = 2
+    _prefix_ = 'h'
+    _spice_prefix_ = None
 
 class Deca(UnitPrefix):
-    __power__ = 1
-    __prefix__ = 'da'
-    __spice_prefix__ = None
+    _power_ = 1
+    _prefix_ = 'da'
+    _spice_prefix_ = None
 
 class Milli(UnitPrefix):
-    __power__ = -3
-    __prefix__ = 'm'
+    _power_ = -3
+    _prefix_ = 'm'
 
 class Micro(UnitPrefix):
-    __power__ = -6
-    __prefix__ = 'μ'
-    __spice_prefix__ = 'u'
+    _power_ = -6
+    _prefix_ = 'μ'
+    _spice_prefix_ = 'u'
 
 class Nano(UnitPrefix):
-    __power__ = -9
-    __prefix__ = 'n'
+    _power_ = -9
+    _prefix_ = 'n'
 
 class Pico(UnitPrefix):
-    __power__ = -12
-    __prefix__ = 'p'
+    _power_ = -12
+    _prefix_ = 'p'
 
 class Femto(UnitPrefix):
-    __power__ = -15
-    __prefix__ = 'f'
-    __spice_prefix__ = None
+    _power_ = -15
+    _prefix_ = 'f'
+    _spice_prefix_ = None
 
 class Atto(UnitPrefix):
-    __power__ = -18
-    __prefix__ = 'a'
-    __spice_prefix__ = None
+    _power_ = -18
+    _prefix_ = 'a'
+    _spice_prefix_ = None
 
 class Zepto(UnitPrefix):
-    __power__ = -21
-    __prefix__ = 'z'
-    __spice_prefix__ = None
+    _power_ = -21
+    _prefix_ = 'z'
+    _spice_prefix_ = None
 
 class Yocto(UnitPrefix):
-    __power__ = -24
-    __prefix__ = 'y'
-    __spice_prefix__ = None
+    _power_ = -24
+    _prefix_ = 'y'
+    _spice_prefix_ = None
 
 # Fixme: ngspice defines mil
 
@@ -122,206 +122,206 @@ class Yocto(UnitPrefix):
 # Define SI units
 
 class Metre(SiBaseUnit):
-    __unit_name__ = 'metre'
-    __unit_suffix__ = 'm'
-    __quantity__ = 'length'
+    _unit_name_ = 'metre'
+    _unit_suffix_ = 'm'
+    _quantity_ = 'length'
 
 class Kilogram(SiBaseUnit):
-    __unit_name__ = 'kilogram'
-    __unit_suffix__ = 'kg'
-    __quantity__ = 'mass'
+    _unit_name_ = 'kilogram'
+    _unit_suffix_ = 'kg'
+    _quantity_ = 'mass'
 
 class Second(SiBaseUnit):
-    __unit_name__ = 'second'
-    __unit_suffix__ = 's'
-    __quantity__ = 'time'
+    _unit_name_ = 'second'
+    _unit_suffix_ = 's'
+    _quantity_ = 'time'
     __is_si__ = True
 
 class Ampere(SiBaseUnit):
-    __unit_name__ = 'ampere'
-    __unit_suffix__ = 'A'
-    __quantity__ = 'electric current'
+    _unit_name_ = 'ampere'
+    _unit_suffix_ = 'A'
+    _quantity_ = 'electric current'
 
 class Kelvin(SiBaseUnit):
-    __unit_name__ = 'kelvin'
-    __unit_suffix__ = 'K'
-    __quantity__ = 'thermodynamic temperature'
+    _unit_name_ = 'kelvin'
+    _unit_suffix_ = 'K'
+    _quantity_ = 'thermodynamic temperature'
 
 class Mole(SiBaseUnit):
-    __unit_name__ = 'mole'
-    __unit_suffix__ = 'mol'
-    __quantity__ = 'amount of substance'
+    _unit_name_ = 'mole'
+    _unit_suffix_ = 'mol'
+    _quantity_ = 'amount of substance'
 
 class Candela(SiBaseUnit):
-    __unit_name__ = 'candela'
-    __unit_suffix__ = 'cd'
-    __quantity__ = 'luminosity intensity'
+    _unit_name_ = 'candela'
+    _unit_suffix_ = 'cd'
+    _quantity_ = 'luminosity intensity'
 
 ####################################################################################################
 
 # Define Derived units
 
 class Radian(Unit):
-    __unit_name__ = 'radian'
-    __unit_suffix__ = 'rad'
-    __quantity__ = 'angle'
-    __si_unit__ = 'm*m^-1'
-    __default_unit__ = True
+    _unit_name_ = 'radian'
+    _unit_suffix_ = 'rad'
+    _quantity_ = 'angle'
+    _si_unit_ = 'm*m^-1'
+    _default_unit_ = True
 
 class Steradian(Unit):
-    __unit_name__ = 'steradian'
-    __unit_suffix__ = 'sr'
-    __quantity__ = 'solid angle'
-    __si_unit__ = 'm^2*m^-2'
-    __default_unit__ = True
+    _unit_name_ = 'steradian'
+    _unit_suffix_ = 'sr'
+    _quantity_ = 'solid angle'
+    _si_unit_ = 'm^2*m^-2'
+    _default_unit_ = True
 
 class Hertz(Unit):
-    __unit_name__ = 'frequency'
-    __unit_suffix__ = 'Hz'
-    __quantity__ = 'frequency'
-    __si_unit__ = 's^-1'
-    __default_unit__ = True
+    _unit_name_ = 'frequency'
+    _unit_suffix_ = 'Hz'
+    _quantity_ = 'frequency'
+    _si_unit_ = 's^-1'
+    _default_unit_ = True
 
 class Newton(Unit):
-    __unit_name__ = 'newton'
-    __unit_suffix__ = 'N'
-    __quantity__ = 'force'
-    __si_unit__ = 'kg*m*s^-2'
-    __default_unit__ = True
+    _unit_name_ = 'newton'
+    _unit_suffix_ = 'N'
+    _quantity_ = 'force'
+    _si_unit_ = 'kg*m*s^-2'
+    _default_unit_ = True
 
 class Pascal(Unit):
-    __unit_name__ = 'pascal'
-    __unit_suffix__ = 'Pa'
-    __quantity__ = 'pressure'
-    __si_unit__ = 'kg*m^-1*s^-2'
-    __default_unit__ = True
+    _unit_name_ = 'pascal'
+    _unit_suffix_ = 'Pa'
+    _quantity_ = 'pressure'
+    _si_unit_ = 'kg*m^-1*s^-2'
+    _default_unit_ = True
     # N/m^2
 
 class Joule(Unit):
-    __unit_name__ = 'joule'
-    __unit_suffix__ = 'J'
-    __quantity__ = 'energy'
-    __si_unit__ = 'kg*m^2*s^-2'
-    __default_unit__ = True
+    _unit_name_ = 'joule'
+    _unit_suffix_ = 'J'
+    _quantity_ = 'energy'
+    _si_unit_ = 'kg*m^2*s^-2'
+    _default_unit_ = True
     # N*m
 
 class Watt(Unit):
-    __unit_name__ = 'watt'
-    __unit_suffix__ = 'W'
-    __quantity__ = 'power'
-    __si_unit__ = 'kg*m^2*s^-3'
-    __default_unit__ = True
+    _unit_name_ = 'watt'
+    _unit_suffix_ = 'W'
+    _quantity_ = 'power'
+    _si_unit_ = 'kg*m^2*s^-3'
+    _default_unit_ = True
     # J/s
 
 class Coulomb(Unit):
-    __unit_name__ = 'coulomb'
-    __unit_suffix__ = 'C'
-    __quantity__ = 'electric charge'
-    __si_unit__ = 's*A'
-    __default_unit__ = True
+    _unit_name_ = 'coulomb'
+    _unit_suffix_ = 'C'
+    _quantity_ = 'electric charge'
+    _si_unit_ = 's*A'
+    _default_unit_ = True
 
 class Volt(Unit):
-    __unit_name__ = 'volt'
-    __unit_suffix__ = 'V'
-    __quantity__ = 'voltage'
-    __si_unit__ = 'kg*m^2*s^-3*A^-1'
-    __default_unit__ = True
+    _unit_name_ = 'volt'
+    _unit_suffix_ = 'V'
+    _quantity_ = 'voltage'
+    _si_unit_ = 'kg*m^2*s^-3*A^-1'
+    _default_unit_ = True
     # W/A
 
 class Farad(Unit):
-    __unit_name__ = 'farad'
-    __unit_suffix__ = 'F'
-    __quantity__ = 'capacitance'
-    __si_unit__ = 'kg^-1*m^-2*s^4*A^2'
-    __default_unit__ = True
+    _unit_name_ = 'farad'
+    _unit_suffix_ = 'F'
+    _quantity_ = 'capacitance'
+    _si_unit_ = 'kg^-1*m^-2*s^4*A^2'
+    _default_unit_ = True
     # C/V
 
 class Ohm(Unit):
-    __unit_name__ = 'ohm'
-    __unit_suffix__ = 'Ω'
-    __quantity__ = 'electric resistance, impedance, reactance'
-    __si_unit__ = 'kg*m^2*s^-3*A^-2'
-    __default_unit__ = True
+    _unit_name_ = 'ohm'
+    _unit_suffix_ = 'Ω'
+    _quantity_ = 'electric resistance, impedance, reactance'
+    _si_unit_ = 'kg*m^2*s^-3*A^-2'
+    _default_unit_ = True
     # V/A
 
 class Siemens(Unit):
-    __unit_name__ = 'siemens'
-    __unit_suffix__ = 'S'
-    __quantity__ = 'electrical conductance'
-    __si_unit__ = 'kg^-1*m^-2*s^3*A^2'
-    __default_unit__ = True
+    _unit_name_ = 'siemens'
+    _unit_suffix_ = 'S'
+    _quantity_ = 'electrical conductance'
+    _si_unit_ = 'kg^-1*m^-2*s^3*A^2'
+    _default_unit_ = True
     # A/V
 
 class Weber(Unit):
-    __unit_name__ = 'weber'
-    __unit_suffix__ = 'Wb'
-    __quantity__ = 'magnetic flux'
-    __si_unit__ = 'kg*m^2*s^-2*A^-1'
-    __default_unit__ = True
+    _unit_name_ = 'weber'
+    _unit_suffix_ = 'Wb'
+    _quantity_ = 'magnetic flux'
+    _si_unit_ = 'kg*m^2*s^-2*A^-1'
+    _default_unit_ = True
     # V*s
 
 class Tesla(Unit):
-    __unit_name__ = 'tesla'
-    __unit_suffix__ = ''
-    __quantity__ = 'T'
-    __si_unit__ = 'kg*s^-2*A^-1'
-    __default_unit__ = True
+    _unit_name_ = 'tesla'
+    _unit_suffix_ = ''
+    _quantity_ = 'T'
+    _si_unit_ = 'kg*s^-2*A^-1'
+    _default_unit_ = True
     # Wb/m2
 
 class Henry(Unit):
-    __unit_name__ = 'henry'
-    __unit_suffix__ = 'H'
-    __quantity__ = 'inductance'
-    __si_unit__ = 'kg*m^2*s^-2*A^-2'
-    __default_unit__ = True
+    _unit_name_ = 'henry'
+    _unit_suffix_ = 'H'
+    _quantity_ = 'inductance'
+    _si_unit_ = 'kg*m^2*s^-2*A^-2'
+    _default_unit_ = True
     # Wb/A
 
 class DegreeCelcius(Unit):
-    __unit_name__ = 'degree celcuis'
-    __unit_suffix__ = '°C'
-    __quantity__ = 'temperature relative to 273.15 K'
-    __si_unit__ = 'K'
+    _unit_name_ = 'degree celcuis'
+    _unit_suffix_ = '°C'
+    _quantity_ = 'temperature relative to 273.15 K'
+    _si_unit_ = 'K'
 
 class Lumen(Unit):
-    __unit_name__ = 'lumen'
-    __unit_suffix__ = 'lm'
-    __quantity__ = 'luminous flux'
-    __si_unit__ = 'cd'
+    _unit_name_ = 'lumen'
+    _unit_suffix_ = 'lm'
+    _quantity_ = 'luminous flux'
+    _si_unit_ = 'cd'
     # cd*sr
 
 class Lux(Unit):
-    __unit_name__ = 'lux'
-    __unit_suffix__ = 'lx'
-    __quantity__ = 'illuminance'
-    __si_unit__ = 'm^-2*cd'
-    __default_unit__ = True
+    _unit_name_ = 'lux'
+    _unit_suffix_ = 'lx'
+    _quantity_ = 'illuminance'
+    _si_unit_ = 'm^-2*cd'
+    _default_unit_ = True
     # lm/m2
 
 class Becquerel(Unit):
-    __unit_name__ = 'becquerel'
-    __unit_suffix__ = 'Bq'
-    __quantity__ = 'radioactivity (decays per unit time)'
-    __si_unit__ = 's^-1' # same as Hertz
+    _unit_name_ = 'becquerel'
+    _unit_suffix_ = 'Bq'
+    _quantity_ = 'radioactivity (decays per unit time)'
+    _si_unit_ = 's^-1' # same as Hertz
 
 class Gray(Unit):
-    __unit_name__ = 'gray'
-    __unit_suffix__ = 'Gy'
-    __quantity__ = 'absorbed dose (of ionizing radiation)'
-    __si_unit__ = 'm^2*s^-2'
+    _unit_name_ = 'gray'
+    _unit_suffix_ = 'Gy'
+    _quantity_ = 'absorbed dose (of ionizing radiation)'
+    _si_unit_ = 'm^2*s^-2'
     # J/kg
 
 class Sievert(Unit):
-    __unit_name__ = 'sievert'
-    __unit_suffix__ = 'Sv'
-    __quantity__ = ' equivalent dose (of ionizing radiation)'
-    __si_unit__ = 'm^2*s^-2'
+    _unit_name_ = 'sievert'
+    _unit_suffix_ = 'Sv'
+    _quantity_ = ' equivalent dose (of ionizing radiation)'
+    _si_unit_ = 'm^2*s^-2'
 
 class Katal(Unit):
-    __unit_name__ = 'katal'
-    __unit_suffix__ = 'kat'
-    __quantity__ = 'catalytic activity'
-    __si_unit__ = 'mol*s^-1'
-    __default_unit__ = True
+    _unit_name_ = 'katal'
+    _unit_suffix_ = 'kat'
+    _quantity_ = 'catalytic activity'
+    _si_unit_ = 'mol*s^-1'
+    _default_unit_ = True
 
 ####################################################################################################
 

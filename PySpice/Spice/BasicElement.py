@@ -99,7 +99,8 @@ See Ngspice documentation for details.
 
 from ..Tools.StringTools import str_spice, join_list, join_dict
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
-from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
+from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement,
+                      OptionalPin, Pin, PinDefinition)
 from .ElementParameter import (
     # KeyValueParameter,
     BoolKeyParameter,
@@ -120,11 +121,11 @@ from .ElementParameter import (
 
 class DipoleElement(FixedPinElement):
     """This class implements a base class for dipole element."""
-    __pins__ = ('plus', 'minus')
+    _pins_ = ('plus', 'minus')
 
 class TwoPortElement(FixedPinElement):
     """This class implements a base class for two-port element."""
-    __pins__ = ('output_plus', 'output_minus', 'input_plus', 'input_minus')
+    _pins_ = ('output_plus', 'output_minus', 'input_plus', 'input_minus')
 
 ####################################################################################################
 
@@ -147,18 +148,17 @@ class SubCircuitElement(NPinElement):
     """
 
     __alias__ = 'X'
-    __prefix__ = 'X'
+    _prefix_ = 'X'
 
     subcircuit_name = ElementNamePositionalParameter(position=0, key_parameter=False)
 
     ##############################################
 
-    def __init__(self, netlist, name, subcircuit_name, *nodes, **parameters):
-
-        super().__init__(netlist, name, nodes, subcircuit_name)
+    def __init__(self, netlist, name, subcircuit_name, *nodes, **kwargs):
 
         # Fixme: match parameters to subcircuit
-        self.parameters = parameters
+        self.parameters = kwargs
+        self.parent = netlist
 
         # Fixme: investigate
         # for key, value in parameters.items():
@@ -166,6 +166,17 @@ class SubCircuitElement(NPinElement):
         #     parameter.__set__(self, value)
         #     self.optional_parameters[key] = parameter
         #     setattr(self, key, parameter)
+
+        subcircuit_name = subcircuit_name.lower()
+        subcircuit = netlist._find_subcircuit(subcircuit_name)
+
+        try:
+            self._pins = [Pin(self, PinDefinition(position, name=subcircuit._pins_[position]), netlist.get_node(node, True))
+                          for position, node in enumerate(nodes)]
+        except:
+            raise ValueError()
+
+        super().__init__(netlist, name, subcircuit_name)
 
     ##############################################
 
@@ -182,7 +193,7 @@ class SubCircuitElement(NPinElement):
 
         spice_parameters = super().format_spice_parameters()
         if self.parameters:
-            spice_parameters += ' ' + join_dict(self.parameters)
+            spice_parameters += ' params: ' + join_dict(self.parameters)
 
         return spice_parameters
 
@@ -238,9 +249,10 @@ class Resistor(DipoleElement):
     """
 
     __alias__ = 'R'
-    __prefix__ = 'R'
+    _prefix_ = 'R'
 
-    resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
+    resistance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_Ω)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     ac = FloatKeyParameter('ac', unit=U_Ω)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
@@ -310,10 +322,10 @@ class SemiconductorResistor(DipoleElement):
     """
 
     __alias__ = 'SemiconductorResistor'
-    __prefix__ = 'R'
+    _prefix_ = 'R'
 
-    resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
-    model = ModelPositionalParameter(position=1, key_parameter=True)
+    resistance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_Ω)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
     width = FloatKeyParameter('w', unit=U_m)
     temperature = FloatKeyParameter('temp', unit=U_Degree)
@@ -355,7 +367,7 @@ class BehavioralResistor(DipoleElement):
     """
 
     __alias__ = 'BehavioralResistor'
-    __prefix__ = 'R'
+    _prefix_ = 'R'
 
     resistance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -410,10 +422,10 @@ class Capacitor(DipoleElement):
     """
 
     __alias__ = 'C'
-    __prefix__ = 'C'
+    _prefix_ = 'C'
 
-    capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_F)
-    model = ModelPositionalParameter(position=1, key_parameter=True)
+    capacitance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_F)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
     temperature = FloatKeyParameter('temp', unit=U_Degree)
@@ -479,10 +491,10 @@ class SemiconductorCapacitor(DipoleElement):
     """
 
     __alias__ = 'SemiconductorCapacitor'
-    __prefix__ = 'C'
+    _prefix_ = 'C'
 
-    capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_F)
-    model = ModelPositionalParameter(position=1, key_parameter=True)
+    capacitance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_F)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
     width = FloatKeyParameter('w', unit=U_m)
     multiplier = IntKeyParameter('m')
@@ -521,7 +533,7 @@ class BehavioralCapacitor(DipoleElement):
     """
 
     __alias__ = 'BehavioralCapacitor'
-    __prefix__ = 'C'
+    _prefix_ = 'C'
 
     capacitance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -578,10 +590,10 @@ class Inductor(DipoleElement):
     """
 
     __alias__ = 'L'
-    __prefix__ = 'L'
+    _prefix_ = 'L'
 
-    inductance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_H)
-    model = ModelPositionalParameter(position=1, key_parameter=True)
+    inductance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_H)
+    model = ModelPositionalParameter(position=0, key_parameter=True)
     nt = FloatKeyParameter('nt')
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
@@ -619,7 +631,7 @@ class BehavioralInductor(DipoleElement):
     """
 
     __alias__ = 'BehavioralInductor'
-    __prefix__ = 'L'
+    _prefix_ = 'L'
 
     inductance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -650,7 +662,11 @@ class CoupledInductor(AnyPinElement):
     """
 
     __alias__ = 'K'
-    __prefix__ = 'K'
+    _prefix_ = 'K'
+
+    # Adding the variable as it is not used by the coupling inductor
+
+    _pins = tuple()
 
     inductor1 = ElementNamePositionalParameter(position=0, key_parameter=False)
     inductor2 = ElementNamePositionalParameter(position=1, key_parameter=False)
@@ -692,7 +708,7 @@ class VoltageControlledSwitch(TwoPortElement):
 
     __alias__ = 'S'
     __long_alias__ = 'VCS'
-    __prefix__ = 'S'
+    _prefix_ = 'S'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     initial_state = InitialStatePositionalParameter(position=1, key_parameter=True)
@@ -729,7 +745,7 @@ class CurrentControlledSwitch(DipoleElement):
 
     __alias__ = 'W'
     __long_alias__ = 'CCS'
-    __prefix__ = 'W'
+    _prefix_ = 'W'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=True)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -760,10 +776,19 @@ class VoltageSource(DipoleElement):
     """
 
     __alias__ = 'V'
-    __prefix__ = 'V'
+    _prefix_ = 'V'
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_V)
+
+    def __init__(self, netlist, name, *args, **kwargs):
+        number_of_pins = len(self._pins_)
+        arguments = args
+        if len(args) > number_of_pins:
+            arguments = list(args[:number_of_pins])
+            arguments.append(join_list(args[number_of_pins:]))
+
+        super().__init__(netlist, name, *arguments, **kwargs)
 
 ####################################################################################################
 
@@ -786,7 +811,7 @@ class CurrentSource(DipoleElement):
     """
 
     __alias__ = 'I'
-    __prefix__ = 'I'
+    _prefix_ = 'I'
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_A)
@@ -815,7 +840,7 @@ class VoltageControlledCurrentSource(TwoPortElement):
     """
 
     __alias__ = 'VCCS'
-    __prefix__ = 'G'
+    _prefix_ = 'G'
 
     transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
     multiplier = IntKeyParameter('m')
@@ -841,7 +866,7 @@ class VoltageControlledVoltageSource(TwoPortElement):
     """
 
     __alias__ = 'VCVS'
-    __prefix__ = 'E'
+    _prefix_ = 'E'
 
     voltage_gain = ExpressionPositionalParameter(position=0, key_parameter=False)
 
@@ -872,7 +897,7 @@ class CurrentControlledCurrentSource(DipoleElement):
 
     __alias__ = 'F'
     __long_alias__ = 'CCCS'
-    __prefix__ = 'F'
+    _prefix_ = 'F'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
     current_gain = ExpressionPositionalParameter(position=1, key_parameter=False)
@@ -902,7 +927,7 @@ class CurrentControlledVoltageSource(DipoleElement):
 
     __alias__ = 'H'
     __long_alias__ = 'CCVS'
-    __prefix__ = 'H'
+    _prefix_ = 'H'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
     transresistance = ExpressionPositionalParameter(position=1, key_parameter=False)
@@ -958,7 +983,7 @@ class BehavioralSource(DipoleElement):
     """
 
     __alias__ = 'B'
-    __prefix__ = 'B'
+    _prefix_ = 'B'
 
     current_expression = ExpressionKeyParameter('i')
     voltage_expression = ExpressionKeyParameter('v')
@@ -966,6 +991,32 @@ class BehavioralSource(DipoleElement):
     tc2 = FloatKeyParameter('tc2')
     temperature = FloatKeyParameter('temp', unit=U_Degree)
     device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    smoothbsrc = IntKeyParameter('smoothbsrc')
+
+    ##############################################
+
+    def __str__(self):
+
+        spice_element = self.format_node_names()
+        # Fixme: expression
+        if self.current_expression is not None:
+            expression = ' i=%s' % self.current_expression
+        elif self.voltage_expression is not None:
+            expression = ' v=%s' % self.voltage_expression
+        else:
+            expression = ''
+        spice_element += expression
+        if self.tc1 is not None:
+            spice_element += ' tc1=%f' % self.tc1
+        if self.tc2 is not None:
+            spice_element += ' tc2=%f' % self.tc2
+        if self.temperature is not None:
+            spice_element += ' temp=%f' % self.temperature
+        if self.device_temperature is not None:
+            spice_element += ' dtemp=%f' % self.device_temperature
+        if self.smoothbsrc is not None:
+            spice_element += ' smoothbsrc=%s' % self.smoothbsrc
+        return spice_element
 
 ####################################################################################################
 
@@ -992,7 +1043,11 @@ class NonLinearVoltageSource(DipoleElement):
     """
 
     __alias__ = 'NonLinearVoltageSource'
-    __prefix__ = 'E'
+    _prefix_ = 'E'
+
+    value = ExpressionKeyParameter('value')
+    table = ExpressionKeyParameter('table')
+    smoothbsrc = ExpressionKeyParameter('smoothbsrc')
 
     ##############################################
 
@@ -1013,6 +1068,8 @@ class NonLinearVoltageSource(DipoleElement):
             # TABLE {expression} = (x0, y0) (x1, y1) ...
             table = ['({}, {})'.format(str_spice(x), str_spice(y)) for x, y in self.table]
             spice_element += ' TABLE {%s} = %s' % (self.expression, join_list(table))
+        else:
+            spice_element += ' VALUE={%s}' % (self.expression)
         return spice_element
 
 ####################################################################################################
@@ -1041,7 +1098,7 @@ class NonLinearCurrentSource(DipoleElement):
     """
 
     __alias__ = 'NonLinearCurrentSource'
-    __prefix__ = 'G'
+    _prefix_ = 'G'
 
     transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
 
@@ -1103,8 +1160,8 @@ class Diode(FixedPinElement):
     """
 
     __alias__ = 'D'
-    __prefix__ = 'D'
-    __pins__ = (('cathode', 'plus'), ('anode', 'minus'))
+    _prefix_ = 'D'
+    _pins_ = (('cathode', 'plus'), ('anode', 'minus'))
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1180,8 +1237,8 @@ class BipolarJunctionTransistor(FixedPinElement):
 
     __alias__ = 'Q'
     __long_alias__ = 'BJT'
-    __prefix__ = 'Q'
-    __pins__ = ('collector', 'base', 'emitter', OptionalPin('substrate'))
+    _prefix_ = 'Q'
+    _pins_ = ('collector', 'base', 'emitter', OptionalPin('substrate'))
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1200,7 +1257,7 @@ class BipolarJunctionTransistor(FixedPinElement):
 ####################################################################################################
 
 class JfetElement(FixedPinElement):
-    __pins__ = ('drain', 'gate', 'source')
+    _pins_ = ('drain', 'gate', 'source')
 
 class JunctionFieldEffectTransistor(JfetElement):
 
@@ -1243,7 +1300,7 @@ class JunctionFieldEffectTransistor(JfetElement):
 
     __alias__ = 'J'
     __long_alias__ = 'JFET'
-    __prefix__ = 'J'
+    _prefix_ = 'J'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1294,7 +1351,7 @@ class Mesfet(JfetElement):
 
     __alias__ = 'Z'
     __long_alias__ = 'MESFET'
-    __prefix__ = 'Z'
+    _prefix_ = 'Z'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1392,8 +1449,8 @@ class Mosfet(FixedPinElement):
 
     __alias__ = 'M'
     __long_alias__ = 'MOSFET'
-    __prefix__ = 'M'
-    __pins__ = ('drain', 'gate', 'source', ('bulk', 'substrate'))
+    _prefix_ = 'M'
+    _pins_ = ('drain', 'gate', 'source', ('bulk', 'substrate'))
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     multiplier = IntKeyParameter('m')
@@ -1456,7 +1513,7 @@ class LosslessTransmissionLine(TwoPortElement):
     """
 
     __alias__ = 'TransmissionLine'
-    __prefix__ = 'T'
+    _prefix_ = 'T'
 
     impedance = FloatKeyParameter('Z0', default=50, unit=U_Ω)
     time_delay = FloatKeyParameter('TD', unit=U_s)
@@ -1495,7 +1552,7 @@ class LossyTransmission(TwoPortElement):
     """
 
     __alias__ = 'O'
-    __prefix__ = 'O'
+    _prefix_ = 'O'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
 
@@ -1524,10 +1581,16 @@ class CoupledMulticonductorLine(NPinElement):
     """
 
     __alias__ = 'P'
-    __prefix__ = 'P'
+    _prefix_ = 'P'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('len', unit=U_m)
+
+    ##############################################
+
+    def __init__(self, netlist, name, *nodes, **parameters):
+
+        super().__init__(netlist, name, nodes, **parameters)
 
 ####################################################################################################
 
@@ -1557,12 +1620,12 @@ class UniformDistributedRCLine(FixedPinElement):
     """
 
     __alias__ = 'U'
-    __prefix__ = 'U'
-    __pins__ = ('output', 'input', 'capacitance_node')
+    _prefix_ = 'U'
+    _pins_ = ('output', 'input', 'capacitance_node')
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
-    number_of_lumps = IntKeyParameter('m')
+    number_of_lumps = IntKeyParameter('n')
 
 ####################################################################################################
 
@@ -1591,7 +1654,7 @@ class SingleLossyTransmissionLine(TwoPortElement):
     """
 
     __alias__ = 'Y'
-    __prefix__ = 'Y'
+    _prefix_ = 'Y'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('len', unit=U_m)
@@ -1633,9 +1696,17 @@ class XSpiceElement(NPinElement):
     """
 
     __alias__ = 'A'
-    __prefix__ = 'A'
+    _prefix_ = 'A'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
+
+    ##############################################
+
+    def __init__(self, netlist, name, *nodes, **parameters):
+
+        # Fixme: ok ???
+
+        super().__init__(netlist, name, *nodes, **parameters)
 
 ####################################################################################################
 #
@@ -1651,7 +1722,7 @@ class GSSElement(NPinElement):
     """
 
     __alias__ = 'N'
-    __prefix__ = 'N'
+    _prefix_ = 'N'
 
     ##############################################
 

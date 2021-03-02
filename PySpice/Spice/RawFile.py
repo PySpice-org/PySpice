@@ -48,8 +48,6 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-# Fixme: self._
-
 class VariableAbc:
 
     """This class implements a variable or probe in a SPICE simulation output.
@@ -69,15 +67,47 @@ class VariableAbc:
 
     def __init__(self, index, name, unit):
 
-        self.index = int(index)
+        # Fixme: self._ ?
+
+        self._index = int(index)
         self.name = str(name)
-        self.unit = unit # could be guessed from name also for voltage node and branch current
+        self._unit = unit # could be guessed from name also for voltage node and branch current
         self.data = None
 
     ##############################################
 
+    @property
+    def index(self):
+        return self._index
+
+    # @property
+    # def name(self):
+    #     return self._name
+
+    # @name.setter
+    # def name(self, value):
+    #     self._name = value
+
+    ##############################################
+
     def __repr__(self):
-        return 'variable[{0.index}]: {0.name} [{0.unit}]'.format(self)
+        return 'variable[{0._index}]: {0.name} [{0._unit}]'.format(self)
+
+    ##############################################
+
+    def is_voltage_node(self):
+        raise NotImplementedError
+
+    ##############################################
+
+    def is_branch_current(self):
+        raise NotImplementedError
+
+    ##############################################
+
+    @property
+    def is_interval_parameter(self):
+        return self.name.startswith('@') # Fixme: Xyce ???
 
     ##############################################
 
@@ -106,6 +136,12 @@ class VariableAbc:
 
     ##############################################
 
+    @property
+    def simplified_name(self):
+        raise NotImplementedError
+
+    ##############################################
+
     def to_waveform(self, abscissa=None, to_real=False, to_float=False):
 
         """ Return a :obj:`PySpice.Probe.WaveForm` instance. """
@@ -113,10 +149,14 @@ class VariableAbc:
         data = self.data
         if to_real:
             data = data.real
-        if to_float:
-            data = float(data[0])
+        # Fixme: else UnitValue instead of UnitValues
+        # if to_float:
+        #     data = float(data[0])
 
-        return WaveForm(self.simplified_name, self.unit(data), abscissa=abscissa)
+        if self._unit is not None:
+            return WaveForm.from_unit_values(self.simplified_name, self._unit(data), abscissa=abscissa)
+        else:
+            return WaveForm.from_array(self.simplified_name, data, abscissa=abscissa)
 
 ####################################################################################################
 
@@ -283,6 +323,14 @@ class RawFileAbc:
 
     ##############################################
 
+    def internal_parameters(self, to_float=False, abscissa=None):
+
+        return [variable.to_waveform(abscissa, to_float=to_float)
+                for variable in self.variables.values()
+                if variable.is_interval_parameter]
+
+    ##############################################
+
     def elements(self, abscissa=None):
 
         return [variable.to_waveform(abscissa, to_float=True)
@@ -339,6 +387,7 @@ class RawFileAbc:
             sweep=sweep,
             nodes=self.nodes(),
             branches=self.branches(),
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
@@ -351,6 +400,7 @@ class RawFileAbc:
             frequency=frequency,
             nodes=self.nodes(),
             branches=self.branches(),
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
@@ -363,4 +413,5 @@ class RawFileAbc:
             time=time,
             nodes=self.nodes(abscissa=time),
             branches=self.branches(abscissa=time),
+            internal_parameters=self.internal_parameters(),
         )

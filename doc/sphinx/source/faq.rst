@@ -36,6 +36,16 @@ There is three solutions if you don't have these Unicode characters available on
 first one, is to use the ASCII alternative: :code:`u_kOhm` or :code:`u_uV.`.  The second one, is to
 define macros on your favourite editor.  The last one, is to customise your keyboard settings (on Linux look at https://www.x.org/wiki/XKB/).
 
+How to perform division with units ?
+------------------------------------
+
+According to the Python `operator precedence
+<https://docs.python.org/3/reference/expressions.html#operator-precedence>`_, division operators
+have a higher priority than the matrix multiplication operator.  In consequence you must had
+parenthesis to perform something like :code:`(10@u_s) / (2@_us)`.
+
+**It is currently an issue ...**
+
 Is unit API well tested ?
 -------------------------
 
@@ -82,17 +92,29 @@ and raw parameters using:
 How to set the Ngspice library path ?
 -------------------------------------
 
-If the setting doesn't match your environment, then you have to set manually the attribute
+If the default setting doesn't match your environment, then you have to fix globally the attribute
 :attr:`PySpice.Spice.NgSpice.Shared.NgSpiceShared.LIBRARY_PATH`. Note you have to place a brace pair
-just before the extension, for example "C:\...\ngspice{}.dll".  You can also fix the value of
-:attr:`PySpice.Spice.NgSpice.Shared.NgSpiceShared.NGSPICE_PATH`.
+just before the extension, for example :file:`C:\\...\\ngspice{}.dll`.
 
-How to set the Ngspice path ?
------------------------------
+You can also fix the value of :attr:`PySpice.Spice.NgSpice.Shared.NgSpiceShared.NGSPICE_PATH`.
 
-If the setting doesn't match your environment, then you have to set manually the attribute
-:attr:`PySpice.Spice.Server.SpiceServer.SPICE_COMMAND`. This value can be passed as argument as
-well, see API documentation.
+How to set the Ngspice executable path ?
+----------------------------------------
+
+If the default setting doesn't match your environment, then you can fix globally the Ngspice executable
+path using the attribute :attr:`PySpice.Spice.NgSpice.Server.SpiceServer.SPICE_COMMAND`, you can also
+pass the executable path to the simulator using::
+
+   simulator = circuit.simulator(spice_command='...')
+
+How to set the Xyce path ?
+--------------------------
+
+If the default setting doesn't match your environment, then you can fix globally the Xyce executable
+path using the attribute :attr:`PySpice.Spice.Xyce.Server.XyceServer.XYCE_COMMAND`, you can also
+pass the executable path to the simulator using::
+
+   simulator = circuit.simulator(xyce_command='...')
 
 How to set the simulator ?
 --------------------------

@@ -36,7 +36,7 @@ def _get_elements(module):
     element_classes = []
     for item  in module.__dict__.values():
         if (type(item) is ElementParameterMetaClass
-            and item.__prefix__ is not None
+            and item._prefix_ is not None
            ):
             element_classes.append(item)
     return element_classes

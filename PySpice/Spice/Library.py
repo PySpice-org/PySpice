@@ -74,14 +74,12 @@ class SpiceLibrary:
             if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
                 spice_parser = SpiceParser(path)
-                if spice_parser.is_only_subcircuit():
-                    for subcircuit in spice_parser.subcircuits:
-                        name = self._suffix_name(subcircuit.name, extension)
-                        self._subcircuits[name] = path
-                elif spice_parser.is_only_model():
-                    for model in spice_parser.models:
-                        name = self._suffix_name(model.name, extension)
-                        self._models[name] = path
+                for subcircuit in spice_parser.subcircuits:
+                    name = self._suffix_name(subcircuit.name, extension)
+                    self._subcircuits[name.lower()] = path
+                for model in spice_parser.models:
+                    name = self._suffix_name(model.name, extension)
+                    self._models[name.lower()] = path
 
     ##############################################
 
@@ -96,15 +94,14 @@ class SpiceLibrary:
     ##############################################
 
     def __getitem__(self, name):
-
+        name = name.lower()
         if name in self._subcircuits:
             return self._subcircuits[name]
         elif name in self._models:
             return self._models[name]
         else:
             # print('Library {} not found in {}'.format(name, self._directory))
-            # self._logger.warn('Library {} not found in {}'.format(name, self._direct
-                                                                  ory))
+            # self._logger.warn('Library {} not found in {}'.format(name, self._directory))
             raise KeyError(name)
 
     ##############################################
