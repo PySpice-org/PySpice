@@ -897,6 +897,8 @@ class PrefixedUnit:
 
         if isinstance(value, np.ndarray):
             return self._values_ctor.from_ndarray(value, self)
+        elif isinstance(value, str):
+            return self._value_ctor(self, value)
         elif isinstance(value, collections.Iterable):
             return [self._value_ctor(self, x) for x in value]
         else:

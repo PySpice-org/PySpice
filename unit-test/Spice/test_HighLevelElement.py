@@ -47,7 +47,7 @@ class TestHighLevelElement(unittest.TestCase):
                 'pwl1', '1', '0',
                 values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
             ),
-            'Vpwl1 1 0 PWL(0s 0V 10ms 0V 11ms 5V 20ms 5V r=0s td=0.0s)',
+            'Vpwl1 1 0 PWL(0s 0V 10ms 0V 11ms 5V 20ms 5V r=0s td=0.0s)'.lower(),
         )
 
 ####################################################################################################

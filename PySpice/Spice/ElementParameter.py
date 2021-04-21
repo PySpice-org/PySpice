@@ -193,10 +193,10 @@ class FloatPositionalParameter(PositionalElementParameter):
 
     def validate(self, value):
 
-        if isinstance(value, Unit):
+        if isinstance(value, type(self._unit)):
             return value
         else:
-            return Unit(value)
+            return self._unit.new_value(value)
 
 ####################################################################################################
 

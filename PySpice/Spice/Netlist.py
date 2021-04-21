@@ -720,8 +720,6 @@ class FixedPinElement(Element):
                     raise NameError("Node '{}' is missing for element {}".format(pin_definition.name, self.name))
                 pin_definition_nodes.append((pin_definition, node))
 
-
-
         self._pins = [Pin(self, pin_definition, netlist.get_node(node, True))
                       for pin_definition, node in pin_definition_nodes]
 
@@ -744,7 +742,22 @@ class NPinElement(Element):
     ##############################################
 
     def __init__(self, netlist, name, *args, **kwargs):
+        nodes = []
+        positional = len(self._positional_parameters_)
+        for key, parameter in self._positional_parameters_.items():
+            if parameter.key_parameter:
+                if key in kwargs:
+                    positional -= 1
+        if positional > 0:
+            if positional < len(args):
+                nodes = args[:-positional]
+                args = args[-positional:]
+        else:
+            nodes = args
+            args = []
 
+        self._pins = [Pin(self, self._pins_[0], netlist.get_node(node, True))
+                      for node in nodes]
         super().__init__(netlist, name, *args, **kwargs)
 
     ##############################################
@@ -947,17 +960,6 @@ class Netlist:
                 return None
         else:
             return self._subcircuits[name]
-
-    ##############################################
-
-    #def __getattr__(self, attribute_name):
-
-    #    try:
-    #        return self.__getitem__(attribute_name)
-    #    except IndexError:
-    #        raise AttributeError(attribute_name)
-
-    ##############################################
 
     def _add_node(self, node_name):
 

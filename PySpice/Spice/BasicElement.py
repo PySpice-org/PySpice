@@ -1703,7 +1703,6 @@ class XSpiceElement(NPinElement):
     ##############################################
 
     def __init__(self, netlist, name, *nodes, **parameters):
-
         # Fixme: ok ???
 
         super().__init__(netlist, name, *nodes, **parameters)

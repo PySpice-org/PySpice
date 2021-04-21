@@ -660,6 +660,8 @@ class Element(Statement):
 
         # Read positionals
         number_of_positionals = prefix_data.number_of_positionals_min
+        if number_of_positionals and len(args) > number_of_positionals and len(args) <= prefix_data.number_of_positionals_max:
+            number_of_positionals = len(args)
         if number_of_positionals and (len(args) > 0) and (prefix_data.prefix != 'X'):  # model is optional
             self._parameters = args[:number_of_positionals]
             args = args[number_of_positionals:]
@@ -688,14 +690,28 @@ class Element(Statement):
 
         # Move positionals passed as kwarg
         to_delete = []
-        for parameter in element_class.positional_parameters.values():
+        values = self._parameters[:]
+        update = []
+        for parameter in sorted(element_class.positional_parameters.values(),
+                          key=lambda parameter: parameter.position):
+            if not parameter.key_parameter:
+                parameters_map = {}
+                for idx, value in enumerate(values):
+                    try:
+                        data = parameter.validate(value)
+                        parameters_map[idx] = data
+                    except Exception as e:
+                        pass
+                if len(parameters_map) == 1:
+                    update.append(values.pop(next(iter(parameters_map))))
             if parameter.key_parameter:
                 idx = parameter.position
-                if idx < len(self._parameters):
-                    self._dict_parameters[parameter.attribute_name] = self._parameters[idx]
+                if idx < len(values):
+                    self._dict_parameters[parameter.attribute_name] = parameter.validate(values[idx])
                     to_delete.append(idx - len(to_delete))
         for idx in to_delete:
-            self._parameters.pop(idx)
+            values.pop(idx)
+        self._parameters = update + values
 
         # self._logger.debug(os.linesep + self.__repr__())
 
