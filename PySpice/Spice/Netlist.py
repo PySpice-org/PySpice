@@ -756,8 +756,9 @@ class NPinElement(Element):
             nodes = args
             args = []
 
-        self._pins = [Pin(self, self._pins_[0], netlist.get_node(node, True))
-                      for node in nodes]
+        if len(nodes) > 0:
+            self._pins = [Pin(self, self._pins_[0], netlist.get_node(node, True))
+                          for node in nodes]
         super().__init__(netlist, name, *args, **kwargs)
 
     ##############################################
