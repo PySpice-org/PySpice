@@ -693,7 +693,7 @@ class Element(Statement):
         values = self._parameters[:]
         update = []
         for parameter in sorted(element_class.positional_parameters.values(),
-                          key=lambda parameter: parameter.position):
+                                key=lambda parameter: parameter.position):
             if not parameter.key_parameter:
                 parameters_map = {}
                 for idx, value in enumerate(values):
@@ -1102,6 +1102,20 @@ class Line:
     @staticmethod
     def _partition(text):
         parts = []
+        for part in text.split():
+            if '=' in part and part != '=':
+                left, right = [x for x in part.split('=')]
+                parts.append(left)
+                parts.append('=')
+                if right:
+                    parts.append(right)
+            else:
+                parts.append(part)
+        return parts
+
+    @staticmethod
+    def _partition_in_parentheses(text):
+        parts = []
         values = text.replace(',', ' ')
         for part in values.split():
             if '=' in part and part != '=':
@@ -1120,7 +1134,7 @@ class Line:
         parts = []
         previous_start = 0
         for m in regex.finditer(p, text):
-            parts.extend(Line._partition(text[previous_start:m.start()]))
+            parts.extend(Line._partition_in_parentheses(text[previous_start:m.start()]))
             parts.append(m.group())
             previous_start = m.end()
         parts.extend(Line._partition(text[previous_start:]))
@@ -1188,10 +1202,10 @@ class Line:
                 parts.extend(Line._partition_braces(text))
         else:
             if mp is not None:
-                parts.extend(Line._partition(text[:mp.start()]))
-                parts.extend(Line._partition(mp.group()[1:-1]))
+                parts.extend(Line._partition_in_parentheses(text[:mp.start()]))
+                parts.extend(Line._partition_in_parentheses(mp.group()[1:-1]))
             else:
-                parts.extend(Line._partition(text))
+                parts.extend(Line._partition_in_parentheses(text))
         return Line._check_parameters(parts)
 
     def split_element(self, prefix):
