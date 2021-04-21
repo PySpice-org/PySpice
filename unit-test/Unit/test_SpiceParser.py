@@ -368,6 +368,7 @@ Vl Ngl 0 0
 .end
 """
 
+
 def circuit_gft(prb):
     circuit_file = SpiceParser(source=prb[0])
     circuit = circuit_file.build_circuit()
@@ -390,8 +391,24 @@ class TestSpiceParser(unittest.TestCase):
         circuit.include(os.path.join(os.getcwd(), 'mosdriver.lib'))
         circuit.X('test', 'mosdriver', '0', '1', '2', '3', '4', '5')
         circuit.BehavioralSource('test', '1', '0', voltage_expression='if(0, 0, 1)', smoothbsrc=1)
-        print(circuit)
-        #self.assertEqual(True, False)
+        result = """.title Diode Characteristic Curve
+
+.subckt mosdriver hb hi ho hs li lo vdd vss
+.model diode D (is=1.038e-15 n=1 tt=20e-9 cjo=5e-12 rs=0.50 bv=130)
+
+bhigh hoi hs v={if(v(hi, vss) > 0.5, 5, 0)} smoothbsrc=1
+rhoi hoi ho 1
+choi ho hs 1e-9
+blow loi vss v={if(v(li, vss) > 0.5, 5, 0)} smoothbsrc=1
+rloi loi lo 1
+cloi lo vss 1e-9
+dhb vdd hb diode
+.ends mosdriver
+
+xtest 0 1 2 3 4 5 mosdriver
+btest 1 0 v=if(0, 0, 1) smoothbsrc=1
+"""
+        self.assertEqual(str(circuit), result)
 
 
 if __name__ == '__main__':
