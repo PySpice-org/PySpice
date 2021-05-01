@@ -228,17 +228,18 @@ class PySpicePostInstallation:
         # src = dll_path.joinpath('ngspice-{}.dll'.format(self.ngspice_version))
         src = 'ngspice-{}.dll'.format(self.ngspice_version)
         target = dll_path.joinpath('ngspice.dll')
-        if target.exists():
-            target.unlink()
-        try:
-            target.symlink_to(src)
-        except OSError:
-            # OSError: symbolic link privilege not held
-            # Windows: If User Account Control (UAC) is on, any user with the "Create Symbolic
-            #   Links" privilege that is not in the Administrators group can simply create a
-            #   symbolic link.  For users within the Administrators group and with UAC on, the user
-            #   must "Run as Administrator".
-            shutil.copy(target.parent.joinpath(src), target)
+        if dll_path.joinpath(src).exists():
+            if target.exists():
+                target.unlink()
+            try:
+                target.symlink_to(src)
+            except OSError:
+                # OSError: symbolic link privilege not held
+                # Windows: If User Account Control (UAC) is on, any user with the "Create Symbolic
+                #   Links" privilege that is not in the Administrators group can simply create a
+                #   symbolic link.  For users within the Administrators group and with UAC on, the user
+                #   must "Run as Administrator".
+                shutil.copy(target.parent.joinpath(src), target)
 
         spinit_path = spice64_path.joinpath('share', 'ngspice', 'scripts', 'spinit')
         with open(spinit_path) as fh:
