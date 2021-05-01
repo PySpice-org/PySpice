@@ -111,6 +111,7 @@ class PySpicePostInstallation:
     NGSPICE_WINDOWS_DLL_URL = NGSPICE_RELEASE_URL + '/{0}/ngspice-{0}_dll_64.zip'
     NGSPICE_WINDOWS_DLL_OLD_URL = NGSPICE_RELEASE_URL + '/old-releases/{0}/ngspice-{0}_dll_64.zip'
     NGSPICE_MANUAL_URL = NGSPICE_RELEASE_URL + '/{0}/ngspice-{0}-manual.pdf/download'
+    NGSPICE_MANUAL_OLD_URL = NGSPICE_RELEASE_URL + '/old-releases/{0}/ngspice-{0}-manual.pdf/download'
 
     ##############################################
 
@@ -258,7 +259,12 @@ class PySpicePostInstallation:
 
     def download_ngspice_manual(self):
         url = self.NGSPICE_MANUAL_URL.format(self.ngspice_version)
-        self._download_file(url, 'ngspice-manual-{}.pdf'.format(self.ngspice_version))
+        try:
+            self._download_file(url, 'ngspice-manual-{}.pdf'.format(self.ngspice_version))
+        except requests.exceptions.HTTPError:
+            print('Download failed, trying another URL...')
+            url = self.NGSPICE_MANUAL_OLD_URL.format(self.ngspice_version)
+            self._download_file(url, 'ngspice-manual-{}.pdf'.format(self.ngspice_version))
 
     ##############################################
 
