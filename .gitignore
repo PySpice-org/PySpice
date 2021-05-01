@@ -126,3 +126,5 @@ examples/c-examples/ngspice_cb/ng_shared_test_sl/ng_shared_test_sl.depend
 examples/c-examples/ngspice_cb/ng_shared_test_sl/ng_shared_test_sl.layout
 examples/c-examples/ngspice_cb/ng_shared_test_sl_v/
 examples/c-examples/ngspice_cb/ng_shared_test_v/
+
+Spice64_dll/
