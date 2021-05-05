@@ -26,6 +26,8 @@ See the :command:`cir2py` tool for an example of usage of the parser.
 
 It would be difficult to implement a full parser for Ngspice since the syntax is mainly contextual.
 
+SPICE is case insensitive.
+
 """
 
 ####################################################################################################
@@ -153,7 +155,7 @@ for prefix, classes in ElementParameterMetaClass._classes.items():
 
 class Statement:
 
-    """This class implements a statement, in fact a line in a Spice netlist."""
+    """This base class implements a statement, in fact a line in a Spice netlist."""
 
     ##############################################
 
@@ -256,7 +258,7 @@ class Model(Statement):
 
     Spice syntax::
 
-        .model mname type (pname1=pval1 pname2=pval2)
+        .model mname type(pname1=pval1 pname2=pval2 ... )
 
     """
 
@@ -295,9 +297,9 @@ class Model(Statement):
 
 ####################################################################################################
 
-class Param(Statement):
+class Parameter(Statement):
 
-    """This class implements a model definition.
+    """This class implements a parameter definition.
 
     Spice syntax::
 
@@ -310,7 +312,7 @@ class Param(Statement):
     def __init__(self, line):
         super().__init__(line, statement='param')
 
-        text = line.right_of('.param').strip().lower()
+        text = line.right_of('.param').strip().lower()  # Fixme: lower ???
         idx = text.find('=')
         self._name = text[:idx].strip()
         self._value = text[idx + 1:].strip()
@@ -331,6 +333,7 @@ class Param(Statement):
 
     def to_python(self, netlist_name):
         args = self.values_to_python((self._name, self._value))
+        # Fixme: linesep here ???
         return '{}.param({})'.format(netlist_name, self.join_args(args)) + os.linesep
 
     ##############################################
@@ -340,7 +343,11 @@ class Param(Statement):
 
 ####################################################################################################
 
+# Review: HERE
+
 class CircuitStatement(Statement):
+
+    # Review: jmgc
 
     """This class implements a circuit definition.
 
@@ -356,6 +363,7 @@ class CircuitStatement(Statement):
 
         super().__init__(title, statement='title')
 
+        # Review: Title
         title_statement = '.title '
         self._title = str(title)
         if self._title.startswith(title_statement):
@@ -480,6 +488,7 @@ class SubCircuitStatement(Statement):
 
         # Fixme
         parameters, dict_parameters = self._line.split_keyword('.subckt')
+        # Review: syntax ???
         if parameters[-1].lower() == 'params:':
             parameters = parameters[:-1]
         self._name, self._nodes = parameters[0], parameters[1:]
@@ -524,7 +533,7 @@ class SubCircuitStatement(Statement):
 
     def __repr__(self):
         if self._parameters:
-            text = 'SubCircuit {} {} Params: {}'.format(self._name, self._nodes, self._parameters) + os.linesep
+            text = 'SubCircuit {} {} Parameters: {}'.format(self._name, self._nodes, self._parameters) + os.linesep
         else:
             text = 'SubCircuit {} {}'.format(self._name, self._nodes) + os.linesep
         text += os.linesep.join([repr(model) for model in self._models]) + os.linesep
@@ -869,7 +878,7 @@ class Line:
 
     """This class implements a line in the netlist."""
 
-    _logger = _module_logger.getChild('Element')
+    _logger = _module_logger.getChild('Line')
 
     ##############################################
 
@@ -1225,8 +1234,8 @@ class SpiceParser:
         # Fixme: empty source
 
         if path is not None:
-            with open(str(path), 'rb') as f:
-                raw_lines = [line.decode('utf-8') for line in f]
+            with open(str(path), 'r') as fh:
+                raw_lines = fh.readlines()  # Fixme: cf. jmgc
         elif source is not None:
             raw_lines = source.split(os.linesep)
         else:
@@ -1361,7 +1370,7 @@ class SpiceParser:
                     include = Include(line)
                     scope.append(include)
                 elif lower_case_text.startswith('param'):
-                    param = Param(line)
+                    param = Parameter(line)
                     scope.append_param(param)
                 else:
                     # options param ...
