@@ -1495,6 +1495,10 @@ class UnitValues(np.ndarray):
         np.floor:     CONVERSION.NOT_IMPLEMENTED, # !
         np.ceil:      CONVERSION.NO_CONVERSION,
         np.trunc:     CONVERSION.NO_CONVERSION,
+
+        # Statistic functions
+        # --------------------------------------------------
+        np.mean:      CONVERSION.UNIT_MATCH,
     }
 
     ##############################################
