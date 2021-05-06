@@ -589,6 +589,7 @@ class NgSpiceShared:
         try:
             self._simulation_type = EnumFactory('SimulationType', SIMULATION_TYPE[self._ngspice_version])
         except KeyError:
+            # See SimulationType.py
             self._simulation_type = EnumFactory('SimulationType', SIMULATION_TYPE['last'])
             self._logger.warning("Unsupported Ngspice version {}".format(self._ngspice_version))
         self._type_to_unit = {
