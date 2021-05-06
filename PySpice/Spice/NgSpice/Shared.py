@@ -904,11 +904,24 @@ class NgSpiceShared:
     ##############################################
 
     def _alter(self, command, device, kwargs):
+        # Performance optimization: dispatch multiple alter commands jointly
         device_name = device.lower()
+        commands = []
+        commands_str_len = 0
         for key, value in kwargs.items():
             if isinstance(value, (list, tuple)):
                 value = '[ ' + ' '.join(value) + ' ]'
-            self.exec_command('{} {} {} = {}'.format(command, device_name, key, value))
+            cmd = '{} {} {} = {}'.format(command, device_name, key, value)
+            # performance optimization: collect multiple alter commands and 
+            #                           dispatch them jointly
+            commands.append(cmd)
+            commands_str_len += len(cmd)
+            if commands_str_len + len(commands) > self.__MAX_COMMAND_LENGTH__:
+                self.exec_command(';'.join(commands[:-1]))
+                commands = commands[-1:]
+                commands_str_len = len(commands[0])
+        if commands:
+            self.exec_command(';'.join(commands))
 
     ##############################################
 
