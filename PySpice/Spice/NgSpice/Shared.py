@@ -903,6 +903,7 @@ class NgSpiceShared:
     ##############################################
 
     def _alter(self, command, device, kwargs):
+        # Performance optimization: dispatch multiple alter commands jointly
         device_name = device.lower()
         commands = []
         commands_str_len = 0
