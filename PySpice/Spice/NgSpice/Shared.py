@@ -101,7 +101,7 @@ from PySpice.Probe.WaveForm import (
     WaveForm,
 )
 from PySpice.Tools.EnumFactory import EnumFactory
-from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F
+from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F, u_Degree
 
 from .SimulationType import SIMULATION_TYPE
 
@@ -598,6 +598,7 @@ class NgSpiceShared:
             self._simulation_type.current: u_A,
             self._simulation_type.frequency: u_Hz,
             self._simulation_type.capacitance: u_F,
+            self._simulation_type.temperature: u_Degree,
         }
 
         # Prevent paging output of commands (hangs)
