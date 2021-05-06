@@ -106,7 +106,7 @@ Brief Notes
 
 Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a **Forum** hosted at https://pyspice.discourse.group
 
-**Disclaimer: PySpice is developed on my free time actually, so I could be busy with other tasks and less reactive.**
+**Disclaimer: PySpice is developed in my free time actually, so I could be busy with other tasks and less responsive.**
 
 An issue was found with NgSpice Shared, we must `setlocale(LC_NUMERIC, "C");` see https://sourceforge.net/p/ngspice/bugs/490/
 
@@ -133,8 +133,8 @@ Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a **Forum** 
 What are the main features ?
 ----------------------------
 
-* support Ngspice and Xyce circuit simulators
-* support **Linux**, **Windows** and Mac **OS X** platforms
+* supports Ngspice and Xyce circuit simulators
+* supports **Linux**, **Windows** and Mac **OS X** platforms
 * licensed under **GPLv3** therms
 * implement an **Ngspice shared library binding** using CFFI which support external sources
 * implement (partial) **SPICE netlist parser**
@@ -156,7 +156,7 @@ Pull Request Recommendation
 
 To make it easier to merge your pull request, you should divide your PR into smaller and easier-to-verify units.
 
-Please do not make a pull requests with a lot of modifications which are difficult to check.  **If I merge
+Please do not make a pull request with a lot of modifications which are difficult to check.  **If I merge
 pull requests blindly then there is a high risk this software will become a mess quickly for everybody.**
 
 Credits
@@ -180,7 +180,7 @@ V1.4.3 (production release) 2020-07-04
 
 A huge effort, thanks to @stuarteberg Stuart Berg, has been made to make Ngspice and PySpice
 available on Anaconda (conda-forge) for the Window, OSX and Linux platforms.  Thanks to the
-conda-forge continuous integration platform, we can now run unit tests and the examples on theses
+conda-forge continuous integration platform, we can now run unit tests and the examples on these
 platforms automatically.  Hope this will make the software more robust and easier to run !
 
 * PySpice is now available on Anaconda(conda-forge) as well as a wheel on PyPI
@@ -188,7 +188,7 @@ platforms automatically.  Hope this will make the software more robust and easie
   It should now simplify considerably the PySpice installation on Windows.
 * This tool can also download the examples and the Ngspice PDF manual.
 * On Linux and OSX, a Ngspice package is now available on Anaconda(conda-forge).
-  Note that theses two platforms do not download a binary from Ngspice since a compiler can easily be installed on theses platforms.
+  Note that these two platforms do not download a binary from Ngspice since a compiler can easily be installed on these platforms.
 * Updated installation documentation for Linux, the main distributions now provide a ngspice shared package.
 
 * Added a front-end web site so as to keep older releases documentation available on the web.
@@ -202,7 +202,7 @@ platforms automatically.  Hope this will make the software more robust and easie
 * fixed NonLinearVoltageSource
 * fixed Unicode issue with °C (° is Extended ASCII)
 * fixed ffi_string_utf8 for UnicodeDecodeError
-* fixed logging formater for OSX (removed ANSI codes)
+* fixed logging formatter for OSX (removed ANSI codes)
 * reworded "Invalid plot name" exception
 * removed diacritics in example filenames
 * cir2py has been converted to an entry point so as to work on all platforms
@@ -225,7 +225,7 @@ This release is yanked due to broken Windows support.
 * support NgSpice 31 API (no change)
 * added check for `CoupledInductor` #157
 * added `check-installation` tool to help to fix broken installation
-* added pole-zero, noise, distorsion, transfer-function analyses (thanks to Peter Garrone) #191
+* added pole-zero, noise, distortion, transfer-function analyses (thanks to Peter Garrone) #191
 * added `.measure` support (thanks to ceprio) #160
 * added `log_desk` parameter to `CircuitSimulator`
 * added `listing` command method to `NgSpiceShared`
