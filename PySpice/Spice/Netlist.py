@@ -1279,7 +1279,7 @@ class Circuit(Netlist):
 
     def _str_parameters(self):
         if self._parameters:
-            return join_lines(self._parameters, prefix='.param ') + os.linesep
+            return '.param ' + join_dict(self._parameters) + os.linesep
         else:
             return ''
 
