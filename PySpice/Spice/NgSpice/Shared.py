@@ -1284,7 +1284,7 @@ class NgSpiceShared:
                 #     print(ffi.addressof(value, field='cx_real'), ffi.addressof(value, field='cx_imag'))
                 #     print("  [{}] {} + i {}".format(k, value.cx_real, value.cx_imag))
                 tmp_array = np.frombuffer(ffi.buffer(vector_info.v_compdata, length*8*2), dtype=np.float64)
-                array = np.array(tmp_array[0::2], dtype=np.complex64)
+                array = np.array(tmp_array[0::2], dtype=np.complex128)
                 array.imag = tmp_array[1::2]
             plot[vector_name] = Vector(self, vector_name, vector_type, array)
 
