@@ -308,14 +308,10 @@ class Plot(dict):
     ##############################################
 
     def _to_dc_analysis(self):
-        # if 'v(v-sweep)' in self:
-        #     sweep_variable = self['v(v-sweep)']
-        # elif 'v(i-sweep)' in self:
-        #     sweep_variable = self['v(i-sweep)']
-        if 'v-sweep' in self:
-            sweep_variable = self['v-sweep']
-        elif 'i-sweep' in self:
-            sweep_variable = self['i-sweep']
+        for name in ('v-sweep', 'i-sweep', 'temp-sweep'):
+            if name in self:
+                sweep_variable = self[name]
+                break
         else:
             raise NotImplementedError(str(self))
         sweep = sweep_variable.to_waveform()
