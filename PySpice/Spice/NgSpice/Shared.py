@@ -402,10 +402,9 @@ class NgSpiceShared:
 
     NGSPICE_PATH = None
     LIBRARY_PATH = None
-    
-    _nb_exec_calls = 0
 
     MAX_COMMAND_LENGTH = 1023
+    NUMBER_OF_EXEC_CALLS_TO_RELEASE_MEMORY = 10_000
 
     ##############################################
 
@@ -483,6 +482,8 @@ class NgSpiceShared:
         self._init_ngspice(send_data)
 
         self._is_running = False
+
+        self._number_of_exec_calls = 0
 
     ##############################################
 
@@ -829,12 +830,13 @@ class NgSpiceShared:
 
         # Ngspice API: ngSpice_Command
 
-        # Prevent memory leaks by periodically freeing
-        # ngspice history of past commands
-        if self._nb_exec_calls > 10000:
+        # Prevent memory leaks by periodically freeing ngspice history of past commands
+        #   Each command sent to ngspice is stored in the control structures
+        if self._number_of_exec_calls > self.NUMBER_OF_EXEC_CALLS_TO_RELEASE_MEMORY:
+            # Clear the internal control structures
             self._ngspice_shared.ngSpice_Command(FFI.NULL)
-            self._nb_exec_calls = 0
-        self._nb_exec_calls += 1
+            self._number_of_exec_calls = 0
+        self._number_of_exec_calls += 1
 
         if len(command) > self.MAX_COMMAND_LENGTH:
             raise ValueError('Command must not exceed {} characters'.format(self.MAX_COMMAND_LENGTH))
