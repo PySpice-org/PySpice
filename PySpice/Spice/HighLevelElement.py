@@ -35,19 +35,19 @@ from .BasicElement import VoltageSource, CurrentSource
 
 class SourceMixinAbc:
 
-    __as_unit__ = None
+    AS_UNIT = None
 
 ####################################################################################################
 
 class VoltageSourceMixinAbc:
 
-    __as_unit__ = as_V
+    AS_UNIT = as_V
 
 ####################################################################################################
 
 class CurrentSourceMixinAbc:
 
-    __as_unit__ = as_A
+    AS_UNIT = as_A
 
 ####################################################################################################
 
@@ -108,10 +108,10 @@ class SinusoidalMixin(SourceMixinAbc):
                  offset=0, amplitude=1, frequency=50,
                  delay=0, damping_factor=0):
 
-        self.dc_offset = self.__as_unit__(dc_offset)
-        self.ac_magnitude = self.__as_unit__(ac_magnitude)
-        self.offset = self.__as_unit__(offset)
-        self.amplitude = self.__as_unit__(amplitude)
+        self.dc_offset = self.AS_UNIT(dc_offset)
+        self.ac_magnitude = self.AS_UNIT(ac_magnitude)
+        self.offset = self.AS_UNIT(offset)
+        self.amplitude = self.AS_UNIT(amplitude)
         self.frequency = as_Hz(frequency) # Fixme: protect by setter?
         self.delay = as_s(delay)
         self.damping_factor = as_Hz(damping_factor)
@@ -227,9 +227,9 @@ class PulseMixin(SourceMixinAbc):
         #  rise_time, fall_time = Tstep
         #  pulse_width, period = Tstop
 
-        self.dc_offset = self.__as_unit__(dc_offset) # Fixme: -> SourceMixinAbc
-        self.initial_value = self.__as_unit__(initial_value)
-        self.pulsed_value = self.__as_unit__(pulsed_value)
+        self.dc_offset = self.AS_UNIT(dc_offset) # Fixme: -> SourceMixinAbc
+        self.initial_value = self.AS_UNIT(initial_value)
+        self.pulsed_value = self.AS_UNIT(pulsed_value)
         self.delay_time = as_s(delay_time)
         self.rise_time = as_s(rise_time)
         self.fall_time = as_s(fall_time)
@@ -328,8 +328,8 @@ class ExponentialMixin(SourceMixinAbc):
 
         # Fixme: default
 
-        self.initial_value = self.__as_unit__(initial_value)
-        self.pulsed_value = self.__as_unit__(pulsed_value)
+        self.initial_value = self.AS_UNIT(initial_value)
+        self.pulsed_value = self.AS_UNIT(pulsed_value)
         self.rise_delay_time = as_s(rise_delay_time)
         self.rise_time_constant = as_s(rise_time_constant)
         self.fall_delay_time = as_s(fall_delay_time)
@@ -381,7 +381,7 @@ class PieceWiseLinearMixin(SourceMixinAbc):
 
     def __init__(self, values, repeat_time=None, delay_time=None, dc=None):
 
-        self.values = sum(([as_s(t), self.__as_unit__(x)] for (t, x) in values), [])
+        self.values = sum(([as_s(t), self.AS_UNIT(x)] for (t, x) in values), [])
         self.repeat_time = as_s(repeat_time, none=True)
         self.delay_time = as_s(delay_time, none=True)
         self.dc = self.__as_unit__(dc, none=True)
@@ -439,8 +439,8 @@ class SingleFrequencyFMMixin(SourceMixinAbc):
 
     def __init__(self, offset, amplitude, carrier_frequency, modulation_index, signal_frequency):
 
-        self.offset = self.__as_unit__(offset)
-        self.amplitude = self.__as_unit__(amplitude)
+        self.offset = self.AS_UNIT(offset)
+        self.amplitude = self.AS_UNIT(amplitude)
         self.carrier_frequency = as_Hz(carrier_frequency)
         self.modulation_index = modulation_index
         self.signal_frequency = as_Hz(signal_frequency)
@@ -493,8 +493,8 @@ class AmplitudeModulatedMixin(SourceMixinAbc):
 
         # Fixme: default
 
-        self.offset = self.__as_unit__(offset)
-        self.amplitude = self.__as_unit__(amplitude)
+        self.offset = self.AS_UNIT(offset)
+        self.amplitude = self.AS_UNIT(amplitude)
         self.carrier_frequency = as_Hz(carrier_frequency)
         self.modulating_frequency = as_Hz(modulating_frequency)
         self.signal_delay = as_s(signal_delay)

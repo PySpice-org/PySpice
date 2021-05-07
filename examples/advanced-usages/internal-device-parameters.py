@@ -20,15 +20,15 @@ from PySpice.Unit import *
 ####################################################################################################
 
 class Level2(SubCircuitFactory):
-    __name__ = 'level2'
-    __nodes__ = ('d4', 'g4', 'v4')
+    NAME = 'level2'
+    NODES = ('d4', 'g4', 'v4')
     def __init__(self):
         super().__init__()
         self.M(1, 'd4', 'g4', 'v4', 'v4', model='NMOS', w=1e-5, l=3.5e-7)
 
 class Level1(SubCircuitFactory):
-    __name__ = 'level1'
-    __nodes__ = ('d3', 'g3', 'v3')
+    NAME = 'level1'
+    NODES = ('d3', 'g3', 'v3')
     def __init__(self):
         super().__init__()
         self.X('mos2', 'level2', 'd3', 'g3', 'v3')

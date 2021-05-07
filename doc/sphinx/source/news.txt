@@ -8,6 +8,8 @@
 V1.5.0 (development release)
 ----------------------------
 
+* renamed custom dunders "__dunder__" to "CONSTANT" or "_private" class attributes
+
 V1.4.3 (production release) 2020-07-04
 --------------------------------------
 

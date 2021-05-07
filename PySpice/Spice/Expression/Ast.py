@@ -125,14 +125,14 @@ class FloatConstant(Constant):
 
 class Expression:
 
-    __number_of_operands__ = None
+    NUMBER_OF_OPERANDS = None
 
     ##############################################
 
     def __init__(self, *args, **kwargs):
 
-        if (self.__number_of_operands__ is not None
-            and len(args) != self.__number_of_operands__):
+        if (self.NUMBER_OF_OPERANDS is not None
+            and len(args) != self.NUMBER_OF_OPERANDS):
             raise ValueError("Wrong number of operands")
 
         self._operands = args
@@ -161,13 +161,13 @@ class Expression:
         return self._operands[2]
 
 class UnaryExpression(Expression):
-    __number_of_operands__ = 1
+    NUMBER_OF_OPERANDS = 1
 
 class BinaryExpression(Expression):
-    __number_of_operands__ = 2
+    NUMBER_OF_OPERANDS = 2
 
 class TernaryExpression(Expression):
-    __number_of_operands__ = 3
+    NUMBER_OF_OPERANDS = 3
 
 ####################################################################################################
 
@@ -175,17 +175,17 @@ class OperatorMetaclass(type):
 
     """Metaclass to register operators"""
 
-    __declaration_order__ = 0
-    __operators__ = []
-    __unary_operator_map__ = {}
-    __binary_operator_map__ = {}
+    _declaration_order = 0
+    _operators = []
+    _unary_operator_map = {}
+    _binary_operator_map = {}
 
     ##############################################
 
     def __new__(meta, class_name, base_classes, attributes):
 
         cls = type.__new__(meta, class_name, base_classes, attributes)
-        if cls.__operator__ is not None:
+        if cls.OPERATOR is not None:
             meta.register_prefix(cls)
         return cls
 
@@ -194,52 +194,52 @@ class OperatorMetaclass(type):
     @classmethod
     def register_prefix(meta, cls):
 
-        cls.__declaration_order__  = meta.__declaration_order__
-        meta.__declaration_order__ += 1
-        meta.__operators__.append(cls)
+        cls._declaration_order  = meta._declaration_order
+        meta._declaration_order += 1
+        meta._operators.append(cls)
         if issubclass(cls, UnaryOperator):
-            d = meta.__unary_operator_map__
+            d = meta._unary_operator_map
         elif issubclass(cls, BinaryOperator):
-            d = meta.__binary_operator_map__
-        d[cls.__operator__] = cls
+            d = meta._binary_operator_map
+        d[cls.OPERATOR] = cls
 
     ##############################################
 
     @classmethod
     def operator_iter(cls):
-        return iter(cls.__operators__)
+        return iter(cls._operators)
 
     ##############################################
 
     @classmethod
     def get_unary(cls, operator):
-        return cls.__unary_operator_map__[operator]
+        return cls._unary_operator_map[operator]
 
     ##############################################
 
     @classmethod
     def get_binary(cls, operator):
-        return cls.__binary_operator_map__[operator]
+        return cls._binary_operator_map[operator]
 
 ####################################################################################################
 
 class OperatorMixin(metaclass=OperatorMetaclass):
-    __operator__ = None
-    __declaration_order__ = 0
+    OPERATOR = None
+    _declaration_order = 0
 
 ####################################################################################################
 
 class UnaryOperator(UnaryExpression, OperatorMixin):
 
     def __str__(self):
-        return ' '.join((self.__operator__, str(self.operand1)))
+        return ' '.join((self.OPERATOR, str(self.operand1)))
 
 ####################################################################################################
 
 class BinaryOperator(BinaryExpression, OperatorMixin):
 
     def __str__(self):
-        return ' '.join((str(self.operand1), self.__operator__, str(self.operand2)))
+        return ' '.join((str(self.operand1), self.OPERATOR, str(self.operand2)))
 
 ####################################################################################################
 
@@ -259,77 +259,77 @@ class Assignation(BinaryExpression):
 ####################################################################################################
 
 class Negation(UnaryOperator):
-    __operator__ = '-'
-    __precedence__ = 1
+    OPERATOR = '-'
+    PRECEDENCE = 1
 
 class Not(UnaryOperator):
-    __operator__ = '!'
-    __precedence__ = 1
+    OPERATOR = '!'
+    PRECEDENCE = 1
 
 ####################################################################################################
 
 class power(BinaryOperator):
-    __operator__ = '**'
-    __precedence__ = 2
+    OPERATOR = '**'
+    PRECEDENCE = 2
 
 class Multiplication(BinaryOperator):
-    __operator__ = '*'
-    __precedence__ = 3
+    OPERATOR = '*'
+    PRECEDENCE = 3
 
 class Division(BinaryOperator):
-    __operator__ = '/'
-    __precedence__ = 3
+    OPERATOR = '/'
+    PRECEDENCE = 3
 
 class Modulo(BinaryOperator):
-    __operator__ = '%'
-    __precedence__ = 3
+    OPERATOR = '%'
+    PRECEDENCE = 3
 
 class IntegerDivision(BinaryOperator):
-    __operator__ = '\\'
-    __precedence__ = 3
+    OPERATOR = '\\'
+    PRECEDENCE = 3
 
 class Addition(BinaryOperator):
-    __operator__ = '+'
-    __precedence__ = 4
+    OPERATOR = '+'
+    PRECEDENCE = 4
 
 class Subtraction(BinaryOperator):
-    __operator__ = '-'
-    __precedence__ = 4
+    OPERATOR = '-'
+    PRECEDENCE = 4
 
 ####################################################################################################
 
 class Equal(BinaryOperator):
-    __operator__ = '=='
-    __precedence__ = 5
+    OPERATOR = '=='
+    PRECEDENCE = 5
 
 class NotEqual(BinaryOperator):
-    __operator__ = '!='
-    __precedence__ = 5
+    OPERATOR = '!='
+    PRECEDENCE = 5
 
 class LessEqual(BinaryOperator):
-    __operator__ = '<='
+    OPERATOR = '<='
 
 class GreaterEqual(BinaryOperator):
-    __operator__ = '>='
-    __precedence__ = 5
+    OPERATOR = '>='
+    PRECEDENCE = 5
 
 class Less(BinaryOperator):
-    __operator__ = '<'
-    __precedence__ = 5
+    OPERATOR = '<'
+    PRECEDENCE = 5
 
 class Greater(BinaryOperator):
-    __operator__ = '>'
-    __precedence__ = 5
+    OPERATOR = '>'
+    PRECEDENCE = 5
 
 ####################################################################################################
 
 class And(BinaryOperator):
-    __operator__ = '&&'
-    __precedence__ = 6
+    OPERATOR = '&&'
+    PRECEDENCE = 6
 
 class Or(BinaryOperator):
-    __operator__ = '||'
-    __precedence__ = 7
+    OPERATOR = '||'
+    PRECEDENCE = 7
 
 ####################################################################################################
 
@@ -337,7 +337,7 @@ class If: #(TernaryExpression)
 
     # c ? x : y
 
-    __precedence__ = 8
+    PRECEDENCE = 8
 
     ##############################################
 

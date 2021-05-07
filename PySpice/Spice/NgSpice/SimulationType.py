@@ -27,7 +27,8 @@ __all__ = [
 
 ####################################################################################################
 
-# cf. ngspice-xx/include/ngspice/sim.h
+# For a new ngspice relase, we just have to check this file hasn't changed
+#   ngspice-xx/src/include/ngspice/sim.h
 
 SIMULATION_TYPE = {}
 
@@ -81,7 +82,7 @@ SIMULATION_TYPE[27] = (
     'charge',
 )
 
-LAST_VERSION = 32 # released on May 4th, 2020
+LAST_VERSION = 34   # released on January 31st, 2021
 
 for version in range(28, LAST_VERSION +1):
     SIMULATION_TYPE[version] = SIMULATION_TYPE[27]

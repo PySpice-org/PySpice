@@ -126,11 +126,11 @@ _module_logger = logging.getLogger(__name__)
 
 class DipoleElement(FixedPinElement):
     """This class implements a base class for dipole element."""
-    __pins__ = ('plus', 'minus')
+    PINS = ('plus', 'minus')
 
 class TwoPortElement(FixedPinElement):
     """This class implements a base class for two-port element."""
-    __pins__ = ('output_plus', 'output_minus', 'input_plus', 'input_minus')
+    PINS = ('output_plus', 'output_minus', 'input_plus', 'input_minus')
 
 ####################################################################################################
 
@@ -152,8 +152,8 @@ class SubCircuitElement(NPinElement):
 
     """
 
-    __alias__ = 'X'
-    __prefix__ = 'X'
+    ALIAS = 'X'
+    PREFIX = 'X'
 
     subcircuit_name = ElementNamePositionalParameter(position=0, key_parameter=False)
 
@@ -243,8 +243,8 @@ class Resistor(DipoleElement):
 
     """
 
-    __alias__ = 'R'
-    __prefix__ = 'R'
+    ALIAS = 'R'
+    PREFIX = 'R'
 
     resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
     ac = FloatKeyParameter('ac', unit=U_Ω)
@@ -315,8 +315,8 @@ class SemiconductorResistor(DipoleElement):
 
     """
 
-    __alias__ = 'SemiconductorResistor'
-    __prefix__ = 'R'
+    ALIAS = 'SemiconductorResistor'
+    PREFIX = 'R'
 
     resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -360,8 +360,8 @@ class BehavioralResistor(DipoleElement):
 
     """
 
-    __alias__ = 'BehavioralResistor'
-    __prefix__ = 'R'
+    ALIAS = 'BehavioralResistor'
+    PREFIX = 'R'
 
     resistance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -415,8 +415,8 @@ class Capacitor(DipoleElement):
 
     """
 
-    __alias__ = 'C'
-    __prefix__ = 'C'
+    ALIAS = 'C'
+    PREFIX = 'C'
 
     capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_F)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -484,8 +484,8 @@ class SemiconductorCapacitor(DipoleElement):
 
     """
 
-    __alias__ = 'SemiconductorCapacitor'
-    __prefix__ = 'C'
+    ALIAS = 'SemiconductorCapacitor'
+    PREFIX = 'C'
 
     capacitance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_F)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -526,8 +526,8 @@ class BehavioralCapacitor(DipoleElement):
 
     """
 
-    __alias__ = 'BehavioralCapacitor'
-    __prefix__ = 'C'
+    ALIAS = 'BehavioralCapacitor'
+    PREFIX = 'C'
 
     capacitance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -583,8 +583,8 @@ class Inductor(DipoleElement):
 
     """
 
-    __alias__ = 'L'
-    __prefix__ = 'L'
+    ALIAS = 'L'
+    PREFIX = 'L'
 
     inductance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_H)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -624,8 +624,8 @@ class BehavioralInductor(DipoleElement):
 
     """
 
-    __alias__ = 'BehavioralInductor'
-    __prefix__ = 'L'
+    ALIAS = 'BehavioralInductor'
+    PREFIX = 'L'
 
     inductance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
@@ -655,8 +655,8 @@ class CoupledInductor(AnyPinElement):
 
     """
 
-    __alias__ = 'K'
-    __prefix__ = 'K'
+    ALIAS = 'K'
+    PREFIX = 'K'
 
     inductor1 = ElementNamePositionalParameter(position=0, key_parameter=False)
     inductor2 = ElementNamePositionalParameter(position=1, key_parameter=False)
@@ -711,9 +711,9 @@ class VoltageControlledSwitch(TwoPortElement):
 
     """
 
-    __alias__ = 'S'
-    __long_alias__ = 'VCS'
-    __prefix__ = 'S'
+    ALIAS = 'S'
+    LONG_ALIAS = 'VCS'
+    PREFIX = 'S'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     initial_state = InitialStatePositionalParameter(position=1, key_parameter=True)
@@ -748,9 +748,9 @@ class CurrentControlledSwitch(DipoleElement):
 
     """
 
-    __alias__ = 'W'
-    __long_alias__ = 'CCS'
-    __prefix__ = 'W'
+    ALIAS = 'W'
+    LONG_ALIAS = 'CCS'
+    PREFIX = 'W'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=True)
     model = ModelPositionalParameter(position=1, key_parameter=True)
@@ -780,8 +780,8 @@ class VoltageSource(DipoleElement):
 
     """
 
-    __alias__ = 'V'
-    __prefix__ = 'V'
+    ALIAS = 'V'
+    PREFIX = 'V'
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_V)
@@ -806,8 +806,8 @@ class CurrentSource(DipoleElement):
 
     """
 
-    __alias__ = 'I'
-    __prefix__ = 'I'
+    ALIAS = 'I'
+    PREFIX = 'I'
 
     # Fixme: ngspice manual doesn't describe well the syntax
     dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_A)
@@ -835,8 +835,8 @@ class VoltageControlledCurrentSource(TwoPortElement):
 
     """
 
-    __alias__ = 'VCCS'
-    __prefix__ = 'G'
+    ALIAS = 'VCCS'
+    PREFIX = 'G'
 
     transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
     multiplier = IntKeyParameter('m')
@@ -861,8 +861,8 @@ class VoltageControlledVoltageSource(TwoPortElement):
 
     """
 
-    __alias__ = 'VCVS'
-    __prefix__ = 'E'
+    ALIAS = 'VCVS'
+    PREFIX = 'E'
 
     voltage_gain = ExpressionPositionalParameter(position=0, key_parameter=False)
 
@@ -891,9 +891,9 @@ class CurrentControlledCurrentSource(DipoleElement):
 
     """
 
-    __alias__ = 'F'
-    __long_alias__ = 'CCCS'
-    __prefix__ = 'F'
+    ALIAS = 'F'
+    LONG_ALIAS = 'CCCS'
+    PREFIX = 'F'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
     current_gain = ExpressionPositionalParameter(position=1, key_parameter=False)
@@ -921,9 +921,9 @@ class CurrentControlledVoltageSource(DipoleElement):
 
     """
 
-    __alias__ = 'H'
-    __long_alias__ = 'CCVS'
-    __prefix__ = 'H'
+    ALIAS = 'H'
+    LONG_ALIAS = 'CCVS'
+    PREFIX = 'H'
 
     source = ElementNamePositionalParameter(position=0, key_parameter=False)
     transresistance = ExpressionPositionalParameter(position=1, key_parameter=False)
@@ -978,8 +978,8 @@ class BehavioralSource(DipoleElement):
 
     """
 
-    __alias__ = 'B'
-    __prefix__ = 'B'
+    ALIAS = 'B'
+    PREFIX = 'B'
 
     current_expression = ExpressionKeyParameter('i')
     voltage_expression = ExpressionKeyParameter('v')
@@ -1012,11 +1012,11 @@ class NonLinearVoltageSource(DipoleElement):
 
     """
 
-    __alias__ = 'NonLinearVoltageSource'
-    __prefix__ = 'E'
+    ALIAS = 'NonLinearVoltageSource'
+    PREFIX = 'E'
 
     # Fixme:
-    __VALID_KWARGS__ = ('expression', 'table')
+    VALID_KWARGS = ('expression', 'table')
 
     ##############################################
 
@@ -1064,8 +1064,8 @@ class NonLinearCurrentSource(DipoleElement):
 
     """
 
-    __alias__ = 'NonLinearCurrentSource'
-    __prefix__ = 'G'
+    ALIAS = 'NonLinearCurrentSource'
+    PREFIX = 'G'
 
     transconductance = ExpressionPositionalParameter(position=0, key_parameter=False)
 
@@ -1126,9 +1126,9 @@ class Diode(FixedPinElement):
 
     """
 
-    __alias__ = 'D'
-    __prefix__ = 'D'
-    __pins__ = (('cathode', 'plus'), ('anode', 'minus'))
+    ALIAS = 'D'
+    PREFIX = 'D'
+    PINS = (('cathode', 'plus'), ('anode', 'minus'))
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1202,10 +1202,10 @@ class BipolarJunctionTransistor(FixedPinElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    __alias__ = 'Q'
-    __long_alias__ = 'BJT'
-    __prefix__ = 'Q'
-    __pins__ = ('collector', 'base', 'emitter', OptionalPin('substrate'))
+    ALIAS = 'Q'
+    LONG_ALIAS = 'BJT'
+    PREFIX = 'Q'
+    PINS = ('collector', 'base', 'emitter', OptionalPin('substrate'))
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1224,7 +1224,7 @@ class BipolarJunctionTransistor(FixedPinElement):
 ####################################################################################################
 
 class JfetElement(FixedPinElement):
-    __pins__ = ('drain', 'gate', 'source')
+    PINS = ('drain', 'gate', 'source')
 
 class JunctionFieldEffectTransistor(JfetElement):
 
@@ -1265,9 +1265,9 @@ class JunctionFieldEffectTransistor(JfetElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    __alias__ = 'J'
-    __long_alias__ = 'JFET'
-    __prefix__ = 'J'
+    ALIAS = 'J'
+    LONG_ALIAS = 'JFET'
+    PREFIX = 'J'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1316,9 +1316,9 @@ class Mesfet(JfetElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    __alias__ = 'Z'
-    __long_alias__ = 'MESFET'
-    __prefix__ = 'Z'
+    ALIAS = 'Z'
+    LONG_ALIAS = 'MESFET'
+    PREFIX = 'Z'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')
@@ -1420,10 +1420,10 @@ class Mosfet(FixedPinElement):
 
     # Fixme: off doesn't fit in kwargs !
 
-    __alias__ = 'M'
-    __long_alias__ = 'MOSFET'
-    __prefix__ = 'M'
-    __pins__ = ('drain', 'gate', 'source', ('bulk', 'substrate'))
+    ALIAS = 'M'
+    LONG_ALIAS = 'MOSFET'
+    PREFIX = 'M'
+    PINS = ('drain', 'gate', 'source', ('bulk', 'substrate'))
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     multiplier = IntKeyParameter('m')
@@ -1497,8 +1497,8 @@ class LosslessTransmissionLine(TwoPortElement):
 
     """
 
-    __alias__ = 'TransmissionLine'
-    __prefix__ = 'T'
+    ALIAS = 'TransmissionLine'
+    PREFIX = 'T'
 
     impedance = FloatKeyParameter('Z0', default=50, unit=U_Ω)
     time_delay = FloatKeyParameter('TD', unit=U_s)
@@ -1535,8 +1535,8 @@ class LossyTransmission(TwoPortElement):
 
     """
 
-    __alias__ = 'O'
-    __prefix__ = 'O'
+    ALIAS = 'O'
+    PREFIX = 'O'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
 
@@ -1564,8 +1564,8 @@ class CoupledMulticonductorLine(NPinElement):
 
     """
 
-    __alias__ = 'P'
-    __prefix__ = 'P'
+    ALIAS = 'P'
+    PREFIX = 'P'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('len', unit=U_m)
@@ -1603,9 +1603,9 @@ class UniformDistributedRCLine(FixedPinElement):
 
     """
 
-    __alias__ = 'U'
-    __prefix__ = 'U'
-    __pins__ = ('output', 'input', 'capacitance_node')
+    ALIAS = 'U'
+    PREFIX = 'U'
+    PINS = ('output', 'input', 'capacitance_node')
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
@@ -1637,8 +1637,8 @@ class SingleLossyTransmissionLine(TwoPortElement):
 
     """
 
-    __alias__ = 'Y'
-    __prefix__ = 'Y'
+    ALIAS = 'Y'
+    PREFIX = 'Y'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('len', unit=U_m)
@@ -1679,8 +1679,8 @@ class XSpiceElement(NPinElement):
     .. warning:: Partially implemented.
     """
 
-    __alias__ = 'A'
-    __prefix__ = 'A'
+    ALIAS = 'A'
+    PREFIX = 'A'
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
 
@@ -1705,8 +1705,8 @@ class GSSElement(NPinElement):
     .. warning:: Not implemented
     """
 
-    __alias__ = 'N'
-    __prefix__ = 'N'
+    ALIAS = 'N'
+    PREFIX = 'N'
 
     ##############################################
 
