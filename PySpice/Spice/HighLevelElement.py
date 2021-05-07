@@ -112,7 +112,7 @@ class SinusoidalMixin(SourceMixinAbc):
         self.ac_magnitude = self.AS_UNIT(ac_magnitude)
         self.offset = self.AS_UNIT(offset)
         self.amplitude = self.AS_UNIT(amplitude)
-        self.frequency = as_Hz(frequency) # Fixme: protect by setter?
+        self.frequency = as_Hz(frequency)   # Fixme: protect by setter?
         self.delay = as_s(delay)
         self.damping_factor = as_Hz(damping_factor)
 
@@ -227,14 +227,14 @@ class PulseMixin(SourceMixinAbc):
         #  rise_time, fall_time = Tstep
         #  pulse_width, period = Tstop
 
-        self.dc_offset = self.AS_UNIT(dc_offset) # Fixme: -> SourceMixinAbc
+        self.dc_offset = self.AS_UNIT(dc_offset)   # Fixme: -> SourceMixinAbc
         self.initial_value = self.AS_UNIT(initial_value)
         self.pulsed_value = self.AS_UNIT(pulsed_value)
         self.delay_time = as_s(delay_time)
         self.rise_time = as_s(rise_time)
         self.fall_time = as_s(fall_time)
         self.pulse_width = as_s(pulse_width)
-        self.period = as_s(period) # Fixme: protect by setter?
+        self.period = as_s(period)   # Fixme: protect by setter?
 
         # XSPICE
         if phase is not None:
@@ -344,7 +344,7 @@ class ExponentialMixin(SourceMixinAbc):
                 join_list((self.initial_value, self.pulsed_value,
                            self.rise_delay_time, self.rise_time_constant,
                            self.fall_delay_time, self.fall_time_constant,
-                       )) +
+                           )) +
                 ')')
 
 ####################################################################################################
@@ -384,7 +384,7 @@ class PieceWiseLinearMixin(SourceMixinAbc):
         self.values = sum(([as_s(t), self.AS_UNIT(x)] for (t, x) in values), [])
         self.repeat_time = as_s(repeat_time, none=True)
         self.delay_time = as_s(delay_time, none=True)
-        self.dc = self.__as_unit__(dc, none=True)
+        self.dc = self.AS_UNIT(dc, none=True)
 
     ##############################################
 
@@ -400,7 +400,7 @@ class PieceWiseLinearMixin(SourceMixinAbc):
                 'PWL(' +
                 join_list(self.values) +
                 ' ' +
-                join_dict(optdict) + # OrderedDict(
+                join_dict(optdict) +    # OrderedDict(
                 ')')
 
 ####################################################################################################
