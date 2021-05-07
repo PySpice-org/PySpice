@@ -1,7 +1,7 @@
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
-# Copyright (C) 2014 Fabrice Salvaire
+# Copyright (C) 2020 jmgc / Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,11 @@
 
 ####################################################################################################
 
-import argparse
+import pickle
+import tempfile
+import unittest
+
+import numpy as np
 
 ####################################################################################################
 
@@ -29,42 +33,39 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Spice.Parser import SpiceParser
+from PySpice.Probe.WaveForm import WaveForm
+from PySpice.Unit.Unit import UnitValues
+from PySpice.Unit import u_kHz
 
 ####################################################################################################
 
-def main():
-
-    parser = argparse.ArgumentParser(description='Convert a circuit file to PySpice')
-
-    parser.add_argument('circuit_file', # metavar='circuit_file',
-                        help='.cir file')
-
-    parser.add_argument('-o', '--output',
-                        default=None,
-                        help='Output file')
-
-    parser.add_argument('--ground',
-                        type=int,
-                        default=0,
-                        help='Ground node')
-
-    parser.add_argument('--build',
-                        default=False, action='store_true',
-                        help='Build circuit')
-
-    args = parser.parse_args()
+class TestPickle(unittest.TestCase):
 
     ##############################################
 
-    parser = SpiceParser(path=args.circuit_file)
+    def test_ndarray(self):
+        array = np.ndarray((1, 1))
+        with tempfile.TemporaryFile() as fh:
+            pickle.dump(array, fh)
+            fh.seek(0)
+            new_array = pickle.load(fh)
+        self.assertEqual(array, new_array)
 
-    if args.build:
-        parser.build_circuit()
+    ##############################################
 
-    circuit = parser.to_python_code(ground=args.ground)
-    if args.output is not None:
-        with open(args.output, 'w') as f:
-            f.write(circuit)
-    else:
-        print(circuit)
+    def test_unit_values(self):
+        unit_values = UnitValues(u_kHz(100).prefixed_unit, (1, 1))
+        new_unit_values = pickle.loads(pickle.dumps(unit_values))
+        self.assertEqual(unit_values, new_unit_values)
+
+    ##############################################
+
+    def test_waveformx(self):
+        waveform = WaveForm('Test', u_kHz(100).prefixed_unit, (1, 1))
+        new_waveform = pickle.loads(pickle.dumps(waveform))
+        self.assertEqual(waveform, new_waveform)
+
+####################################################################################################
+
+if __name__ == '__main__':
+    unittest.main()

@@ -7,8 +7,8 @@ from PySpice.Unit import *
 
 class BasicOperationalAmplifier(SubCircuitFactory):
 
-    __name__ = 'BasicOperationalAmplifier'
-    __nodes__ = ('non_inverting_input', 'inverting_input', 'output')
+    NAME = 'BasicOperationalAmplifier'
+    NODES = ('non_inverting_input', 'inverting_input', 'output')
 
     ##############################################
 
@@ -33,10 +33,10 @@ class BasicOperationalAmplifier(SubCircuitFactory):
 
 class BasicComparator(SubCircuitFactory):
 
-    __name__ = 'BasicComparator'
-    __nodes__ = ('non_inverting_input', 'inverting_input',
-                 'voltage_plus', 'voltage_minus',
-                 'output')
+    NAME = 'BasicComparator'
+    NODES = ('non_inverting_input', 'inverting_input',
+             'voltage_plus', 'voltage_minus',
+             'output')
 
     ##############################################
 

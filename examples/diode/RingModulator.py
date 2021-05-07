@@ -7,10 +7,10 @@ from PySpice.Unit import *
 
 class RingModulator(SubCircuitFactory):
 
-    __name__ = 'RingModulator'
-    __nodes__ = ('input_plus', 'input_minus',
-                 'carrier_plus', 'carrier_minus',
-                 'output_plus', 'output_minus')
+    NAME = 'RingModulator'
+    NODES = ('input_plus', 'input_minus',
+             'carrier_plus', 'carrier_minus',
+             'output_plus', 'output_minus')
 
     ##############################################
 

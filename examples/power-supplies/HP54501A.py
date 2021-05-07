@@ -7,8 +7,8 @@ from PySpice.Unit import *
 
 class HP54501A(SubCircuitFactory):
 
-    __name__ = 'HP54501A'
-    __nodes__ = ('line_plus', 'line_minus')
+    NAME = 'HP54501A'
+    NODES = ('line_plus', 'line_minus')
 
     ##############################################
 
