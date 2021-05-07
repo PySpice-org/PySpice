@@ -228,6 +228,7 @@ class PySpicePostInstallation:
         # src = dll_path.joinpath('ngspice-{}.dll'.format(self.ngspice_version))
         src = 'ngspice-{}.dll'.format(self.ngspice_version)
         target = dll_path.joinpath('ngspice.dll')
+        # For ngspice version <=31 DLL naming did not contain a version number
         if dll_path.joinpath(src).exists():
             if target.exists():
                 target.unlink()
