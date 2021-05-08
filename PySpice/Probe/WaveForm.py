@@ -90,7 +90,7 @@ class WaveForm(UnitValues):
                 dtype=float, buffer=None, offset=0, strides=None, order=None,
                 **kwargs):
         # Called first
-        cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
+        # cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
         # call UnitValues.__new__(...)
         obj = super(WaveForm, cls).__new__(cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)
         # obj = np.asarray(data).view(cls)
@@ -100,7 +100,7 @@ class WaveForm(UnitValues):
 
     def __array_finalize__(self, obj):
         # Called after __new__
-        self._logger.info('\n  {}'.format(obj))
+        # self._logger.info('')
         # Fixme: ??? else _prefixed_unit is not set
         super().__array_finalize__(obj)
         # cf. https://numpy.org/devdocs/user/basics.subclassing.html#simple-example-adding-an-extra-attribute-to-ndarray
@@ -114,10 +114,10 @@ class WaveForm(UnitValues):
                  title=None, abscissa=None):
 
         # Called last
-        self._logger.info('')
+        # self._logger.info('')
 
         self._name = str(name)
-        self.title = title
+        self._title = title
         self._abscissa = abscissa  # Numpy array
 
     ##############################################
@@ -127,7 +127,7 @@ class WaveForm(UnitValues):
         # Fixme: check abscissa
 
         result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
-        self._logger.info("result\n{}".format(result))
+        # self._logger.info("result\n{}".format(result))
 
         if isinstance(result, UnitValues):
             return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
