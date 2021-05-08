@@ -463,6 +463,8 @@ class NgSpiceShared:
 
         self._spinit_not_found = False
 
+        self._number_of_exec_calls = 0
+
         self._stdout = []
         self._stderr = []
         self._error_in_stdout = None
@@ -478,8 +480,6 @@ class NgSpiceShared:
         self._init_ngspice(send_data)
 
         self._is_running = False
-
-        self._number_of_exec_calls = 0
 
     ##############################################
 
@@ -1147,9 +1147,11 @@ class NgSpiceShared:
         """Load the given circuit string."""
 
         # Ngspice API: ngSpice_Circ
-
         circuit_lines = [line for line in str(circuit).splitlines() if line]
         self._logger.debug('ngSpice_Circ\n' + str(circuit))
+
+        # ngspice 33 requires an empty line at the end
+        circuit_lines.append("")
 
         circuit_lines_keepalive = [ffi.new("char[]", line.encode('utf8'))
                                    for line in circuit_lines]
