@@ -34,19 +34,16 @@ from .BasicElement import VoltageSource, CurrentSource
 ####################################################################################################
 
 class SourceMixinAbc:
-
     AS_UNIT = None
 
 ####################################################################################################
 
 class VoltageSourceMixinAbc:
-
     AS_UNIT = as_V
 
 ####################################################################################################
 
 class CurrentSourceMixinAbc:
-
     AS_UNIT = as_A
 
 ####################################################################################################
@@ -132,7 +129,6 @@ class SinusoidalMixin(SourceMixinAbc):
     ##############################################
 
     def format_spice_parameters(self):
-
         sin_part = join_list((self.offset, self.amplitude, self.frequency, self.delay, self.damping_factor))
         return join_list((
             'DC {} AC {}'.format(*str_spice_list(self.dc_offset, self.ac_magnitude)),
@@ -338,7 +334,6 @@ class ExponentialMixin(SourceMixinAbc):
     ##############################################
 
     def format_spice_parameters(self):
-
         # Fixme: to func?
         return ('EXP(' +
                 join_list((self.initial_value, self.pulsed_value,
@@ -380,7 +375,6 @@ class PieceWiseLinearMixin(SourceMixinAbc):
     ##############################################
 
     def __init__(self, values, repeat_time=None, delay_time=None, dc=None):
-
         self.values = sum(([as_s(t), self.AS_UNIT(x)] for (t, x) in values), [])
         self.repeat_time = as_s(repeat_time, none=True)
         self.delay_time = as_s(delay_time, none=True)
@@ -443,7 +437,6 @@ class SingleFrequencyFMMixin(SourceMixinAbc):
     ##############################################
 
     def __init__(self, offset, amplitude, carrier_frequency, modulation_index, signal_frequency):
-
         self.offset = self.AS_UNIT(offset)
         self.amplitude = self.AS_UNIT(amplitude)
         self.carrier_frequency = as_Hz(carrier_frequency)
@@ -453,7 +446,6 @@ class SingleFrequencyFMMixin(SourceMixinAbc):
     ##############################################
 
     def format_spice_parameters(self):
-
         # Fixme: to func?
         return ('SFFM(' +
                 join_list((self.offset, self.amplitude, self.carrier_frequency,
@@ -507,7 +499,6 @@ class AmplitudeModulatedMixin(SourceMixinAbc):
     ##############################################
 
     def format_spice_parameters(self):
-
         # Fixme: to func?
         return ('AM(' +
                 join_list((self.offset, self.amplitude, self.carrier_frequency,
@@ -553,9 +544,7 @@ class RandomMixin(SourceMixinAbc):
     ##############################################
 
     def __init__(self, random_type, duration=0, time_delay=0, parameter1=1, parameter2=0):
-
         # Fixme: random_type and parameters
-
         self.random_type = random_type
         self.duration = as_s(duration)
         self.time_delay = as_s(time_delay)
@@ -596,7 +585,6 @@ class SinusoidalVoltageSource(VoltageSource, VoltageSourceMixinAbc, SinusoidalMi
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         SinusoidalMixin.__init__(self, *args, **kwargs)
 
@@ -617,7 +605,6 @@ class SinusoidalCurrentSource(CurrentSource, CurrentSourceMixinAbc, SinusoidalMi
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         SinusoidalMixin.__init__(self, *args, **kwargs)
 
@@ -632,7 +619,6 @@ class AcLine(SinusoidalVoltageSource):
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, rms_voltage=230, frequency=50):
-
         super().__init__(netlist, name, node_plus, node_minus,
                          amplitude=rms_to_amplitude(rms_voltage),
                          frequency=frequency)
@@ -650,7 +636,6 @@ class PulseVoltageSource(VoltageSource, VoltageSourceMixinAbc, PulseMixin):
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         PulseMixin.__init__(self, *args, **kwargs)
 
@@ -671,7 +656,6 @@ class PulseCurrentSource(CurrentSource, CurrentSourceMixinAbc, PulseMixin):
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         PulseMixin.__init__(self, *args, **kwargs)
 
@@ -692,7 +676,6 @@ class ExponentialVoltageSource(VoltageSource, VoltageSourceMixinAbc, Exponential
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         ExponentialMixin.__init__(self, *args, **kwargs)
 
@@ -713,7 +696,6 @@ class ExponentialCurrentSource(CurrentSource, CurrentSourceMixinAbc, Exponential
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         ExponentialMixin.__init__(self, *args, **kwargs)
 
@@ -734,7 +716,6 @@ class PieceWiseLinearVoltageSource(VoltageSource, VoltageSourceMixinAbc, PieceWi
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         PieceWiseLinearMixin.__init__(self, *args, **kwargs)
 
@@ -755,7 +736,6 @@ class PieceWiseLinearCurrentSource(CurrentSource, CurrentSourceMixinAbc, PieceWi
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         PieceWiseLinearMixin.__init__(self, *args, **kwargs)
 
@@ -797,7 +777,6 @@ class SingleFrequencyFMCurrentSource(CurrentSource, CurrentSourceMixinAbc, Singl
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         SingleFrequencyFMMixin.__init__(self, *args, **kwargs)
 
@@ -818,7 +797,6 @@ class AmplitudeModulatedVoltageSource(VoltageSource, VoltageSourceMixinAbc, Ampl
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         AmplitudeModulatedMixin.__init__(self, *args, **kwargs)
 
@@ -839,7 +817,6 @@ class AmplitudeModulatedCurrentSource(CurrentSource, CurrentSourceMixinAbc, Ampl
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         AmplitudeModulatedMixin.__init__(self, *args, **kwargs)
 
@@ -860,7 +837,6 @@ class RandomVoltageSource(VoltageSource, VoltageSourceMixinAbc, RandomMixin):
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         RandomMixin.__init__(self, *args, **kwargs)
 
@@ -881,7 +857,6 @@ class RandomCurrentSource(CurrentSource, CurrentSourceMixinAbc, RandomMixin):
     ##############################################
 
     def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         RandomMixin.__init__(self, *args, **kwargs)
 
