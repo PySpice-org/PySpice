@@ -129,17 +129,13 @@ class TestUnits(unittest.TestCase):
         self.assertEqual(waveform4.prefixed_unit.power, mV2.power)
 
         print_rule()
-        # Fixme:
-        #   File "PySpice/Unit/Unit.py", line 1624, in __array_ufunc__
-        #     other = inputs[1]
-        # IndexError: tuple index out of range
-        np.mean(array1 + array2)
-        # waveform5 = waveform1 + waveform2
-        # waveform_mean = np.mean(waveform5)
-        # logger.info(repr(waveform_mean))
-        # self.assertEqual(waveform_mean.value, np.mean(np_raw_array1 + np_raw_array2))
-        # self.assertEqual(waveform_mean.unit, waveform_result.unit)
-        # self.assertEqual(waveform_mean.power, waveform_result.power)
+        _ = waveform1 + waveform2
+        waveform_mean = np.mean(_)
+        logger.info(repr(waveform_mean))
+        self._test_unit_values(waveform_mean, np.mean(np_raw_array1 + np_raw_array2))
+        _ = u_mV(1)
+        self.assertEqual(waveform_mean.unit, _.unit)
+        self.assertEqual(waveform_mean.power, _.power)
 
 ####################################################################################################
 

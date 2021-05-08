@@ -1498,7 +1498,7 @@ class UnitValues(np.ndarray):
 
         # Statistic functions
         # --------------------------------------------------
-        np.mean:      CONVERSION.UNIT_MATCH,
+        np.mean:      CONVERSION.NO_CONVERSION,
     }
 
     ##############################################
@@ -1600,10 +1600,18 @@ class UnitValues(np.ndarray):
         # method=__call__
         # inputs=(UnitValues(mV, [0 1 2 3 4 5 6 7 8 9]), UnitValues(mV, [0 1 2 3 4 5 6 7 8 9]))
 
+        # ufunc=<ufunc 'add'>
+        # method=reduce
+        # inputs=(WaveForm  [10 12 14 16 18 20 22 24 26 28]@mV,)
+
         prefixed_unit = self._prefixed_unit
 
         conversion = self.UFUNC_MAP[ufunc]
         self._logger.debug("Conversion for {} is {}".format(ufunc, conversion))
+
+        # e.g. np.mean do an internal call to reduce
+        if method != '__call__':
+            conversion = self.CONVERSION.NO_CONVERSION
 
         # Cast inputs to ndarray
         args = []
