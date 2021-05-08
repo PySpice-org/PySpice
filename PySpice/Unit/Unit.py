@@ -27,6 +27,8 @@ A shortcut is defined for each unit prefix, e.g. :class:`pico`, :class:`nano`, :
 
 """
 
+# https://numpy.org/doc/stable/user/basics.subclassing.html#basics-subclassing
+
 ####################################################################################################
 
 import logging

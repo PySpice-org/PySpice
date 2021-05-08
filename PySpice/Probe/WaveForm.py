@@ -24,6 +24,8 @@
 
 """
 
+# https://numpy.org/doc/stable/user/basics.subclassing.html#basics-subclassing
+
 ####################################################################################################
 
 import logging
@@ -88,47 +90,52 @@ class WaveForm(UnitValues):
 
     def __new__(cls, name, prefixed_unit, shape,
                 dtype=float, buffer=None, offset=0, strides=None, order=None,
-                **kwargs):
+                title=None, abscissa=None,
+                ):
         # Called first
-        # cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
+        cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
+
         # call UnitValues.__new__(...)
         obj = super(WaveForm, cls).__new__(cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)
         # obj = np.asarray(data).view(cls)
+
+        # extra attributes
+        obj._name = str(name)
+        obj._title = title   # str(title)
+        obj._abscissa = abscissa    # Numpy array
+
         return obj
 
     ##############################################
 
     def __array_finalize__(self, obj):
         # Called after __new__
-        # self._logger.info('')
+        self._logger.info('')
+
         # Fixme: ??? else _prefixed_unit is not set
         super().__array_finalize__(obj)
-        # cf. https://numpy.org/devdocs/user/basics.subclassing.html#simple-example-adding-an-extra-attribute-to-ndarray
+
         # if obj is None:
         #     return
 
+        # extra attributes
+        self._name = getattr(obj, 'name', None)
+        self._title = getattr(obj, 'title', None)
+        self._abscissa = getattr(obj, 'abscissa', None)
+
     ##############################################
 
-    def __init__(self, name, prefixed_unit, shape,
-                 dtype=float, buffer=None, offset=0, strides=None, order=None,
-                 title=None, abscissa=None):
-
-        # Called last
-        # self._logger.info('')
-
-        self._name = str(name)
-        self._title = title
-        self._abscissa = abscissa  # Numpy array
+    # def __init__(self, name, prefixed_unit, shape,
+    #              dtype=float, buffer=None, offset=0, strides=None, order=None,
+    #              title=None, abscissa=None):
+    #     # Called last
+    #     self._logger.info('')
 
     ##############################################
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
-
-        # Fixme: check abscissa
-
         result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
         # self._logger.info("result\n{}".format(result))
-
         if isinstance(result, UnitValues):
             return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
         else:
