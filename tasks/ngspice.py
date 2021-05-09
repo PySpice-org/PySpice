@@ -41,7 +41,7 @@ RELEASE_NOTE_URL = RELEASE_URL + '/{}/ReleaseNotes.txt/download'
 MANUAL_URL = RELEASE_URL + '/{0}/ngspice-{0}-manual.pdf/download'
 # LATEST_URL = BASE_URL + '/latest/download' # zip
 TAR_URL = RELEASE_URL + '/{0}/ngspice-{0}.tar.gz'
-OSX_URL = RELEASE_URL + '/{0}/ngspice-{0}.pkg'
+# OSX_URL = RELEASE_URL + '/{0}/ngspice-{0}.pkg'
 WINDOWS_URL = RELEASE_URL + '/{0}/ngspice-{0}_64.zip'
 WINDOWS_DLL_URL = RELEASE_URL + '/{0}/ngspice-{0}_dll_64.zip'
 
@@ -193,11 +193,11 @@ def get_manual(ctx):
 
 ####################################################################################################
 
-@task(get_last_version)
-def get_osx(ctx):
-    url = OSX_URL.format(ctx.ngspice_last_version)
-    dst_path = 'ngspice-{}.pkg'.format(ctx.ngspice_last_version)
-    donwload_file(url, dst_path)
+# @task(get_last_version)
+# def get_osx(ctx):
+#     url = OSX_URL.format(ctx.ngspice_last_version)
+#     dst_path = 'ngspice-{}.pkg'.format(ctx.ngspice_last_version)
+#     donwload_file(url, dst_path)
 
 ####################################################################################################
 
