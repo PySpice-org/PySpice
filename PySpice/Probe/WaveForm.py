@@ -93,7 +93,7 @@ class WaveForm(UnitValues):
                 title=None, abscissa=None,
                 ):
         # Called first
-        cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
+        # cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
 
         # call UnitValues.__new__(...)
         obj = super(WaveForm, cls).__new__(cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)
@@ -110,7 +110,7 @@ class WaveForm(UnitValues):
 
     def __array_finalize__(self, obj):
         # Called after __new__
-        self._logger.info('')
+        # self._logger.info('')
 
         # Fixme: ??? else _prefixed_unit is not set
         super().__array_finalize__(obj)
