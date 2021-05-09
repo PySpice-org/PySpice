@@ -128,7 +128,7 @@ def run_example(path):
 
 def on_linux(path):
 
-    skipped_files += [
+    skipped_files = [
         make_path('operational-amplifier', 'astable.py'),   # doAnalyses: Too many iterations without convergence
     ]
 
