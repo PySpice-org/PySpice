@@ -22,7 +22,10 @@
 
 from invoke import task
 
-from github import Github
+try:
+    from github import Github
+except ImportError:
+    pass
 
 ####################################################################################################
 
