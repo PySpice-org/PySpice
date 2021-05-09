@@ -161,6 +161,7 @@ def on_windows(path):
     skipped_files += [
         make_path('basic-usages', 'unit.py'),
         make_path('switched-power-supplies', 'buck-converter.py'),
+        make_path('operational-amplifier', 'astable.py'),   # doAnalyses: Too many iterations without convergence
     ]
 
     if str(path) in skipped_files:
