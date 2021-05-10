@@ -227,6 +227,35 @@ class Title(Statement):
 
 ####################################################################################################
 
+class Lib(Statement):
+
+    """ This class implements a library definition. """
+
+    ##############################################
+
+    def __init__(self, line):
+
+        super().__init__(line, statement='lib')
+        self._lib = self._line.right_of('.lib')
+
+    ##############################################
+
+    def __str__(self):
+        return self._lib
+
+    ##############################################
+
+    def __repr__(self):
+        return 'Lib {}'.format(self._lib)
+
+    ##############################################
+
+    def to_python(self, netlist_name):
+
+        return '{}.lib({})'.format(netlist_name, self._lib) + os.linesep
+
+####################################################################################################
+
 class Include(Statement):
 
     """ This class implements a include definition. """
@@ -236,7 +265,7 @@ class Include(Statement):
     def __init__(self, line):
 
         super().__init__(line, statement='include')
-        self._include = self._line.right_of('.include')
+        self._include = self._line.right_of('.include').strip('"')
 
     ##############################################
 
@@ -272,16 +301,14 @@ class Model(Statement):
 
         super().__init__(line, statement='model')
 
-        text = line.right_of('.model')
-        kwarg_start = text.find('(')
-        kwarg_stop = text.find(')')
-        if kwarg_start == -1 or kwarg_stop == -1:
-            # raise ParseError("Bad model: {}".format(line))
-            parts, self._parameters = line.split_line('.model')
-            self._name, self._model_type = parts
-        else:
-            self._name, self._model_type = text[:kwarg_start].split()
-            self._parameters = Line.get_kwarg(text[kwarg_start+1:kwarg_stop])
+        text = line.right_of('.model').strip()
+        import re
+        mtch = re.match('\s*([^ \t]+)\s*([^ \t(]+)(.*)', text)
+        self._name = mtch[1]
+        self._model_type = mtch[2]
+        params = mtch[3]
+        params = params.strip('() ')
+        self._parameters = Line.get_kwarg(params)
 
     ##############################################
 
@@ -781,15 +808,19 @@ class SpiceParser:
 
       :attr:`subcircuits`
 
+      :attr:`incl_libs`
+
     """
 
     _logger = _module_logger.getChild('SpiceParser')
 
     ##############################################
 
-    def __init__(self, path=None, source=None, end_of_line_comment=('$', '//', ';')):
+    def __init__(self, path=None, source=None, end_of_line_comment=('$', '//', ';'), recurse=False, section=None):
 
         # Fixme: empty source
+
+        self._path = path  # For use by _parse() when recursing through files.
 
         if path is not None:
             with open(str(path), 'r') as f:
@@ -803,7 +834,7 @@ class SpiceParser:
 
         lines = self._merge_lines(raw_lines)
         self._title = None
-        self._statements = self._parse(lines)
+        self._statements = self._parse(lines=lines, recurse=recurse, section=section)
         self._find_sections()
 
     ##############################################
@@ -835,7 +866,7 @@ class SpiceParser:
 
     ##############################################
 
-    def _parse(self, lines):
+    def _parse(self, lines, recurse=False, section=None):
 
         """ Parse the lines and return a list of statements. """
 
@@ -845,7 +876,8 @@ class SpiceParser:
         # The last line must be .end
 
         if len(lines) <= 1:
-            raise NameError('Netlist is empty')
+            self._logger.warning('Empty Spice file: {self._path}'.format(**locals()))
+            # raise NameError('Netlist is empty')
         # if lines[-1] != '.end':
         #     raise NameError('".end" is expected at the end of the netlist')
 
@@ -854,14 +886,28 @@ class SpiceParser:
         if self._title.startswith(title_statement):
             self._title = self._title[len(title_statement):]
 
+        # SUBCKT and MODEL files often start with their commands as the
+        # first line so they'll parse incorrectly if that line is removed.
+        # For everything else, assume the first line is a TITLE line and
+        # remove it.
+        if str(lines[0]).startswith(('.model', '.subckt')):
+            start_index = 0
+        else:
+            start_index = 1
+
         statements = []
+        skip_lines = [False]  # True on top of stack means skip lines.
         sub_circuit = None
         scope = statements
-        for line in lines[1:]:
+        self.incl_libs = []  # Libraries found during recursive descent into includes.
+        for line in lines[start_index:]:
             # print('>', repr(line))
             text = str(line)
             lower_case_text = text.lower() # !
-            if line.is_comment:
+            if skip_lines[-1]:
+                if lower_case_text.startswith('.endl'):
+                    skip_lines.pop()
+            elif line.is_comment:
                 scope.append(Comment(line))
             elif lower_case_text.startswith('.'):
                 lower_case_text = lower_case_text[1:]
@@ -873,7 +919,7 @@ class SpiceParser:
                     sub_circuit = None
                     scope = statements
                 elif lower_case_text.startswith('title'):
-                    # override fist line
+                    # override first line
                     self._title = Title(line)
                     scope.append(self._title)
                 elif lower_case_text.startswith('end'):
@@ -882,7 +928,21 @@ class SpiceParser:
                     model = Model(line)
                     scope.append(model)
                 elif lower_case_text.startswith('include'):
-                    scope.append(Include(line))
+                    incl = Include(line)
+                    scope.append(incl)
+                    if recurse:
+                        from .Library import SpiceLibrary
+                        incl_path = os.path.join(str(self._path.directory_part()), str(incl))
+                        self.incl_libs.append(SpiceLibrary(root_path=incl_path, recurse=recurse))
+                elif lower_case_text.startswith('lib'):
+                    lib = Lib(line)
+                    if section and str(lib) != section.lower():
+                        # If the .lib statement is only followed by the name of a section,
+                        # then skip any lines in a library section whose name does not match
+                        # the library section argument.
+                        skip_lines.append(True)
+                    else:
+                        scope.append(lib)
                 else:
                     # options param ...
                     # .global
@@ -890,7 +950,8 @@ class SpiceParser:
                     # .param
                     # .func .csparam .temp .if
                     # { expr } are allowed in .model lines and in device lines.
-                    self._logger.warning('Parser ignored: {}'.format(line))
+                    # self._logger.warning('Parser ignored: {}'.format(line))
+                    pass
             else:
                 try:
                     element = Element(line)

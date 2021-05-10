@@ -210,9 +210,12 @@ class Directory(Path):
 
     def iter_file(self, followlinks=False):
 
-        for root, directories, files in os.walk(self._path, followlinks=followlinks):
-            for filename in files:
-                yield File(filename, root)
+        if self.is_file():
+            yield File(self.filename_part(), self.directory_part())
+        else:
+            for root, directories, files in os.walk(self._path, followlinks=followlinks):
+                for filename in files:
+                    yield File(filename, root)
 
     ##############################################
 
