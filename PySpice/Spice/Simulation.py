@@ -532,7 +532,7 @@ class CircuitSimulation:
         self._options = {}   # .options
         self._measures = []   # .measure
         self._initial_condition = {}   # .ic
-        self._nodeset = {}   # .nodeset
+        self._node_set = {}   # .nodeset
         self._saved_nodes = set()
         self._analyses = {}
 
@@ -575,26 +575,73 @@ class CircuitSimulation:
 
     ##############################################
 
-    def initial_condition(self, _force=True, **kwargs):
+    @staticmethod
+    def _make_initial_condition_dict(kwargs):
+        return {f"V({key})": str_spice(value) for key, value in kwargs.items()}
+
+    ##############################################
+
+    def initial_condition(self, **kwargs):
         """Set initial condition for voltage nodes.
 
         Usage::
 
-            simulator.initial_condition([_force=bool, ]node_name1=value, ...)
+            simulator.initial_condition(node_name=value, ...)
 
-        If _force is True the node will be forced to the given voltage and only be taken into account
-        during the start of a transient simulation. If _force is False the given value is a hint for
-        DC convergence and will be taken into account for both DC and at the start of transient simulation.
+        General form::
 
-        When _force is True .ic statements are generated in the spice netlist, when force is False .nodeset
-        statement will be generated.
+            .ic v(node_name)=value ...
+
+        The `.ic` line is for setting transient initial conditions.  It has two different
+        interpretations, depending on whether the uic parameter is specified on the `.tran` control
+        line, or not.  One should not confuse this line with the `.nodeset` line.  The `.nodeset`
+        line is only to help DC convergence, and does not affect the final bias solution (except for
+        multi-stable circuits).  The two indicated interpretations of this line are as follows:
+
+        1. When the uic parameter is specified on the `.tran` line, the node voltages specified on
+           the `.ic` control line are used to compute the capacitor, diode, BJT, JFET, and MOSFET
+           initial conditions.  This is equivalent to specifying the `ic=...` parameter on each
+           device line, but is much more convenient.  The `ic=...` parameter can still be specified
+           and takes precedence over the `.ic` values.  Since no dc bias (initial transient)
+           solution is computed before the transient analysis, one should take care to specify all
+           dc source voltages on the `.ic` control line if they are to be used to compute device
+           initial conditions.
+
+        2. When the uic parameter is not specified on the `.tran` control line, the DC bias (initial
+           transient) solution is computed before the transient analysis. In this case, the node
+           voltages specified on the `.ic` control lines are forced to the desired initial values
+           during the bias solution.  During transient analysis, the constraint on these node
+           voltages is removed.  This is the preferred method since it allows Ngspice to compute a
+           consistent dc solution.
 
         """
-        d = {'V({})'.format(str(key)): str_spice(value) for key, value in kwargs.items()}
-        if _force:
-            self._initial_condition.update(d)
-        else:
-            self._nodeset.update(d)
+        d = self._make_initial_condition_dict(kwargs)
+        self._initial_condition.update(d)
+
+    ##############################################
+
+    def node_set(self, **kwargs):
+        """Specify initial node voltage guesses.
+
+        Usage::
+
+            simulator.node_set(node_name=value, ...)
+
+        General form::
+
+            .nodeset v(node_name)=value ...
+            .nodeset all=val
+
+        The `.nodeset` line helps the program find the DC or initial transient solution by making a
+        preliminary pass with the specified nodes held to the given voltages.  The restrictions are
+        then released and the iteration continues to the true solution.  The `.nodeset` line may be
+        necessary for convergence on bistable or astable circuits. `.nodeset all=val` sets all
+        starting node voltages (except for the ground node) to the same value.  In general, the
+        `.nodeset` line should not be necessary.
+
+        """
+        d = self._make_initial_condition_dict(kwargs)
+        self._node_set.update(d)
 
     ##############################################
 
@@ -1044,8 +1091,8 @@ class CircuitSimulation:
         netlist += self.str_options()
         if self._initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
-        if self._nodeset:
-            netlist += '.nodeset ' + join_dict(self._nodeset) + os.linesep
+        if self._node_set:
+            netlist += '.nodeset ' + join_dict(self._node_set) + os.linesep
 
         if self._saved_nodes:
             # Place 'all' first
