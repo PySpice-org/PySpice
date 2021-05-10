@@ -294,7 +294,7 @@ class MeasureParameters(AnalysisParameters):
     def __init__(self, analysis_type, name, *args):
 
         _analysis_type = str(analysis_type).upper()
-        if (_analysis_type not in ('AC', 'DC', 'OP', 'TRAN', 'TF', 'NOISE')):
+        if _analysis_type not in ('AC', 'DC', 'OP', 'TRAN', 'TF', 'NOISE'):
             raise ValueError('Incorrect analysis type {}'.format(analysis_type))
 
         self._parameters = [_analysis_type, name, *args]
@@ -323,8 +323,8 @@ class PoleZeroAnalysisParameters(AnalysisParameters):
     def __init__(self, node1, node2, node3, node4, tf_type, pz_type):
 
         self._nodes = (node1, node2, node3, node4)
-        self._tf_type = tf_type # transfert_function
-        self._pz_type = pz_type # pole_zero
+        self._tf_type = tf_type   # transfert_function
+        self._pz_type = pz_type   # pole_zero
 
     ##############################################
 
@@ -529,10 +529,10 @@ class CircuitSimulation:
 
         self._circuit = circuit
 
-        self._options = {} # .options
-        self._measures = [] # .measure
-        self._initial_condition = {} # .ic
-        self._nodeset = {} # .nodeset
+        self._options = {}   # .options
+        self._measures = []   # .measure
+        self._initial_condition = {}   # .ic
+        self._nodeset = {}   # .nodeset
         self._saved_nodes = set()
         self._analyses = {}
 
@@ -577,7 +577,7 @@ class CircuitSimulation:
 
     def initial_condition(self, _force=True, **kwargs):
         """Set initial condition for voltage nodes.
-        
+
         Usage::
 
             simulator.initial_condition([_force=bool, ]node_name1=value, ...)
@@ -886,9 +886,9 @@ class CircuitSimulation:
         """
 
         # do some rudimentary parameter checking.
-        if not tf_type in ('cur', 'vol'):
+        if tf_type not in ('cur', 'vol'):
             raise NameError("polezero type must be 'cur' or 'vol'")
-        if not pz_type in ('pol', 'zer', 'pz'):
+        if pz_type not in ('pol', 'zer', 'pz'):
             raise NameError("pz_type must be 'pol' or 'zer' or 'pz'")
 
         self._add_analysis(
@@ -928,7 +928,7 @@ class CircuitSimulation:
 
         # do some rudimentary parameter checking.
         # Fixme: mixin
-        if not variation in ('dec', 'lin', 'oct'):
+        if variation not in ('dec', 'lin', 'oct'):
             raise NameError("variation must be 'dec' or 'lin' or 'oct'")
 
         output = 'V({},{})'.format(output_node, ref_node)
@@ -977,22 +977,22 @@ class CircuitSimulation:
 
         """Perform a distortion analysis of the circuit.
 
-	variation, points, start_frequency, stop_frequency - typical ac range parameters.
-	if f2overf1 is specified, perform a spectral analysis, else perform a harmonic analysis.
+        variation, points, start_frequency, stop_frequency - typical ac range parameters.
+        if f2overf1 is specified, perform a spectral analysis, else perform a harmonic analysis.
 
         See section 15.3.3 of ngspice manual.
 
-	- harmonic analysis,
-	  The distof1 parameter of the AC input to the circuit must be specified.
-	  Second harmonic magnitude and phase are calculated at each circuit node.
+        - harmonic analysis,
+          The distof1 parameter of the AC input to the circuit must be specified.
+          Second harmonic magnitude and phase are calculated at each circuit node.
 
-	- Spectral analysis,
-	   The distof2 parameter of the AC input to the circuit must be specified as well as distof1.
-	   See the ngspice manual.
+        - Spectral analysis,
+           The distof2 parameter of the AC input to the circuit must be specified as well as distof1.
+           See the ngspice manual.
 
         Spice syntax:
 
-	General form:
+        General form:
 
         .. code:: spice
 
@@ -1010,7 +1010,7 @@ class CircuitSimulation:
         """
 
         # do some rudimentary parameter checking.
-        if not variation in ('dec', 'lin', 'oct'):
+        if variation not in ('dec', 'lin', 'oct'):
             raise NameError("variation must be 'dec' or 'lin' or 'oct'")
 
         self._add_analysis(
