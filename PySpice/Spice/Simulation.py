@@ -532,6 +532,7 @@ class CircuitSimulation:
         self._options = {} # .options
         self._measures = [] # .measure
         self._initial_condition = {} # .ic
+        self._nodeset = {} # .nodeset
         self._saved_nodes = set()
         self._analyses = {}
 
@@ -574,18 +575,26 @@ class CircuitSimulation:
 
     ##############################################
 
-    def initial_condition(self, **kwargs):
+    def initial_condition(self, _force=True, **kwargs):
         """Set initial condition for voltage nodes.
-
+        
         Usage::
 
-            simulator.initial_condition(node_name1=value, ...)
+            simulator.initial_condition([_force=bool, ]node_name1=value, ...)
+
+        If _force is True the node will be forced to the given voltage and only be taken into account
+        during the start of a transient simulation. If _force is False the given value is a hint for
+        DC convergence and will be taken into account for both DC and at the start of transient simulation.
+
+        When _force is True .ic statements are generated in the spice netlist, when force is False .nodeset
+        statement will be generated.
 
         """
-        for key, value in kwargs.items():
-            self._initial_condition['V({})'.format(str(key))] = str_spice(value)
-
-        # Fixme: .nodeset
+        d = {'V({})'.format(str(key)): str_spice(value) for key, value in kwargs.items()}
+        if _force:
+            self._initial_condition.update(d)
+        else:
+            self._nodeset.update(d)
 
     ##############################################
 
@@ -1035,6 +1044,9 @@ class CircuitSimulation:
         netlist += self.str_options()
         if self._initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
+        if self._nodeset:
+            netlist += '.nodeset ' + join_dict(self._nodeset) + os.linesep
+
         if self._saved_nodes:
             # Place 'all' first
             saved_nodes = self._saved_nodes
