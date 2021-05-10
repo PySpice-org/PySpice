@@ -547,7 +547,6 @@ class CircuitSimulation:
     ##############################################
 
     def options(self, *args, **kwargs):
-
         for item in args:
             self._options[str(item)] = None
         for key, value in kwargs.items():
@@ -576,7 +575,6 @@ class CircuitSimulation:
     ##############################################
 
     def initial_condition(self, **kwargs):
-
         """Set initial condition for voltage nodes.
 
         Usage::
@@ -584,7 +582,6 @@ class CircuitSimulation:
             simulator.initial_condition(node_name1=value, ...)
 
         """
-
         for key, value in kwargs.items():
             self._initial_condition['V({})'.format(str(key))] = str_spice(value)
 
@@ -616,10 +613,7 @@ class CircuitSimulation:
     ##############################################
 
     def save_internal_parameters(self, *args):
-
-        """This method is similar to`save` but assume *all*.
-        """
-
+        """This method is similar to`save` but assume *all*."""
         # Fixme: ok ???
         self.save(list(args) + ['all'])
 
@@ -1180,4 +1174,4 @@ class CircuitSimulator(CircuitSimulation):
     def transfer_function(self, *args, **kwargs):
         return self._run('transfer_function', *args, **kwargs)
 
-    tf = transfer_function # shorcut
+    tf = transfer_function   # shorcut

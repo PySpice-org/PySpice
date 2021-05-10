@@ -113,6 +113,7 @@ class NgSpiceSharedCircuitSimulator(NgSpiceCircuitSimulator):
         super()._run(analysis_method, *args, **kwargs)
 
         self._ngspice_shared.destroy()
+        # load circuit and simulation
         # Fixme: Error: circuit not parsed.
         self._ngspice_shared.load_circuit(str(self))
         self._ngspice_shared.run()
