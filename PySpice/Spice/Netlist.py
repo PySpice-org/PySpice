@@ -161,7 +161,6 @@ class DeviceModel:
     ##############################################
 
     def clone(self):
-
         # Fixme: clone parameters ???
         return self.__class__(self._name, self._model_type, self._parameters)
 
@@ -187,12 +186,12 @@ class DeviceModel:
     ##############################################
 
     def __getattr__(self, name):
-
         try:
             return self._parameters[name]
         except KeyError:
             if name.endswith('_'):
                 return self._parameters[name[:-1]]
+            # Fixme: else
 
     ##############################################
 
@@ -213,7 +212,6 @@ class PinDefinition:
     ##############################################
 
     def __init__(self, position, name=None, alias=None, optional=False):
-
         self._position = position
         self._name = name
         self._alias = alias
@@ -334,8 +332,8 @@ class ElementParameterMetaClass(type):
 
     """
 
-     #: Dictionary for SPICE prefix -> [cls,]
-    __classes__ = {}
+    #: Dictionary for SPICE prefix -> [cls,]
+    _classes = {}
 
     _logger = _module_logger.getChild('ElementParameterMetaClass')
 
@@ -361,25 +359,25 @@ class ElementParameterMetaClass(type):
                 d[attribute_name] = obj
 
         # Dictionary for positional parameters : attribute_name -> parameter
-        namespace['__positional_parameters__'] = OrderedDict(
+        namespace['_positional_parameters'] = OrderedDict(
             sorted(list(positional_parameters.items()), key=lambda t: t[1]))
 
         # Dictionary for optional parameters
         #   order is not required for SPICE, but for unit test
-        namespace['__optional_parameters__'] = OrderedDict(
+        namespace['_optional_parameters'] = OrderedDict(
             sorted(list(parameters.items()), key=lambda t: t[0]))
 
         # Positional parameter array
-        namespace['__parameters_from_args__'] = [
+        namespace['_parameters_from_args'] = [
             parameter
             for parameter in sorted(positional_parameters.values())
             if not parameter.key_parameter]
 
         # Implement alias for parameters: spice name -> parameter
-        namespace['__spice_to_parameters__'] = {
+        namespace['_spice_to_parameters'] = {
             parameter.spice_name:parameter
-            for parameter in namespace['__optional_parameters__'].values()}
-        for parameter in namespace['__spice_to_parameters__'].values():
+            for parameter in namespace['_optional_parameters'].values()}
+        for parameter in namespace['_spice_to_parameters'].values():
             if (parameter.spice_name in namespace
                 and parameter.spice_name != parameter.attribute_name):
                 _module_logger.error("Spice parameter '{}' clash with namespace".format(parameter.spice_name))
@@ -396,10 +394,10 @@ class ElementParameterMetaClass(type):
                 return self._pins[position] if position < len(self._pins) else None
             return getter
 
-        if '__pins__' in namespace and namespace['__pins__'] is not None:
+        if 'PINS' in namespace and namespace['PINS'] is not None:
             number_of_optional_pins = 0
             pins = []
-            for position, pin_definition in enumerate(namespace['__pins__']):
+            for position, pin_definition in enumerate(namespace['PINS']):
                 # ensure pin_definition is a tuple
                 if isinstance(pin_definition, OptionalPin):
                     optional = True
@@ -420,10 +418,10 @@ class ElementParameterMetaClass(type):
                 # Add pin
                 pin = PinDefinition(position, *pin_definition, optional=optional)
                 pins.append(pin)
-            namespace['__pins__'] = pins
+            namespace['PINS'] = pins
             namespace['__number_of_optional_pins__'] = number_of_optional_pins
         else:
-            _module_logger.debug("{} don't define a __pins__ attribute".format(class_name))
+            _module_logger.debug("{} don't define a PINS attribute".format(class_name))
 
         return type.__new__(meta_cls, class_name, base_classes, namespace)
 
@@ -436,10 +434,10 @@ class ElementParameterMetaClass(type):
         type.__init__(meta_cls, class_name, base_classes, namespace)
 
         # Collect basic element classes
-        if '__prefix__' in namespace:
-            prefix = namespace['__prefix__']
+        if 'PREFIX' in namespace:
+            prefix = namespace['PREFIX']
             if prefix is not None:
-                classes = ElementParameterMetaClass.__classes__
+                classes = ElementParameterMetaClass._classes
                 if prefix in classes:
                     classes[prefix].append(meta_cls)
                 else:
@@ -453,7 +451,7 @@ class ElementParameterMetaClass(type):
     @property
     def number_of_pins(cls):
         #! Fixme: many pins ???
-        number_of_pins = len(cls.__pins__)
+        number_of_pins = len(cls.PINS)
         if cls.__number_of_optional_pins__:
             return slice(number_of_pins - cls.__number_of_optional_pins__, number_of_pins +1)
         else:
@@ -461,23 +459,23 @@ class ElementParameterMetaClass(type):
 
     @property
     def number_of_positional_parameters(cls):
-        return len(cls.__positional_parameters__)
+        return len(cls._positional_parameters)
 
     @property
     def positional_parameters(cls):
-        return cls.__positional_parameters__
+        return cls._positional_parameters
 
     @property
     def optional_parameters(cls):
-        return cls.__optional_parameters__
+        return cls._optional_parameters
 
     @property
     def parameters_from_args(cls):
-        return cls.__parameters_from_args__
+        return cls._parameters_from_args
 
     @property
     def spice_to_parameters(cls):
-        return cls.__spice_to_parameters__
+        return cls._spice_to_parameters
 
 ####################################################################################################
 
@@ -490,14 +488,14 @@ class Element(metaclass=ElementParameterMetaClass):
     """
 
     # These class attributes are defined in subclasses or via the metaclass.
-    __pins__ = None
-    __positional_parameters__ = None
-    __optional_parameters__ = None
-    __parameters_from_args__ = None
-    __spice_to_parameters__ = None
+    PINS = None
+    _positional_parameters = None
+    _optional_parameters = None
+    _parameters_from_args = None
+    _spice_to_parameters = None
 
     #: SPICE element prefix
-    __prefix__ = None
+    PREFIX = None
 
     ##############################################
 
@@ -509,20 +507,20 @@ class Element(metaclass=ElementParameterMetaClass):
         self.enabled = True
 
         # Process remaining args
-        if len(self.__parameters_from_args__) < len(args):
+        if len(self._parameters_from_args) < len(args):
             raise NameError("Number of args mismatch")
-        for parameter, value in zip(self.__parameters_from_args__, args):
+        for parameter, value in zip(self._parameters_from_args, args):
             setattr(self, parameter.attribute_name, value)
 
         # Process kwargs
         for key, value in kwargs.items():
             if key == 'raw_spice':
                 self.raw_spice = value
-            elif (key in self.__positional_parameters__ or
-                  key in self.__optional_parameters__ or
-                  key in self.__spice_to_parameters__):
+            elif (key in self._positional_parameters or
+                  key in self._optional_parameters or
+                  key in self._spice_to_parameters):
                 setattr(self, key, value)
-            elif hasattr(self, '__VALID_KWARGS__') and key in self.__VALID_KWARGS__:
+            elif hasattr(self, 'VALID_KWARGS') and key in self.VALID_KWARGS:
                 pass # cf. NonLinearVoltageSource
             else:
                 raise ValueError('Unknown argument {}={}'.format(key, value))
@@ -539,7 +537,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     def copy_to(self, element):
 
-        for parameter_dict in self.__positional_parameters__, self.__optional_parameters__:
+        for parameter_dict in self._positional_parameters, self._optional_parameters:
             for parameter in parameter_dict.values():
                 if hasattr(self, parameter.attribute_name):
                     value = getattr(self, parameter.attribute_name)
@@ -556,7 +554,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     @property
     def name(self):
-        return self.__prefix__ + self._name
+        return self.PREFIX + self._name
 
     @property
     def pins(self):
@@ -565,12 +563,10 @@ class Element(metaclass=ElementParameterMetaClass):
     ##############################################
 
     def detach(self):
-
         for pin in self._pins:
             pin.disconnect()
         self._netlist._remove_element(self)
         self._netlist = None
-
         return self
 
     ##############################################
@@ -591,10 +587,9 @@ class Element(metaclass=ElementParameterMetaClass):
     ##############################################
 
     def __setattr__(self, name, value):
-
         # Implement alias for parameters
-        if name in self.__spice_to_parameters__:
-            parameter = self.__spice_to_parameters__[name]
+        if name in self._spice_to_parameters:
+            parameter = self._spice_to_parameters[name]
             object.__setattr__(self, parameter.attribute_name, value)
         else:
             object.__setattr__(self, name, value)
@@ -602,10 +597,9 @@ class Element(metaclass=ElementParameterMetaClass):
     ##############################################
 
     def __getattr__(self, name):
-
         # Implement alias for parameters
-        if name in self.__spice_to_parameters__:
-            parameter = self.__spice_to_parameters__[name]
+        if name in self._spice_to_parameters:
+            parameter = self._spice_to_parameters[name]
             return object.__getattribute__(self, parameter.attribute_name)
         else:
             raise AttributeError(name)
@@ -619,12 +613,9 @@ class Element(metaclass=ElementParameterMetaClass):
     ##############################################
 
     def parameter_iterator(self):
-
         """ This iterator returns the parameter in the right order. """
-
         # Fixme: .parameters ???
-
-        for parameter_dict in self.__positional_parameters__, self.__optional_parameters__:
+        for parameter_dict in self._positional_parameters, self._optional_parameters:
             for parameter in parameter_dict.values():
                 if parameter.nonzero(self):
                     yield parameter
@@ -651,7 +642,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
 class AnyPinElement(Element):
 
-    __pins__ = ()
+    PINS = ()
 
     ##############################################
 
@@ -674,7 +665,7 @@ class FixedPinElement(Element):
         pin_definition_nodes = []
         number_of_args = len(args)
         if number_of_args:
-            expected_number_of_pins = self.__class__.number_of_pins # Fixme:
+            expected_number_of_pins = self.__class__.number_of_pins   # Fixme:
             if isinstance(expected_number_of_pins, slice):
                 expected_number_of_pins = expected_number_of_pins.start
             if number_of_args < expected_number_of_pins:
@@ -682,9 +673,9 @@ class FixedPinElement(Element):
             else:
                 nodes = args[:expected_number_of_pins]
                 args = args[expected_number_of_pins:]
-                pin_definition_nodes = zip(self.__pins__, nodes)
+                pin_definition_nodes = zip(self.PINS, nodes)
         else:
-            for pin_definition in self.__pins__:
+            for pin_definition in self.PINS:
                 if pin_definition.name in kwargs:
                     node = kwargs[pin_definition.name]
                     del kwargs[pin_definition.name]
@@ -713,21 +704,18 @@ class FixedPinElement(Element):
 
 class NPinElement(Element):
 
-    __pins__ = '*'
+    PINS = '*'
 
     ##############################################
 
     def __init__(self, netlist, name, nodes, *args, **kwargs):
-
         super().__init__(netlist, name, *args, **kwargs)
-
         self._pins = [Pin(self, PinDefinition(position), netlist.get_node(node, True))
                       for position, node in enumerate(nodes)]
 
     ##############################################
 
     def copy_to(self, netlist):
-
         nodes = [str(x) for x in self.nodes]
         element = self.__class__(netlist, self._name, nodes)
         super().copy_to(element)
@@ -776,7 +764,7 @@ class Node:
 
     @name.setter
     def name(self, value):
-        self._netlist._update_node_name(self, value) # update nodes dict
+        self._netlist._update_node_name(self, value)   # update nodes dict
         self._name = value
 
     @property
@@ -832,8 +820,8 @@ class Netlist:
         self._nodes = {}
         self._ground_node = self._add_node(self._ground_name)
 
-        self._subcircuits = OrderedDict() # to keep the declaration order
-        self._elements = OrderedDict() # to keep the declaration order
+        self._subcircuits = OrderedDict()   # to keep the declaration order
+        self._elements = OrderedDict()   # to keep the declaration order
         self._models = {}
 
         self.raw_spice = ''
@@ -918,12 +906,11 @@ class Netlist:
         elif attribute_name in self._nodes:
             return self.node(attribute_name)
         else:
-            raise IndexError(attribute_name) # KeyError
+            raise IndexError(attribute_name)   # KeyError
 
     ##############################################
 
     def __getattr__(self, attribute_name):
-
         try:
             return self.__getitem__(attribute_name)
         except IndexError:
@@ -932,7 +919,6 @@ class Netlist:
     ##############################################
 
     def _add_node(self, node_name):
-
         node_name = str(node_name)
         if node_name not in self._nodes:
             node = Node(self, node_name)
@@ -944,18 +930,15 @@ class Netlist:
     ##############################################
 
     def _update_node_name(self, node, new_name):
-
         if node.name not in self._nodes:
             # should not happen
             raise ValueError("Unknown node")
-
         del self._nodes[node.name]
         self._nodes[new_name] = node
 
     ##############################################
 
     def get_node(self, node, create=False):
-
         if isinstance(node, Node):
             return node
         else:
@@ -975,9 +958,7 @@ class Netlist:
     ##############################################
 
     def _add_element(self, element):
-
         """Add an element."""
-
         if element.name not in self._elements:
             self._elements[element.name] = element
         else:
@@ -994,9 +975,7 @@ class Netlist:
     ##############################################
 
     def model(self, name, modele_type, **parameters):
-
         """Add a model."""
-
         model = DeviceModel(name, modele_type, **parameters)
         if model.name not in self._models:
             self._models[model.name] = model
@@ -1008,31 +987,24 @@ class Netlist:
     ##############################################
 
     def subcircuit(self, subcircuit):
-
         """Add a sub-circuit."""
-
         # Fixme: subcircuit is a class
-
         self._subcircuits[str(subcircuit.name)] = subcircuit
 
     ##############################################
 
     def __str__(self):
-
         """ Return the formatted list of element and model definitions. """
-
         # Fixme: order ???
         netlist = self._str_raw_spice()
         netlist += self._str_subcircuits() # before elements
         netlist += self._str_elements()
         netlist += self._str_models()
-
         return netlist
 
     ##############################################
 
     def _str_elements(self):
-
         elements = [element for element in self.elements if element.enabled]
         return join_lines(elements) + os.linesep
 
@@ -1055,7 +1027,6 @@ class Netlist:
     ##############################################
 
     def _str_raw_spice(self):
-
         netlist = self.raw_spice
         if netlist and not netlist.endswith(os.linesep):
             netlist += os.linesep
@@ -1132,9 +1103,7 @@ class SubCircuit(Netlist):
     ##############################################
 
     def __str__(self):
-
         """Return the formatted subcircuit definition."""
-
         nodes = join_list(self._external_nodes)
         parameters = join_list(['{}={}'.format(key, value)
                                 for key, value in self._parameters.items()])
@@ -1147,13 +1116,13 @@ class SubCircuit(Netlist):
 
 class SubCircuitFactory(SubCircuit):
 
-    __name__ = None
-    __nodes__ = None
+    NAME = None
+    NODES = None
 
     ##############################################
 
     def __init__(self, **kwargs):
-        super().__init__(self.__name__, *self.__nodes__, **kwargs)
+        super().__init__(self.NAME, *self.NODES, **kwargs)
 
 ####################################################################################################
 
@@ -1174,18 +1143,18 @@ class Circuit(Netlist):
     ##############################################
 
     def __init__(self, title,
-                 ground=0, # Fixme: gnd = 0
+                 ground=0,   # Fixme: gnd = 0
                  global_nodes=(),
-             ):
+                 ):
 
         super().__init__()
 
         self.title = str(title)
         self._ground = ground
-        self._global_nodes = set(global_nodes) # .global
-        self._includes = [] # .include
-        self._libs = [] # .lib
-        self._parameters = {} # .param
+        self._global_nodes = set(global_nodes)   # .global
+        self._includes = []   # .include
+        self._libs = []   # .lib, contains a (name, section) tuple
+        self._parameters = {}   # .param
 
         # Fixme: not implemented
         #  .csparam
@@ -1212,9 +1181,7 @@ class Circuit(Netlist):
     ##############################################
 
     def include(self, path):
-
         """Include a file."""
-
         if path not in self._includes:
             self._includes.append(path)
         else:
@@ -1223,14 +1190,12 @@ class Circuit(Netlist):
     ##############################################
 
     def lib(self, name, section=None):
-
         """Load a library."""
-
         v = (name, section)
         if v not in self._libs:
             self._libs.append(v)
         else:
-            self._logger.warn("Duplicated lib")
+            self._logger.warn(f"Duplicated lib {v}")
 
     ##############################################
 
@@ -1241,12 +1206,9 @@ class Circuit(Netlist):
     ##############################################
 
     def str(self, simulator=None):
-
         """Return the formatted desk."""
-
         # if not self.has_ground_node():
         #     raise NameError("Circuit don't have ground node")
-
         netlist = self._str_title()
         netlist += self._str_includes(simulator)
         netlist += self._str_libs(simulator)
@@ -1263,7 +1225,6 @@ class Circuit(Netlist):
     ##############################################
 
     def _str_includes(self, simulator=None):
-
         if self._includes:
             # ngspice don't like // in path, thus ensure we write real paths
             real_paths = []
@@ -1282,20 +1243,18 @@ class Circuit(Netlist):
     ##############################################
 
     def _str_libs(self, simulator=None):
-
         if self._libs:
             libs = []
             for lib, section in self._libs:
                 lib = Path(str(lib)).resolve()
                 if simulator:
-                    lib_flavour = Path(str(lib) + '@' + simulator)
+                    lib_flavour = Path(f"{lib}@{simulator}")
                     if lib_flavour.exists():
                         lib = lib_flavour
-                s = ".lib {}".format(lib)
+                s = f".lib {lib}"
                 if section:
-                    s += " {}".format(section)
+                    s += f" {section}"
                 libs.append(s)
-
             return os.linesep.join(libs) + os.linesep
         else:
             return ''
@@ -1303,7 +1262,6 @@ class Circuit(Netlist):
     ##############################################
 
     def _str_globals(self):
-
         if self._global_nodes:
             return '.global ' + join_list(self._global_nodes) + os.linesep
         else:
@@ -1313,7 +1271,8 @@ class Circuit(Netlist):
 
     def _str_parameters(self):
         if self._parameters:
-            return join_lines(self._parameters, prefix='.param ') + os.linesep
+            return ''.join([f'.param {key}={value}' + os.linesep
+                            for key, value in self._parameters.items()])
         else:
             return ''
 

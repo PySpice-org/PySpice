@@ -33,8 +33,8 @@ from PySpice.Unit import *
 ####################################################################################################
 
 class VoltageDivider(SubCircuitFactory):
-    __name__ = 'VoltageDivider'
-    __nodes__ = ('input', 'output_plus', 'output_minus')
+    NAME = 'VoltageDivider'
+    NODES = ('input', 'output_plus', 'output_minus')
     def __init__(self):
         super().__init__()
         self.R(1, 'input', 'output_plus', 9@u_kΩ)
@@ -179,6 +179,32 @@ R1 in out 9kOhm
         self.assertEqual(model.is_, 1)
         self.assertEqual(model['is'], 1)
         self.assertEqual(str(model), '.model Diode D (is=1 rs=2)')
+
+    ##############################################
+
+    def test_keyword_clash(self):
+
+        spice_declaration = """
+.title Parameter Test
+.param pippo=5
+.param po=6
+.param pp=7.8
+.param pap={AGAUSS(pippo, 1 , 1.67)}
+.param pippp={pippo + pp}
+.param p={pp}
+"""
+# .param pop='pp +p'
+# .end
+
+        circuit = Circuit('Parameter Test')
+        circuit.parameter('pippo', 5)
+        circuit.parameter('po', 6)
+        circuit.parameter('pp', 7.8)
+        circuit.parameter('pap', '{AGAUSS(pippo, 1 , 1.67)}')
+        circuit.parameter('pippp', '{pippo + pp}')
+        circuit.parameter('p', '{pp}')
+        # circuit.parameter('pop', 'pp + p')
+        self._test_spice_declaration(circuit, spice_declaration)
 
 ####################################################################################################
 

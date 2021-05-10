@@ -24,11 +24,11 @@ import datetime
 fromtimestamp = datetime.datetime.fromtimestamp
 
 from invoke import task
- # import sys
+# import sys
 
 try:
     import pygit2 as git
-except:
+except ImportError:
     git = None
 
 ####################################################################################################
@@ -60,8 +60,8 @@ def get_commits(ctx):
 
     # GIT_SORT_TOPOLOGICAL. Sort the repository contents in topological order (parents before children);
     # this sorting mode can be combined with time sorting.
-    sorting = git.GIT_SORT_TOPOLOGICAL # git.GIT_SORT_TIME
-    commits = [commit for commit in repository.walk(head_commit.id, sorting)]
+    sorting = git.GIT_SORT_TOPOLOGICAL   # git.GIT_SORT_TIME
+    commits = [commit for commit in repository.walk(head_commit.id, sorting)]   # Fixme:
 
     template = '''
 ====================================================================================================
@@ -77,8 +77,29 @@ def get_commits(ctx):
             'message': commit.message.strip(),
             'id': commit.hex,
             'timestamp': fromtimestamp(commit.commit_time).strftime('%Y-%m-%d %H:%M:%S'),
-            'name': commit.committer.name, # author
+            'name': commit.committer.name,   # author
             'email': commit.committer.email,
         }
         if 'salvaire' not in fields['name'].lower():
             print(template.lstrip().format(**fields))
+
+####################################################################################################
+
+@task
+def fetch_pr(ctx, pr_id):
+    # https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/checking-out-pull-requests-locally
+    branch_name = f'pr/{pr_id}'
+    ctx.run(f'git fetch origin pull/{pr_id}/head:{branch_name}')
+    # git checkout {branch_name}
+    # rework ...
+    # git push origin {branch_name}
+    # -> create new PR
+
+# @task
+# def fetch_pr_range(ctx, start_id, stop_id):
+#     for i in range(int(start_id), int(stop_id+1)):
+#         ctx.run('git fetch origin pull/{0}/head:pr/{0}'.format(i))
+
+####################################################################################################
+
+#  https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/merging-a-pull-request

@@ -1,7 +1,7 @@
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
-# Copyright (C) 2019 Fabrice Salvaire
+# Copyright (C) 2020 jmgc / Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,56 +20,59 @@
 
 ####################################################################################################
 
+from pathlib import Path
+import os
 import unittest
 
 ####################################################################################################
 
-from PySpice.Spice.HighLevelElement import *
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit import *
+from PySpice.Spice.Parser import SpiceParser
 
 ####################################################################################################
 
-class TestHighLevelElement(unittest.TestCase):
+path = Path(__file__).parent
+
+with open(path.joinpath('hsop77.cir')) as fh:
+    hsop77 = fh.read()
+
+with open(path.joinpath('hsada4077.cir')) as fh:
+    hsada4077 = fh.read()
+
+####################################################################################################
+
+def circuit_gft(prb):
+    circuit_file = SpiceParser(source=prb[0])
+    circuit = circuit_file.build_circuit()
+    circuit.parameter('prb', str(prb[1]))
+    # Fixme: simulate with Xyce, CI !!!
+    simulator = circuit.simulator(simulator='xyce-serial')
+    simulator.save(['all'])
+    return simulator
+
+####################################################################################################
+
+class TestSpiceParser(unittest.TestCase):
 
     ##############################################
 
-    def _test_spice_declaration(self, element, spice_declaration):
-        self.assertEqual(str(element), spice_declaration)
+    @unittest.skip('')
+    def test_parser(self):
+        for source in (hsop77, hsada4077):
+            results = list(map(circuit_gft, [(source, -1), (source, 1)]))
+            self.assertEqual(len(results), 2)
+            values = str(results[0])
+            self.assertNotRegex(values, r'(\.ic)')
 
     ##############################################
 
-    def test(self):
-
-        self._test_spice_declaration(
-            PieceWiseLinearVoltageSource(
-                Circuit(''),
-                'pwl1', '1', '0',
-                values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
-            ),
-            'Vpwl1 1 0 PWL(0s 0V 10ms 0V 11ms 5V 20ms 5V)',
-        )
-
-        self._test_spice_declaration(
-            PieceWiseLinearVoltageSource(
-                Circuit(''),
-                'pwl1', '1', '0',
-                values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
-                repeat_time=12@u_ms, delay_time=34@u_ms,
-            ),
-            'Vpwl1 1 0 PWL(0s 0V 10ms 0V 11ms 5V 20ms 5V r=12ms td=34ms)',
-        )
-
-        self._test_spice_declaration(
-            PieceWiseLinearVoltageSource(
-                Circuit(''),
-                'pwl1', '1', '0',
-                values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
-                repeat_time=12@u_ms, delay_time=34@u_ms,
-                dc=50@u_V,
-            ),
-            'Vpwl1 1 0 DC 50V PWL(0s 0V 10ms 0V 11ms 5V 20ms 5V r=12ms td=34ms)',
-        )
+    @unittest.skip('')
+    def test_subcircuit(self):
+        circuit = Circuit('')
+        circuit.include('.../mosdriver.lib')
+        circuit.X('test', 'mosdriver', '0', '1', '2', '3', '4', '5')
+        circuit.BehavioralSource('test', '1', '0', voltage_expression='if(0, 0, 1)', smoothbsrc=1)
+        print(circuit)
 
 ####################################################################################################
 

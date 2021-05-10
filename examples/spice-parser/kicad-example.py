@@ -50,8 +50,8 @@ spice_library = SpiceLibrary(libraries_path)
 
 class PowerIn(SubCircuitFactory):
 
-    __name__ = 'PowerIn'
-    __nodes__ = ('output_plus', 'ground', 'output_minus')
+    NAME = 'PowerIn'
+    NODES = ('output_plus', 'ground', 'output_minus')
 
     ##############################################
 
@@ -66,8 +66,8 @@ class PowerIn(SubCircuitFactory):
 
 class Opamp(SubCircuitFactory):
 
-    __name__ = 'Opamp'
-    __nodes__ = ('output',
+    NAME = 'Opamp'
+    NODES = ('output',
                  'input_negative', 'input_positive',
                  'power_positive', 'power_negative')
 
@@ -87,8 +87,8 @@ class Opamp(SubCircuitFactory):
 
 class JackIn(SubCircuitFactory):
 
-    __name__ = 'JackIn'
-    __nodes__ = ('input', 'x', 'ground')
+    NAME = 'JackIn'
+    NODES = ('input', 'x', 'ground')
 
     ##############################################
 
@@ -103,8 +103,8 @@ class JackIn(SubCircuitFactory):
 
 class JackOut(SubCircuitFactory):
 
-    __name__ = 'JackOut'
-    __nodes__ = ('output', 'x', 'ground')
+    NAME = 'JackOut'
+    NODES = ('output', 'x', 'ground')
 
     ##############################################
 

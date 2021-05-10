@@ -202,7 +202,7 @@ Git repository to get the examples.  See "Installation from Source".
 Install a more Recent Version from GitHub using pip
 ---------------------------------------------------
 
-If you want to install a version that is not yet released on Pypi, you can use one of theses
+If you want to install a version which is not yet released on PyPI, you can use one of these
 commands to install the stable or devel branch:
 
 .. code-block:: sh
@@ -217,9 +217,9 @@ Installation from Source
 
 PySpice source code is hosted at |PySpice@github|
 
-You have two solution to get the source code, the first is to clone the repository, but if you are
+You have two solutions to get the source code, the first is to clone the repository, but if you are
 not familiar with Git, you can simply download an archive from the GitHub page (using the download
-button) or from the PySpice Pypi page.
+button) or from the PySpice PyPI page.
 
 To clone the Git repository, run this command:
 
@@ -287,14 +287,14 @@ Ngspice Compilation
 -------------------
 
 Usually Ngspice is available as a package on the most popular Linux distributions. But we recommend
-to **check the compilation options** before to use it for serious projects.
+to **check the compilation options** before using it for serious projects.
 
 The procedure to compile Ngspice is explained in the manual and in the ``INSTALLATION`` file. Ngspice is
 an example of complex software where we should not enable everything without care.
 
 .. warning::
 
-  The compilation option **--enable-ndev** is known to broke the server mode.
+  The compilation option **--enable-ndev** is known to break the server mode.
 
 The recommended way to compile Ngspice on Linux is:
 
@@ -322,7 +322,7 @@ The recommended way to compile Ngspice on Linux is:
 How to get Xyce ?
 -----------------
 
-Despite Xyce is released under the therms of the GPLv3 licence, Sandia requires actually you create
+Even though Xyce is released under the terms of the GPLv3 licence, Sandia actually requires that you create
 a user account on this `sign-in page <https://xyce.sandia.gov/downloads/sign-in.html>`_ to get the
 source or download an executable, i.e. you have to provide an email address to Sandia.
 

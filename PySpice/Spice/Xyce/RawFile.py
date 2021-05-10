@@ -108,7 +108,7 @@ class RawFile(RawFileAbc):
 
     _logger = _module_logger.getChild('RawFile')
 
-    __variable_cls__ = Variable
+    _variable_cls = Variable
 
     ##############################################
 

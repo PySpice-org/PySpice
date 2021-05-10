@@ -101,7 +101,7 @@ from PySpice.Probe.WaveForm import (
     WaveForm,
 )
 from PySpice.Tools.EnumFactory import EnumFactory
-from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F
+from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F, u_Degree
 
 from .SimulationType import SIMULATION_TYPE
 
@@ -308,14 +308,10 @@ class Plot(dict):
     ##############################################
 
     def _to_dc_analysis(self):
-        # if 'v(v-sweep)' in self:
-        #     sweep_variable = self['v(v-sweep)']
-        # elif 'v(i-sweep)' in self:
-        #     sweep_variable = self['v(i-sweep)']
-        if 'v-sweep' in self:
-            sweep_variable = self['v-sweep']
-        elif 'i-sweep' in self:
-            sweep_variable = self['i-sweep']
+        for name in ('v-sweep', 'i-sweep', 'temp-sweep'):
+            if name in self:
+                sweep_variable = self[name]
+                break
         else:
             raise NotImplementedError(str(self))
         sweep = sweep_variable.to_waveform()
@@ -403,7 +399,8 @@ class NgSpiceShared:
     NGSPICE_PATH = None
     LIBRARY_PATH = None
 
-    __MAX_COMMAND_LENGTH__ = 1023
+    MAX_COMMAND_LENGTH = 1023
+    NUMBER_OF_EXEC_CALLS_TO_RELEASE_MEMORY = 10_000
 
     ##############################################
 
@@ -465,6 +462,8 @@ class NgSpiceShared:
         self._ngspice_id = ngspice_id
 
         self._spinit_not_found = False
+
+        self._number_of_exec_calls = 0
 
         self._stdout = []
         self._stderr = []
@@ -589,6 +588,7 @@ class NgSpiceShared:
         try:
             self._simulation_type = EnumFactory('SimulationType', SIMULATION_TYPE[self._ngspice_version])
         except KeyError:
+            # See SimulationType.py
             self._simulation_type = EnumFactory('SimulationType', SIMULATION_TYPE['last'])
             self._logger.warning("Unsupported Ngspice version {}".format(self._ngspice_version))
         self._type_to_unit = {
@@ -597,6 +597,7 @@ class NgSpiceShared:
             self._simulation_type.current: u_A,
             self._simulation_type.frequency: u_Hz,
             self._simulation_type.capacitance: u_F,
+            self._simulation_type.temperature: u_Degree,
         }
 
         # Prevent paging output of commands (hangs)
@@ -825,8 +826,16 @@ class NgSpiceShared:
 
         # Ngspice API: ngSpice_Command
 
-        if len(command) > self.__MAX_COMMAND_LENGTH__:
-            raise ValueError('Command must not exceed {} characters'.format(self.__MAX_COMMAND_LENGTH__))
+        # Prevent memory leaks by periodically freeing ngspice history of past commands
+        #   Each command sent to ngspice is stored in the control structures
+        if self._number_of_exec_calls > self.NUMBER_OF_EXEC_CALLS_TO_RELEASE_MEMORY:
+            # Clear the internal control structures
+            self._ngspice_shared.ngSpice_Command(FFI.NULL)
+            self._number_of_exec_calls = 0
+        self._number_of_exec_calls += 1
+
+        if len(command) > self.MAX_COMMAND_LENGTH:
+            raise ValueError('Command must not exceed {} characters'.format(self.MAX_COMMAND_LENGTH))
 
         self._logger.debug('Execute command: {}'.format(command))
 
@@ -903,11 +912,24 @@ class NgSpiceShared:
     ##############################################
 
     def _alter(self, command, device, kwargs):
+        # Performance optimization: dispatch multiple alter commands jointly
         device_name = device.lower()
+        commands = []
+        commands_str_len = 0
         for key, value in kwargs.items():
             if isinstance(value, (list, tuple)):
                 value = '[ ' + ' '.join(value) + ' ]'
-            self.exec_command('{} {} {} = {}'.format(command, device_name, key, value))
+            cmd = '{} {} {} = {}'.format(command, device_name, key, value)
+            # performance optimization: collect multiple alter commands and 
+            #                           dispatch them jointly
+            commands.append(cmd)
+            commands_str_len += len(cmd)
+            if commands_str_len + len(commands) > self.__MAX_COMMAND_LENGTH__:
+                self.exec_command(';'.join(commands[:-1]))
+                commands = commands[-1:]
+                commands_str_len = len(commands[0])
+        if commands:
+            self.exec_command(';'.join(commands))
 
     ##############################################
 
@@ -1125,9 +1147,11 @@ class NgSpiceShared:
         """Load the given circuit string."""
 
         # Ngspice API: ngSpice_Circ
-
         circuit_lines = [line for line in str(circuit).splitlines() if line]
         self._logger.debug('ngSpice_Circ\n' + str(circuit))
+
+        # ngspice 33 requires an empty line at the end
+        circuit_lines.append("")
 
         circuit_lines_keepalive = [ffi.new("char[]", line.encode('utf8'))
                                    for line in circuit_lines]
@@ -1284,7 +1308,7 @@ class NgSpiceShared:
                 #     print(ffi.addressof(value, field='cx_real'), ffi.addressof(value, field='cx_imag'))
                 #     print("  [{}] {} + i {}".format(k, value.cx_real, value.cx_imag))
                 tmp_array = np.frombuffer(ffi.buffer(vector_info.v_compdata, length*8*2), dtype=np.float64)
-                array = np.array(tmp_array[0::2], dtype=np.complex64)
+                array = np.array(tmp_array[0::2], dtype=np.complex128)
                 array.imag = tmp_array[1::2]
             plot[vector_name] = Vector(self, vector_name, vector_type, array)
 

@@ -17,8 +17,8 @@ from PySpice.Unit import *
 ####################################################################################################
 
 class SubCircuit1(SubCircuitFactory):
-    __name__ = 'sub_circuit1'
-    __nodes__ = ('n1', 'n2')
+    NAME = 'sub_circuit1'
+    NODES = ('n1', 'n2')
     def __init__(self):
         super().__init__()
         self.R(1, 'n1', 'n2', 1@u_Ω)

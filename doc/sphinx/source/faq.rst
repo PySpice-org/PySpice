@@ -15,15 +15,15 @@ How to get help or report an issue ?
 
 PySpice has a **Forum** hosted at https://pyspice.discourse.group
 
-**If you encounter an issue, please fill an issue** on the `Issue Tracker <https://github.com/FabriceSalvaire/PySpice/issues>`_.
+**If you encounter an issue, please file an issue** on the `Issue Tracker <https://github.com/FabriceSalvaire/PySpice/issues>`_.
 
 
 How to typeset :code:`u_kΩ` or :code:`u_μV` in Python code ?
 ------------------------------------------------------------
 
-There is three solutions if you don't have these Unicode characters available on your keyboard. The
-first one, is to use the ASCII alternative: :code:`u_kOhm` or :code:`u_uV.`.  The second one, is to
-define macros on your favourite editor.  The last one, is to customise your keyboard settings (on Linux look at https://www.x.org/wiki/XKB/).
+There are three solutions if you don't have these Unicode characters available on your keyboard. The
+first one is to use the ASCII alternative: :code:`u_kOhm` or :code:`u_uV.`.  The second one is to
+define macros on your favourite editor.  The last one is to customise your keyboard settings (on Linux look at https://www.x.org/wiki/XKB/).
 
 
 How to perform division with units ?
@@ -31,7 +31,7 @@ How to perform division with units ?
 
 According to the Python `operator precedence
 <https://docs.python.org/3/reference/expressions.html#operator-precedence>`_, division operators
-have a higher priority than the matrix multiplication operator.  In consequence you must had
+have a higher priority than the matrix multiplication operator.  In consequence you must have
 parenthesis to perform something like :code:`(10@u_s) / (2@_us)`.
 
 **It is currently an issue ...**
@@ -66,7 +66,7 @@ We can also use uppercase letters since SPICE is case insensitive.
 How to pass raw SPICE command ?
 -------------------------------
 
-If the API don't yet implement a SPICE command, then you can pass raw SPICE commands using:
+If the API doesn't yet implement a SPICE command, then you can pass raw SPICE commands using:
 
 .. code-block:: py3
 

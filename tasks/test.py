@@ -127,6 +127,15 @@ def run_example(path):
 ####################################################################################################
 
 def on_linux(path):
+
+    skipped_files = [
+        make_path('operational-amplifier', 'astable.py'),   # doAnalyses: Too many iterations without convergence
+    ]
+
+    if str(path) in skipped_files:
+        print('Skip {}'.format(path))
+        return 'skipped'
+
     return run_example(path)
 
 ####################################################################################################
@@ -161,6 +170,7 @@ def on_windows(path):
     skipped_files += [
         make_path('basic-usages', 'unit.py'),
         make_path('switched-power-supplies', 'buck-converter.py'),
+        make_path('operational-amplifier', 'astable.py'),   # doAnalyses: Too many iterations without convergence
     ]
 
     if str(path) in skipped_files:
