@@ -5,13 +5,17 @@
 
 .. no title here
 
-V1.5.0 (development release)
+V1.6.0 (development release)
 ----------------------------
 
-* renamed custom dunders "__dunder__" to "CONSTANT" or "_private" class attributes
-
-V1.4.3 (production release) 2020-07-04
+V1.5.0 (production release) 2021-05-xx
 --------------------------------------
+
+* renamed custom dunders "__dunder__" to "CONSTANT" or "_private" class attributes
+* TO COMPLETE
+  
+V1.4.3 2020-07-04
+-----------------
 
 A huge effort, thanks to @stuarteberg Stuart Berg, has been made to make Ngspice and PySpice
 available on Anaconda (conda-forge) for the Window, OSX and Linux platforms.  Thanks to the
