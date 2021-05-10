@@ -39,13 +39,15 @@ circuit.include(spice_library['1N4148'])
 # 1N5919B: 5.6 V, 3.0 W Zener Diode Voltage Regulator
 circuit.include(spice_library['d1n5919brl'])
 
-ac_line = circuit.AcLine('input', circuit.gnd, 'L', rms_voltage=230@u_V, frequency=50@u_Hz)
+ac_line = circuit.AcLine('input', 'L', circuit.gnd, rms_voltage=230@u_V, frequency=50@u_Hz)
 circuit.R('in', 'L', 1, 470@u_Ω)
 circuit.C('in', 1, 2, 470@u_nF)
+# d1n5919brl pinning is anode cathode ->|-
 circuit.X('Dz', 'd1n5919brl', circuit.gnd, 2)
+# 1N4148 pinning is anode cathode ->|-
 circuit.X('D', '1N4148', 2, 'out')
-circuit.C('', circuit.gnd, 'out', 220@u_uF)
-circuit.R('load', circuit.gnd, 'out', 1@u_kΩ)
+circuit.C('', 'out', circuit.gnd, 220@u_uF)
+circuit.R('load', 'out', circuit.gnd, 1@u_kΩ)
 
 #?# Fixme: circuit.nodes[2].v, circuit.branch.current
 # print circuit.nodes

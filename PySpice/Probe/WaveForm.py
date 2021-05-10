@@ -24,6 +24,8 @@
 
 """
 
+# https://numpy.org/doc/stable/user/basics.subclassing.html#basics-subclassing
+
 ####################################################################################################
 
 import logging
@@ -64,7 +66,6 @@ class WaveForm(UnitValues):
 
     @classmethod
     def from_unit_values(cls, name, array, title=None, abscissa=None):
-
         obj = cls(
             name,
             array.prefixed_unit,
@@ -74,68 +75,71 @@ class WaveForm(UnitValues):
             abscissa=abscissa,
         )
         obj[...] = array[...]
-
         return obj
 
     ##############################################
 
     @classmethod
     def from_array(cls, name, array, title=None, abscissa=None):
-
         # Fixme: ok ???
-
         obj = cls(name, None, array.shape, title=title, abscissa=abscissa)
         obj[...] = array[...]
-
         return obj
 
     ##############################################
 
-    def __new__(cls, name, prefixed_unit,
-                shape, dtype=float, buffer=None, offset=0, strides=None, order=None,
-                title=None, abscissa=None):
-
+    def __new__(cls, name, prefixed_unit, shape,
+                dtype=float, buffer=None, offset=0, strides=None, order=None,
+                title=None, abscissa=None,
+                ):
+        # Called first
         # cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
 
+        # call UnitValues.__new__(...)
         obj = super(WaveForm, cls).__new__(cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)
         # obj = np.asarray(data).view(cls)
 
+        # extra attributes
         obj._name = str(name)
-        obj._title = title # str(title)
-        obj._abscissa = abscissa
+        obj._title = title   # str(title)
+        obj._abscissa = abscissa    # Numpy array
 
         return obj
 
     ##############################################
 
     def __array_finalize__(self, obj):
-
-        # self._logger.info('\n  {}'.format(obj))
+        # Called after __new__
+        # self._logger.info('')
 
         # Fixme: ??? else _prefixed_unit is not set
         super().__array_finalize__(obj)
 
-        if obj is None:
-            return
+        # if obj is None:
+        #     return
 
+        # extra attributes
         self._name = getattr(obj, 'name', None)
         self._title = getattr(obj, 'title', None)
         self._abscissa = getattr(obj, 'abscissa', None)
 
     ##############################################
 
+    # def __init__(self, name, prefixed_unit, shape,
+    #              dtype=float, buffer=None, offset=0, strides=None, order=None,
+    #              title=None, abscissa=None):
+    #     # Called last
+    #     self._logger.info('')
+
+    ##############################################
+
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
-
-        # Fixme: check abscissa
-
         result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
-
         # self._logger.info("result\n{}".format(result))
-
         if isinstance(result, UnitValues):
             return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
         else:
-            return result # e.g. foo <= 0
+            return result  # e.g. foo <= 0
 
     ##############################################
 
@@ -153,7 +157,10 @@ class WaveForm(UnitValues):
 
     @title.setter
     def title(self, value):
-        self._title = value
+        if value is not None:
+            self._title = str(value)
+        else:
+            self._title = None
 
     ##############################################
 
@@ -308,11 +315,12 @@ class Analysis:
         try:
             return self.__getitem__(name)
         except IndexError:
-            raise AttributeError(name + os.linesep +
-                                 'Nodes :' + os.linesep + self._format_dict(self._nodes) + os.linesep +
-                                 'Branches :' + os.linesep + self._format_dict(self._branches) + os.linesep +
-                                 'Elements :' + os.linesep + self._format_dict(self._elements) + os.linesep +
-                                 'Internal Parameters :' + os.linesep + self._format_dict(self._internal_parameters)
+            raise AttributeError(
+                name + os.linesep +
+                'Nodes :' + os.linesep + self._format_dict(self._nodes) + os.linesep +
+                'Branches :' + os.linesep + self._format_dict(self._branches) + os.linesep +
+                'Elements :' + os.linesep + self._format_dict(self._elements) + os.linesep +
+                'Internal Parameters :' + os.linesep + self._format_dict(self._internal_parameters)
             )
 
 ####################################################################################################

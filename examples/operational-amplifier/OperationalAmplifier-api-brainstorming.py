@@ -13,10 +13,10 @@ class BasicOperationalAmplifier(SubCircuit): # SubCircuitFactory
     # __init__(self, name, subcircuit_name, *nodes)
     #
     # name = class name
-    # node = __nodes__ = interface
+    # node = NODES = interface
     #
 
-    __nodes__ = ('non_inverting_input', 'inverting_input', 'output')
+    NODES = ('non_inverting_input', 'inverting_input', 'output')
 
     ##############################################
 
@@ -43,7 +43,7 @@ class BasicOperationalAmplifier(SubCircuit): # SubCircuitFactory
 
 class BasicOperationalAmplifier(SubCircuit): # SubCircuitFactory
 
-    __nodes__ = ('non_inverting_input', 'inverting_input', 'output')
+    NODES = ('non_inverting_input', 'inverting_input', 'output')
 
     # Comment: R doesn't know its name, R prefix is redundant
     Rinput = R('non_inverting_input', 'inverting_input', 10@u_MΩ)

@@ -1,0 +1,191 @@
+.title HSOP77case
+* OP77 SPICE Macro-model
+* Description: Amplifier
+* Generic Desc: 6/30V, BIP, OP, Low Vos, Precision, 1X
+* Developed by: JCB / PMI
+* Revision History: 08/10/2012 - Updated to new header style
+* 2.0 (12/1990) - Re-ordered subcircuit call out nodes to put the output node last.
+*          - Changed Ios from 0.3E-9 to 0.15E-9
+*      - Added F1 and F2 to fix short circuit current limit.
+* Copyright 1990, 2012 by Analog Devices, Inc.
+*
+* Refer to http://www.analog.com/Analog_Root/static/techSupport/designTools/spiceModels/license/spice_general.html for License Statement. Use of this model
+* indicates your acceptance with the terms and provisions in the License Statement.
+*
+* BEGIN Notes:
+*
+* Not Modeled:
+*
+* Parameters modeled include:
+*
+* END Notes
+*
+* Node assignments
+*              non-inverting input
+*              | inverting input
+*              | | positive supply
+*              | | |  negative supply
+*              | | |  |  output
+*              | | |  |  |
+.SUBCKT OP77   1 2 99 50 39
+*#ASSOC Category="Op-amps" symbol=opamp
+*
+* INPUT STAGE & POLE AT 6 MHZ
+*
+R1   2   3    5E11
+R2   1   3    5E11
+R3   5  97    0.0606
+R4   6  97    0.0606
+CIN  1   2    4E-12
+C2   5   6    218.9E-9
+I1   4  51    1
+IOS  1   2    0.15E-9
+EOS  9  10    POLY(1)  30 33  10E-6  1
+Q1   5  2  7  QX
+Q2   6  9  8  QX
+R5   7   4    0.009
+R6   8   4    0.009
+D1   2   1    DX
+D2   1   2    DX
+EN   10  1    12  0  1
+GN1  0   2    15  0  1
+GN2  0   1    18  0  1
+*
+EREF  98 0    33  0  1
+EPLUS 97 0    99  0  1
+ENEG  51 0    50  0  1
+*
+* VOLTAGE NOISE SOURCE WITH FLICKER NOISE
+*
+DN1  11  12   DEN
+DN2  12  13   DEN
+VN1  11   0   DC 2
+VN2  0   13   DC 2
+*
+* CURRENT NOISE SOURCE WITH FLICKER NOISE
+*
+DN3  14  15   DIN
+DN4  15  16   DIN
+VN3  14   0   DC 2
+VN4  0   16   DC 2
+*
+* SECOND CURRENT NOISE SOURCE
+*
+DN5  17  18   DIN
+DN6  18  19   DIN
+VN5  17   0   DC 2
+VN6  0   19   DC 2
+*
+* FIRST GAIN STAGE
+*
+R7   20 98     1
+G1   98 20     5  6  59.91
+D3   20 21     DX
+D4   22 20     DX
+E1   97 21     POLY(1) 97 33 -2.4 1
+E2   22 51     POLY(1) 33 51 -2.4 1
+*
+* GAIN STAGE & DOMINANT POLE AT 0.053 HZ
+*
+R8   23 98     6.01E9
+C3   23 98     500E-12
+G2   98 23     20 33  33.3E-6
+V1   97 24     1.3
+V2   25 51     1.3
+D5   23 24     DX
+D6   25 23     DX
+*
+* NEGATIVE ZERO AT -4MHZ
+*
+R9   26 27     1
+C4   26 27     -39.75E-9
+R10  27 98     1E-6
+E3   26 98     23 33  1E6
+*
+* COMMON-MODE GAIN NETWORK WITH ZERO AT 20 HZ
+*
+R13  30 31     1
+L2   31 98     7.96E-3
+G4   98 30     3  33  1.0E-7
+D7   30 97     DX
+D8   51 30     DX
+*
+* POLE AT 2 MHZ
+*
+R14  32 98     1
+C5   32 98     79.5E-9
+G5   98 32     27 33  1
+*
+* OUTPUT STAGE
+*
+R15  33 97     1
+R16  33 51     1
+GSY  99 50     POLY(1) 99 50 0.325E-3 0.0425E-3
+F1   34  0     V3  1
+F2   0  34     V4  1
+R17  34 99     400
+R18  34 50     400
+L3   34 39     2E-7
+G6   37 50     32 34  2.5E-3
+G7   38 50     34 32  2.5E-3
+G8   34 99     99 32  2.5E-3
+G9   50 34     32 50  2.5E-3
+V3   35 34     6.8
+V4   34 36     4.4
+D9   32 35     DX
+D10  36 32     DX
+D11  99 37     DX
+D12  99 38     DX
+D13  50 37     DY
+D14  50 38     DY
+*
+* MODELS USED
+*
+.MODEL QX NPN(BF=417E6)
+.MODEL DX   D(IS=1E-15)
+.MODEL DY   D(IS=1E-15 BV=50)
+.MODEL DEN  D(IS=1E-12, RS=12.08K, KF=1E-17, AF=1)
+.MODEL DIN  D(IS=1E-12, RS=7.55E-6, KF=1.55E-15, AF=1)
+.ENDS OP77
+Iinj 0 probe 0 AC {0.5*prb*(prb+1)}
+Vinj probe Ninplp 0 AC {0.5*prb*(prb-1)}
+Vprobe probe Noutlp 0
+.model 2N2222 NPN(IS=1E-14 VAF=100
++   BF=200 IKF=0.3 XTB=1.5 BR=3
++   CJC=8E-12 CJE=25E-12 TR=100E-9 TF=400E-12
++   ITF=1 VTF=2 XTF=3 RB=10 RC=.3 RE=.2)
+XU1 Ninp Ninn Np15 Nm15 Ninplp OP77
+XU2 No Nre Np15 Nm15 Nrep OP77
+R1 Ninnm 0 {r_1}
+R2 Ne Ninnm {r_2}
+C2 Ne Ninnm {c_2}
+VU1offset Ninn Ninnm {v_1offset}
+R3 Nin Ninp {r_3}
+VU2offset Nre Nrep {v_2offset}
+R4 Nrep Ninp {r_4}
+C4 Nrep Ninp {c_4}
+R5 Ne No {r_o}
+Vi Nin 0 {vin} AC {1-prb*prb}
+V2p15 Np15 0 15
+Vm15 Nm15 0 -15
+Q1 Nc Nb Ne 2N2222
+R6 Np15 Nc 50
+R7 Noutlp Nb 10
+D1 Ngl No YELLOW
+Vl Ngl 0 0
+.model YELLOW D(IS=93.1P RS=42M N=4.61 BV=2 IBV=10U
++ CJO=2.97P VJ=.75 M=.333 TT=4.32U)
+.model NPN NPN
+.model PNP PNP
+.param prb=0
+.param vin=2.5
+.param r_1=1k
+.param r_2=1k
+.param r_3=1k
+.param r_4=1k
+.param r_o=200
+.param c_2=20p
+.param c_4=20p
+.param v_1offset=0
+.param v_2offset=0
+.end

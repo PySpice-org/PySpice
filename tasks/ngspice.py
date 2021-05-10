@@ -41,7 +41,7 @@ RELEASE_NOTE_URL = RELEASE_URL + '/{}/ReleaseNotes.txt/download'
 MANUAL_URL = RELEASE_URL + '/{0}/ngspice-{0}-manual.pdf/download'
 # LATEST_URL = BASE_URL + '/latest/download' # zip
 TAR_URL = RELEASE_URL + '/{0}/ngspice-{0}.tar.gz'
-OSX_URL = RELEASE_URL + '/{0}/ngspice-{0}.pkg'
+# OSX_URL = RELEASE_URL + '/{0}/ngspice-{0}.pkg'
 WINDOWS_URL = RELEASE_URL + '/{0}/ngspice-{0}_64.zip'
 WINDOWS_DLL_URL = RELEASE_URL + '/{0}/ngspice-{0}_dll_64.zip'
 
@@ -126,6 +126,8 @@ def remove_directories(ctx):
 @task(get_last_version)
 def get_source(ctx, extract=True):
     init(ctx)
+    if ctx.ngspice_source_path.exists():
+        return
     # remove_directories(ctx)
     url = TAR_URL.format(ctx.ngspice_last_version)
     dst_path = 'ngspice-{}.tar.gz'.format(ctx.ngspice_last_version)
@@ -145,12 +147,11 @@ def configure(ctx):
     command = [
         str(configure_path),
         '--prefix={}'.format(ctx.install_path),
-    	'--disable-debug',
+	'--with-ngshared',
+	'--enable-xspice',
 	'--enable-cider',
 	'--enable-openmp',
-	'--enable-xspice',
-	'--with-readline=yes',
-	'--with-ngshared',
+    	'--disable-debug',
     ]
     if not ctx.ngspice_build_path.exists():
         os.mkdir(ctx.ngspice_build_path)
@@ -177,6 +178,12 @@ def clean(ctx):
 
 @task(get_source, configure, clean, build)
 def install(ctx):
+    """Compile and install Ngspice library in the PySpice source, e.g. pyspice-source/ngspice-34
+
+    Run a test using:
+
+        LD_LIBRARY_PATH=$PWD/ngspice-34/lib:$LD_LIBRARY_PATH ./bin/pyspice-post-installation --check-install
+    """
     if sys.platform != 'linux':
         return
     init(ctx)
@@ -193,11 +200,11 @@ def get_manual(ctx):
 
 ####################################################################################################
 
-@task(get_last_version)
-def get_osx(ctx):
-    url = OSX_URL.format(ctx.ngspice_last_version)
-    dst_path = 'ngspice-{}.pkg'.format(ctx.ngspice_last_version)
-    donwload_file(url, dst_path)
+# @task(get_last_version)
+# def get_osx(ctx):
+#     url = OSX_URL.format(ctx.ngspice_last_version)
+#     dst_path = 'ngspice-{}.pkg'.format(ctx.ngspice_last_version)
+#     donwload_file(url, dst_path)
 
 ####################################################################################################
 

@@ -3,6 +3,7 @@
 requests
 beautifulsoup4
 invoke
+PyGithub
 
 # Build documentation
 sphinx

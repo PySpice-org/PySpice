@@ -42,13 +42,13 @@ class AnalysisParameters:
 
     """Base class for analysis parameters"""
 
-    __analysis_name__ = None
+    ANALYSIS_NAME = None
 
     ##############################################
 
     @property
     def analysis_name(self):
-        return self.__analysis_name__
+        return self.ANALYSIS_NAME
 
     ##############################################
 
@@ -66,7 +66,7 @@ class OperatingPointAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for operating point analysis."""
 
-    __analysis_name__ = 'op'
+    ANALYSIS_NAME = 'op'
 
 ####################################################################################################
 
@@ -74,7 +74,7 @@ class DcSensitivityAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for DC sensitivity analysis."""
 
-    __analysis_name__ = 'sens'
+    ANALYSIS_NAME = 'sens'
 
     ##############################################
 
@@ -98,7 +98,7 @@ class AcSensitivityAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for AC sensitivity analysis."""
 
-    __analysis_name__ = 'sens'
+    ANALYSIS_NAME = 'sens'
 
     ##############################################
 
@@ -152,7 +152,7 @@ class DCAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for DC analysis."""
 
-    __analysis_name__ = 'dc'
+    ANALYSIS_NAME = 'dc'
 
     ##############################################
 
@@ -184,7 +184,7 @@ class ACAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for AC analysis."""
 
-    __analysis_name__ = 'ac'
+    ANALYSIS_NAME = 'ac'
 
     ##############################################
 
@@ -234,22 +234,17 @@ class TransientAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for transient analysis."""
 
-    __analysis_name__ = 'tran'
+    ANALYSIS_NAME = 'tran'
 
     ##############################################
 
     def __init__(self, step_time, end_time, start_time=0, max_time=None, use_initial_condition=False):
 
-        if use_initial_condition:
-            uic = 'uic'
-        else:
-            uic = None
-
         self._step_time = as_s(step_time)
         self._end_time = as_s(end_time)
         self._start_time = as_s(start_time)
         self._max_time = as_s(max_time, none=True)
-        self._use_initial_condition = uic
+        self._use_initial_condition = use_initial_condition
 
     ##############################################
 
@@ -281,7 +276,7 @@ class TransientAnalysisParameters(AnalysisParameters):
             self._end_time,
             self._start_time,
             self._max_time,
-            self._use_initial_condition,
+            'uic' if self._use_initial_condition else None,
         )
 
 ####################################################################################################
@@ -292,7 +287,7 @@ class MeasureParameters(AnalysisParameters):
 
     """
 
-    __analysis_name__ = 'meas'
+    ANALYSIS_NAME = 'meas'
 
     ##############################################
 
@@ -321,7 +316,7 @@ class PoleZeroAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for pole-zero analysis."""
 
-    __analysis_name__ = 'pz'
+    ANALYSIS_NAME = 'pz'
 
     ##############################################
 
@@ -367,7 +362,7 @@ class NoiseAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for noise analysis."""
 
-    __analysis_name__ = 'noise'
+    ANALYSIS_NAME = 'noise'
 
     ##############################################
 
@@ -436,7 +431,7 @@ class DistortionAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for distortion analysis."""
 
-    __analysis_name__ = 'disto'
+    ANALYSIS_NAME = 'disto'
 
     ##############################################
 
@@ -492,7 +487,7 @@ class TransferFunctionAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for transfer function (.tf) analysis."""
 
-    __analysis_name__ = 'tf'
+    ANALYSIS_NAME = 'tf'
 
     ##############################################
 
@@ -553,7 +548,6 @@ class CircuitSimulation:
     ##############################################
 
     def options(self, *args, **kwargs):
-
         for item in args:
             self._options[str(item)] = None
         for key, value in kwargs.items():
@@ -582,9 +576,8 @@ class CircuitSimulation:
     ##############################################
 
     def initial_condition(self, _force=True, **kwargs):
-
-        """ Set initial condition for voltage nodes.
-
+        """Set initial condition for voltage nodes.
+        
         Usage::
 
             simulator.initial_condition([_force=bool, ]node_name1=value, ...)
@@ -597,7 +590,6 @@ class CircuitSimulation:
         statement will be generated.
 
         """
-
         d = {'V({})'.format(str(key)): str_spice(value) for key, value in kwargs.items()}
         if _force:
             self._initial_condition.update(d)
@@ -630,10 +622,7 @@ class CircuitSimulation:
     ##############################################
 
     def save_internal_parameters(self, *args):
-
-        """This method is similar to`save` but assume *all*.
-        """
-
+        """This method is similar to`save` but assume *all*."""
         # Fixme: ok ???
         self.save(list(args) + ['all'])
 
@@ -1053,7 +1042,7 @@ class CircuitSimulation:
 
         netlist = self._circuit.str(simulator=self.SIMULATOR)
         netlist += self.str_options()
-        if self.initial_condition:
+        if self._initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
         if self._nodeset:
             netlist += '.nodeset ' + join_dict(self._nodeset) + os.linesep
@@ -1197,4 +1186,4 @@ class CircuitSimulator(CircuitSimulation):
     def transfer_function(self, *args, **kwargs):
         return self._run('transfer_function', *args, **kwargs)
 
-    tf = transfer_function # shorcut
+    tf = transfer_function   # shorcut
