@@ -1,7 +1,7 @@
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
-# Copyright (C) 2014 Fabrice Salvaire
+# Copyright (C) 2021 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,17 +24,25 @@ __all__ = ["KicadSchema"]
 
 """This module implements a KiCad 6 schema file format parser and a netlist generator.
 
-"""
+Actually, it only retrieves useful data to generate a netlist.
 
-####################################################################################################
-#
-# https://en.wikipedia.org/wiki/S-expression
-#
-# S-expressions r symbolic expressions, abbreviated as sexprs, are a notation for nested list
-# (tree-structured) data, invented for and popularized by the programming language Lisp.
-#
-#
-####################################################################################################
+Since version 6, KiCad uses a file format based on `S-expression
+<https://en.wikipedia.org/wiki/S-expression`_, also called symbolic expressions and abbreviated as
+sexprs, is a notation for nested list (tree-structured) data, invented for and popularized by the
+programming language Lisp.
+
+Notice this code implements many tricks to handle this (WTHF) file format:
+
+* The sexpdata Python module provides data at a very low level in comparison to XML and even
+  JSON/YAML.
+* KiCad don't store fundamental information like the netlist, thus we have to guess it using
+  wire and pin coordinates.
+
+Why the hell, KiCad don't use an XML file format and don't store the netlist !
+
+Disclaimer: This code is not nuclear power plant, aeronautical and spatial proof...
+
+"""
 
 ####################################################################################################
 
@@ -47,7 +55,7 @@ from sexpdata import car, cdr
 
 ####################################################################################################
 
-EPSILON = 1e-4
+EPSILON = 1e-4   # numerical tolerance to match coordinate...
 
 ####################################################################################################
 
@@ -712,7 +720,6 @@ class KicadSchema:
     ##############################################
 
     def netlist(self):
-
         for symbol in self._symbols:
             print(f"{symbol.reference} {symbol.value}")
             for pin in symbol.pins:
