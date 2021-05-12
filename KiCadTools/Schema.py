@@ -1,6 +1,6 @@
 ####################################################################################################
 #
-# PySpice - A Spice Package for Python
+# KiCadTools - Python Tools for KiCad
 # Copyright (C) 2021 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
@@ -41,6 +41,8 @@ Notice this code implements many tricks to handle this (WTHF) file format:
 Why the hell, KiCad don't use an XML file format and don't store the netlist !
 
 Disclaimer: This code is not nuclear power plant, aeronautical and spatial proof...
+
+See also, https://en.wikibooks.org/wiki/Kicad/file_formats#Schematic_Libraries_Files_Format
 
 """
 
