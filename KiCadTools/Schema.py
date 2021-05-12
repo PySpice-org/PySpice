@@ -18,7 +18,9 @@
 #
 ####################################################################################################
 
-__all__ = ["KicadSchema"]
+__all__ = [
+    "KiCadSchema",
+]
 
 ####################################################################################################
 
@@ -48,157 +50,18 @@ See also, https://en.wikibooks.org/wiki/Kicad/file_formats#Schematic_Libraries_F
 
 ####################################################################################################
 
-import math
+# from pprint import pprint
 
-from pprint import pprint
-
-import sexpdata
-from sexpdata import car, cdr
+from .Geometry import EuclidianMatrice, Position, PositionAngle, Vector
+from .Sexpression import Sexpression, car, cdr, car_value
 
 ####################################################################################################
 
-EPSILON = 1e-4   # numerical tolerance to match coordinate...
-
-####################################################################################################
-
-class Position:
+class NumberNameMixin:
 
     ##############################################
 
-    def __init__(self, x, y):
-        self._x = x
-        self._y = y
-
-    ##############################################
-
-    @property
-    def x(self):
-        return self._x
-
-    @property
-    def y(self):
-        return self._y
-
-    ##############################################
-
-    def __str__(self):
-        return f"xy=({self._x:.2f}, {self._y:.2f})"
-
-    ##############################################
-
-    def __eq__(self, other):
-        return (math.fabs(self._x - other.x) < EPSILON and
-                math.fabs(self._y - other.y) < EPSILON)
-
-    ##############################################
-
-    def __add__(self, other):
-        return Vector(self._x + other.x, self._y + other.y)
-
-    ##############################################
-
-    def __sub__(self, other):
-        return Vector(self._x - other.x, self._y - other.y)
-
-    ##############################################
-
-    def __mul__(self, matrice):
-        x = matrice[0][0] * self._x + matrice[0][1] * self._y
-        y = matrice[1][0] * self._x + matrice[1][1] * self._y
-        return Vector(x, y)
-
-####################################################################################################
-
-class Vector(Position):
-
-    ##############################################
-
-    def scalar_product(self, other):
-        return self._x * other.x +  self._y * other.y
-
-    ##############################################
-
-    def vectorial_product(self, other):
-        return self._x * other.y - self._y * other.x
-
-    ##############################################
-
-    def length(self):
-        return math.sqrt(self.scalar_product(self))
-
-    ##############################################
-
-    def normalize(self):
-        l = self.length()
-        return self.__class__(self._x/l, self._y/l)
-
-    ##############################################
-
-    @classmethod
-    def identity(cls):
-        return [[1, 0],
-                [0, 1]]
-
-    ##############################################
-
-    @classmethod
-    def rotation(cls, angle):
-        if angle == 0:
-            return [[1, 0],
-                    [0, 1]]
-        elif angle == 90:
-            return [[ 0, 1],
-                    [-1, 0]]
-        elif angle == 180:
-            # mirror x and y
-            return [[-1, 0],
-                    [ 0, -1]]
-        elif angle == 270:
-            # 90 and mirror y
-            return [[ 0, 1],
-                    [-1, 0]]
-
-    ##############################################
-
-    @classmethod
-    def x_mirror(cls, matrice):
-        return [[-matrice[0][0], -matrice[0][1]],
-                [ matrice[1][0],  matrice[1][1]]]
-
-    @classmethod
-    def y_mirror(cls, matrice):
-        return [[ matrice[0][0],  matrice[0][1]],
-                [-matrice[1][0], -matrice[1][1]]]
-
-####################################################################################################
-
-class PositionAngle(Position):
-
-    ##############################################
-
-    def __init__(self, x, y, angle):
-        super().__init__(x, y)
-        self._angle = angle
-
-    ##############################################
-
-    @property
-    def angle(self):
-        return self._angle
-
-    ##############################################
-
-    def __str__(self):
-        return super().__str__() + f" @{self._angle}"
-
-####################################################################################################
-
-class Pin(PositionAngle):
-
-    ##############################################
-
-    def __init__(self, number, name, x, y, angle):
-        super().__init__(x, y, angle)
+    def __init__(self, number, name):
         self._number = number
         self._name = name
 
@@ -212,6 +75,16 @@ class Pin(PositionAngle):
     def name(self):
         return self._name
 
+####################################################################################################
+
+class Pin(NumberNameMixin, PositionAngle):
+
+    ##############################################
+
+    def __init__(self, number, name, x, y, angle):
+        PositionAngle.__init__(self, x, y, angle)
+        NumberNameMixin.__init__(self, number, name)
+
     ##############################################
 
     def __str__(self):
@@ -219,25 +92,13 @@ class Pin(PositionAngle):
 
 ####################################################################################################
 
-class PinPosition(Position):
+class PinPosition(NumberNameMixin, Position):
 
     ##############################################
 
     def __init__(self, number, name, x, y):
-        super().__init__(x, y)
-        self._number = number   # Fixme: mixin
-        self._name = name
-        self.net_id = None
-
-    ##############################################
-
-    @property
-    def number(self):
-        return self._number
-
-    @property
-    def name(self):
-        return self._name
+        Position.__init__(self, x, y)
+        NumberNameMixin.__init__(self, number, name)
 
     ##############################################
 
@@ -312,11 +173,11 @@ class Symbol(PositionAngle):
         v = Vector(pin.x, -pin.y)
 
         angle = self._angle
-        matrice = Vector.rotation(self._angle)
+        matrice = EuclidianMatrice.rotation(self._angle)
         if self._mirror == 'x':
-            matrice = Vector.x_mirror(matrice)
+            matrice = EuclidianMatrice.x_mirror(matrice)
         if self._mirror == 'y':
-            matrice = Vector.y_mirror(matrice)
+            matrice = EuclidianMatrice.y_mirror(matrice)
 
         p = v * matrice + self
 
@@ -357,9 +218,16 @@ class Wire:
         self._id = id
         self._start = Position(*start_point)
         self._end = Position(*end_point)
-        self._u = self._end - self._start
         self._connections = set()
         self._net_id = None
+
+        u = self._end - self._start
+        if u.is_vertical:
+            self._direction = 'V'
+        elif u.is_horizontal:
+            self._direction = 'H'
+        else:
+            self._direction = None
 
     ##############################################
 
@@ -370,6 +238,10 @@ class Wire:
     @property
     def end(self):
         return self._end
+
+    @property
+    def direction(self):
+        return self._direction
 
     @property
     def connections(self):
@@ -394,9 +266,9 @@ class Wire:
 
     def __str__(self):
         direction = ''
-        if math.fabs(self._u.x) < EPSILON:
+        if self._direction == 'V':
             direction = 'vertical'
-        elif math.fabs(self._u.y) < EPSILON:
+        elif self._direction == 'H':
             direction = 'horizontal'
         return f"Wire #{self._id} from {self._start} to {self._end} {direction} net #{self.net_id}"
 
@@ -420,13 +292,7 @@ class Wire:
     ##############################################
 
     def contains(self, junction):
-        U = self._u.normalize()
-        V = junction - self._start
-        if math.fabs(U.vectorial_product(V)) > EPSILON:
-            return False
-        s = U.scalar_product(V)
-        # print(self, self._u.length(), s)
-        return 0 <= s <= self._u.length()
+        return Vector.point_in_segment(self._start, self._end, junction)
 
     ##############################################
 
@@ -449,77 +315,7 @@ class Wire:
 
 ####################################################################################################
 
-class KicadSchema:
-
-    ##############################################
-
-    @classmethod
-    def to_dict(cls, sexpr):
-        """Convert a S-expression to JSON"""
-        if isinstance(car(sexpr), sexpdata.Symbol):
-            d = {'_': []}
-            for item in cdr(sexpr):
-                if isinstance(item, sexpdata.Symbol):
-                    d['_'].append(item.value())
-                elif isinstance(item, list):
-                    key, value = cls.to_dict(item)
-                    # some keys can appear more than one time...
-                    while key in d:
-                        key += '*'
-                    d[key] = value
-                if isinstance(item, (int, float, str)):
-                    d['_'].append(item)
-            if d['_']:
-                if len(d.keys()) == 1:
-                    d = d['_']
-                    if len(d) == 1:
-                        d = d[0]
-            else:
-                # Fixme: could use d.get('_', []) ???
-                del d['_']
-            return car(sexpr).value(), d
-        else:
-            return sexpr
-
-    ##############################################
-
-    @classmethod
-    def fix_key_as_dict(cls, adict, key, new_key):
-        """Fix key*... as a dict"""
-        new_dict = {}
-        while key in adict:
-            d = adict[key]
-            del adict[key]
-            key2 = d['_'][0]
-            d['_'] = d['_'][1:]
-            new_dict[key2] = d
-            key += '*'
-        if new_dict:
-            adict[new_key] = new_dict
-
-    ##############################################
-
-    @classmethod
-    def fix_key_as_list(cls, adict, key, new_key):
-        """Fix key*... as a list"""
-        new_list = []
-        while key in adict:
-            d = adict[key]
-            del adict[key]
-            new_list.append(d)
-            key += '*'
-        if new_list:
-            adict[new_key] = new_list
-
-    ##############################################
-
-    @classmethod
-    def sattr(cls, d):
-        return d['_'][0]
-
-    # Fixme:
-    #  XPath method
-    #  extended dict [key1/key2/...]
+class KiCadSchema(Sexpression):
 
     ##############################################
 
@@ -537,34 +333,33 @@ class KicadSchema:
 
     def _read(self, path):
 
-        with open(path) as fh:
-            s_data = sexpdata.load(fh)
+        s_data = self.load(path)
 
-        if car(s_data).value() != 'kicad_sch':
+        if car_value(s_data) != 'kicad_sch':
             raise ValueError()
 
         for sexpr in cdr(s_data):
             # print()
             # print(sexpr)
-            car_value = car(sexpr).value()
+            _car_value = car_value(sexpr)
 
-            if car_value == 'version':
+            if _car_value == 'version':
                 # [Symbol('version'), 20210406]
                 self._version = cdr(sexpr)
 
-            elif car_value == 'generator':
+            elif _car_value == 'generator':
                 # [Symbol('generator'), Symbol('eeschema')]
                 pass
 
-            elif car_value == 'uuid':
+            elif _car_value == 'uuid':
                 # [Symbol('uuid'), Symbol('ca1ca076-e632-4fcc-8412-0a7bfcb4ba0b')]
                 pass
 
-            elif car_value == 'paper':
+            elif _car_value == 'paper':
                 # [Symbol('paper'), 'A4']
                 pass
 
-            elif car_value == 'lib_symbols':
+            elif _car_value == 'lib_symbols':
                 for s_symbol in cdr(sexpr):
                     # Symbol('symbol'),
                     #     'spice-ngspice:C',
@@ -630,13 +425,13 @@ class KicadSchema:
                                     name = self.sattr(spin['name'])
                                     symbol_lib.add_pin(number, name, *spin['at'])
 
-            elif car_value == 'junction':
+            elif _car_value == 'junction':
                 # [Symbol('junction'), [Symbol('at'), 111.76, 73.66], [Symbol('diameter'), 1.016], [Symbol('color'), 0, 0, 0, 0]]
                 _, d = self.to_dict(sexpr)
                 junction = Junction(*d['at'])
                 self._junctions.append(junction)
 
-            elif car_value == 'wire':
+            elif _car_value == 'wire':
                 # Symbol('wire'),
                 #     [Symbol('pts'), [Symbol('xy'), 140.97, 73.66], [Symbol('xy'), 144.78, 73.66]],
                 #     [Symbol('stroke'), [Symbol('width'), 0], [Symbol('type'), Symbol('solid')], [Symbol('color'), 0, 0, 0, 0]],
@@ -647,7 +442,7 @@ class KicadSchema:
                 wire = Wire(len(self._wires), start_point, end_point)
                 self._wires.append(wire)
 
-            elif car_value == 'symbol':
+            elif _car_value == 'symbol':
                 # Symbol('symbol'),
                 #     [Symbol('lib_id'), 'spice-ngspice:R'],
                 #     [Symbol('at'), 116.84, 78.74, 270],
@@ -679,10 +474,10 @@ class KicadSchema:
                     symbol.mirror(d['mirror'])
                 self._symbols.append(symbol)
 
-            elif car_value == 'sheet_instances':
+            elif _car_value == 'sheet_instances':
                 pass
 
-            elif car_value == 'symbol_instances':
+            elif _car_value == 'symbol_instances':
                 pass
 
     ##############################################

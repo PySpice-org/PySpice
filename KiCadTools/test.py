@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from PySpice.Kicad import KicadSchema
+from KiCadTools.Schema import KiCadSchema
 
 ####################################################################################################
 
@@ -11,7 +11,7 @@ schema_path = Path(
     'capacitive-half-wave-rectification-pre-zener.kicad_sch'
 )
 
-kicad_schema = KicadSchema(schema_path)
+kicad_schema = KiCadSchema(schema_path)
 print()
 print('='*100)
 kicad_schema.netlist()
