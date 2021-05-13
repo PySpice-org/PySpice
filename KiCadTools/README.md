@@ -1,10 +1,12 @@
 # KiCadTools
 
-KiCadTools is a Python module to read the KiCad version 6 schema file
- format (`.kicad_sch` file extension) and to compute the netlist which
- is not actually stored by KiCad.  This module is standalone and
- independent of the KiCad Python API, thus it don't require KiCad to
- work.
+**keywords:** kicad, 6, python, schema
+
+**KiCadTools** is a Python module to read the KiCad version 6 schema
+file format (`.kicad_sch` file extension) and to compute the netlist
+which is not actually stored by KiCad.  This module is standalone and
+independent of the KiCad Python API, thus it don't require KiCad to
+work.
 
 **Note**: This proof of concept could become a standalone project and
 be further extended.
@@ -21,13 +23,14 @@ Examples of use cases:
 
 ## KiCad EDA Links
 
-* https://github.com/KiCad — http://www.kicad-pcb.org
-* https://docs.kicad.org/doxygen-python/
+* http://www.kicad-pcb.org
+* https://github.com/KiCad
+* https://docs.kicad.org/doxygen-python
 
 ## KiCon
 
 * ["The Python Whisperer Guide" - Maciej 'Orson' Suminski (KiCon 2019)](https://www.youtube.com/watch?v=_zVJ96SdYrs)
-  https://2019.kicad-kicon.com/wp-content/uploads/2019/05/Maciej-Suminski-kicon_python.pdf
+  [Slides](https://2019.kicad-kicon.com/wp-content/uploads/2019/05/Maciej-Suminski-kicon_python.pdf)
 
 ## Some Repositories
 
