@@ -20,8 +20,8 @@
 
 ####################################################################################################
 
-__version__ = '1.5'
-GIT_TAG = 'v1.5'
+__version__ = '1.6'
+GIT_TAG = 'v1.6'
 
 def show_version():
     print('PySpice Version {}'.format(__version__))
