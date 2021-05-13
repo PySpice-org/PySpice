@@ -15,16 +15,25 @@ Examples of use cases:
 
 * perform checks on circuit
 * export a BOM
-* generate a SPICE netlist, see [PySpice](https://github.com/FabriceSalvaire/PySpice)
+* generate a customised SPICE netlist, see [PySpice](https://github.com/FabriceSalvaire/PySpice)
+* generate a [LaTeX/Tikz](https://ctan.org/pkg/pgf?lang=en) graphic **TO BE IMPLEMENTED**
 * generate a draft for [Circuit_macros](https://ece.uwaterloo.ca/~aplevich/Circuit_macros),
   a tool for drawing electric high quality circuits, see `CircuitMacrosDumper`
-* generate a [LaTeX/Tikz](https://ctan.org/pkg/pgf?lang=en) graphic **TO BE IMPLEMENTED**
 * etc.
+
+## Related Projects
+
+* https://github.com/dvc94ch/pykicad — Library for working with KiCAD file formats **supports .kicad_pcb**
+
+## Comprehensive List of KiCad Tools
+
+* https://github.com/xesscorp/kicad-3rd-party-tools — Tools made by others to augment the KiCad PCB EDA suite.
 
 ## KiCad EDA Links
 
 * http://www.kicad-pcb.org
 * https://github.com/KiCad
+* https://en.wikibooks.org/wiki/Kicad/file_formats#Schematic_Libraries_Files_Format
 * https://docs.kicad.org/doxygen-python
 
 ## KiCon
