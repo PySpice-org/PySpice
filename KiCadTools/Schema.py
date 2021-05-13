@@ -29,10 +29,10 @@ algorithm to guess the netlist from the schematic.
 
 This is a work in progress.  Actually, it only retrieves useful data to generate a netlist.
 
-Since version 6, KiCad uses a file format based on `S-expression
-<https://en.wikipedia.org/wiki/S-expression`_, also called symbolic expressions and abbreviated as
-sexprs, is a notation for nested list (tree-structured) data, invented for and popularized by the
-programming language Lisp.
+Since version 6, KiCad uses for schematic a file format based on the Specctra DSN file format.  It
+is based on `S-expression <https://en.wikipedia.org/wiki/S-expression`_, also called symbolic
+expressions and abbreviated as sexprs, is a notation for nested list (tree-structured) data,
+invented for and popularized by the programming language Lisp.
 
 To understand what contain the file, you must understand this format is roughly equivalent to a SVG
 export of the schematic, with additional information like the value and footprint of a symbol.  The
@@ -51,8 +51,6 @@ Notice this code implements many tricks to handle this file format:
   saved the file with the UI language set to French.
 
 Why the hell, KiCad don't use an XML file format and don't store the netlist !
-
-See also, https://en.wikibooks.org/wiki/Kicad/file_formats#Schematic_Libraries_Files_Format
 
 """
 

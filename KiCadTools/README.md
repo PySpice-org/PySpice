@@ -33,8 +33,10 @@ Examples of use cases:
 
 * http://www.kicad-pcb.org
 * https://github.com/KiCad
-* https://en.wikibooks.org/wiki/Kicad/file_formats#Schematic_Libraries_Files_Format
+* https://dev-docs.kicad.org/en/file-formats
 * https://docs.kicad.org/doxygen-python
+
+* https://en.wikibooks.org/wiki/Kicad/file_formats#Schematic_Libraries_Files_Format
 
 ## KiCon
 
@@ -46,3 +48,7 @@ Examples of use cases:
 * https://github.com/INTI-CMNB/KiAuto — A bunch of scripts to automate KiCad processes
 * https://github.com/pointhi/kicad-python — KiCad Python abstraction layer, last commit on 15 Mar 2019
 * https://github.com/KiCad/kicad-python — Development of a new Python scripting API for KiCad, last on on 1 Feb 2016
+
+## Other EDA 
+
+* https://github.com/vadmium/python-altium — Altium schematic format documentation, SVG converter and TK viewer
