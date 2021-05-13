@@ -1,5 +1,10 @@
 # KiCadTools
 
+KiCadTools is a Python module to read KiCad 6 schema file format
+ (`.kicad_sch` file extension) and to compute the netlist.
+
+**Note**: This proof of concept could become a standalone module.
+
 ## KiCad EDA Links
 
 * https://github.com/KiCad — http://www.kicad-pcb.org

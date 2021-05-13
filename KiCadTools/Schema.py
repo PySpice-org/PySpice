@@ -24,22 +24,31 @@ __all__ = [
 
 ####################################################################################################
 
-"""This module implements a KiCad 6 schema file format parser and a netlist generator.
+"""This module implements a KiCad 6 schema file format parser (`.kicad_sch` file extension) and an
+algorithm to guess the netlist from the schematic.
 
-Actually, it only retrieves useful data to generate a netlist.
+This is a work in progress.  Actually, it only retrieves useful data to generate a netlist.
 
 Since version 6, KiCad uses a file format based on `S-expression
 <https://en.wikipedia.org/wiki/S-expression`_, also called symbolic expressions and abbreviated as
 sexprs, is a notation for nested list (tree-structured) data, invented for and popularized by the
 programming language Lisp.
 
+To understand what contain the file, you must understand this format is roughly equivalent to a SVG
+export of the schematic, with additional information like the value and footprint of a symbol.  The
+data are thus purely graphical.  When you draw a schematic on KiCad, you are just drawing and not
+building a graph.
+
 Notice this code implements many tricks to handle this file format:
 
-* The sexpdata Python module provides data at a very low level in comparison to XML and even
-  JSON/YAML.
-* KiCad don't store fundamental information like the netlist, thus we have to guess it using
-  wire and pin coordinates.
-* KiCad uses localised property names, e.g. for sheet filename
+* We cannot validate the format using a kind of DTD.
+* S-expression support is quite limited in comparison to XML libraries.  The sexpdata Python module
+  provides data at a very low level in comparison to XML and even JSON/YAML.  For example, there is
+  no XPath feature, no tool to deserialise to an oriented object API, and no linter.
+* It is unclear how it would be easy to change data and rewrite a file.
+* KiCad don't store fundamental information like the netlist, thus we have to guess it using object coordinates.
+* KiCad uses localised property names, e.g. for sheet filename.  The key will be in French if you
+  saved the file with the UI language set to French.
 
 Why the hell, KiCad don't use an XML file format and don't store the netlist !
 
