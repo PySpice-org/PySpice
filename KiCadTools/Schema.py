@@ -554,11 +554,11 @@ class KiCadSchema(Sexpression):
     def __init__(self, path):
 
         self._symbol_libs = {}
+        self._wires = []
+        self._buses = []
         self._junctions = []
         self._no_connections = []
         self._bus_entries = []
-        self._wires = []
-        self._buses = []
         self._labels = []
         self._global_labels = []
         self._hierarchical_labels = []
@@ -576,19 +576,39 @@ class KiCadSchema(Sexpression):
 
     @property
     def symbols(self):
-        return iter(self._symbol_libs)
+        return iter(self._symbols)
 
     @property
     def wires(self):
         return iter(self._wires)
 
     @property
+    def buses(self):
+        return iter(self._buses)
+
+    @property
     def junctions(self):
         return iter(self._junctions)
 
     @property
+    def no_connections(self):
+        return iter(self._no_connection)
+
+    @property
+    def bus_entries(self):
+        return iter(self._bus_entries)
+
+    @property
     def labels(self):
         return iter(self._labels)
+
+    @property
+    def global_labels(self):
+        return iter(self._global_labels)
+
+    @property
+    def hierarchical_labels(self):
+        return iter(self._hierarchical_labels)
 
     ##############################################
 
