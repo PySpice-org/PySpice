@@ -59,6 +59,7 @@ See also, https://en.wikibooks.org/wiki/Kicad/file_formats#Schematic_Libraries_F
 ####################################################################################################
 
 import logging
+import os
 
 # from pprint import pprint
 
@@ -263,16 +264,17 @@ class Symbol(PositionAngle):
 
     ##############################################
 
-    @property
-    def direction(self):
-        if self._angle == 0:
-            return 'up'
-        elif self._angle == 90:
-            return 'right'
-        elif self._angle == 180:
-            return 'left'
-        elif self._angle == 270:
-            return 'down'
+    # it depends how is draw the symbol...
+    # @property
+    # def direction(self):
+    #     if self._angle == 0:
+    #         return 'up'
+    #     elif self._angle == 90:
+    #         return 'right'
+    #     elif self._angle == 180:
+    #         return 'left'
+    #     elif self._angle == 270:
+    #         return 'down'
 
     ##############################################
 
@@ -950,5 +952,7 @@ class KiCadSchema(Sexpression):
         print(f"Number of nets: {NetId.UUID}")
         for symbol in self._symbols:
             print(f"{symbol.reference} {symbol.value}")
+            print(f"    @({symbol.x}, {symbol.y})  angle: {symbol.angle}")
             for pin in symbol.pins:
-                print(f"  p#{pin.number} {pin.name} -> net {pin.net_id}")
+                net_id = str(pin.net_id)
+                print(f"  p#{pin.number} {pin.name} -> {net_id: <30}   @({pin.x:.2f}, {pin.y:.2f})")
