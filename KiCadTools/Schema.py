@@ -102,12 +102,12 @@ class NumberNameMixin(NameMixin):
 
 ####################################################################################################
 
-class Pin(NumberNameMixin, PositionAngle):
+class Pin(NumberNameMixin, Position):
 
     ##############################################
 
-    def __init__(self, number, name, x, y, angle):
-        PositionAngle.__init__(self, x, y, angle)
+    def __init__(self, number, name, x, y):
+        Position.__init__(self, x, y)
         NumberNameMixin.__init__(self, number, name)
 
     ##############################################
@@ -149,8 +149,8 @@ class SymbolLib(NameMixin):
 
     ##############################################
 
-    def add_pin(self, number, name, x, y, angle):
-        pin = Pin(number, name, x, y, angle)
+    def add_pin(self, number, name, x, y):
+        pin = Pin(number, name, x, y)
         self._pins.append(pin)
 
 ####################################################################################################
@@ -796,7 +796,8 @@ class KiCadSchema(Sexpression):
                     for spin in d2:
                         number = self.sattr(spin['number'])
                         name = self.sattr(spin['name'])
-                        symbol_lib.add_pin(number, name, *spin['at'])
+                        at = spin['at'][:2]
+                        symbol_lib.add_pin(number, name, *at)
 
     ##############################################
 
