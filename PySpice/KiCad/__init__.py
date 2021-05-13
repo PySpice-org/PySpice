@@ -18,15 +18,19 @@
 #
 ####################################################################################################
 
-__all__ = ['NetlistWrapper']
+__all__ = [
+    'PythonDumper',
+]
 
 ####################################################################################################
+
+import os
 
 # from KiCadTools.Schema import KiCadSchema
 
 ####################################################################################################
 
-class NetlistWrapper:
+class PythonDumper:
 
     def generic_wrapper(element):
         def wrapper(self, symbol):
@@ -67,13 +71,21 @@ class NetlistWrapper:
 
     ##############################################
 
-    def __init__(self, kicad_schema):
+    def __init__(self, kicad_schema, use_pyspice_unit=False):
 
-        for symbol in kicad_schema.symbols:
+        self._use_pyspice_unit = use_pyspice_unit
+        self._code = []
+
+        for symbol in kicad_schema.symbols_by_reference:
             handler = self.SYMBOL_MAP.get(symbol.lib_name, None)
             if handler is not None:
                 _ = handler(self, symbol)
-                print(_)
+                self._code.append(_)
+
+    ##############################################
+
+    def __str__(self):
+        return os.linesep.join(self._code)
 
     ##############################################
 
@@ -90,6 +102,8 @@ class NetlistWrapper:
 
     def _unit_value(self, element, symbol):
         value = symbol.value
+        if not self._use_pyspice_unit:
+            return value
         power = value[-1]
         # Fixme: complete...
         #  Meg

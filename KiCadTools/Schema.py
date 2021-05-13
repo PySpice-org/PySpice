@@ -592,6 +592,11 @@ class KiCadSchema(Sexpression):
         return iter(self._symbols)
 
     @property
+    def symbols_by_reference(self):
+        for _ in sorted(self._symbols, key=lambda _: _.reference):
+            yield _
+
+    @property
     def wires(self):
         return iter(self._wires)
 

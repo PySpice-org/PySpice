@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from KiCadTools.Schema import KiCadSchema
-from PySpice.KiCad import NetlistWrapper
+from PySpice.KiCad import PythonDumper
 
 ####################################################################################################
 
@@ -23,4 +23,5 @@ kicad_schema.dump_netlist()
 
 print()
 print('='*100)
-netlist_wrapper = NetlistWrapper(kicad_schema)
+python_code = PythonDumper(kicad_schema, use_pyspice_unit=True)
+print(python_code)
