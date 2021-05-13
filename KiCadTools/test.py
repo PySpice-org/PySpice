@@ -4,6 +4,7 @@ from pathlib import Path
 
 from KiCadTools.Schema import KiCadSchema
 from PySpice.KiCad import PythonDumper
+from KiCadTools.CircuitMacros import CircuitMacrosDumper
 
 ####################################################################################################
 
@@ -25,3 +26,8 @@ print()
 print('='*100)
 python_code = PythonDumper(kicad_schema, use_pyspice_unit=True)
 print(python_code)
+
+print()
+print('='*100)
+cm_code = CircuitMacrosDumper(kicad_schema)
+print(cm_code)

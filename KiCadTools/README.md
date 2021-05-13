@@ -1,9 +1,23 @@
 # KiCadTools
 
-KiCadTools is a Python module to read KiCad 6 schema file format
- (`.kicad_sch` file extension) and to compute the netlist.
+KiCadTools is a Python module to read the KiCad version 6 schema file
+ format (`.kicad_sch` file extension) and to compute the netlist which
+ is not actually stored by KiCad.  This module is standalone and
+ independent of the KiCad Python API, thus it don't require KiCad to
+ work.
 
-**Note**: This proof of concept could become a standalone module.
+**Note**: This proof of concept could become a standalone project and
+be further extended.
+
+Examples of use cases:
+
+* perform checks on circuit
+* export a BOM
+* generate a SPICE netlist, see [PySpice](https://github.com/FabriceSalvaire/PySpice)
+* generate a draft for [Circuit_macros](https://ece.uwaterloo.ca/~aplevich/Circuit_macros),
+  a tool for drawing electric high quality circuits, see `CircuitMacrosDumper`
+* generate a [LaTeX/Tikz](https://ctan.org/pkg/pgf?lang=en) graphic **TO BE IMPLEMENTED**
+* etc.
 
 ## KiCad EDA Links
 

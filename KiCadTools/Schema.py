@@ -599,6 +599,11 @@ class KiCadSchema(Sexpression):
             yield _
 
     @property
+    def symbols_by_position(self):
+        for _ in sorted(self._symbols, key=lambda _: f"{_.x:.2f}{_.y:.2}"):
+            yield _
+
+    @property
     def wires(self):
         return iter(self._wires)
 
