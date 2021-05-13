@@ -1114,11 +1114,12 @@ class CircuitSimulation:
 
 class CircuitSimulator(CircuitSimulation):
 
-    """ This class implements a circuit simulator. Each analysis mode is performed by a method that
+    """This class implements a circuit simulator. Each analysis mode is performed by a method that
     return the measured probes.
 
     For *ac* and *transient* analyses, the user must specify a list of nodes using the *probes* key
     argument.
+
     """
 
     _logger = _module_logger.getChild('CircuitSimulator')

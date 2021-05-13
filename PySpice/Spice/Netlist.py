@@ -1206,7 +1206,11 @@ class Circuit(Netlist):
     ##############################################
 
     def str(self, simulator=None):
-        """Return the formatted desk."""
+        """Return the formatted desk.
+
+        :param simulator: simulator instance to select the flavour of a Spice library
+
+        """
         # if not self.has_ground_node():
         #     raise NameError("Circuit don't have ground node")
         netlist = self._str_title()
