@@ -1,0 +1,13 @@
+.title KiCad schematic
+Cin1 /cr /in 330u
+Vac1 /in 0 Vsrc
+Remi1 /cr /in 165k
+Rin1 /rd /cr 94
+XD1 /rd /out 1N4148
+XD2 /cdr /rd 1N4148
+C1 0 /out 250u
+Rload1 0 /out 1k
+C2 /cdr /out C
+R2 0 /cdr 1k
+XDz1 0 /out d1n5919brl
+.end
