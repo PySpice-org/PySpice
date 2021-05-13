@@ -23,7 +23,8 @@ How to typeset :code:`u_kΩ` or :code:`u_μV` in Python code ?
 
 There are three solutions if you don't have these Unicode characters available on your keyboard. The
 first one is to use the ASCII alternative: :code:`u_kOhm` or :code:`u_uV.`.  The second one is to
-define macros on your favourite editor.  The last one is to customise your keyboard settings (on Linux look at https://www.x.org/wiki/XKB/).
+define macros on your favourite editor.  The last one is to customise your keyboard settings (on
+Linux look at https://www.x.org/wiki/XKB/).
 
 
 How to perform division with units ?
@@ -31,7 +32,7 @@ How to perform division with units ?
 
 According to the Python `operator precedence
 <https://docs.python.org/3/reference/expressions.html#operator-precedence>`_, division operators
-have a higher priority than the matrix multiplication operator.  In consequence you must have
+have a higher priority than the matrix multiplication operator.  In consequence, you must have
 parenthesis to perform something like :code:`(10@u_s) / (2@_us)`.
 
 **It is currently an issue ...**
@@ -60,7 +61,7 @@ For such cases, PySpice accepts keyword arguments with a trailing underscore, fo
     model.is_ = 1
     model['is'] = 1
 
-We can also use uppercase letters since SPICE is case insensitive.
+We can also use uppercase letters since SPICE is case-insensitive.
 
 
 How to pass raw SPICE command ?
@@ -95,7 +96,7 @@ Else you can set the simulator per simulation using the `simulator` option:
 
    simulator = circuit.simulator(simulator='...')
 
-Actually, theses simulators are available:
+Actually, these simulators are available:
 
  * `ngspice-subprocess`
  * `ngspice-shared`
