@@ -677,11 +677,43 @@ pull requests blindly then there is a high risk this software will become a mess
 <h1>News</h1>
 <!-- -*- Mode: rst -*- -->
 <!-- no title here -->
-<div class="section" id="v1-5-0-development-release">
-<h2>V1.5.0 (development release)</h2>
+<div class="section" id="v1-6-0-development-release">
+<h2>V1.6.0 (development release)</h2>
+<ul class="simple">
+<li><p><strong>KiCadTools</strong> a proof of concept module to read KiCad 6
+<cite>.kicad_sch</cite> schema file and compute the netlist.  <em>This module can
+be used to perform any kind of processings on a KiCad schema.  It is
+actually hosted in the source but could become a standalone
+project.</em> For PySpice, it provides a very flexible way to draft a
+circuit with the help of KiCad and then generate the netlist without
+using the netlist export feature of KiCad.  And thus leverage the
+writing of fastidious cicruit.</p></li>
+</ul>
 </div>
-<div class="section" id="v1-4-3-production-release-2020-07-04">
-<h2>V1.4.3 (production release) 2020-07-04</h2>
+<div class="section" id="v1-5-0-production-release-2021-05-xx">
+<h2>V1.5.0 (production release) 2021-05-xx</h2>
+<ul class="simple">
+<li><p>Support Ngspice up to version 34</p></li>
+<li><p>Renamed custom dunders &quot;__dunder__&quot; to &quot;CONSTANT&quot; or &quot;_private&quot; class attributes</p></li>
+<li><p>Fixed typo in documentation (thanks to endolith and brollb)</p></li>
+<li><p>Add DC temperature sweep support #272 (thanks to Fatsie)</p></li>
+<li><p>PWL support improvements #271 (thanks to Fatsie)</p></li>
+<li><p>Assign units on creation of temperature-sweep vectors #263 (thanks to ARF1)</p></li>
+<li><p>Prevent memory leaks by freeing ngspice command log #260  thanks to ARF1)</p></li>
+<li><p>Performance optimization: dispatch multiple alter commands jointly #259 (thanks to ARF1)</p></li>
+<li><p>Added spice library support #258  (thanks to Fatsie)</p></li>
+<li><p>Allow to specify DC value for PWL #257 (thanks to Fatsie)</p></li>
+<li><p>Support for <cite>.nodeset</cite> type initial condition #256 (thanks to Fatsie)</p></li>
+<li><p>Fix accuracy problems #254 (thanks to sotw1957)</p></li>
+<li><p>Changes to make it easier to use PySpice with a large archive of SPICE models medium diff #249 (thanks to xesscorp)</p></li>
+<li><p><cite>Netlist.py</cite>: Fix wrong method when joining parameters during netlist parse #245 (thanks to cyber-g)</p></li>
+<li><p>Unit: add Pickle support</p></li>
+<li><p>Add Parser code from #136 (thanks to jmgc) but not yet merged</p></li>
+<li><p>Unit: add np.mean</p></li>
+</ul>
+</div>
+<div class="section" id="v1-4-3-2020-07-04">
+<h2>V1.4.3 2020-07-04</h2>
 <p>A huge effort, thanks to &#64;stuarteberg Stuart Berg, has been made to make Ngspice and PySpice
 available on Anaconda (conda-forge) for the Window, OSX and Linux platforms.  Thanks to the
 conda-forge continuous integration platform, we can now run unit tests and the examples on theses
@@ -736,17 +768,14 @@ Note that theses two platforms do not download a binary from Ngspice since a com
 </div>
 <div class="section" id="v1-3-2-2019-03-11">
 <h2>V1.3.2  2019-03-11</h2>
-<blockquote>
 <ul class="simple">
 <li><p>support Ngspice 30 and Xyce 6.10</p></li>
 <li><p>fixed NgSpice and Xyce support on Windows 10</p></li>
 <li><p>bug fixes</p></li>
 </ul>
-</blockquote>
 </div>
 <div class="section" id="v1-2-0-2018-06-07">
 <h2>V1.2.0 2018-06-07</h2>
-<blockquote>
 <ul class="simple">
 <li><p>Initial support of the <a class="reference external" href="https://xyce.sandia.gov">Xyce</a> simulator.  Xyce is an open source, SPICE-compatible,
 high-performance analog circuit simulator, capable of solving extremely large circuit problems
@@ -779,40 +808,32 @@ research use.</p></li>
 <li><p>Outsourced documentation generator to <a class="reference external" href="https://github.com/FabriceSalvaire/Pyterate">Pyterate</a></p></li>
 <li><p>Updated <cite>setup.py</cite> for wheel</p></li>
 </ul>
-</blockquote>
 <!-- :ref:`user-faq-page` -->
 </div>
 <div class="section" id="v1-1-0-2017-09-06">
 <h2>V1.1.0 2017-09-06</h2>
-<blockquote>
 <ul class="simple">
 <li><p>Enhanced shared mode</p></li>
 <li><p>Shared mode is now set as default on Linux</p></li>
 </ul>
-</blockquote>
 </div>
 <div class="section" id="v1-0-0-2017-09-06">
 <h2>V1.0.0 2017-09-06</h2>
-<blockquote>
 <ul class="simple">
 <li><p>Bump version to v1.0.0 since it just works!</p></li>
 <li><p>Support Windows platform using Ngspice shared mode</p></li>
 <li><p>Fixed shared mode</p></li>
 <li><p>Fixed and completed Spice parser : tested on example's libraries</p></li>
 </ul>
-</blockquote>
 </div>
 <div class="section" id="v0-4-2">
 <h2>V0.4.2</h2>
-<blockquote>
 <ul class="simple">
 <li><p>Fixed Spice parser for lower case device prefix.</p></li>
 </ul>
-</blockquote>
 </div>
 <div class="section" id="v0-4-0-2017-07-31">
 <h2>V0.4.0 2017-07-31</h2>
-<blockquote>
 <ul class="simple">
 <li><p>Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size.</p></li>
 <li><p>Improved documentation generator: Implemented <code>format</code> for RST content and Tikz figure.</p></li>
@@ -822,33 +843,26 @@ The relevant documentation is on this <a class="reference external" href="api/Py
 <li><p>Added the Simulation instance to the Analysis class.</p></li>
 <li><p>Refactored simulation parameters as classes.</p></li>
 </ul>
-</blockquote>
 </div>
 <div class="section" id="v0-3-2-2017-02-22">
 <h2>V0.3.2 2017-02-22</h2>
-<blockquote>
 <ul class="simple">
 <li><p>fixed CCCS and CCVS</p></li>
 </ul>
-</blockquote>
 </div>
 <div class="section" id="v0-3-1-2017-02-22">
 <h2>V0.3.1 2017-02-22</h2>
-<blockquote>
 <ul class="simple">
 <li><p>fixed ngspice shared</p></li>
 </ul>
-</blockquote>
 </div>
 <div class="section" id="v0-3-0-2015-12-08">
 <h2>V0.3.0 2015-12-08</h2>
-<blockquote>
 <ul class="simple">
 <li><p>Added an example to show how to use the NgSpice Shared Simulation Mode.</p></li>
 <li><p>Completed the Spice netlist parser and added examples, we could now use a schematic editor
 to define the circuit.  The program <em>cir2py</em> translates a circuit file to Python.</p></li>
 </ul>
-</blockquote>
 </div>
 <div class="section" id="v0-2014-03-21">
 <h2>V0 2014-03-21</h2>

@@ -182,7 +182,7 @@ R1 in out 9kOhm
 
     ##############################################
 
-    def test_keyword_clash(self):
+    def test_param(self):
 
         spice_declaration = """
 .title Parameter Test
