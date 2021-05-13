@@ -39,6 +39,7 @@ Notice this code implements many tricks to handle this file format:
   JSON/YAML.
 * KiCad don't store fundamental information like the netlist, thus we have to guess it using
   wire and pin coordinates.
+* KiCad uses localised property names, e.g. for sheet filename
 
 Why the hell, KiCad don't use an XML file format and don't store the netlist !
 
@@ -210,8 +211,6 @@ class Symbol(PositionAngle):
 
     def _pin_position(self, pin):
 
-        # Fixme: pin angle ???
-        # print(pin)
         v = Vector(pin.x, -pin.y)
 
         angle = self._angle
@@ -249,6 +248,24 @@ class Junction(Position):
 
     def __str__(self):
         return "Junction at " + super().__str__()
+
+####################################################################################################
+
+class NoConnect(Position):
+
+    ##############################################
+
+    def __str__(self):
+        return "No connect at " + super().__str__()
+
+####################################################################################################
+
+class BusEntry(Position):
+
+    ##############################################
+
+    def __str__(self):
+        return "Bus entry at " + super().__str__()
 
 ####################################################################################################
 
@@ -312,7 +329,7 @@ class Wire:
             direction = 'vertical'
         elif self._direction == 'H':
             direction = 'horizontal'
-        return f"Wire #{self._id} from {self._start} to {self._end} {direction} net #{self.net_id}"
+        return f"{self.__class__.__name__} #{self._id} from {self._start} to {self._end} {direction} net #{self.net_id}"
 
     ##############################################
 
@@ -357,6 +374,11 @@ class Wire:
 
 ####################################################################################################
 
+class Bus(Wire):
+    pass
+
+####################################################################################################
+
 class Label(NameMixin, PositionAngle):
 
     ##############################################
@@ -372,6 +394,29 @@ class Label(NameMixin, PositionAngle):
 
 ####################################################################################################
 
+class GlobalLabel(Label):
+
+    ##############################################
+
+    def __str__(self):
+        return f"Global label f{self._name} " + super().__str__()
+
+####################################################################################################
+
+class HierarchicalLabel(Label):
+
+    ##############################################
+
+    def __str__(self):
+        return f"Hierarchical label f{self._name} " + super().__str__()
+
+####################################################################################################
+
+class Sheet:
+    pass
+
+####################################################################################################
+
 class KiCadSchema(Sexpression):
 
     ##############################################
@@ -380,9 +425,15 @@ class KiCadSchema(Sexpression):
 
         self._symbol_libs = {}
         self._junctions = []
+        self._no_connections = []
+        self._bus_entries = []
         self._wires = []
+        self._buses = []
         self._labels = []
+        self._global_labels = []
+        self._hierarchical_labels = []
         self._symbols = []
+        self._sheets = []
 
         self._read(path)
         self._guess_netlist()
@@ -441,69 +492,7 @@ class KiCadSchema(Sexpression):
 
             elif _car_value == 'lib_symbols':
                 for s_symbol in cdr(sexpr):
-                    # 'symbol',
-                    #     'spice-ngspice:C',
-                    #     ('pin_names', ('offset', 0.254)),
-                    #     ('in_bom', 'yes'),
-                    #     ('on_board', 'yes'),
-                    #     ('property', 'Reference', 'C',
-                    #         ('id', 0), ('at', 0, 1.016, 0),
-                    #         ('effects', ('font', ('size', 1.27, 1.27)),
-                    #         ('justify', 'left', 'bottom'))),
-                    #     ('property', 'Value', 'C',
-                    #         ('id', 1), ('at', 0, -1.27, 0),
-                    #         ('effects', ('font', ('size', 1.27, 1.27)),
-                    #         ('justify', 'left', 'top'))),
-                    #     ('property', 'Footprint', '',
-                    #         ('id', 2), ('at', 0, 0, 0),
-                    #         ('effects', ('font', ('size', 1.524, 1.524)))),
-                    #     ('property', 'Datasheet', '', ('id', 3), ('at', 0, 0, 0),
-                    #         ('effects', ('font', ('size', 1.524, 1.524)))),
-                    #     ('symbol', 'C_0_1',
-                    #         ('polyline', ('pts', ('xy', -2.54, -0.635), ('xy', 2.54, -0.635)),
-                    #             ('stroke', ('width', 0)), ('fill', ('type', 'none'))),
-                    #         ('polyline', ('pts', ('xy', -2.54, 0.635), ('xy', 2.54, 0.635)),
-                    #             ('stroke', ('width', 0)), ('fill', ('type', 'none')))
-                    #     ),
-                    #     ('symbol', 'C_1_1',
-                    #          ('pin',
-                    #              'passive',
-                    #              'line',
-                    #              ('at', 0, 2.54, 270),
-                    #              ('length', 1.905),
-                    #              ('name', '~', ('effects', ('font', ('size', 0.254, 0.254)) )),
-                    #              ('number', '1', ('effects', ('font', ('size', 0.254, 0.254))))
-                    #          ),
-                    #          ('pin',
-                    #              'passive',
-                    #              'line',
-                    #              ('at', 0, -2.54, 90),
-                    #              ('length', 1.905),
-                    #              ('name', '~', ('effects', ('font', ('size', 0.254, 0.254)))),
-                    #              ('number', '2', ('effects', ('font', ('size', 0.254, 0.254)))
-                    #          )
-                    #     )
-                    # )
-                    # print('>'*100)
-                    _, d = self.to_dict(s_symbol)
-                    # print(pprint(d))
-                    self.fix_key_as_dict(d, 'property', 'properties')
-                    self.fix_key_as_dict(d, 'symbol', 'symbols')
-                    for _ in d['symbols'].values():
-                        self.fix_key_as_list(_, 'polyline', 'polylines')
-                        self.fix_key_as_list(_, 'pin', 'pins')
-                    # pprint(d)
-                    name = self.sattr(d)
-                    symbol_lib = SymbolLib(name)
-                    self._symbol_libs[name] = symbol_lib
-                    # kind of XPath to get pins...
-                    for d1 in d['symbols'].values():
-                        for key, d2 in d1.items():
-                            if key == 'pins':
-                                for spin in d2:
-                                    number = self.sattr(spin['number'])
-                                    name = self.sattr(spin['name'])
-                                    symbol_lib.add_pin(number, name, *spin['at'])
+                    self._on_lib_symbol(s_symbol)
 
             elif _car_value == 'junction':
                 # ('junction', ('at', 111.76, 73.66), ('diameter', 1.016), ('color', 0, 0, 0, 0))
@@ -513,14 +502,18 @@ class KiCadSchema(Sexpression):
 
             elif _car_value == 'no_connect':
                 # (no_connect (at 177.8 50.8) (uuid b47f754e-304e-4f98-968e-20e5e5d18e29))
-                pass
+                _, d = self.to_dict(sexpr)
+                no_connection = NoConnection(*d['at'])
+                self._no_connections.append(no_connection)
 
             elif _car_value == 'bus_entry':
                 # (bus_entry (at 190.5 80.01) (size 2.54 2.54)
                 #   (stroke (width 0.1524) (type solid) (color 0 0 0 0))
                 #   (uuid 55cddc77-72fd-4412-84fa-867166598c36)
                 # )
-                pass
+                _, d = self.to_dict(sexpr)
+                bus_entry = BusEntry(*d['at'])
+                self._bus_entries.append(bus_entry)
 
             elif _car_value == 'wire':
                 # 'wire',
@@ -538,7 +531,11 @@ class KiCadSchema(Sexpression):
                 #    (stroke (width 0) (type solid) (color 0 0 0 0))
                 #    (uuid 1029c8b7-917c-4b83-8b82-040bab29659a)
                 #  )
-                pass
+                _, d = self.to_dict(sexpr)
+                self.fix_key_as_list(d['pts'], 'xy', 'xys')
+                start_point, end_point = d['pts']['xys']
+                bus = Bus(len(self._buss), start_point, end_point)
+                self._buses.append(bus)
 
             elif _car_value == 'label':
                 # (label "out" (at 134.62 86.36 180)
@@ -557,48 +554,21 @@ class KiCadSchema(Sexpression):
                 #     (effects (font (size 1.27 1.27)) (justify right) hide)
                 #   )
                 # )
-                pass
+                _, d = self.to_dict(sexpr)
+                global_label = GlobalLabel(_, *d['at'])
+                self._global_labels.append(global_label)
 
             elif _car_value == 'hierarchical_label':
                 # (hierarchical_label "W3" (shape input) (at 228.6 50.8 0)
                 #   (effects (font (size 1.27 1.27)) (justify left))
                 #   (uuid 2f06b05a-b838-4b5e-be45-45567e9ea945)
                 # )
-                pass
+                _, d = self.to_dict(sexpr)
+                hierarchical_label = HierarchicalLabel(_, *d['at'])
+                self._hierarchical_labels.append(hierarchical_label)
 
             elif _car_value == 'symbol':
-                # 'symbol',
-                #     ('lib_id', 'spice-ngspice:R'),
-                #     ('at', 116.84, 78.74, 270),
-                #     ('mirror', 'x'),
-                #     ('unit', 1),
-                #     ('in_bom', 'yes'),
-                #     ('on_board', 'yes'),
-                #     ('uuid', '00000000-0000-0000-0000-00006099a2a1'),
-                #     ('property', 'Reference', 'Remi1', ('id', 0), ('at', 116.84, 82.55, 90)),
-                #     ('property', 'Value', '165k', ('id', 1), ('at', 116.84, 85.09, 90)),
-                #     ('property', 'Footprint', '', ('id', 2), ('at', 116.84, 78.74, 0),
-                #                           ('effects', ('font', ('size', 1.524, 1.524)))),
-                #     ('property', 'Datasheet', '', ('id', 3), ('at', 116.84, 78.74, 0),
-                #                          ('effects', ('font', ('size', 1.524, 1.524)))),
-                #     ('pin', '1', ('uuid', '4eb52cb1-9134-412d-b80c-94785a2cfc61')),
-                #     ('pin', '2', ('uuid', '15aa4aaa-9c23-451a-b015-db0e7f3f79c5'))
-                # print('>'*100)
-                _, d = self.to_dict(sexpr)
-                self.fix_key_as_dict(d, 'property', 'properties')
-                self.fix_key_as_dict(d, 'pin', 'pins')
-                # pprint(d)
-                lib_id = d['lib_id']
-                lib = self._symbol_libs[lib_id]
-                properties = d['properties']
-                reference = self.sattr(properties['Reference'])
-                value = self.sattr(properties['Value'])
-                footprint = self.sattr(properties['Footprint'])
-                datasheet = self.sattr(properties['Datasheet'])
-                symbol = Symbol(lib, *d['at'], reference, value, footprint, datasheet)
-                if 'mirror' in d:
-                    symbol.mirror = d['mirror']
-                self._symbols.append(symbol)
+                self._on_symbol(sexpr)
 
             elif _car_value == 'sheet':
                 # (sheet (at 76.2 76.2) (size 25.4 25.4) (fields_autoplaced)
@@ -639,6 +609,109 @@ class KiCadSchema(Sexpression):
                 #   )
                 # )
                 pass
+
+    ##############################################
+
+    def _on_lib_symbol(self, sexpr):
+        # 'symbol',
+        #     'spice-ngspice:C',
+        #     ('pin_names', ('offset', 0.254)),
+        #     ('in_bom', 'yes'),
+        #     ('on_board', 'yes'),
+        #     ('property', 'Reference', 'C',
+        #         ('id', 0), ('at', 0, 1.016, 0),
+        #         ('effects', ('font', ('size', 1.27, 1.27)),
+        #         ('justify', 'left', 'bottom'))),
+        #     ('property', 'Value', 'C',
+        #         ('id', 1), ('at', 0, -1.27, 0),
+        #         ('effects', ('font', ('size', 1.27, 1.27)),
+        #         ('justify', 'left', 'top'))),
+        #     ('property', 'Footprint', '',
+        #         ('id', 2), ('at', 0, 0, 0),
+        #         ('effects', ('font', ('size', 1.524, 1.524)))),
+        #     ('property', 'Datasheet', '', ('id', 3), ('at', 0, 0, 0),
+        #         ('effects', ('font', ('size', 1.524, 1.524)))),
+        #     ('symbol', 'C_0_1',
+        #         ('polyline', ('pts', ('xy', -2.54, -0.635), ('xy', 2.54, -0.635)),
+        #             ('stroke', ('width', 0)), ('fill', ('type', 'none'))),
+        #         ('polyline', ('pts', ('xy', -2.54, 0.635), ('xy', 2.54, 0.635)),
+        #             ('stroke', ('width', 0)), ('fill', ('type', 'none')))
+        #     ),
+        #     ('symbol', 'C_1_1',
+        #          ('pin',
+        #              'passive',
+        #              'line',
+        #              ('at', 0, 2.54, 270),
+        #              ('length', 1.905),
+        #              ('name', '~', ('effects', ('font', ('size', 0.254, 0.254)) )),
+        #              ('number', '1', ('effects', ('font', ('size', 0.254, 0.254))))
+        #          ),
+        #          ('pin',
+        #              'passive',
+        #              'line',
+        #              ('at', 0, -2.54, 90),
+        #              ('length', 1.905),
+        #              ('name', '~', ('effects', ('font', ('size', 0.254, 0.254)))),
+        #              ('number', '2', ('effects', ('font', ('size', 0.254, 0.254)))
+        #          )
+        #     )
+        # )
+        # print('>'*100)
+        _, d = self.to_dict(sexpr)
+        # print(pprint(d))
+        self.fix_key_as_dict(d, 'property', 'properties')
+        self.fix_key_as_dict(d, 'symbol', 'symbols')
+        for _ in d['symbols'].values():
+            self.fix_key_as_list(_, 'polyline', 'polylines')
+            self.fix_key_as_list(_, 'pin', 'pins')
+        # pprint(d)
+        name = self.sattr(d)
+        symbol_lib = SymbolLib(name)
+        self._symbol_libs[name] = symbol_lib
+        # kind of XPath to get pins...
+        for d1 in d['symbols'].values():
+            for key, d2 in d1.items():
+                if key == 'pins':
+                    for spin in d2:
+                        number = self.sattr(spin['number'])
+                        name = self.sattr(spin['name'])
+                        symbol_lib.add_pin(number, name, *spin['at'])
+
+    ##############################################
+
+    def _on_symbol(self, sexpr):
+        # 'symbol',
+        #     ('lib_id', 'spice-ngspice:R'),
+        #     ('at', 116.84, 78.74, 270),
+        #     ('mirror', 'x'),
+        #     ('unit', 1),
+        #     ('in_bom', 'yes'),
+        #     ('on_board', 'yes'),
+        #     ('uuid', '00000000-0000-0000-0000-00006099a2a1'),
+        #     ('property', 'Reference', 'Remi1', ('id', 0), ('at', 116.84, 82.55, 90)),
+        #     ('property', 'Value', '165k', ('id', 1), ('at', 116.84, 85.09, 90)),
+        #     ('property', 'Footprint', '', ('id', 2), ('at', 116.84, 78.74, 0),
+        #                           ('effects', ('font', ('size', 1.524, 1.524)))),
+        #     ('property', 'Datasheet', '', ('id', 3), ('at', 116.84, 78.74, 0),
+        #                          ('effects', ('font', ('size', 1.524, 1.524)))),
+        #     ('pin', '1', ('uuid', '4eb52cb1-9134-412d-b80c-94785a2cfc61')),
+        #     ('pin', '2', ('uuid', '15aa4aaa-9c23-451a-b015-db0e7f3f79c5'))
+        # print('>'*100)
+        _, d = self.to_dict(sexpr)
+        self.fix_key_as_dict(d, 'property', 'properties')
+        self.fix_key_as_dict(d, 'pin', 'pins')
+        # pprint(d)
+        lib_id = d['lib_id']
+        lib = self._symbol_libs[lib_id]
+        properties = d['properties']
+        reference = self.sattr(properties['Reference'])
+        value = self.sattr(properties['Value'])
+        footprint = self.sattr(properties['Footprint'])
+        datasheet = self.sattr(properties['Datasheet'])
+        symbol = Symbol(lib, *d['at'], reference, value, footprint, datasheet)
+        if 'mirror' in d:
+            symbol.mirror = d['mirror']
+        self._symbols.append(symbol)
 
     ##############################################
 
