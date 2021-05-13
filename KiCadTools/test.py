@@ -125,7 +125,8 @@ class NetlistWrapper:
     ##############################################
 
     def on_generic_model(self, element, symbol):
-        reference = symbol.reference[len(element):]
+        # Fixme: check XD
+        reference = symbol.reference[len(element)+1:]
         args = [reference, symbol.value, *self._pins(symbol)]
         args_str = self._str_args(args)
         return f"circuit.{element}({args_str})"
