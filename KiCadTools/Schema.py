@@ -148,10 +148,22 @@ class Symbol(PositionAngle):
 
     ##############################################
 
-    def __init__(self, lib, x, y, angle, reference, value, footprint, datasheet):
+    def __init__(self, lib,
+                 x, y, angle,
+                 unit,
+                 in_bom=True,
+                 on_board=True,
+                 reference='', value='',
+                 footprint='',
+                 datasheet='',
+                 mirror=None,   # optional
+                 ):
         super().__init__(x, y, angle)
-        self._mirror = None
         self._lib = lib
+        self._mirror = None
+        self._unit = unit
+        self._in_bom = in_bom
+        self._on_board = on_board
         self._reference = reference
         self._value = value
         self._footprint = footprint
@@ -163,6 +175,22 @@ class Symbol(PositionAngle):
     @property
     def lib(self):
         return self._lib
+
+    @property
+    def mirror(self):
+        return self._mirror
+
+    @property
+    def unit(self):
+        return self._unit
+
+    @property
+    def in_bom(self):
+        return self._in_bom
+
+    @property
+    def in_board(self):
+        return self._in_board
 
     @property
     def reference(self):
@@ -187,16 +215,6 @@ class Symbol(PositionAngle):
     ##############################################
 
     @property
-    def mirror(self):
-        return self._mirror
-
-    @mirror.setter
-    def mirror(self, value):
-        self._mirror = value
-
-    ##############################################
-
-    @property
     def direction(self):
         if self._angle == 0:
             return 'up'
@@ -210,7 +228,7 @@ class Symbol(PositionAngle):
     ##############################################
 
     def _pin_position(self, pin):
-
+        """Compute the pin position in the sheet"""
         v = Vector(pin.x, -pin.y)
 
         angle = self._angle
@@ -228,8 +246,6 @@ class Symbol(PositionAngle):
 
     def guess_netlist(self, wires):
 
-        print()
-        print(f"{self._reference} " + super().__str__() + f" {self._mirror}")
         for pin in self._lib.pins:
             pin_position = self._pin_position(pin)
             for wire in wires:
@@ -237,7 +253,6 @@ class Symbol(PositionAngle):
                     pin_position.net_id = wire.net_id
             if pin_position.net_id is None:
                 print('>>>> Pin not found !!!')
-            print(pin_position)
             self._pins.append(pin_position)
 
 ####################################################################################################
@@ -335,6 +350,15 @@ class Wire:
 
     def match_pin(self, pin_position):
         return self._start == pin_position or self._end == pin_position
+
+    ##############################################
+
+    def match_junction(self, junction):
+        s = set()
+        if self.contains(junction):
+            s.add(self)
+            if len(s) > 1:
+                Wire.connect(s)
 
     ##############################################
 
@@ -470,8 +494,6 @@ class KiCadSchema(Sexpression):
             raise ValueError()
 
         for sexpr in cdr(s_data):
-            # print()
-            # print(sexpr)
             _car_value = car_value(sexpr)
 
             if _car_value == 'version':
@@ -656,15 +678,14 @@ class KiCadSchema(Sexpression):
         #          )
         #     )
         # )
-        # print('>'*100)
+
         _, d = self.to_dict(sexpr)
-        # print(pprint(d))
         self.fix_key_as_dict(d, 'property', 'properties')
         self.fix_key_as_dict(d, 'symbol', 'symbols')
         for _ in d['symbols'].values():
             self.fix_key_as_list(_, 'polyline', 'polylines')
             self.fix_key_as_list(_, 'pin', 'pins')
-        # pprint(d)
+
         name = self.sattr(d)
         symbol_lib = SymbolLib(name)
         self._symbol_libs[name] = symbol_lib
@@ -696,21 +717,26 @@ class KiCadSchema(Sexpression):
         #                          ('effects', ('font', ('size', 1.524, 1.524)))),
         #     ('pin', '1', ('uuid', '4eb52cb1-9134-412d-b80c-94785a2cfc61')),
         #     ('pin', '2', ('uuid', '15aa4aaa-9c23-451a-b015-db0e7f3f79c5'))
-        # print('>'*100)
+
         _, d = self.to_dict(sexpr)
         self.fix_key_as_dict(d, 'property', 'properties')
         self.fix_key_as_dict(d, 'pin', 'pins')
-        # pprint(d)
+
         lib_id = d['lib_id']
         lib = self._symbol_libs[lib_id]
         properties = d['properties']
-        reference = self.sattr(properties['Reference'])
-        value = self.sattr(properties['Value'])
-        footprint = self.sattr(properties['Footprint'])
-        datasheet = self.sattr(properties['Datasheet'])
-        symbol = Symbol(lib, *d['at'], reference, value, footprint, datasheet)
-        if 'mirror' in d:
-            symbol.mirror = d['mirror']
+        symbol = Symbol(
+            lib,
+            *d['at'],
+            mirror=d.get('mirror', None),
+            unit=d['unit'],
+            in_bom=d['in_bom'],
+            on_board=d['on_board'],
+            reference=self.sattr(properties['Reference']),
+            value=self.sattr(properties['Value']),
+            footprint=self.sattr(properties['Footprint']),
+            datasheet=self.sattr(properties['Datasheet']),
+        )
         self._symbols.append(symbol)
 
     ##############################################
@@ -718,21 +744,13 @@ class KiCadSchema(Sexpression):
     def _guess_netlist(self):
 
         for junction in self._junctions:
-            print(junction)
             for wire in self._wires:
-                s = set()
-                if wire.contains(junction):
-                    # print(f"  in {wire}")
-                    s.add(wire)
-                if len(s) > 1:
-                    Wire.connect(s)
+                wire.match_junction(junction)
 
         for wire1 in self._wires:
             for wire2 in self._wires:
                 if wire1 is not wire2:
-                    if wire1.match_extremities(wire2):
-                        pass
-                    # print(f"{wire1} match {wire2}")
+                    wire1.match_extremities(wire2)
 
         net_id = 0
         for wire in self._wires:
