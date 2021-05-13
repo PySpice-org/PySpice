@@ -18,7 +18,7 @@ schema_path = Path(
 kicad_schema = KiCadSchema(schema_path)
 print()
 print('='*100)
-kicad_schema.netlist()
+kicad_schema.dump_netlist()
 
 ####################################################################################################
 

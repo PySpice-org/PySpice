@@ -558,6 +558,10 @@ class NetId:
 
 class KiCadSchema(Sexpression):
 
+    GROUND_SYMBOLS = (
+        'spice-ngspice:0',
+    )
+
     ##############################################
 
     def __init__(self, path):
@@ -917,22 +921,27 @@ class KiCadSchema(Sexpression):
             if wire.net_id is None:
                 wire.net_id = NetId()
 
-        # Assign a net to pin
+        # Assign a net to pins
         for symbol in self._symbols:
             symbol.guess_netlist(self._wires)
-        # Find the ground and assign final id
+
+        # Find the ground
         for symbol in self._symbols:
-            if symbol.lib_name in ('spice-ngspice:0', ):
+            if symbol.lib_name in self.GROUND_SYMBOLS:
                 symbol.first_pin.net_id.id = 0
+
+        # Use wire labels as ids
         for label in self._labels:
             if label.name and label.wires:
                 wire = next(label.wires)
                 wire.net_id.id = label.name
+
+        # Assign remaining ids
         NetId.assign_ids()
 
   ##############################################
 
-    def netlist(self):
+    def dump_netlist(self):
         print(f"Number of nets: {NetId.UUID}")
         for symbol in self._symbols:
             print(f"{symbol.reference} {symbol.value}")
