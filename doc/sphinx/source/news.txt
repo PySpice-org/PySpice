@@ -5,6 +5,17 @@
 
 .. no title here
 
+Vx.y.0 (whishes)
+----------------
+
+* The circuit API is actually low level. It is fastidious to work with
+  and error prone.  Skidl has a very good approach to make the
+  connections between elements.  A clever idea is to make the
+  connection through loop, e.g. `gnd & C1 & (R1 | R2) & D1 & vcc`.
+* Improve Spice library handling, e.g. we have to read the library
+  code to know how to map the pins, etc.
+* Improve the Spice parser
+
 V1.6.0 (development release)
 ----------------------------
 
