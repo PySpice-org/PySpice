@@ -175,11 +175,35 @@ News
 V1.6.0 (development release)
 ----------------------------
 
+* **KiCadTools** a proof of concept module to read KiCad 6
+  `.kicad_sch` schema file and compute the netlist.  *This module can
+  be used to perform any kind of processings on a KiCad schema.  It is
+  actually hosted in the source but could become a standalone
+  project.* For PySpice, it provides a very flexible way to draft a
+  circuit with the help of KiCad and then generate the netlist without
+  using the netlist export feature of KiCad.  And thus leverage the
+  writing of fastidious cicruit.
+
 V1.5.0 (production release) 2021-05-xx
 --------------------------------------
 
-* renamed custom dunders "__dunder__" to "CONSTANT" or "_private" class attributes
-* TO COMPLETE
+* Support Ngspice up to version 34
+* Renamed custom dunders "__dunder__" to "CONSTANT" or "_private" class attributes
+* Fixed typo in documentation (thanks to endolith and brollb)
+* Add DC temperature sweep support #272 (thanks to Fatsie)
+* PWL support improvements #271 (thanks to Fatsie)
+* Assign units on creation of temperature-sweep vectors #263 (thanks to ARF1)
+* Prevent memory leaks by freeing ngspice command log #260  thanks to ARF1)
+* Performance optimization: dispatch multiple alter commands jointly #259 (thanks to ARF1)
+* Added spice library support #258  (thanks to Fatsie)
+* Allow to specify DC value for PWL #257 (thanks to Fatsie)
+* Support for `.nodeset` type initial condition #256 (thanks to Fatsie)
+* Fix accuracy problems #254 (thanks to sotw1957)
+* Changes to make it easier to use PySpice with a large archive of SPICE models medium diff #249 (thanks to xesscorp)
+* `Netlist.py`: Fix wrong method when joining parameters during netlist parse #245 (thanks to cyber-g)
+* Unit: add Pickle support
+* Add Parser code from #136 (thanks to jmgc) but not yet merged
+* Unit: add np.mean
 
 V1.4.3 2020-07-04
 -----------------
