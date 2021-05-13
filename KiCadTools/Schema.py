@@ -102,6 +102,27 @@ class NumberNameMixin(NameMixin):
 
 ####################################################################################################
 
+class OnWireMixin(Position):
+
+    ##############################################
+
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self._wires = set()
+
+    ##############################################
+
+    @property
+    def wires(self):
+        return iter(self._wires)
+
+    ##############################################
+
+    def connect_wire(self, wire):
+        self._wires.add(wire)
+
+####################################################################################################
+
 class Pin(NumberNameMixin, Position):
 
     ##############################################
@@ -347,9 +368,9 @@ class Wire:
 
     ##############################################
 
-    def match_junction(self, junction):
-        if self.contains(junction):
-            junction.connect_wire(self)
+    def match_obj(self, obj):
+        if self.contains(obj):
+            obj.connect_wire(self)
 
     ##############################################
 
@@ -404,33 +425,16 @@ class Bus(Wire):
 
 ####################################################################################################
 
-class Junction(Position):
-
-    ##############################################
-
-    def __init__(self, x, y):
-        super().__init__(x, y)
-        self._wires = set()
-
-    ##############################################
-
-    @property
-    def wires(self):
-        return iter(self._wires)
+class Junction(OnWireMixin):
 
     ##############################################
 
     def __str__(self):
         return "Junction at " + super().__str__()
 
-    ##############################################
-
-    def connect_wire(self, wire):
-        self._wires.add(wire)
-
 ####################################################################################################
 
-class NoConnect(Position):
+class NoConnect(OnWireMixin):
 
     ##############################################
 
@@ -439,7 +443,9 @@ class NoConnect(Position):
 
 ####################################################################################################
 
-class BusEntry(Position):
+class BusEntry(OnWireMixin):
+
+    # Fixme: bus
 
     ##############################################
 
@@ -448,18 +454,18 @@ class BusEntry(Position):
 
 ####################################################################################################
 
-class Label(NameMixin, PositionAngle):
+class Label(NameMixin, OnWireMixin):
 
     ##############################################
 
-    def __init__(self, name, x, y, angle):
+    def __init__(self, name, x, y):
+        OnWireMixin.__init__(self, x, y)
         NameMixin.__init__(self, name)
-        PositionAngle.__init__(self, x, y, angle)
 
     ##############################################
 
     def __str__(self):
-        return f"Label f{self._name} " + super().__str__()
+        return f"Label {self._name} " + super().__str__()
 
 ####################################################################################################
 
@@ -665,7 +671,9 @@ class KiCadSchema(Sexpression):
                 #   (uuid d18a8a30-fded-4d73-acd2-a0615b9eda55)
                 # )
                 _, d = self.to_dict(sexpr)
-                label = Label(_, *d['at'])
+                name = self.sattr(d)
+                at = d['at'][:2]
+                label = Label(name, *at)
                 self._labels.append(label)
 
             elif _car_value == 'global_label':
@@ -677,7 +685,8 @@ class KiCadSchema(Sexpression):
                 #   )
                 # )
                 _, d = self.to_dict(sexpr)
-                global_label = GlobalLabel(_, *d['at'])
+                name = self.sattr(d)
+                global_label = GlobalLabel(name, *d['at'])
                 self._global_labels.append(global_label)
 
             elif _car_value == 'hierarchical_label':
@@ -686,7 +695,8 @@ class KiCadSchema(Sexpression):
                 #   (uuid 2f06b05a-b838-4b5e-be45-45567e9ea945)
                 # )
                 _, d = self.to_dict(sexpr)
-                hierarchical_label = HierarchicalLabel(_, *d['at'])
+                name = self.sattr(d)
+                hierarchical_label = HierarchicalLabel(name, *d['at'])
                 self._hierarchical_labels.append(hierarchical_label)
 
             elif _car_value == 'symbol':
@@ -846,10 +856,26 @@ class KiCadSchema(Sexpression):
 
         for junction in self._junctions:
             for wire in self._wires:
-                wire.match_junction(junction)
+                wire.match_obj(junction)
         # Useless: wires are broken ???
         # for junction in self._junctions:
         #     Wire.connect(junction.wires)
+
+        for no_connection in self._no_connections:
+            for wire in self._wires:
+                wire.match_obj(no_connection)
+
+        for label in self._labels:
+            for wire in self._wires:
+                wire.match_obj(label)
+
+        for global_label in self._global_labels:
+            for wire in self._wires:
+                wire.match_obj(global_label)
+
+        for hierarchical_label in self._hierarchical_labels:
+            for wire in self._wires:
+                wire.match_obj(hierarchical_label)
 
         # Match wires
         for wire1 in self._wires:
@@ -869,6 +895,10 @@ class KiCadSchema(Sexpression):
         for symbol in self._symbols:
             if symbol.lib_name in ('spice-ngspice:0', ):
                 symbol.first_pin.net_id.id = 0
+        for label in self._labels:
+            if label.name and label.wires:
+                wire = next(label.wires)
+                wire.net_id.id = label.name
         NetId.assign_ids()
 
   ##############################################
