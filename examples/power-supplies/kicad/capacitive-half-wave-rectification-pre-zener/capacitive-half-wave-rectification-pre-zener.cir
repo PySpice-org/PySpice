@@ -7,7 +7,7 @@ XD1 /rd /out 1N4148
 XD2 /cdr /rd 1N4148
 C1 0 /out 250u
 Rload1 0 /out 1k
-C2 /cdr /out C
+C2 /cdr /out 250u
 R2 0 /cdr 1k
 XDz1 0 /out d1n5919brl
 .end
