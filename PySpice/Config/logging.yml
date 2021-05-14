@@ -1,4 +1,12 @@
 ####################################################################################################
+#
+# ANSI Codes
+#
+#   RESET \033[0m
+#   COLOR \033[1;%dm
+#   BOLD  \033[1m
+#
+####################################################################################################
 
 version: 1
 
@@ -10,9 +18,6 @@ formatters:
     format: '%(asctime)s - %(name)s - %(module)s.%(levelname)s - %(message)s'
 
   ansi:
-#   RESET_SEQ = "\033[0m"
-#   COLOR_SEQ = "\033[1;%dm"
-#   BOLD_SEQ = "\033[1m"
     format: '<ESC>[1;32m%(asctime)s<ESC>[0m - <ESC>[1;34m%(name)s.%(funcName)s<ESC>[0m - <ESC>[1;31m%(levelname)s<ESC>[0m - %(message)s'
 
 ####################################################################################################
@@ -27,18 +32,20 @@ handlers:
 
 ####################################################################################################
 
+# PySpice.Doc.ExampleTools.find_librariesb
 root:
-  level: INFO
-  # level: WARNING
+  # level: CRITICAL
+  # level: ERROR
+  level: WARNING
+  # level: INFO
   # level: DEBUG
   handlers: [console]
 
 ####################################################################################################
 
-# loggers:
+loggers:
 
-#   PySpice:
-#     level: DEBUG
-#     #level: INFO
-#     #level: WARNING
-#     handlers: [console]
+  PySpice:
+    # level: DEBUG
+    level: INFO
+    # level: WARNING
