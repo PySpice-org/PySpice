@@ -76,7 +76,7 @@ class CircuitTest:
 
     def test_spinit(self):
 
-        from PySpice.Spice.Netlist import Circuit
+        from PySpice import Circuit, Simulator
         import PySpice.Unit as U
 
         circuit = Circuit('Test')
@@ -96,9 +96,10 @@ class CircuitTest:
         #                                       (U.micro(1), source.dc_value))
         # )
 
-        simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-        simulator.initial_condition(comparator=0)  # Fixme: simulator.nodes.comparator == 0
-        analysis = simulator.transient(step_time=1@U.u_us, end_time=500@U.u_us)
+        simulator = Simulator.factory()
+        simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+        simulation.initial_condition(comparator=0)  # Fixme: simulator.nodes.comparator == 0
+        analysis = simulation.transient(step_time=1@U.u_us, end_time=500@U.u_us)
 
         if (len(analysis.output)) < 500:
             raise NameError('Simualtion failed')
