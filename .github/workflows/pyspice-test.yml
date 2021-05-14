@@ -18,8 +18,8 @@ on:
   #     - created
 
 # A map of environment variables
-env:
-  # SERVER: production
+# env:
+#   SERVER: production
 
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
 defaults:
