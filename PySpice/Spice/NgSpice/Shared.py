@@ -920,11 +920,11 @@ class NgSpiceShared:
             if isinstance(value, (list, tuple)):
                 value = '[ ' + ' '.join(value) + ' ]'
             cmd = '{} {} {} = {}'.format(command, device_name, key, value)
-            # performance optimization: collect multiple alter commands and 
+            # performance optimization: collect multiple alter commands and
             #                           dispatch them jointly
             commands.append(cmd)
             commands_str_len += len(cmd)
-            if commands_str_len + len(commands) > self.__MAX_COMMAND_LENGTH__:
+            if commands_str_len + len(commands) > self.MAX_COMMAND_LENGTH:
                 self.exec_command(';'.join(commands[:-1]))
                 commands = commands[-1:]
                 commands_str_len = len(commands[0])
