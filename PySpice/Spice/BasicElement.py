@@ -1640,7 +1640,7 @@ class SingleLossyTransmissionLine(TwoPortElement):
 
 class XSpiceElement(NPinElement):
 
-    """This class implements a sub-circuit.
+    """This class implements a XSpice element.
 
     Spice syntax:
 
@@ -1666,6 +1666,7 @@ class XSpiceElement(NPinElement):
     .. note:: As opposite to Spice, the model is specified before the nodes so as to act as `*args`.
 
     .. warning:: Partially implemented.
+
     """
 
     ALIAS = 'A'
