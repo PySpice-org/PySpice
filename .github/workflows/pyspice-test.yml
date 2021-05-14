@@ -5,9 +5,9 @@ name: Pyspice Test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, devel ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, devel ]
 
 jobs:
   build:
