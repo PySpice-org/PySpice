@@ -60,7 +60,7 @@ class TestPickle(unittest.TestCase):
 
     ##############################################
 
-    def test_waveformx(self):
+    def test_waveform(self):
         waveform = WaveForm('Test', u_kHz(100).prefixed_unit, (1, 1))
         new_waveform = pickle.loads(pickle.dumps(waveform))
         self.assertEqual(waveform, new_waveform)
