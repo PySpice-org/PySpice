@@ -18,7 +18,11 @@
 #
 ####################################################################################################
 
-"""This modules implements classes to perform simulations.
+"""This modules provides classes to generate the simulation part of the Spice desk, i.e. the line
+starting by a dot at the end of the desk.
+
+.. warning:: Simulation features depend of the simulator.
+
 """
 
 ####################################################################################################
@@ -30,25 +34,23 @@ import os
 
 from ..Config import ConfigInstall
 from ..Tools.StringTools import join_list, join_dict, str_spice
-from ..Unit import Unit, as_V, as_A, as_s, as_Hz, as_Degree, u_Degree
+from ..Unit import as_s, as_Hz, as_Degree, u_Degree
 
 ####################################################################################################
 
 _module_logger = logging.getLogger(__name__)
 
-####################################################################################################
-
 class AnalysisParameters:
 
     """Base class for analysis parameters"""
 
-    ANALYSIS_NAME = None
+    _ANALYSIS_NAME = None
 
     ##############################################
 
     @property
     def analysis_name(self):
-        return self.ANALYSIS_NAME
+        return self._ANALYSIS_NAME
 
     ##############################################
 
@@ -66,7 +68,7 @@ class OperatingPointAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for operating point analysis."""
 
-    ANALYSIS_NAME = 'op'
+    _ANALYSIS_NAME = 'op'
 
 ####################################################################################################
 
@@ -74,7 +76,7 @@ class DcSensitivityAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for DC sensitivity analysis."""
 
-    ANALYSIS_NAME = 'sens'
+    _ANALYSIS_NAME = 'sens'
 
     ##############################################
 
@@ -98,7 +100,7 @@ class AcSensitivityAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for AC sensitivity analysis."""
 
-    ANALYSIS_NAME = 'sens'
+    _ANALYSIS_NAME = 'sens'
 
     ##############################################
 
@@ -152,7 +154,7 @@ class DCAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for DC analysis."""
 
-    ANALYSIS_NAME = 'dc'
+    _ANALYSIS_NAME = 'dc'
 
     ##############################################
 
@@ -184,7 +186,7 @@ class ACAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for AC analysis."""
 
-    ANALYSIS_NAME = 'ac'
+    _ANALYSIS_NAME = 'ac'
 
     ##############################################
 
@@ -234,7 +236,7 @@ class TransientAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for transient analysis."""
 
-    ANALYSIS_NAME = 'tran'
+    _ANALYSIS_NAME = 'tran'
 
     ##############################################
 
@@ -287,7 +289,7 @@ class MeasureParameters(AnalysisParameters):
 
     """
 
-    ANALYSIS_NAME = 'meas'
+    _ANALYSIS_NAME = 'meas'
 
     ##############################################
 
@@ -316,7 +318,7 @@ class PoleZeroAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for pole-zero analysis."""
 
-    ANALYSIS_NAME = 'pz'
+    _ANALYSIS_NAME = 'pz'
 
     ##############################################
 
@@ -362,7 +364,7 @@ class NoiseAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for noise analysis."""
 
-    ANALYSIS_NAME = 'noise'
+    _ANALYSIS_NAME = 'noise'
 
     ##############################################
 
@@ -431,7 +433,7 @@ class DistortionAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for distortion analysis."""
 
-    ANALYSIS_NAME = 'disto'
+    _ANALYSIS_NAME = 'disto'
 
     ##############################################
 
@@ -487,7 +489,7 @@ class TransferFunctionAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for transfer function (.tf) analysis."""
 
-    ANALYSIS_NAME = 'tf'
+    _ANALYSIS_NAME = 'tf'
 
     ##############################################
 
@@ -512,21 +514,41 @@ class TransferFunctionAnalysisParameters(AnalysisParameters):
 
 ####################################################################################################
 
-class CircuitSimulation:
+class Simulation:
 
-    """Define and generate the spice instruction to perform a circuit simulation.
+    """Define and generate the Spice instruction to perform a simulation.
+
+    Constructor Parameters
+    ----------------------
+
+    Simulation temperatures are set by default to 27°C, you can change theses values using the
+    parameter `temperature` and `nominal_temperature`, respectively.
+
+    Analysis Method Parameters
+    --------------------------
+
+    For *ac* and *transient* analyses, the user must specify a list of nodes using the *probes* key
+    argument.
+
+    You can log the desk using the parameter `log_desk` set to `True`.
+
+    By default the analysis method runs the simulation and return the result, you can disable this
+    feature using the parameter `run` set to `False`.
 
     .. warning:: In some cases NgSpice can perform several analyses one after the other. This case
-      is partially supported.
+                 is partially supported.
 
     """
 
-    _logger = _module_logger.getChild('CircuitSimulation')
+    _logger = _module_logger.getChild('Simulation')
+
+    DEFAULT_TEMPERATURE = u_Degree(27)
 
     ##############################################
 
-    def __init__(self, circuit, **kwargs):
+    def __init__(self, simulator, circuit, **kwargs):
 
+        self._simulator = simulator
         self._circuit = circuit
 
         self._options = {}   # .options
@@ -536,14 +558,37 @@ class CircuitSimulation:
         self._saved_nodes = set()
         self._analyses = {}
 
-        self.temperature = kwargs.get('temperature', u_Degree(27))
-        self.nominal_temperature = kwargs.get('nominal_temperature', u_Degree(27))
+        self.temperature = kwargs.get('temperature', self.DEFAULT_TEMPERATURE)
+        self.nominal_temperature = kwargs.get('nominal_temperature', self.DEFAULT_TEMPERATURE)
+
+    ##############################################
+
+    def __getstate__(self):
+        # Pickle: get state
+        state = self.__dict__.copy()
+        # state['_simulator'] = self._simulator.__class__.__name__
+        state['_simulator'] = self._simulator._AS_SIMULATOR
+        # state['_circuit'] = ...
+        return state
+
+    ##############################################
+
+    def __setstate__(self, state):
+        # Pickle: restore state
+        self.__dict__.update(state)
+        # Fixme: ok ??? duplicate simulator ???
+        from .Simulator import Simulator
+        self.__simulator = Simulator.factory(simulator=state['_simulator'])
 
     ##############################################
 
     @property
     def circuit(self):
         return self._circuit
+
+    @property
+    def simulator(self):
+        return self._simulator
 
     ##############################################
 
@@ -695,6 +740,8 @@ class CircuitSimulation:
     ##############################################
 
     def analysis_iter(self):
+        # Fixme: -> analyses / item()
+        #   used for ???
         return self._analyses.values()
 
     ##############################################
@@ -709,13 +756,13 @@ class CircuitSimulation:
 
     ##############################################
 
-    def operating_point(self):
+    def _impl_operating_point(self):
         """Compute the operating point of the circuit with capacitors open and inductors shorted."""
         self._add_analysis(OperatingPointAnalysisParameters())
 
     ##############################################
 
-    def dc_sensitivity(self, output_variable):
+    def _impl_dc_sensitivity(self, output_variable):
 
         """Compute the sensitivity of the DC operating point of a node voltage or voltage-source
         branch current to all non-zero device parameters.
@@ -743,7 +790,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def ac_sensitivity(self, output_variable, variation, number_of_points, start_frequency, stop_frequency):
+    def _impl_ac_sensitivity(self, output_variable, variation, number_of_points, start_frequency, stop_frequency):
 
         """Compute the sensitivity of the AC values of a node voltage or voltage-source branch
         current to all non-zero device parameters.
@@ -776,7 +823,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def dc(self, **kwargs):
+    def _impl_dc(self, **kwargs):
 
         """Compute the DC transfer fonction of the circuit with capacitors open and inductors shorted.
 
@@ -816,7 +863,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def ac(self, variation, number_of_points, start_frequency, stop_frequency):
+    def _impl_ac(self, variation, number_of_points, start_frequency, stop_frequency):
 
         # fixme: concise keyword ?
 
@@ -851,7 +898,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def measure(self, analysis_type, name, *args):
+    def _impl_measure(self, analysis_type, name, *args):
 
         """Add a measure in the circuit.
 
@@ -874,7 +921,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def transient(self, step_time, end_time, start_time=0, max_time=None, use_initial_condition=False):
+    def _impl_transient(self, step_time, end_time, start_time=0, max_time=None, use_initial_condition=False):
 
         """Perform a transient analysis of the circuit.
 
@@ -899,7 +946,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def polezero(self, node1, node2, node3, node4, tf_type, pz_type):
+    def _impl_polezero(self, node1, node2, node3, node4, tf_type, pz_type):
 
         """Perform a Pole-Zero analysis of the circuit.
 
@@ -944,7 +991,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def noise(self, output_node, ref_node, src, variation, points, start_frequency, stop_frequency, points_per_summary=None):
+    def _impl_noise(self, output_node, ref_node, src, variation, points, start_frequency, stop_frequency, points_per_summary=None):
 
         """Perform a Pole-Zero analysis of the circuit.
 
@@ -986,7 +1033,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def transfer_function(self, outvar, insrc):
+    def _impl_transfer_function(self, outvar, insrc):
 
         """The python arguments to this function should be two strings, outvar and insrc.
 
@@ -1020,7 +1067,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def distortion(self, variation, points, start_frequency, stop_frequency, f2overf1=None):
+    def _impl_distortion(self, variation, points, start_frequency, stop_frequency, f2overf1=None):
 
         """Perform a distortion analysis of the circuit.
 
@@ -1087,7 +1134,7 @@ class CircuitSimulation:
 
     def __str__(self):
 
-        netlist = self._circuit.str(simulator=self.SIMULATOR)
+        netlist = self._circuit.str(simulator=self.simulator.SIMULATOR)
         netlist += self.str_options()
         if self._initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
@@ -1110,20 +1157,80 @@ class CircuitSimulation:
         netlist += '.end' + os.linesep
         return netlist
 
+    ##############################################
+
+    def _run(self, analysis_method, *args, **kwargs):
+
+        # Trick to execute code before/after the analysis implementation
+
+        log_desk = kwargs.pop('log_desk', None)
+        run = kwargs.pop('run', True)
+
+        if 'probes' in kwargs:
+            self.save(* kwargs.pop('probes'))
+
+        # Execute analysis implementation
+        analysis_method(self, *args, **kwargs)
+
+        # Set simulator's specific settings
+        self._simulator.customise(self)
+
+        # Log the desk ?
+        message = 'desk' + os.linesep + str(self)
+        if log_desk:
+            self._logger.info(message)
+        else:
+            self._logger.debug(message)
+
+        # Run simulation ?
+        if run:
+            return self._simulator.run(self)
+
+        ##############################################
+
+# Register analysis wrappers and shortcuts s in Simulation
+
+def _make_wrapper(analysis_method):
+    def wrapper(self, *args, **kwargs):
+        return self._run(analysis_method, *args, **kwargs)
+    return wrapper
+
+_ANALYSES_PREFIX = '_impl_'
+
+_ANALYSES_METHOD = [
+    method
+    for method in Simulation.__dict__.values()
+    if callable(method) and method.__name__.startswith(_ANALYSES_PREFIX)
+]
+
+_SHORTCUTS = {
+    'transfer_function': 'tf',
+}
+
+for _analysis_method in _ANALYSES_METHOD:
+    _wrapper = _make_wrapper(_analysis_method)
+    _wrapper.__doc__ = _analysis_method.__doc__
+    _analysis = _analysis_method.__name__[len(_ANALYSES_PREFIX):]
+    setattr(Simulation, _analysis, _wrapper)
+
+    _shortcut = _SHORTCUTS.get(_analysis, None)
+    if _shortcut:
+        setattr(Simulation, _shortcut, _wrapper)
+
 ####################################################################################################
 
-class CircuitSimulator(CircuitSimulation):
+# Fixme: DOC: Each analysis mode is performed by a method that return the measured probes.
 
-    """This class implements a circuit simulator. Each analysis mode is performed by a method that
-    return the measured probes.
+class Simulator:
 
-    For *ac* and *transient* analyses, the user must specify a list of nodes using the *probes* key
-    argument.
+    """Base class to implement a simulator.
 
     """
 
-    _logger = _module_logger.getChild('CircuitSimulator')
+    _logger = _module_logger.getChild('Simulator')
 
+    #: Define the default simulator
+    DEFAULT_SIMULATOR = None
     if ConfigInstall.OS.on_windows:
         DEFAULT_SIMULATOR = 'ngspice-shared'
     else:
@@ -1132,106 +1239,94 @@ class CircuitSimulator(CircuitSimulation):
         # DEFAULT_SIMULATOR = 'xyce-serial'
         # DEFAULT_SIMULATOR = 'xyce-parallel'
 
+    SIMULATORS = (
+        'ngspice',
+        'ngspice-shared',
+        'ngspice-subprocess',
+        'xyce',
+        'xyce-serial',
+        'xyce-parallel',
+    )
+
+    SIMULATOR = None   # for subclass
+
     ##############################################
 
     @classmethod
-    def factory(cls, circuit, *args, **kwargs):
+    def factory(cls, *args, **kwargs):
 
-        """Return a :obj:`PySpice.Spice.Simulation.SubprocessCircuitSimulator` or
-        :obj:`PySpice.Spice.Simulation.NgSpiceSharedCircuitSimulator` instance depending of the
-        value of the *simulator* parameter: ``subprocess`` or ``shared``, respectively. If this
-        parameter is not specified then a subprocess simulator is returned.
+        """Factory to instantiate a simulator.
+
+        By default, it instantiates the simulator defined in :obj:`DEFAULT_SIMULATOR`, however you
+        can set the simulator using the :obj:`simulator` parameter.
+
+        Available simulators are:
+
+        * :code:`ngspice` **alias for shared**
+        * :code:`ngspice-shared` **DEFAULT**
+        * :code:`ngspice-subprocess`
+        * :code:`xyce` **alias for serial**
+        * :code:`xyce-serial`
+        * :code:`xyce-parallel`
+
+        Return a :obj:`PySpice.Spice.Simulator` subclass.
 
         """
 
-        if 'simulator' in kwargs:
-            simulator = kwargs['simulator']
-            del kwargs['simulator']
-        else:
-            simulator = cls.DEFAULT_SIMULATOR
+        # Fixme: purpose ??? simplify import...
 
+        simulator = kwargs.pop('simulator', cls.DEFAULT_SIMULATOR)
         sub_cls = None
-        if simulator in ('ngspice-subprocess', 'ngspice-shared'):
+
+        if simulator not in cls.SIMULATORS:
+            raise NameError(f"Unknown simulator {simulator}")
+
+        if simulator.startswith('ngspice'):
             if simulator == 'ngspice-subprocess':
-                from .NgSpice.Simulation import NgSpiceSubprocessCircuitSimulator
-                sub_cls = NgSpiceSubprocessCircuitSimulator
-            elif simulator == 'ngspice-shared':
-                from .NgSpice.Simulation import NgSpiceSharedCircuitSimulator
-                sub_cls = NgSpiceSharedCircuitSimulator
-        elif simulator in ('xyce-serial', 'xyce-parallel'):
-            from .Xyce.Simulation import XyceCircuitSimulator
-            sub_cls = XyceCircuitSimulator
+                from .NgSpice.Simulator import NgSpiceSubprocessSimulator
+                sub_cls = NgSpiceSubprocessSimulator
+            elif simulator in ('ngspice', 'ngspice-shared'):
+                from .NgSpice.Simulator import NgSpiceSharedSimulator
+                sub_cls = NgSpiceSharedSimulator
+
+        elif simulator.startswith('xyce'):
+            from .Xyce.Simulator import XyceSimulator
+            sub_cls = XyceSimulator
             if simulator == 'xyce-parallel':
                 kwargs['parallel'] = True
 
         if sub_cls is not None:
-            return sub_cls(circuit, *args, **kwargs)
+            obj = sub_cls(*args, **kwargs)
+            obj._AS_SIMULATOR = simulator
+            return obj
         else:
-            raise ValueError('Unknown simulator type')
+            raise ValueError('Unknown simulator')
 
     ##############################################
 
-    def _run(self, analysis_method, *args, **kwargs):
-
-        self.reset_analysis()
-        if 'probes' in kwargs:
-            self.save(* kwargs.pop('probes'))
-
-        _kwargs = dict(kwargs)
-        _kwargs.pop('log_desk', None)
-
-        method = getattr(CircuitSimulation, analysis_method)
-        method(self, *args, **_kwargs)
-
-        message = 'desk' + os.linesep + str(self)
-        if kwargs.get('log_desk', False):
-            self._logger.info(message)
-        else:
-            self._logger.debug(message)
+    def __getstate__(self):
+        # Pickle: protection for cffi
+        return self.__class__.__name__
 
     ##############################################
 
-    def operating_point(self, *args, **kwargs):
-        return self._run('operating_point', *args, **kwargs)
+    def simulation(self, circuit, **kwargs):
+        """Create a new simulation for the circuit.
+
+        Return a :obj:`PySpice.Spice.Simulation` instance`
+
+        """
+        # Note: simulation is simulator dependent, thus subclass this method if needed
+        return Simulation(self, circuit, **kwargs)
 
     ##############################################
 
-    def dc(self, *args, **kwargs):
-        return self._run('dc', *args, **kwargs)
+    def customise(self, simulation):
+        """Customise the simulation"""
+        pass
 
     ##############################################
 
-    def dc_sensitivity(self, *args, **kwargs):
-        return self._run('dc_sensitivity', *args, **kwargs)
-
-    ##############################################
-
-    def ac(self, *args, **kwargs):
-        return self._run('ac', *args, **kwargs)
-
-    ##############################################
-
-    def transient(self, *args, **kwargs):
-        return self._run('transient', *args, **kwargs)
-
-    ##############################################
-
-    def polezero(self, *args, **kwargs):
-        return self._run('polezero', *args, **kwargs)
-
-    ##############################################
-
-    def noise(self, *args, **kwargs):
-        return self._run('noise', *args, **kwargs)
-
-    ##############################################
-
-    def distortion(self, *args, **kwargs):
-        return self._run('distortion', *args, **kwargs)
-
-    ##############################################
-
-    def transfer_function(self, *args, **kwargs):
-        return self._run('transfer_function', *args, **kwargs)
-
-    tf = transfer_function   # shorcut
+    def run(self, simulation):
+        """Run the simulation and return the waveforms."""
+        raise NotImplementedError

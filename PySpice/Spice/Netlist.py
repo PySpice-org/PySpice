@@ -93,7 +93,6 @@ from .ElementParameter import (
     PositionalElementParameter,
     FlagParameter, KeyValueParameter,
 )
-from .Simulation import CircuitSimulator
 
 ####################################################################################################
 
@@ -830,6 +829,11 @@ class Netlist:
 
     ##############################################
 
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
+    ##############################################
+
     def copy_to(self, netlist):
 
         for subcircuit in self.subcircuits:
@@ -1293,4 +1297,5 @@ class Circuit(Netlist):
     ##############################################
 
     def simulator(self, *args, **kwargs):
-        return CircuitSimulator.factory(self, *args, **kwargs)
+        # return CircuitSimulator.factory(self, *args, **kwargs)
+        raise NameError("Deprecated API")

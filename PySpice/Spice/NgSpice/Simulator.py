@@ -27,7 +27,7 @@ import logging
 
 ####################################################################################################
 
-from ..Simulation import CircuitSimulator
+from ..Simulation import Simulator
 from .Server import SpiceServer
 from .Shared import NgSpiceShared
 
@@ -37,63 +37,49 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-class NgSpiceCircuitSimulator(CircuitSimulator):
-
+class NgSpiceSimulator(Simulator):
     SIMULATOR = 'ngspice'
-
-    ##############################################
-
-    def __init__(self, circuit, **kwargs):
-
-        super().__init__(circuit, **kwargs)
-
-        if kwargs.get('pipe', True):
-            self.options('NOINIT')
-            self.options(filetype='binary')
 
 ####################################################################################################
 
-class NgSpiceSubprocessCircuitSimulator(NgSpiceCircuitSimulator):
+class NgSpiceSubprocessSimulator(NgSpiceSimulator):
 
-    _logger = _module_logger.getChild('NgSpiceSubprocessCircuitSimulator')
+    _logger = _module_logger.getChild('NgSpiceSubprocessSimulator')
 
     ##############################################
 
-    def __init__(self, circuit, **kwargs):
-
-        super().__init__(circuit, pipe=True, **kwargs)
-
+    def __init__(self, **kwargs):
+        # super().__init__(**kwargs)
         # Fixme: to func ?
         server_kwargs = {x:kwargs[x] for x in ('spice_command',) if x in kwargs}
         self._spice_server = SpiceServer(**server_kwargs)
 
     ##############################################
 
-    def _run(self, analysis_method, *args, **kwargs):
+    def customise(self, simulation):
+        # quicker to subclass...
+        simulation.options('NOINIT')
+        simulation.options(filetype='binary')
 
-        super()._run(analysis_method, *args, **kwargs)
+    ##############################################
 
-        raw_file = self._spice_server(spice_input=str(self))
-        self.reset_analysis()
-        raw_file.simulation = self
-
+    def run(self, simulation, *args, **kwargs):
+        raw_file = self._spice_server(spice_input=str(simulation))
+        raw_file.simulation = simulation
         # for field in raw_file.variables:
         #     print field
-
         return raw_file.to_analysis()
 
 ####################################################################################################
 
-class NgSpiceSharedCircuitSimulator(NgSpiceCircuitSimulator):
+class NgSpiceSharedSimulator(NgSpiceSimulator):
 
-    _logger = _module_logger.getChild('NgSpiceSharedCircuitSimulator')
+    _logger = _module_logger.getChild('NgSpiceSharedSimulator')
 
     ##############################################
 
-    def __init__(self, circuit, **kwargs):
-
-        super().__init__(circuit, pipe=False, **kwargs)
-
+    def __init__(self, **kwargs):
+        # super().__init__(**kwargs)
         ngspice_shared = kwargs.get('ngspice_shared', None)
         if ngspice_shared is None:
             self._ngspice_shared = NgSpiceShared.new_instance()
@@ -108,20 +94,19 @@ class NgSpiceSharedCircuitSimulator(NgSpiceCircuitSimulator):
 
     ##############################################
 
-    def _run(self, analysis_method, *args, **kwargs):
+    def run(self, simulation):
 
-        super()._run(analysis_method, *args, **kwargs)
-
+        # Release the memory holding the output data
         self._ngspice_shared.destroy()
+
         # load circuit and simulation
         # Fixme: Error: circuit not parsed.
-        self._ngspice_shared.load_circuit(str(self))
+        self._ngspice_shared.load_circuit(str(simulation))
         self._ngspice_shared.run()
         self._logger.debug(str(self._ngspice_shared.plot_names))
-        self.reset_analysis()
 
         plot_name = self._ngspice_shared.last_plot
         if plot_name == 'const':
             raise NameError('Simulation failed')
 
-        return self._ngspice_shared.plot(self, plot_name).to_analysis()
+        return self._ngspice_shared.plot(simulation, plot_name).to_analysis()

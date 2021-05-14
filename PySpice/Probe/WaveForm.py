@@ -257,6 +257,11 @@ class Analysis:
 
     ##############################################
 
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
+    ##############################################
+
     @property
     def simulation(self):
         """Return the simulation instance"""
@@ -281,7 +286,6 @@ class Analysis:
    ##############################################
 
     def _get_item(self, name):
-
         # Fixme: cache dict ???
         if name in self._nodes:
             return self._nodes[name]
@@ -297,6 +301,7 @@ class Analysis:
     ##############################################
 
     def __getitem__(self, name):
+        # handle analysis['foo']
         try:
             return self._get_item(name)
         except IndexError:
@@ -311,7 +316,7 @@ class Analysis:
     ##############################################
 
     def __getattr__(self, name):
-
+        # handle analysis.foo
         try:
             return self.__getitem__(name)
         except IndexError:
