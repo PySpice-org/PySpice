@@ -235,6 +235,12 @@ class Plot(dict):
 
     ##############################################
 
+    @property
+    def simulation(self):
+        return self._simulation
+
+    ##############################################
+
     def nodes(self, to_float=False, abscissa=None):
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.values()
@@ -263,7 +269,6 @@ class Plot(dict):
     ##############################################
 
     def to_analysis(self):
-
         if self.plot_name.startswith('op'):
             return self._to_operating_point_analysis()
         elif self.plot_name.startswith('sens'):
@@ -338,7 +343,6 @@ class Plot(dict):
     ##############################################
 
     def _to_transient_analysis(self):
-
         time = self['time'].to_waveform(to_real=True)
         return TransientAnalysis(
             simulation=self._simulation,
@@ -399,7 +403,7 @@ class NgSpiceShared:
     NGSPICE_PATH = None
     LIBRARY_PATH = None
 
-    MAX_COMMAND_LENGTH = 1023
+    MAX_COMMAND_LENGTH = 1023   # Fixme: 1024 ???
     NUMBER_OF_EXEC_CALLS_TO_RELEASE_MEMORY = 10_000
 
     ##############################################
