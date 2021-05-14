@@ -129,7 +129,16 @@ def run_example(path):
 def on_linux(path):
 
     skipped_files = [
-        make_path('operational-amplifier', 'astable.py'),   # doAnalyses: Too many iterations without convergence
+        # doAnalyses: Too many iterations without convergence
+        make_path('operational-amplifier', 'astable.py'),
+
+        # On GitHub
+        # 2021-05-14 20:43:12,785 - PySpice.Spice.NgSpice.Shared.NgSpiceShared.load_circuit - ERROR - 
+        # Circuit: Voltage Divider
+        # Error on line 2 :
+        # vinput input 0 dc 0 external
+        # parameter value out of range or the wrong type
+        make_path('ngspice-shared', 'external-source.py'),
     ]
 
     if str(path) in skipped_files:
