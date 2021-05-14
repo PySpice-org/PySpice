@@ -677,9 +677,39 @@ pull requests blindly then there is a high risk this software will become a mess
 <h1>News</h1>
 <!-- -*- Mode: rst -*- -->
 <!-- no title here -->
+<div class="section" id="vx-y-0-whishes">
+<h2>Vx.y.0 (whishes)</h2>
+<ul class="simple">
+<li><p>The circuit API is actually low level. It is fastidious to work with
+and error-prone.  Skidl has a very good approach to make the
+connections between elements.  A clever idea is to make the
+connection through loop, e.g. <cite>gnd &amp; C1 &amp; (R1 | R2) &amp; D1 &amp; vcc</cite>.</p></li>
+<li><p>Improve Spice library handling, e.g. we have to read the library
+code to know how to map the pins, etc.</p></li>
+<li><p>Improve the Spice parser.</p></li>
+<li><p>Unit should be provided by a third party.  We need a library that works well with Spice.</p></li>
+</ul>
+</div>
 <div class="section" id="v1-6-0-development-release">
 <h2>V1.6.0 (development release)</h2>
-<ul class="simple">
+<ul>
+<li><p><strong>New Simulation API</strong></p>
+<pre class="code literal-block"><code># build a circuit
+
+# instantiate a simulator
+simulator = Simulator.factory()
+# or
+simulator = Simulator.factory(simulator='ngspice')
+# same as
+simulator = Simulator.factory(simulator='ngspice-shared')
+
+# create a simulation, it corresponds to the Spice code part with lines starting with &quot;.someting ...&quot;
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+# define a analysis and run it
+analysis = simulation.transient(step_time=ac_line.period/200, end_time=ac_line.period*50, log_desk=True)
+# analysis is now Pickable</code></pre>
+</li>
+<li><p>Simulation output is now Pickable</p></li>
 <li><p><strong>KiCadTools</strong> a proof of concept module to read KiCad 6
 <cite>.kicad_sch</cite> schema file and compute the netlist.  <em>This module can
 be used to perform any kind of processings on a KiCad schema.  It is
@@ -688,6 +718,7 @@ project.</em> For PySpice, it provides a very flexible way to draft a
 circuit with the help of KiCad and then generate the netlist without
 using the netlist export feature of KiCad.  And thus leverage the
 writing of fastidious cicruit.</p></li>
+<li><p>The most common PySpice parts can be imported from <code>from PySpice import ...</code></p></li>
 </ul>
 </div>
 <div class="section" id="v1-5-0-production-release-2021-05-xx">

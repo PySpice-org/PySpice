@@ -20,6 +20,27 @@ Vx.y.0 (whishes)
 V1.6.0 (development release)
 ----------------------------
 
+* **New Simulation API**
+
+  .. code-block::
+
+       # build a circuit
+
+       # instantiate a simulator
+       simulator = Simulator.factory()
+       # or
+       simulator = Simulator.factory(simulator='ngspice')
+       # same as
+       simulator = Simulator.factory(simulator='ngspice-shared')
+
+       # create a simulation, it corresponds to the Spice code part with lines starting with ".someting ..."
+       simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+       # define a analysis and run it
+       analysis = simulation.transient(step_time=ac_line.period/200, end_time=ac_line.period*50, log_desk=True)
+       # analysis is now Pickable
+
+* Simulation output is now Pickable
+
 * **KiCadTools** a proof of concept module to read KiCad 6
   `.kicad_sch` schema file and compute the netlist.  *This module can
   be used to perform any kind of processings on a KiCad schema.  It is
@@ -28,6 +49,7 @@ V1.6.0 (development release)
   circuit with the help of KiCad and then generate the netlist without
   using the netlist export feature of KiCad.  And thus leverage the
   writing of fastidious cicruit.
+* The most common PySpice parts can be imported from :code:`from PySpice import ...`
 
 V1.5.0 (production release) 2021-05-xx
 --------------------------------------

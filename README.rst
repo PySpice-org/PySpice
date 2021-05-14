@@ -172,8 +172,41 @@ News
 
 .. no title here
 
+Vx.y.0 (whishes)
+----------------
+
+* The circuit API is actually low level. It is fastidious to work with
+  and error-prone.  Skidl has a very good approach to make the
+  connections between elements.  A clever idea is to make the
+  connection through loop, e.g. `gnd & C1 & (R1 | R2) & D1 & vcc`.
+* Improve Spice library handling, e.g. we have to read the library
+  code to know how to map the pins, etc.
+* Improve the Spice parser.
+* Unit should be provided by a third party.  We need a library that works well with Spice.
+
 V1.6.0 (development release)
 ----------------------------
+
+* **New Simulation API**
+
+  .. code-block::
+
+       # build a circuit
+
+       # instantiate a simulator
+       simulator = Simulator.factory()
+       # or
+       simulator = Simulator.factory(simulator='ngspice')
+       # same as
+       simulator = Simulator.factory(simulator='ngspice-shared')
+
+       # create a simulation, it corresponds to the Spice code part with lines starting with ".someting ..."
+       simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+       # define a analysis and run it
+       analysis = simulation.transient(step_time=ac_line.period/200, end_time=ac_line.period*50, log_desk=True)
+       # analysis is now Pickable
+
+* Simulation output is now Pickable
 
 * **KiCadTools** a proof of concept module to read KiCad 6
   `.kicad_sch` schema file and compute the netlist.  *This module can
@@ -183,6 +216,7 @@ V1.6.0 (development release)
   circuit with the help of KiCad and then generate the netlist without
   using the netlist export feature of KiCad.  And thus leverage the
   writing of fastidious cicruit.
+* The most common PySpice parts can be imported from :code:`from PySpice import ...`
 
 V1.5.0 (production release) 2021-05-xx
 --------------------------------------
