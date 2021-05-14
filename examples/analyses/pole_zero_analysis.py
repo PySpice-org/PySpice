@@ -19,7 +19,7 @@ import PySpice.Logging.Logging as Logging
 
 ####################################################################################################
 
-from PySpice.Spice.Netlist import Circuit, SubCircuit
+from PySpice import Circuit, Simulator
 
 class NodeNames:
     """Allow setting of nodes with appropriate names."""
@@ -37,8 +37,9 @@ def test_simple():
     circuit.C('2', n.output, com, 1e-6)
     circuit.L('1', n.output, com, 1e-3)
     print("circuit",circuit)
-    simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.polezero(n.input,com, n.output,com, 'vol', 'pz')
+    simulator = Simulator.factory()
+    simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+    analysis = simulation.polezero(n.input,com, n.output,com, 'vol', 'pz')
     print("Poles")
     for n in analysis.nodes:
         if not n.startswith('pole'): continue

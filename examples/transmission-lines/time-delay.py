@@ -11,8 +11,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Probe.Plot import plot
-from PySpice.Spice.Netlist import Circuit
+from PySpice import Circuit, Simulator, plot
 from PySpice.Unit import *
 
 ####################################################################################################
@@ -25,8 +24,9 @@ circuit.LosslessTransmissionLine('delay', 'output', circuit.gnd, 'input', circui
                                  impedance=50, time_delay=40e-9)
 circuit.R('load', 'output', circuit.gnd, 50@u_Ω)
 
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=1e-11, end_time=100e-9)
+simulator = Simulator.factory()
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+analysis = simulation.transient(step_time=1e-11, end_time=100e-9)
 
 ####################################################################################################
 

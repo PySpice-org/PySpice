@@ -35,5 +35,5 @@ def show_version():
 
 from PySpice.Probe.Plot import plot
 from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Spice.Netlist import Circuit
+from PySpice.Spice.Netlist import  Circuit, SubCircuit, SubCircuitFactory
 from PySpice.Spice.Simulator import Simulator

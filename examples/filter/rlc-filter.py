@@ -19,7 +19,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Plot.BodeDiagram import bode_diagram
-from PySpice.Spice.Netlist import Circuit
+from PySpice import Circuit, Simulator
 from PySpice.Unit import *
 
 ####################################################################################################
@@ -54,8 +54,9 @@ circuit1.C(4, 'out4', circuit1.gnd, capacitance)
 
 #r# We perform an AC analysis.
 
-simulator1 = circuit1.simulator(temperature=25, nominal_temperature=25)
-analysis1 = simulator1.ac(start_frequency=100@u_Hz, stop_frequency=10@u_kHz, number_of_points=100,  variation='dec')
+simulator = Simulator.factory()
+simulation1 = simulator.simulation(circuit1, temperature=25, nominal_temperature=25)
+analysis1 = simulation1.ac(start_frequency=100@u_Hz, stop_frequency=10@u_kHz, number_of_points=100,  variation='dec')
 
 #r# The resonant frequency is given by
 #r#
@@ -105,8 +106,8 @@ circuit2.L(1, 'in', 2, inductance)
 circuit2.C(1, 2, 'out', capacitance)
 circuit2.R(1, 'out', circuit2.gnd, 25@u_Ω)
 
-simulator2 = circuit2.simulator(temperature=25, nominal_temperature=25)
-analysis2 = simulator2.ac(start_frequency=100@u_Hz, stop_frequency=10@u_kHz, number_of_points=100,  variation='dec')
+simulation2 = simulator.simulation(circuit2, temperature=25, nominal_temperature=25)
+analysis2 = simulation2.ac(start_frequency=100@u_Hz, stop_frequency=10@u_kHz, number_of_points=100,  variation='dec')
 
 bode_diagram(axes=axes,
              frequency=analysis2.frequency,

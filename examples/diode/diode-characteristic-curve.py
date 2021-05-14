@@ -75,8 +75,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Doc.ExampleTools import find_libraries
-from PySpice.Spice.Netlist import Circuit
-from PySpice.Spice.Library import SpiceLibrary
+from PySpice import SpiceLibrary, Circuit, Simulator
 from PySpice.Unit import *
 from PySpice.Physics.SemiConductor import ShockleyDiode
 
@@ -105,9 +104,10 @@ circuit.X('D1', '1N4148', 'out', circuit.gnd)
 # Fixme: Xyce ???
 temperatures = [0, 25, 100]@u_Degree
 analyses = {}
+simulator = Simulator.factory()
 for temperature in temperatures:
-    simulator = circuit.simulator(temperature=temperature, nominal_temperature=temperature)
-    analysis = simulator.dc(Vinput=slice(-2, 5, .01))
+    simulation = simulator.simulation(circuit, temperature=temperature, nominal_temperature=temperature)
+    analysis = simulation.dc(Vinput=slice(-2, 5, .01))
     analyses[float(temperature)] = analysis
 
 ####################################################################################################

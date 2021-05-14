@@ -1,6 +1,6 @@
 ####################################################################################################
 
-from PySpice.Spice.Netlist import SubCircuitFactory
+from PySpice import SubCircuitFactory
 from PySpice.Unit import *
 
 ####################################################################################################

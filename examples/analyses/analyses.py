@@ -16,7 +16,7 @@ import PySpice.Logging.Logging as Logging
 
 ####################################################################################################
 
-from PySpice.Spice.Netlist import Circuit
+from PySpice import Circuit, Simulator
 
 # This program implements the PySpice equivalent of the following circuit,
 # which is run using the shell command
@@ -88,15 +88,17 @@ def dump_circuit():
 
 def do_dc_analysis():
     circuit, n = simple_bjt_amp()
-    simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.operating_point()
+    simulator = Simulator.factory()
+    simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+    analysis = simulation.operating_point()
     print("Collector voltage: ", np.array(analysis[n.n3])[0])
     print("base voltage: ", np.array(analysis[n.n2])[0])
 
 def do_ac_analysis():
     circuit, n = simple_bjt_amp()
-    simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.ac(start_frequency=10, stop_frequency=1e6, number_of_points=100, variation='dec')
+    simulator = Simulator.factory()
+    simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+    analysis = simulation.ac(start_frequency=10, stop_frequency=1e6, number_of_points=100, variation='dec')
     gain = np.array(analysis[n.n5])
     figure = plt.figure(1, (20, 10))
     axe = plt.subplot(211)
@@ -115,8 +117,9 @@ def do_ac_analysis():
 def do_pz_analysis():
     circuit, n = simple_bjt_amp()
     com = 0
-    simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.polezero(n.n4, com, n.n5, com, 'vol', 'pz')
+    simulator = Simulator.factory()
+    simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+    analysis = simulation.polezero(n.n4, com, n.n5, com, 'vol', 'pz')
     print("Poles")
     for n in analysis.nodes:
         if not n.startswith('pole'):
@@ -133,16 +136,18 @@ def do_pz_analysis():
 def do_noise_analysis():
     circuit, n = simple_bjt_amp()
     com = 0
-    simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.noise(output_node=n.n5, ref_node=com, src='Vin', variation='dec', points=10, start_frequency=100, stop_frequency=1e5, points_per_summary=1)
+    simulator = Simulator.factory()
+    simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+    analysis = simulation.noise(output_node=n.n5, ref_node=com, src='Vin', variation='dec', points=10, start_frequency=100, stop_frequency=1e5, points_per_summary=1)
     print("Total noise (Vrms) at circuit output:", np.array(analysis.nodes['onoise_total'])[0])
     print("Total noise (Vrms) as if at circuit input:", np.array(analysis.nodes['inoise_total'])[0])
 
 def do_distortion_analysis(f2overf1):
     circuit, n = simple_bjt_amp()
     com = 0
-    simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.distortion(variation='dec', points=10, start_frequency=100, stop_frequency=1e4, f2overf1=f2overf1)
+    simulator = Simulator.factory()
+    simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+    analysis = simulation.distortion(variation='dec', points=10, start_frequency=100, stop_frequency=1e4, f2overf1=f2overf1)
     output = np.array(analysis[n.n5])
     analysis_ac = simulator.ac(start_frequency=100, stop_frequency=1e4, number_of_points=10, variation='dec')
     gain = np.array(analysis_ac[n.n5])

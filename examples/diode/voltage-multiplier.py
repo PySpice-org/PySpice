@@ -13,9 +13,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Doc.ExampleTools import find_libraries
-from PySpice.Probe.Plot import plot
-from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Spice.Netlist import Circuit
+from PySpice import SpiceLibrary, Circuit, Simulator, plot
 from PySpice.Unit import *
 
 ####################################################################################################
@@ -42,8 +40,9 @@ for i in range(multiplier):
     circuit.X(i, '1N4148', midlle_node, bottom_node)
 circuit.R(1, multiplier, multiplier+1, 1@u_MΩ)
 
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=source.period/200, end_time=source.period*20)
+simulator = Simulator.factory()
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+analysis = simulation.transient(step_time=source.period/200, end_time=source.period*20)
 
 ####################################################################################################
 

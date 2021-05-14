@@ -17,8 +17,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Doc.ExampleTools import find_libraries
-from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Spice.Netlist import Circuit
+from PySpice import SpiceLibrary, Circuit, Simulator
 from PySpice.Spice.Parser import SpiceParser
 from PySpice.Unit import *
 

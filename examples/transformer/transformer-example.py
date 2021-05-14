@@ -19,8 +19,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Probe.Plot import plot
-from PySpice.Spice.Netlist import Circuit
+from PySpice import Circuit, Simulator, plot
 from PySpice.Unit import *
 
 ####################################################################################################
@@ -38,8 +37,9 @@ circuit.subcircuit(Transformer(turn_ratio=10))
 circuit.X('transformer', 'Transformer', 'input', circuit.gnd, 'output', circuit.gnd)
 circuit.R('load', 'output', circuit.gnd, 1@u_kΩ)
 
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*3)
+simulator = Simulator.factory()
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+analysis = simulation.transient(step_time=ac_line.period/200, end_time=ac_line.period*3)
 
 figure, ax = plt.subplots(figsize=(20, 10))
 ax.plot(analysis.input)

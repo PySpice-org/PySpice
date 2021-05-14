@@ -17,7 +17,7 @@
 #   parameter value out of range or the wrong type
 #
 # Traceback (most recent call last):
-#     analysis = simulator.transient(step_time=period/200, end_time=period*2)
+#     analysis = simulation.transient(step_time=period/200, end_time=period*2)
 #   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Shared.py", line 1145, in load_circuit
 #     raise NgSpiceCircuitError('')
 
@@ -34,8 +34,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Probe.Plot import plot
-from PySpice.Spice.Netlist import Circuit
+from PySpice import Circuit, Simulator, plot
 from PySpice.Spice.NgSpice.Shared import NgSpiceShared
 from PySpice.Unit import *
 
@@ -77,10 +76,11 @@ circuit.R(2, 'output', circuit.gnd, 1@u_kΩ)
 amplitude = 10@u_V
 frequency = 50@u_Hz
 ngspice_shared = MyNgSpiceShared(amplitude=amplitude, frequency=frequency, send_data=False)
-simulator = circuit.simulator(temperature=25, nominal_temperature=25,
-                              simulator='ngspice-shared', ngspice_shared=ngspice_shared)
+simulator = Simulator.factory(simulator='ngspice-shared', ngspice_shared=ngspice_shared)
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+
 period = float(frequency.period)
-analysis = simulator.transient(step_time=period/200, end_time=period*2)
+analysis = simulation.transient(step_time=period/200, end_time=period*2)
 
 ####################################################################################################
 

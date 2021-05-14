@@ -16,9 +16,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Doc.ExampleTools import find_libraries
-from PySpice.Probe.Plot import plot
-from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Spice.Netlist import Circuit
+from PySpice import SpiceLibrary, Circuit, Simulator, plot
 from PySpice.Unit import *
 
 ####################################################################################################
@@ -47,8 +45,9 @@ circuit.MOSFET(1, 'vdd', 'gatenode', circuit.gnd, circuit.gnd, model='ptm65nm_nm
 
 #r# We plot the characteristics :math:`Id = f(Vgs)` using a DC sweep simulation.
 
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.dc(Vgate=slice(0, Vdd, .01))
+simulator = Simulator.factory()
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+analysis = simulation.dc(Vgate=slice(0, Vdd, .01))
 
 figure, ax = plt.subplots(figsize=(20, 10))
 

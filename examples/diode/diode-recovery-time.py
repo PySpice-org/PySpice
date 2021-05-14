@@ -15,9 +15,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Doc.ExampleTools import find_libraries
-from PySpice.Probe.Plot import plot
-from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Spice.Netlist import Circuit
+from PySpice import SpiceLibrary, Circuit, Simulator, plot
 from PySpice.Unit import *
 
 ####################################################################################################
@@ -53,11 +51,13 @@ source = circuit.V('input', 'in', circuit.gnd, dc_offset)
 circuit.R(1, 'in', 'out', 1@u_kΩ)
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
+simulator = Simulator.factory()
+
 quiescent_points = []
 for voltage in (dc_offset - ac_amplitude, dc_offset, dc_offset + ac_amplitude):
     source.dc_value = voltage
-    simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-    analysis = simulator.operating_point()
+    simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+    analysis = simulation.operating_point()
     # Fixme: handle unit
     quiescent_voltage = float(analysis.out)
     quiescent_current = - float(analysis.Vinput)
@@ -93,8 +93,8 @@ circuit.SinusoidalVoltageSource('input', 'in', circuit.gnd,
 R = circuit.R(1, 'in', 'out', 1@u_kΩ)
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.ac(start_frequency=10@u_kHz, stop_frequency=1@u_GHz, number_of_points=10,  variation='dec')
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+analysis = simulation.ac(start_frequency=10@u_kHz, stop_frequency=1@u_GHz, number_of_points=10,  variation='dec')
 
 #r# Let plot the voltage across the diode and the dynamic resistance as a function of the frequency.
 
@@ -134,8 +134,8 @@ source = circuit.PulseVoltageSource('input', 'in', circuit.gnd,
 circuit.R(1, 'in', 'out', 1@u_kΩ)
 circuit.D('1', 'out', circuit.gnd, model='BAV21')
 
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=source.period/1e3, end_time=source.period*4)
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+analysis = simulation.transient(step_time=source.period/1e3, end_time=source.period*4)
 
 # Fixme: axis, x scale
 # plot(analysis['in'] - dc_offset + quiescent_points[0]['quiescent_voltage'])

@@ -13,8 +13,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Doc.ExampleTools import find_libraries
-from PySpice.Spice.Netlist import Circuit
-from PySpice.Spice.Library import SpiceLibrary
+from PySpice import SpiceLibrary, Circuit, Simulator
 from PySpice.Unit import *
 
 ####################################################################################################
@@ -37,8 +36,9 @@ circuit.R(1, 'in', 'out', 1@u_Ω) # not required for simulation
 # circuit.X('D1', '1N4148', 'out', circuit.gnd)
 circuit.X('DZ1', 'd1n5919brl', 'out', circuit.gnd)
 
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.dc(Vinput=slice(-10, 2, .05)) # 10mV
+simulator = Simulator.factory()
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+analysis = simulation.dc(Vinput=slice(-10, 2, .05)) # 10mV
 
 figure, (ax1, ax2) = plt.subplots(2, figsize=(20, 10))
 

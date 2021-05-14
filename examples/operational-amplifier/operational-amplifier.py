@@ -12,8 +12,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Plot.BodeDiagram import bode_diagram
-from PySpice.Probe.Plot import plot
-from PySpice.Spice.Netlist import Circuit
+from PySpice import Circuit, Simulator, plot
 from PySpice.Unit import *
 
 from OperationalAmplifier import BasicOperationalAmplifier
@@ -30,8 +29,9 @@ circuit.subcircuit(BasicOperationalAmplifier())
 circuit.X('op', 'BasicOperationalAmplifier', 'in', circuit.gnd, 'out')
 circuit.R('load', 'out', circuit.gnd, 470@u_Ω)
 
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.ac(start_frequency=1@u_Hz, stop_frequency=100@u_MHz, number_of_points=5,  variation='dec')
+simulator = Simulator.factory()
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+analysis = simulation.ac(start_frequency=1@u_Hz, stop_frequency=100@u_MHz, number_of_points=5,  variation='dec')
 
 figure, (ax1, ax2) = plt.subplots(2, figsize=(20, 10))
 

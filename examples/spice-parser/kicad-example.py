@@ -33,9 +33,7 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Doc.ExampleTools import find_libraries
-from PySpice.Probe.Plot import plot
-from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Spice.Netlist import SubCircuitFactory
+from PySpice import SpiceLibrary, SubCircuitFactory, Simulator, plot
 from PySpice.Spice.Parser import SpiceParser
 from PySpice.Unit import *
 
@@ -134,8 +132,9 @@ for subcircuit in (PowerIn(), Opamp(), JackIn(), JackOut()):
 # print(str(circuit))
 
 #r# We perform a transient simulation.
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=100@u_us, end_time=3@u_ms)
+simulator = Simulator.factory()
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+analysis = simulation.transient(step_time=100@u_us, end_time=3@u_ms)
 
 figure, ax = plt.subplots(figsize=(20, 10))
 ax.plot(analysis['2']) # JackIn input
