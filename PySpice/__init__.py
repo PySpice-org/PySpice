@@ -18,10 +18,22 @@
 #
 ####################################################################################################
 
+__all__ = [
+    'Circuit',
+    'Simulator',
+    'SpiceLibrary',
+    'plot',
+]
+
 ####################################################################################################
 
-__version__ = '1.6'
+__version__ = '1.4.3'
 GIT_TAG = 'v1.6'
 
 def show_version():
     print('PySpice Version {}'.format(__version__))
+
+from PySpice.Probe.Plot import plot
+from PySpice.Spice.Library import SpiceLibrary
+from PySpice.Spice.Netlist import Circuit
+from PySpice.Spice.Simulator import Simulator
