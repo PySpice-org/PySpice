@@ -46,7 +46,6 @@ class ParameterDescriptor:
     ##############################################
 
     def __init__(self, default=None):
-
         self._default_value = default
         self._attribute_name = None
 
@@ -67,7 +66,6 @@ class ParameterDescriptor:
     ##############################################
 
     def __get__(self, instance, owner=None):
-
         try:
             return getattr(instance, '_' + self._attribute_name)
         except AttributeError:
@@ -86,9 +84,7 @@ class ParameterDescriptor:
     ##############################################
 
     def validate(self, value):
-
         """Validate the parameter's value."""
-
         return value
 
     ##############################################
@@ -99,9 +95,7 @@ class ParameterDescriptor:
     ##############################################
 
     def to_str(self, instance):
-
         """Convert the parameter's value to SPICE syntax."""
-
         raise NotImplementedError
 
     ##############################################
@@ -128,9 +122,7 @@ class PositionalElementParameter(ParameterDescriptor):
     ##############################################
 
     def __init__(self, position, default=None, key_parameter=False):
-
         super().__init__(default)
-
         self._position = position
         self._key_parameter = key_parameter
 
@@ -185,14 +177,12 @@ class FloatPositionalParameter(PositionalElementParameter):
     ##############################################
 
     def __init__(self, position, unit=None, **kwargs):
-
         super().__init__(position, **kwargs)
         self._unit = unit
 
     ##############################################
 
     def validate(self, value):
-
         if isinstance(value, Unit):
             return value
         else:
@@ -212,7 +202,6 @@ class InitialStatePositionalParameter(PositionalElementParameter):
     ##############################################
 
     def to_str(self, instance):
-
         if self.__get__(instance):
             return 'on'
         else:
@@ -245,9 +234,7 @@ class FlagParameter(ParameterDescriptor):
     ##############################################
 
     def __init__(self, spice_name, default=False):
-
         super().__init__(default)
-
         self.spice_name = spice_name
 
     ##############################################
@@ -258,7 +245,6 @@ class FlagParameter(ParameterDescriptor):
     ##############################################
 
     def to_str(self, instance):
-
         if self.nonzero(instance):
             return 'off'
         else:
@@ -280,9 +266,7 @@ class KeyValueParameter(ParameterDescriptor):
     ##############################################
 
     def __init__(self, spice_name, default=None):
-
         super().__init__(default)
-
         self.spice_name = spice_name
 
     ##############################################
@@ -293,7 +277,6 @@ class KeyValueParameter(ParameterDescriptor):
     ##############################################
 
     def to_str(self, instance):
-
         if bool(self):
             return '{}={}'.format(self.spice_name, self.str_value(instance))
         else:
@@ -313,7 +296,6 @@ class BoolKeyParameter(KeyValueParameter):
     ##############################################
 
     def str_value(self, instance):
-
         if self.nonzero(instance):
             return '1'
         else:
@@ -339,7 +321,6 @@ class FloatKeyParameter(KeyValueParameter):
     ##############################################
 
     def __init__(self, spice_name, unit=None, **kwargs):
-
         super().__init__(spice_name, **kwargs)
         self._unit = unit
 
@@ -357,7 +338,6 @@ class FloatPairKeyParameter(KeyValueParameter):
     ##############################################
 
     def validate(self, pair):
-
         if len(pair) == 2:
             return (float(pair[0]), float(pair[1]))
         else:
@@ -377,7 +357,6 @@ class FloatTripletKeyParameter(FloatPairKeyParameter):
     ##############################################
 
     def validate(self, uplet):
-
         if len(uplet) == 3:
             return (float(uplet[0]), float(uplet[1]), float(uplet[2]))
         else:
