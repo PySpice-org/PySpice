@@ -60,6 +60,14 @@ jobs:
     - name: Run Unit-Tests
       run: pytest unit-test
 
+    - name: Test on Linux
+      if: matrix.os == 'ubuntu-latest'
+      # https://packages.ubuntu.com/search?keywords=ngspice
+      run: |
+        sudo apt-get install ngspice ngspice-dev libngspice0 libngspice0-dev
+        pyspice-post-installation --check-install
+        invoke test.run-examples
+
     - name: Test on Windows
       if: matrix.os == 'windows-latest'
       run: |
