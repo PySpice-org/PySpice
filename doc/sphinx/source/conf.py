@@ -142,6 +142,8 @@ pygments_style = 'sphinx'
 # Options for Autodoc
 #
 
+# See Pyterate/ApiRstFactory/templates/macros.jinja2
+
 # Show both class-level docstring and __init__ docstring in class documentation
 autoclass_content = 'both'
 autodoc_default_flags = [
@@ -151,7 +153,9 @@ autodoc_default_flags = [
     # 'special-members',
     # 'inherited-members',
     # 'show-inheritance',
-    ]
+    # 'ignore-module-all',
+    # 'exclude-members',
+]
 
 ####################################################################################################
 #
