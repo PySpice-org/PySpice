@@ -27,7 +27,7 @@ import logging
 
 ####################################################################################################
 
-from ..Simulation import Simulator
+from ..Simulator import Simulator
 from .Server import XyceServer
 from .Simulation import XyceSimulation
 
