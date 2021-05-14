@@ -43,7 +43,7 @@ def bode_diagram_gain(axe, frequency, gain, **kwargs):
 
 def bode_diagram_phase(axe, frequency, phase, **kwargs):
 
-    axe.semilogx(frequency, phase, basex=10, **kwargs)
+    axe.semilogx(frequency, phase, base=10, **kwargs)
     axe.set_ylim(-math.pi, math.pi)
     axe.grid(True)
     axe.grid(True, which='minor')
