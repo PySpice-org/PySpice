@@ -22,7 +22,7 @@ V1.6.0 (development release)
 
 * **New Simulation API**
 
-  .. code-block::
+  .. code-block:: python
 
        # build a circuit
 
@@ -50,6 +50,7 @@ V1.6.0 (development release)
   using the netlist export feature of KiCad.  And thus leverage the
   writing of fastidious cicruit.
 * The most common PySpice parts can be imported from :code:`from PySpice import ...`
+* Logging setup code cleanup
 
 V1.5.0 (production release) 2021-05-xx
 --------------------------------------

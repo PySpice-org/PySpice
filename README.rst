@@ -43,6 +43,10 @@
 .. |Tavis CI master| image:: https://travis-ci.com/FabriceSalvaire/PySpice.svg?branch=master
    :target: https://travis-ci.com/FabriceSalvaire/PySpice
    :alt: PySpice build status @travis-ci.org
+
+.. |Pyspice Test Workflow| image:: https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml/badge.svg?branch=devel
+    :target: https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml
+    :alt: Pyspice Test
 .. -*- Mode: rst -*-
 
 .. _CFFI: http://cffi.readthedocs.org/en/latest/
@@ -89,14 +93,18 @@
 
 |Tavis CI master|
 
+|Pyspice Test Workflow|
+
 **Quick Links**
 
-* `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
 * `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
-* `Travis CI <https://travis-ci.com/github/FabriceSalvaire/PySpice>`_
+* `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
+* `Travis CI <https://travis-ci.com/github/FabriceSalvaire/PySpice>`_ but need free credits...
+
 * `pyspice@conda-forge <https://github.com/conda-forge/pyspice-feedstock>`_
 * `conda-forge/pyspice <https://anaconda.org/conda-forge/pyspice>`_
 * `ngspice@conda-forge <https://github.com/conda-forge/ngspice-feedstock>`_
+
 * `Ngspice <http://ngspice.sourceforge.net>`_
 * `Ngspice Bug Tracker <https://sourceforge.net/p/ngspice/bugs>`_
 * `Xyce of Sandia National Laboratories <https://xyce.sandia.gov>`_
@@ -189,7 +197,7 @@ V1.6.0 (development release)
 
 * **New Simulation API**
 
-  .. code-block::
+  .. code-block:: python
 
        # build a circuit
 
@@ -217,6 +225,7 @@ V1.6.0 (development release)
   using the netlist export feature of KiCad.  And thus leverage the
   writing of fastidious cicruit.
 * The most common PySpice parts can be imported from :code:`from PySpice import ...`
+* Logging setup code cleanup
 
 V1.5.0 (production release) 2021-05-xx
 --------------------------------------

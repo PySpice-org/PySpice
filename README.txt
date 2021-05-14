@@ -17,14 +17,18 @@
 
 |Tavis CI master|
 
+|Pyspice Test Workflow|
+
 **Quick Links**
 
-* `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
 * `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
-* `Travis CI <https://travis-ci.com/github/FabriceSalvaire/PySpice>`_
+* `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
+* `Travis CI <https://travis-ci.com/github/FabriceSalvaire/PySpice>`_ but need free credits...
+
 * `pyspice@conda-forge <https://github.com/conda-forge/pyspice-feedstock>`_
 * `conda-forge/pyspice <https://anaconda.org/conda-forge/pyspice>`_
 * `ngspice@conda-forge <https://github.com/conda-forge/ngspice-feedstock>`_
+
 * `Ngspice <http://ngspice.sourceforge.net>`_
 * `Ngspice Bug Tracker <https://sourceforge.net/p/ngspice/bugs>`_
 * `Xyce of Sandia National Laboratories <https://xyce.sandia.gov>`_

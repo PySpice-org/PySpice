@@ -41,3 +41,7 @@
 .. |Tavis CI master| image:: https://travis-ci.com/FabriceSalvaire/PySpice.svg?branch=master
    :target: https://travis-ci.com/FabriceSalvaire/PySpice
    :alt: PySpice build status @travis-ci.org
+
+.. |Pyspice Test Workflow| image:: https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml/badge.svg?branch=devel
+    :target: https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml
+    :alt: Pyspice Test

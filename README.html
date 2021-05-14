@@ -608,11 +608,12 @@ a { text-decoration: none; }
 <p><a class="reference external" href="https://anaconda.org/conda-forge/pyspice/badges/version.svg"><img alt="Anaconda last version" src="https://anaconda.org/conda-forge/pyspice/badges/version.svg" /></a>
 <a class="reference external" href="https://anaconda.org/conda-forge/pyspice/badges/downloads.svg"><img alt="Anaconda donwloads" src="https://anaconda.org/conda-forge/pyspice/badges/downloads.svg" /></a></p>
 <p><a class="reference external" href="https://travis-ci.com/FabriceSalvaire/PySpice"><img alt="PySpice build status &#64;travis-ci.org" src="https://travis-ci.com/FabriceSalvaire/PySpice.svg?branch=master" /></a></p>
+<p><a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml"><img alt="Pyspice Test" src="https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml/badge.svg?branch=devel" /></a></p>
 <p><strong>Quick Links</strong></p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/tree/master">Production Branch</a></p></li>
 <li><p><a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/tree/devel">Devel Branch</a></p></li>
-<li><p><a class="reference external" href="https://travis-ci.com/github/FabriceSalvaire/PySpice">Travis CI</a></p></li>
+<li><p><a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/tree/master">Production Branch</a></p></li>
+<li><p><a class="reference external" href="https://travis-ci.com/github/FabriceSalvaire/PySpice">Travis CI</a> but need free credits...</p></li>
 <li><p><a class="reference external" href="https://github.com/conda-forge/pyspice-feedstock">pyspice&#64;conda-forge</a></p></li>
 <li><p><a class="reference external" href="https://anaconda.org/conda-forge/pyspice">conda-forge/pyspice</a></p></li>
 <li><p><a class="reference external" href="https://github.com/conda-forge/ngspice-feedstock">ngspice&#64;conda-forge</a></p></li>
@@ -694,20 +695,20 @@ code to know how to map the pins, etc.</p></li>
 <h2>V1.6.0 (development release)</h2>
 <ul>
 <li><p><strong>New Simulation API</strong></p>
-<pre class="code literal-block"><code># build a circuit
+<pre class="code python literal-block"><code><span class="comment single"># build a circuit</span>
 
-# instantiate a simulator
-simulator = Simulator.factory()
-# or
-simulator = Simulator.factory(simulator='ngspice')
-# same as
-simulator = Simulator.factory(simulator='ngspice-shared')
+<span class="comment single"># instantiate a simulator</span>
+<span class="name">simulator</span> <span class="operator">=</span> <span class="name">Simulator</span><span class="operator">.</span><span class="name">factory</span><span class="punctuation">()</span>
+<span class="comment single"># or</span>
+<span class="name">simulator</span> <span class="operator">=</span> <span class="name">Simulator</span><span class="operator">.</span><span class="name">factory</span><span class="punctuation">(</span><span class="name">simulator</span><span class="operator">=</span><span class="literal string single">'ngspice'</span><span class="punctuation">)</span>
+<span class="comment single"># same as</span>
+<span class="name">simulator</span> <span class="operator">=</span> <span class="name">Simulator</span><span class="operator">.</span><span class="name">factory</span><span class="punctuation">(</span><span class="name">simulator</span><span class="operator">=</span><span class="literal string single">'ngspice-shared'</span><span class="punctuation">)</span>
 
-# create a simulation, it corresponds to the Spice code part with lines starting with &quot;.someting ...&quot;
-simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
-# define a analysis and run it
-analysis = simulation.transient(step_time=ac_line.period/200, end_time=ac_line.period*50, log_desk=True)
-# analysis is now Pickable</code></pre>
+<span class="comment single"># create a simulation, it corresponds to the Spice code part with lines starting with &quot;.someting ...&quot;</span>
+<span class="name">simulation</span> <span class="operator">=</span> <span class="name">simulator</span><span class="operator">.</span><span class="name">simulation</span><span class="punctuation">(</span><span class="name">circuit</span><span class="punctuation">,</span> <span class="name">temperature</span><span class="operator">=</span><span class="literal number integer">25</span><span class="punctuation">,</span> <span class="name">nominal_temperature</span><span class="operator">=</span><span class="literal number integer">25</span><span class="punctuation">)</span>
+<span class="comment single"># define a analysis and run it</span>
+<span class="name">analysis</span> <span class="operator">=</span> <span class="name">simulation</span><span class="operator">.</span><span class="name">transient</span><span class="punctuation">(</span><span class="name">step_time</span><span class="operator">=</span><span class="name">ac_line</span><span class="operator">.</span><span class="name">period</span><span class="operator">/</span><span class="literal number integer">200</span><span class="punctuation">,</span> <span class="name">end_time</span><span class="operator">=</span><span class="name">ac_line</span><span class="operator">.</span><span class="name">period</span><span class="operator">*</span><span class="literal number integer">50</span><span class="punctuation">,</span> <span class="name">log_desk</span><span class="operator">=</span><span class="keyword constant">True</span><span class="punctuation">)</span>
+<span class="comment single"># analysis is now Pickable</span></code></pre>
 </li>
 <li><p>Simulation output is now Pickable</p></li>
 <li><p><strong>KiCadTools</strong> a proof of concept module to read KiCad 6
@@ -719,6 +720,7 @@ circuit with the help of KiCad and then generate the netlist without
 using the netlist export feature of KiCad.  And thus leverage the
 writing of fastidious cicruit.</p></li>
 <li><p>The most common PySpice parts can be imported from <code>from PySpice import ...</code></p></li>
+<li><p>Logging setup code cleanup</p></li>
 </ul>
 </div>
 <div class="section" id="v1-5-0-production-release-2021-05-xx">
