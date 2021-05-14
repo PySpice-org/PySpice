@@ -61,9 +61,12 @@ def clean_api(ctx):
 
 @task(_update_git_sha, _clean_flycheck, clean_api)
 def make_api(ctx):
-    print('\nGenerate RST API files')
+    print()
+    print('Generate RST API files')
     ctx.run('pyterate-rst-api {0.Package}'.format(ctx))
     run_sphinx(ctx)
+    print('')
+    print('<<< Check API contains undocumented >>>')
 
 ####################################################################################################
 
@@ -101,7 +104,8 @@ def make_examples(ctx, clean=False, no_html=False, force=False):
 
 @task
 def run_sphinx(ctx):
-    print('\nRun Sphinx')
+    print()
+    print('Run Sphinx')
     working_path = SPHINX_PATH
     # subprocess.run(('make-html'), cwd=working_path)
     # --clean
