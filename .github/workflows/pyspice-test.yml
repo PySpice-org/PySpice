@@ -62,8 +62,8 @@ jobs:
 
     - name: Test on Windows
       if: matrix.os == 'windows-latest'
-        run: |
-          pyspice-post-installation --install-ngspice-dll
-          pyspice-post-installation --check-install
-          export PYTHONIOENCODING="utf_8"
-          invoke test.run-examples
+      run: |
+        pyspice-post-installation --install-ngspice-dll
+        pyspice-post-installation --check-install
+        export PYTHONIOENCODING="utf_8"
+        invoke test.run-examples
