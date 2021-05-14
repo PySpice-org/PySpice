@@ -176,7 +176,6 @@ class SubCircuitElement(NPinElement):
     ##############################################
 
     def copy_to(self, netlist):
-
         element = self.__class__(netlist, self._name, self.subcircuit_name, *self.node_names, **self.parameters)
         # Element.copy_to(self, element)
         return element
@@ -185,11 +184,9 @@ class SubCircuitElement(NPinElement):
 
     def format_spice_parameters(self):
         """ Return the formatted list of parameters. """
-
         spice_parameters = super().format_spice_parameters()
         if self.parameters:
             spice_parameters += ' ' + join_dict(self.parameters)
-
         return spice_parameters
 
 ####################################################################################################
@@ -667,9 +664,7 @@ class CoupledInductor(AnyPinElement):
  ##############################################
 
     def __init__(self, name, *args, **kwargs):
-
         super().__init__(name, *args, **kwargs)
-
         self._inductors = []
         for inductor in (self.inductor1, self.inductor2):
             try:
@@ -1021,16 +1016,13 @@ class NonLinearVoltageSource(DipoleElement):
     ##############################################
 
     def __init__(self, name, *args, **kwargs):
-
         super().__init__(name, *args, **kwargs)
-
         self.expression = kwargs.get('expression', None)
         self.table = kwargs.get('table', None)
 
     ##############################################
 
     def __str__(self):
-
         spice_element = self.format_node_names()
         # Fixme: expression
         if self.table is not None:
@@ -1508,9 +1500,7 @@ class LosslessTransmissionLine(TwoPortElement):
     ##############################################
 
     def __init__(self, name, *args, **kwargs):
-
         super().__init__(name, *args, **kwargs)
-
         if not (self.has_parameter('time_delay') or
                 (self.has_parameter('frequency') and self.has_parameter('normalized_length'))):
             raise NameError('Either TD or F, NL must be specified')
@@ -1573,7 +1563,6 @@ class CoupledMulticonductorLine(NPinElement):
     ##############################################
 
     def __init__(self, netlist, name, *nodes, **parameters):
-
         super().__init__(netlist, name, nodes, **parameters)
 
 ####################################################################################################
@@ -1687,9 +1676,7 @@ class XSpiceElement(NPinElement):
     ##############################################
 
     def __init__(self, netlist, name, *nodes, **parameters):
-
         # Fixme: ok ???
-
         super().__init__(netlist, name, nodes, **parameters)
 
 ####################################################################################################
@@ -1711,5 +1698,4 @@ class GSSElement(NPinElement):
     ##############################################
 
     def __init__(self):
-
         raise NotImplementedError
