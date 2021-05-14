@@ -106,7 +106,6 @@ class SpiceLibrary:
     ##############################################
 
     def __getitem__(self, name):
-
         if name in self._subcircuits:
             return self._subcircuits[name]
         elif name in self._models:
