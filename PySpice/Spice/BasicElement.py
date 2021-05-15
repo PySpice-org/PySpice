@@ -101,7 +101,14 @@ import logging
 
 from ..Tools.StringTools import str_spice, join_list, join_dict
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
-from .Element import (Element, AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
+from .Element import (
+    AnyPinElement,
+    FixedPinElement,
+    NPinElement,
+    OptionalPin,
+    DipoleElement,
+    TwoPortElement,
+)
 from .ElementParameter import (
     # KeyValueParameter,
     BoolKeyParameter,
@@ -116,21 +123,11 @@ from .ElementParameter import (
     InitialStatePositionalParameter,
     IntKeyParameter,
     ModelPositionalParameter,
-    )
+)
 
 ####################################################################################################
 
 _module_logger = logging.getLogger(__name__)
-
-####################################################################################################
-
-class DipoleElement(FixedPinElement):
-    """This class implements a base class for dipole element."""
-    PINS = ('plus', 'minus')
-
-class TwoPortElement(FixedPinElement):
-    """This class implements a base class for two-port element."""
-    PINS = ('output_plus', 'output_minus', 'input_plus', 'input_minus')
 
 ####################################################################################################
 
@@ -661,7 +658,7 @@ class CoupledInductor(AnyPinElement):
 
     _logger = _module_logger.getChild('CoupledInductor')
 
- ##############################################
+    ##############################################
 
     def __init__(self, name, *args, **kwargs):
         super().__init__(name, *args, **kwargs)

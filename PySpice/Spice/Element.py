@@ -19,7 +19,16 @@
 ####################################################################################################
 
 __all__ = [
+    'AnyPinElement',
+    'DipoleElement',
     'Element',
+    # 'ElementParameterMetaClass',
+    'FixedPinElement',
+    'NPinElement',
+    'OptionalPin',
+    'Pin',
+    'PinDefinition',
+    'TwoPortElement',
 ]
 
 ####################################################################################################
@@ -35,6 +44,7 @@ from .ElementParameter import (
     PositionalElementParameter,
     FlagParameter, KeyValueParameter,
 )
+from .FakeDipole import FakeDipole
 
 ####################################################################################################
 
@@ -58,7 +68,18 @@ class PinDefinition:
 
     def clone(self):
         # Fixme: self.__class__ ???
+        #  unused in code
         return PinDefinition(self._position, self._name, self._alias, self._optional)
+
+    ##############################################
+
+    def __repr__(self):
+        _ = f"Pin #{self._position} {self._name}"
+        if self._alias:
+            _ += f"or {self._alias}"
+        if self._optional:
+            _ += " optional"
+        return _
 
     ##############################################
 
@@ -93,8 +114,9 @@ class OptionalPin:
 
 class Pin(PinDefinition):
 
-    """This class implements a pin of an element. It stores a reference to the element, the name of the
-    pin and the node.
+    """This class implements a pin of an element.
+
+    It stores a reference to the element, the name of the pin and the node.
 
     """
 
@@ -103,13 +125,11 @@ class Pin(PinDefinition):
     ##############################################
 
     def __init__(self, element, pin_definition, node):
-
         super().__init__(pin_definition.position, pin_definition.name, pin_definition.alias)
-
         self._element = element
         self._node = node
-
-        node.connect(self)
+        if self.connected:
+            node.connect(self)
 
     ##############################################
 
@@ -123,31 +143,88 @@ class Pin(PinDefinition):
 
     ##############################################
 
-    def __repr__(self):
-        return f"Pin {self._name} of {self._element.name} on node {self._node}"
+    @property
+    def dangling(self):
+        return self._node is None
+
+    @property
+    def connected(self):
+        return self._node is not None
+
+    # def __bool__(self):
+    #     return self._node is not None
 
     ##############################################
 
+    def __repr__(self):
+        _ = f"Pin {self._name} of {self._element.name}"
+        if self.dangling:
+            return f"{_} is dangling"
+        else:
+            return f"{_} on node {self._node}"
+
+    ##############################################
+
+    def connect(self, node):
+        # Fixme: if not isinstance(node, Node) ???
+        # in ctor netlist.get_node(node, True)
+        if self.connected:
+            self.disconnect()
+        node.connect(self)
+        self._node = node
+
     def disconnect(self):
-        self._node.disconnect(self)
-        self._node = None
+        # used in Element.detach
+        if self.connected:
+            self._node.disconnect(self)
+            self._node = None
+
+    def __iadd__(self, obj):
+        """Connect a node or a pin to the node."""
+        from .Netlist import Node
+        if isinstance(obj, Node):
+            # pin <= node  ===  node <= pin
+            self.connect(obj)
+        elif isinstance(obj, Pin):
+            # pin <=> pin
+            if self.connected:
+                if obj.connected:
+                    # connected <=> connected
+                    self._node.merge(obj._node)
+                else:
+                    # connected <=> dangling
+                    obj.connect(self._node)
+            else:
+                if obj.connected:
+                    # dangling <=> connected
+                    self.connect(obj._node)
+                else:
+                    # dangling <=> dangling
+                    # Create a new node
+                    name = f'{self._element.name}-{self._name}'
+                    node = self._element.netlist.get_node(name, create=True)
+                    self.connect(node)
+                    obj.connect(node)
+        else:
+            raise ValueError(f"Invalid object {type(obj)}")
+        return self
 
     ##############################################
 
     def add_current_probe(self, circuit):
-
         """Add a current probe between the node and the pin.
 
         The ammeter is named *ElementName_PinName*.
 
         """
-
         # Fixme: require a reference to circuit
         # Fixme: add it to a list
-
-        node = self._node
-        self._node = '_'.join((self._element.name, self._name))
-        circuit.V(self._node, node, self._node, '0')
+        if self.connected:
+            node = self._node
+            self._node = '_'.join((self._element.name, self._name))
+            circuit.V(self._node, node, self._node, '0')
+        else:
+            raise NameError("Dangling pin")
 
 ####################################################################################################
 
@@ -212,7 +289,7 @@ class ElementParameterMetaClass(type):
 
         # Implement alias for parameters: spice name -> parameter
         namespace['_spice_to_parameters'] = {
-            parameter.spice_name:parameter
+            parameter.spice_name: parameter
             for parameter in namespace['_optional_parameters'].values()}
         for parameter in namespace['_spice_to_parameters'].values():
             if (parameter.spice_name in namespace
@@ -256,6 +333,7 @@ class ElementParameterMetaClass(type):
                 pin = PinDefinition(position, *pin_definition, optional=optional)
                 pins.append(pin)
             namespace['PINS'] = pins
+            namespace['PIN_NAMES'] = [_.name for _ in pins]
             namespace['__number_of_optional_pins__'] = number_of_optional_pins
         else:
             _module_logger.debug(f"{class_name} don't define a PINS attribute")
@@ -358,7 +436,7 @@ class Element(metaclass=ElementParameterMetaClass):
                   key in self._spice_to_parameters):
                 setattr(self, key, value)
             elif hasattr(self, 'VALID_KWARGS') and key in self.VALID_KWARGS:
-                pass # cf. NonLinearVoltageSource
+                pass   # cf. NonLinearVoltageSource
             else:
                 raise ValueError(f'Unknown argument {key}={value}')
 
@@ -428,6 +506,11 @@ class Element(metaclass=ElementParameterMetaClass):
         if name in self._spice_to_parameters:
             parameter = self._spice_to_parameters[name]
             object.__setattr__(self, parameter.attribute_name, value)
+        elif name in self.PIN_NAMES:
+            # __setattr__ is called just after __iadd__
+            #   pin += node
+            #   means Element.attribute = ( Element.attribute + obj )
+            pass
         else:
             object.__setattr__(self, name, value)
 
@@ -445,6 +528,10 @@ class Element(metaclass=ElementParameterMetaClass):
 
     def format_node_names(self):
         """ Return the formatted list of nodes. """
+        for pin in self.pins:
+            if pin.dangling:
+                # yield: NameError: Pin plus of C2 is dangling
+                raise NameError(f"{pin}")
         return join_list((self.name, join_list(self.nodes)))
 
     ##############################################
@@ -557,3 +644,15 @@ class NPinElement(Element):
         element = self.__class__(netlist, self._name, nodes)
         super().copy_to(element)
         return element
+
+####################################################################################################
+
+class DipoleElement(FixedPinElement, FakeDipole):
+    """This class implements a base class for dipole element."""
+    PINS = ('plus', 'minus')
+
+####################################################################################################
+
+class TwoPortElement(FixedPinElement):
+    """This class implements a base class for two-port element."""
+    PINS = ('output_plus', 'output_minus', 'input_plus', 'input_minus')

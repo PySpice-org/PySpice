@@ -87,7 +87,9 @@ import os
 
 ####################################################################################################
 
-from ..Tools.StringTools import join_lines, join_list
+from PySpice.Tools.StringTools import join_lines, join_list
+from .DeviceModel import DeviceModel
+from .Element import Pin
 
 ####################################################################################################
 
@@ -97,25 +99,30 @@ _module_logger = logging.getLogger(__name__)
 
 class Node:
 
-    """This class implements a node in the circuit. It stores a reference to the pins connected to
-    the node.
+    """This class implements a node in the circuit.
+
+    It stores a reference to the pins connected to the node.
 
     """
 
     _logger = _module_logger.getChild('Node')
 
+    SPICE_GROUND_NUMBER = 0
+    SPICE_GROUND_NAME = str(SPICE_GROUND_NUMBER)
+
+    ##############################################
+
+    @classmethod
+    def _warn_iskeyword(cls, name):
+        if keyword.iskeyword(name):
+            cls._logger.warning(f"Node name '{name}' is a Python keyword")
+
     ##############################################
 
     def __init__(self, netlist, name):
-
-        if keyword.iskeyword(name):
-            self._logger.warning(f"Node name '{name}' is a Python keyword")
-
-    ##############################################
-
+        self._warn_iskeyword(name)
         self._netlist = netlist
         self._name = str(name)
-
         self._pins = set()
 
     ##############################################
@@ -138,33 +145,39 @@ class Node:
 
     @name.setter
     def name(self, value):
-        self._netlist._update_node_name(self, value)   # update nodes dict
+        self._warn_iskeyword(value)
         self._name = value
-
-    @property
-    def pins(self):
-        return self._pins
-
-    ##############################################
+        # update nodes dict
+        self._netlist._update_node_name(self, value)
 
     @property
     def is_ground_node(self):
-        return self._name in ('0', 'gnd')
+        return self._name in (Node.SPICE_GROUND_NAME, 'gnd')
 
     ##############################################
 
     def __bool__(self):
         return bool(self._pins)
 
-    ##############################################
+    def __len__(self):
+        return len(self._pins)
 
     def __iter__(self):
         return iter(self._pins)
 
+    @property
+    def pins(self):
+        # Fixme: iter ?
+        return iter(self._pins)
+
+    def __contains__(self, pin):
+        return pin in self._pins
+
     ##############################################
 
     def connect(self, pin):
-        if pin not in self._pins:
+        self._logger.info(f"Connect {pin} => {self}")
+        if pin not in self:
             self._pins.add(pin)
         else:
             # Fixme: could just warn ???
@@ -173,7 +186,37 @@ class Node:
     ##############################################
 
     def disconnect(self, pin):
+        self._logger.info(f"Disconnect {pin}")
         self._pins.remove(pin)
+
+    ##############################################
+
+    def merge(self, node):
+        self._logger.info(f"Merge {self} and {node}")
+        for pin in list(node.pins):
+            pin.disconnect()
+            pin.connect(self)
+        self._netlist._del_node(node)
+
+    ##############################################
+
+    def __iadd__(self, args):
+        """Connect a node, a pin or a list of them to the node."""
+        if isinstance(args, (Node, Pin)):
+            args = (args,)
+        for obj in args:
+            if isinstance(obj, Node):
+                # node <=> node
+                self.merge(obj)
+            elif isinstance(obj, Pin):
+                # node <= pin
+                if obj.connected:
+                    self.merge(obj.node)
+                else:
+                    obj.connect(self)
+            else:
+                raise ValueError(f"Invalid object {type(obj)}")
+        return self
 
 ####################################################################################################
 
@@ -191,9 +234,10 @@ class Netlist:
 
     def __init__(self):
 
-        self._ground_name = 0
         self._nodes = {}
+        self._ground_name = Node.SPICE_GROUND_NAME   # Fixme: just here
         self._ground_node = self._add_node(self._ground_name)
+        self._ground = None   # Fixme: purpose ???
 
         self._subcircuits = OrderedDict()   # to keep the declaration order
         self._elements = OrderedDict()   # to keep the declaration order
@@ -229,7 +273,13 @@ class Netlist:
 
     @property
     def gnd(self):
-        return self._ground
+        # Fixme: purpose ???
+        # return self._ground
+        return self._ground_node
+
+    # Note:
+    #   circuit.gnd += ...
+    #   call a setter...
 
     @property
     def nodes(self):
@@ -268,11 +318,14 @@ class Netlist:
     def element(self, name):
         return self._elements[name]
 
-    def model(self, name):
-        return self._models[name]
+    # Fixme: clash with
+    #    def model(self, name, modele_type, **parameters):
+    # def model(self, name):
+    #     return self._models[name]
 
+    # Fixme: versus get node ???
     def node(self, name):
-        return self._nodes[name]
+        return self._nodes[str(name)]
 
     ##############################################
 
@@ -301,6 +354,7 @@ class Netlist:
     def _add_node(self, node_name):
         node_name = str(node_name)
         if node_name not in self._nodes:
+            self._logger.info(f'Create node "{node_name}"')
             node = Node(self, node_name)
             self._nodes[node_name] = node
             return node
@@ -309,16 +363,30 @@ class Netlist:
 
     ##############################################
 
+    def _del_node(self, node):
+        del self._nodes[node.name]
+
+    ##############################################
+
     def _update_node_name(self, node, new_name):
+        """Update the node's map for the new node's name"""
+        # Fixme: check node is None ???
         if node.name not in self._nodes:
             # should not happen
-            raise ValueError("Unknown node")
-        del self._nodes[node.name]
-        self._nodes[new_name] = node
+            raise ValueError(f"Unknown node {node}")
+        self._nodes[new_name] = self._nodes.pop(node.name)
 
     ##############################################
 
     def get_node(self, node, create=False):
+        """Return a node. `node` can be a node instance or node name.  A node is created if `create` is set
+        and the node don't yet exist.
+
+        """
+        # Fixme: dangling...
+        if node is None:
+            return None
+        # Fixme: always ok ???
         if isinstance(node, Node):
             return node
         else:
@@ -333,6 +401,7 @@ class Netlist:
     ##############################################
 
     def has_ground_node(self):
+        """Test if ground node is connected"""
         return bool(self._ground_node)
 
     ##############################################
@@ -377,7 +446,7 @@ class Netlist:
         """ Return the formatted list of element and model definitions. """
         # Fixme: order ???
         netlist = self._str_raw_spice()
-        netlist += self._str_subcircuits() # before elements
+        netlist += self._str_subcircuits()   # before elements
         netlist += self._str_elements()
         netlist += self._str_models()
         return netlist
@@ -431,9 +500,7 @@ class SubCircuit(Netlist):
         self._external_nodes = nodes
 
         # Fixme: ok ?
-        self._ground = kwargs.get('ground', 0)
-        if 'ground' in kwargs:
-            del kwargs['ground']
+        self._ground = kwargs.pop('ground', Node.SPICE_GROUND_NUMBER)
 
         self._parameters = kwargs
 
@@ -523,7 +590,7 @@ class Circuit(Netlist):
     ##############################################
 
     def __init__(self, title,
-                 ground=0,   # Fixme: gnd = 0
+                 ground=Node.SPICE_GROUND_NUMBER,   # Fixme: gnd = Node.SPICE_GROUND_NUMBER
                  global_nodes=(),
                  ):
 
