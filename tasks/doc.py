@@ -140,6 +140,10 @@ def publish(ctx):
     from .SECRET_CONFIG import SSH_CONFIG
     import PySpice
     release = PySpice.__version__
+    rc = input(f"Release is {release}: [Y/N]")
+    if rc.lower() != 'y':
+        return
+    print('rsync...')
     version = '.'.join(release.split('.')[:2])
     command_template = (
         'rsync'
