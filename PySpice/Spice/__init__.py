@@ -18,6 +18,8 @@
 #
 ####################################################################################################
 
+__all__ = []
+
 ####################################################################################################
 
 import logging
@@ -34,44 +36,50 @@ _module_logger = logging.getLogger(__name__)
 ####################################################################################################
 
 def _get_elements(module):
-    element_classes = []
-    for item  in module.__dict__.values():
-        if (type(item) is ElementParameterMetaClass
-            and item.PREFIX is not None
-           ):
-            element_classes.append(item)
-    return element_classes
+    return [
+        _
+        for _ in module.__dict__.values()
+        if type(_) is ElementParameterMetaClass and _.PREFIX is not None
+    ]
 
 ####################################################################################################
-#
-# Add a method to create elements to the Netlist class
-#
 
-spice_elements = _get_elements(BasicElement)
-high_level_elements = _get_elements(HighLevelElement)
+def _init():
+    """Add a method to create elements to the Netlist class.
 
-for element_class in spice_elements + high_level_elements:
+    .. code-block::
 
-    def _make_function(element_class):
-        def function(self, *args, **kwargs):
-            return element_class(self, *args, **kwargs)
-        # Preserve docstrings for element shortcuts
-        # Fixme: But Sphinx redumps it...
-        function.__doc__ = element_class.__doc__
-        return function
+        circuit.R(*args, **kwargs)
+        # =>
+        R(circuit, *args, **kwargs)
 
-    func = _make_function(element_class)
+    """
 
-    def _set(name):
-        # _module_logger.debug("Add device shortcut {} for class {}".format(name, element_class))
-        setattr(Netlist, name, func)
+    spice_elements = _get_elements(BasicElement)
+    high_level_elements = _get_elements(HighLevelElement)
 
-    _set(element_class.__name__)
+    for element_class in spice_elements + high_level_elements:
 
-    if element_class in spice_elements:
-        if hasattr(element_class, 'ALIAS'):
-            _set(element_class.ALIAS)
-        if hasattr(element_class, 'LONG_ALIAS'):
-            _set(element_class.LONG_ALIAS)
+        def make_wrapper(element_class):
+            def function(self, *args, **kwargs):
+                return element_class(self, *args, **kwargs)
+            # Preserve docstrings for element shortcuts
+            # Fixme: But Sphinx redumps it...
+            function.__doc__ = element_class.__doc__
+            function.ELEMENT_CLASS = element_class
+            return function
 
+        wrapper = make_wrapper(element_class)
 
+        def register(name):
+            # _module_logger.debug("Add device shortcut {} for class {}".format(name, element_class))
+            setattr(Netlist, name, wrapper)
+
+        register(element_class.__name__)
+        if element_class in spice_elements:
+            if hasattr(element_class, 'ALIAS'):
+                register(element_class.ALIAS)
+            if hasattr(element_class, 'LONG_ALIAS'):
+                register(element_class.LONG_ALIAS)
+
+_init()
