@@ -24,6 +24,7 @@ Examples of use cases:
 ## Related Projects
 
 * https://github.com/dvc94ch/pykicad — Library for working with KiCAD file formats **supports .kicad_pcb**
+* https://github.com/ckuhlmann/lt2circuitikz — Python (3.5) tool to convert LTspice .asc files into circuiTikz graphics **36 stars**
 
 ## Comprehensive List of KiCad Tools
 
