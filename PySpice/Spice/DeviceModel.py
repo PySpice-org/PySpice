@@ -113,10 +113,10 @@ class DeviceModel:
     def __getattr__(self, name):
         try:
             return self._parameters[name]
-        except KeyError:
+        except KeyError as exception:
             if name.endswith('_'):
                 return self._parameters[name[:-1]]
-            # Fixme: else
+            raise exception
 
     ##############################################
 
