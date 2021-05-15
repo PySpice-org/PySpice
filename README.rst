@@ -184,7 +184,7 @@ V1.6.0 (development release)
   using the netlist export feature of KiCad.  And thus leverage the
   writing of fastidious cicruit.
 
-V1.5.0 (production release) 2021-05-xx
+V1.5.0 (production release) 2021-05-15
 --------------------------------------
 
 * Support Ngspice up to version 34
