@@ -52,7 +52,7 @@ V1.6.0 (development release)
 * The most common PySpice parts can be imported from :code:`from PySpice import ...`
 * Logging setup code cleanup
 
-V1.5.0 (production release) 2021-05-xx
+V1.5.0 (production release) 2021-05-15
 --------------------------------------
 
 * Support Ngspice up to version 34
