@@ -20,7 +20,7 @@
 
 __all__ = [
     'join_dict',
-    'join_lines'
+    'join_lines',
     'join_list',
     'str_spice',
     'str_spice_list',
@@ -45,7 +45,7 @@ def str_spice(obj, unit=True):
     if isinstance(obj, UnitValue):
         if unit:
             return obj.str_spice()
-        else: # Fixme: ok ???
+        else:   # Fixme: ok ???
             return obj.str(spice=False, space=False, unit=False)
     else:
         return str(obj)
@@ -60,7 +60,7 @@ def str_spice_list(*args):
 def join_lines(items, prefix=''):
     return os.linesep.join([prefix + str(item)
                             for item in items
-                            if item is not None]) # Fixme: and item
+                            if item is not None])   # Fixme: and item
 
 ####################################################################################################
 
@@ -88,6 +88,6 @@ def join_list(items):
 
 def join_dict(d):
     # Fixme: remove trailing _ to key ???
-    return ' '.join(["{}={}".format(key, str_spice(value))
+    return ' '.join([f"{key}={str_spice(value)}"
                      for key, value in sorted(d.items())
                      if value is not None])
