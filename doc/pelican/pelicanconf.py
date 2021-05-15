@@ -125,7 +125,9 @@ OUTPUT_SOURCES_EXTENSION = '.text'
 
 # The list of plugins to load. See Plugins.
 PLUGINS = [
-    # 'i18n_subsites',
+    # https://github.com/getpelican/pelican-plugins/blob/master/i18n_subsites/localizing_using_jinja2.rst
+    # required else CRITICAL: 'gettext' is undefined
+    'i18n_subsites',
 ]
 # A list of directories where to look for plugins. See Plugins
 PLUGIN_PATHS = [
@@ -792,8 +794,10 @@ PYSPICE_FORUM = 'https://pyspice.discourse.group'
 PYSPICE_BUGTRACKER = GITHUB_URL + '/issues'
 
 RELEASES_URL = '/releases'
-LAST_RELEASE = 'v1.4'
+DEV_RELEASE = 'v1.6'
+LAST_RELEASE = 'v1.5'
 OLD_RELEASES = [
+    'v1.4',
     'v1.3',
     'v1.2',
 ]

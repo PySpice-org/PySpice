@@ -61,9 +61,10 @@ def clean(ctx):
 ####################################################################################################
 
 @task
-def build(ctx):
+def build(ctx, debug=False):
     """Build local version of site"""
-    ctx.run('pelican -s {settings_base}'.format(**CONFIG))
+    debug = '-D' if debug else ''
+    ctx.run('pelican {debug} -s {settings_base}'.format(**CONFIG, debug=debug))
 
 ####################################################################################################
 
