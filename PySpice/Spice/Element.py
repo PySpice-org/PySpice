@@ -124,7 +124,7 @@ class Pin(PinDefinition):
     ##############################################
 
     def __repr__(self):
-        return "Pin {} of {} on node {}".format(self._name, self._element.name, self._node)
+        return f"Pin {self._name} of {self._element.name} on node {self._node}"
 
     ##############################################
 
@@ -217,7 +217,7 @@ class ElementParameterMetaClass(type):
         for parameter in namespace['_spice_to_parameters'].values():
             if (parameter.spice_name in namespace
                 and parameter.spice_name != parameter.attribute_name):
-                _module_logger.error("Spice parameter '{}' clash with namespace".format(parameter.spice_name))
+                _module_logger.error(f"Spice parameter '{parameter.spice_name}' clash with namespace")
 
         # Initialise pins
 
@@ -249,7 +249,7 @@ class ElementParameterMetaClass(type):
                 for name in pin_definition:
                     # Check for name clash
                     if name in namespace:
-                        raise NameError("Pin {} of element {} clashes with another attribute".format(name, class_name))
+                        raise NameError(f"Pin {name} of element {class_name} clashes with another attribute")
                     # Add a pin getter in element class
                     namespace[name] = property(pin_getter)
                 # Add pin
@@ -258,7 +258,7 @@ class ElementParameterMetaClass(type):
             namespace['PINS'] = pins
             namespace['__number_of_optional_pins__'] = number_of_optional_pins
         else:
-            _module_logger.debug("{} don't define a PINS attribute".format(class_name))
+            _module_logger.debug(f"{class_name} don't define a PINS attribute")
 
         return type.__new__(meta_cls, class_name, base_classes, namespace)
 
@@ -360,7 +360,7 @@ class Element(metaclass=ElementParameterMetaClass):
             elif hasattr(self, 'VALID_KWARGS') and key in self.VALID_KWARGS:
                 pass # cf. NonLinearVoltageSource
             else:
-                raise ValueError('Unknown argument {}={}'.format(key, value))
+                raise ValueError(f'Unknown argument {key}={value}')
 
         self._pins = ()
         netlist._add_element(self)
@@ -506,7 +506,7 @@ class FixedPinElement(Element):
             if isinstance(expected_number_of_pins, slice):
                 expected_number_of_pins = expected_number_of_pins.start
             if number_of_args < expected_number_of_pins:
-                raise NameError("Incomplete node list for element {}".format(self.name))
+                raise NameError(f"Incomplete node list for element {self.name}")
             else:
                 nodes = args[:expected_number_of_pins]
                 args = args[expected_number_of_pins:]
@@ -522,7 +522,7 @@ class FixedPinElement(Element):
                 elif pin_definition.optional:
                     continue
                 else:
-                    raise NameError("Node '{}' is missing for element {}".format(pin_definition.name, self.name))
+                    raise NameError(f"Node '{pin_definition.name}' is missing for element {self.name}")
                 pin_definition_nodes.append((pin_definition, node))
 
         super().__init__(netlist, name, *args, **kwargs)

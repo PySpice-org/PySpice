@@ -109,7 +109,9 @@ class Node:
     def __init__(self, netlist, name):
 
         if keyword.iskeyword(name):
-            self._logger.warning("Node name '{}' is a Python keyword".format(name))
+            self._logger.warning(f"Node name '{name}' is a Python keyword")
+
+    ##############################################
 
         self._netlist = netlist
         self._name = str(name)
@@ -119,7 +121,7 @@ class Node:
     ##############################################
 
     def __repr__(self):
-        return 'Node {}'.format(self._name)
+        return f'Node {self._name}'
 
     def __str__(self):
         return self._name
@@ -165,7 +167,8 @@ class Node:
         if pin not in self._pins:
             self._pins.add(pin)
         else:
-            raise ValueError("Pin {} is already connected to node {}".format(pin, self))
+            # Fixme: could just warn ???
+            raise ValueError(f"Pin {pin} is already connected to node {self}")
 
     ##############################################
 
@@ -302,7 +305,7 @@ class Netlist:
             self._nodes[node_name] = node
             return node
         else:
-            raise ValueError("Node {} is already defined".format(node_name))
+            raise ValueError(f"Node {node_name} is already defined")
 
     ##############################################
 
@@ -325,7 +328,7 @@ class Netlist:
             elif create:
                 return self._add_node(str_node)
             else:
-                raise KeyError("Node {} doesn't exists".format(node))
+                raise KeyError(f"Node {node} doesn't exists")
 
     ##############################################
 
@@ -339,7 +342,7 @@ class Netlist:
         if element.name not in self._elements:
             self._elements[element.name] = element
         else:
-            raise NameError("Element name {} is already defined".format(element.name))
+            raise NameError(f"Element name {element.name} is already defined")
 
     ##############################################
 
@@ -347,7 +350,7 @@ class Netlist:
         try:
             del self._elements[element.name]
         except KeyError:
-            raise NameError("Cannot remove undefined element {}".format(element))
+            raise NameError(f"Cannot remove undefined element {element}")
 
     ##############################################
 
@@ -357,7 +360,7 @@ class Netlist:
         if model.name not in self._models:
             self._models[model.name] = model
         else:
-            raise NameError("Model name {} is already defined".format(name))
+            raise NameError(f"Model name {name} is already defined")
 
         return model
 
@@ -420,7 +423,7 @@ class SubCircuit(Netlist):
     def __init__(self, name, *nodes, **kwargs):
 
         if len(set(nodes)) != len(nodes):
-            raise ValueError("Duplicated nodes in {}".format(nodes))
+            raise ValueError(f"Duplicated nodes in {nodes}")
 
         super().__init__()
 
@@ -475,14 +478,14 @@ class SubCircuit(Netlist):
             connected_nodes.add(nodes & element.nodes)
         not_connected_nodes = nodes - connected_nodes
         if not_connected_nodes:
-            raise NameError("SubCircuit Nodes {} are not connected".format(not_connected_nodes))
+            raise NameError(f"SubCircuit Nodes {not_connected_nodes} are not connected")
 
     ##############################################
 
     def __str__(self):
         """Return the formatted subcircuit definition."""
         nodes = join_list(self._external_nodes)
-        parameters = join_list(['{}={}'.format(key, value)
+        parameters = join_list(['f{key}={value}'
                                 for key, value in self._parameters.items()])
         netlist = '.subckt ' + join_list((self._name, nodes, parameters)) + os.linesep
         netlist += super().__str__()
@@ -601,7 +604,7 @@ class Circuit(Netlist):
     ##############################################
 
     def _str_title(self):
-        return '.title {}'.format(self.title) + os.linesep
+        return f'.title {self.title}' + os.linesep
 
     ##############################################
 

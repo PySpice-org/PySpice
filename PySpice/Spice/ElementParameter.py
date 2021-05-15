@@ -278,7 +278,8 @@ class KeyValueParameter(ParameterDescriptor):
 
     def to_str(self, instance):
         if bool(self):
-            return '{}={}'.format(self.spice_name, self.str_value(instance))
+            _ = self.str_value(instance)
+            return f'{self.spice_name}={_}'
         else:
             return ''
 

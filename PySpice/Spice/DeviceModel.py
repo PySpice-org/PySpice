@@ -126,4 +126,5 @@ class DeviceModel:
     ##############################################
 
     def __str__(self):
-        return ".model {0._name} {0._model_type} ({1})".format(self, join_dict(self._parameters))
+        parameters = join_dict(self._parameters)
+        return f".model {self._name} {self._model_type} ({parameters})"
