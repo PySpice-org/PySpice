@@ -128,3 +128,33 @@ examples/c-examples/ngspice_cb/ng_shared_test_sl_v/
 examples/c-examples/ngspice_cb/ng_shared_test_v/
 
 Spice64_dll/
+
+# To check
+KiCadTools/kicad-example/ngspice-symbols/fp-info-cache
+KiCadTools/kicad-example/single-sheet/fp-info-cache
+KiCadTools/sexpdata-mainstream/
+__FEDORA_NOTES__.txt
+__GO_FURTHER__.md
+__PROJECT_TO__LOOK__.md
+__SIMULATION_CACHE__.md
+a-test.py
+anaconda-recipe/linux-64
+bsim4v5.out
+doc/notes/
+doc/pelican/NOTES.md
+doc/sphinx/source/__TODO__.md
+doc/sphinx/source/faq-.rst
+examples/.pyterate-cache/
+examples/power-supplies/__NOTES__.md
+examples/report.txt
+foo.cir
+ngspice-34-build/
+ngspice-34-src/
+ngspice-34.tar.gz
+ngspice-34/
+notes.txt
+review.json
+setenv-anaconda.sh
+setenv.sh
+spice-libraries/
+xspice-test.py
