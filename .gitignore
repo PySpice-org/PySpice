@@ -1,17 +1,6 @@
 # -*- mode: Conf -*-
 
 ####################################################################################################
-
-*.stderr
-*.stdout
-*/tex/auto
-*~
-__pycache__
-du.log
-parser.out
-parsetab.py
-
-####################################################################################################
 #
 # Secrets
 #
@@ -22,13 +11,31 @@ tasks/SECRET_CONFIG.py
 
 ####################################################################################################
 
-MANIFEST
+*.stderr
+*.stdout
+*~
 
 ####################################################################################################
+
+du.log
+
+__pycache__
+
+MANIFEST
+
+parser.out
+parsetab.py
+review.json
+yarn-error.log
+yarn.lock
+.yarnclean
+
+*/tex/auto
 
 .cache/
 .pytest_cache/
 .tox/
+
 PySpice.egg-info/
 build/
 dist/
@@ -39,11 +46,10 @@ doc/logo/logo-v2.jpg
 doc/logo/logo-v2.png
 doc/logo/logo.png
 
-doc/pelican/output
-doc/pelican/pelican-plugins
-doc/pelican/pelican-themes
-doc/pelican/theme/.yarnclean
-doc/pelican/theme/node_modules
+doc/pelican/output/
+doc/pelican/pelican-plugins/
+doc/pelican/pelican-themes/
+doc/pelican/theme/node_modules/
 doc/pelican/theme/static/css/base.css
 doc/pelican/theme/static/css/libs/bootstrap/bootstrap-grid.css
 doc/pelican/theme/static/css/libs/bootstrap/bootstrap-reboot.css
@@ -53,12 +59,13 @@ doc/pelican/theme/static/css/libs/fontawesome/fontawesome.css
 doc/pelican/theme/static/css/libs/fontawesome/regular.css
 doc/pelican/theme/static/css/libs/fontawesome/solid.css
 doc/pelican/theme/static/css/libs/fontawesome/v4-shims.css
-doc/pelican/theme/yarn-error.log
-doc/pelican/theme/yarn.lock
 
 doc/sphinx/build/
 doc/sphinx/source/api/
 doc/sphinx/source/examples/
+
+examples/.pyterate-cache/
+examples/report.txt
 
 ####################################################################################################
 
@@ -73,50 +80,8 @@ examples/spice-examples/xyce-test.cir
 examples/spice-examples/xyce-test2.cir
 examples/spice-examples/xyce-test2.csv
 
-####################################################################################################
-
-no-git
-
-PySpice/Spice/notes.txt
-PySpice/Spice/rf.diff
-PySpice/Unit/numpy-notes.txt
-
-__TRASH__/
-
-doc/extern/
-doc/logo/logo-square.png
-doc/sphinx/source/-to-be-removed.txt
-doc/sphinx/source/_static/stargazer.png
-
-examples/diode/tex/auto/
-examples/libraries/2N2907A.SP3.TXT
-examples/libraries/2N6035.SP3
-examples/libraries/2N6038.SP3
-examples/libraries/Infineon-SimulationModel_OptiMOS_PowerMOSFET_PSpice_20V_Complementary-SM-v01_00-EN.zip
-examples/libraries/Infineon-SimulationModel_OptiMOS_PowerMOSFET_PSpice_20V_N-Channel-SM-v01_00-EN.zip
-examples/libraries/Infineon-SimulationModel_OptiMOS_PowerMOSFET_PSpice_20V_P-Channel-SM-v01_00-EN.zip
-examples/libraries/S_AFBJT*
-examples/libraries/S_bjtmir.lib
-examples/power-supplies/notes/
-examples/power-supplies/references/
-examples/spice-parser/kicad-pyspice-example/kicad-pyspice-example.bak
-
-issues/Tubemods/
-issues/internal-parameters/
-issues/multi-shared.py
-issues/nazir/
-issues/warning-example/
-
 examples/c-examples/ngspice-shared/log
 examples/c-examples/ngspice-shared/sharedspice.h
-
-resources
-
-unit-test/test.py
-
-anaconda-recipe/conda-bld
-doc/pelican/BUGS.md
-
 examples/c-examples/ngspice_cb/ng_shared_test/ng_shared_test.cbp
 examples/c-examples/ngspice_cb/ng_shared_test/ng_shared_test.depend
 examples/c-examples/ngspice_cb/ng_shared_test/ng_shared_test.layout
@@ -127,34 +92,71 @@ examples/c-examples/ngspice_cb/ng_shared_test_sl/ng_shared_test_sl.layout
 examples/c-examples/ngspice_cb/ng_shared_test_sl_v/
 examples/c-examples/ngspice_cb/ng_shared_test_v/
 
-Spice64_dll/
+examples/diode/tex/auto/
 
-# To check
+examples/libraries/2N2907A.SP3.TXT
+examples/libraries/2N6035.SP3
+examples/libraries/2N6038.SP3
+examples/libraries/Infineon-SimulationModel_OptiMOS_PowerMOSFET_PSpice_20V_Complementary-SM-v01_00-EN.zip
+examples/libraries/Infineon-SimulationModel_OptiMOS_PowerMOSFET_PSpice_20V_N-Channel-SM-v01_00-EN.zip
+examples/libraries/Infineon-SimulationModel_OptiMOS_PowerMOSFET_PSpice_20V_P-Channel-SM-v01_00-EN.zip
+examples/libraries/S_AFBJT*
+examples/libraries/S_bjtmir.lib
+
+examples/power-supplies/notes/
+examples/power-supplies/references/
+examples/power-supplies/__NOTES__.md
+
+examples/spice-parser/kicad-pyspice-example/kicad-pyspice-example.bak
+
+####################################################################################################
+
+Spice64_dll/
+__TRASH__/
+no-git/
+resources
+
+####################################################################################################
+
+PySpice/Unit/numpy-notes.txt
+
+doc/extern/
+doc/logo/logo-square.png
+doc/notes/
+doc/pelican/BUGS.md
+doc/pelican/NOTES.md
+doc/sphinx/source/__TODO__.md
+doc/sphinx/source/_static/stargazer.png
+doc/sphinx/source/faq-.rst
+doc/sphinx/source/faq-tmp.rst
+
+issues/Tubemods/
+issues/internal-parameters/
+issues/multi-shared.py
+issues/nazir/
+issues/warning-example/
+
+unit-test/test.py
+
+anaconda-recipe/conda-bld
+anaconda-recipe/linux-64
+
 KiCadTools/kicad-example/ngspice-symbols/fp-info-cache
 KiCadTools/kicad-example/single-sheet/fp-info-cache
 KiCadTools/sexpdata-mainstream/
-__FEDORA_NOTES__.txt
-__GO_FURTHER__.md
-__PROJECT_TO__LOOK__.md
-__SIMULATION_CACHE__.md
-a-test.py
-anaconda-recipe/linux-64
-bsim4v5.out
-doc/notes/
-doc/pelican/NOTES.md
-doc/sphinx/source/__TODO__.md
-doc/sphinx/source/faq-.rst
-examples/.pyterate-cache/
-examples/power-supplies/__NOTES__.md
-examples/report.txt
-foo.cir
+KiCadTools/tmp.md
+
 ngspice-34-build/
 ngspice-34-src/
 ngspice-34.tar.gz
 ngspice-34/
-notes.txt
-review.json
+
 setenv-anaconda.sh
 setenv.sh
+
+skidl-examples/skidl-notes.py
+
 spice-libraries/
-xspice-test.py
+
+# devel-notes/
+# examples/operational-amplifier/doc/
