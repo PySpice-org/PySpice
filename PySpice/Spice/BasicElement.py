@@ -101,7 +101,7 @@ import logging
 
 from ..Tools.StringTools import str_spice, join_list, join_dict
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
-from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
+from .Element import (Element, AnyPinElement, FixedPinElement, NPinElement, OptionalPin)
 from .ElementParameter import (
     # KeyValueParameter,
     BoolKeyParameter,

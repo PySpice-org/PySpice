@@ -24,7 +24,8 @@ import logging
 
 from . import BasicElement
 from . import HighLevelElement
-from .Netlist import Netlist, ElementParameterMetaClass
+from .Element import ElementParameterMetaClass
+from .Netlist import Netlist
 
 ####################################################################################################
 
@@ -55,6 +56,7 @@ for element_class in spice_elements + high_level_elements:
         def function(self, *args, **kwargs):
             return element_class(self, *args, **kwargs)
         # Preserve docstrings for element shortcuts
+        # Fixme: But Sphinx redumps it...
         function.__doc__ = element_class.__doc__
         return function
 

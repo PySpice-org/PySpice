@@ -36,8 +36,9 @@ import os
 ####################################################################################################
 
 from .BasicElement import SubCircuitElement
+from .Element import ElementParameterMetaClass
 from .ElementParameter import FlagParameter
-from .Netlist import ElementParameterMetaClass, Circuit, SubCircuit
+from .Netlist import Circuit, SubCircuit
 
 ####################################################################################################
 
