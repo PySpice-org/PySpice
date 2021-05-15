@@ -38,7 +38,7 @@ import os
 from .BasicElement import SubCircuitElement
 from .Element import ElementParameterMetaClass
 from .ElementParameter import FlagParameter
-from .Netlist import Circuit, SubCircuit
+from .Netlist import Circuit, SubCircuit, Node
 
 ####################################################################################################
 
@@ -158,9 +158,7 @@ class Statement:
     ##############################################
 
     def __init__(self, line, statement=None):
-
         self._line = line
-
         if statement is not None:
             self._line.lower_case_statement(statement)
 
@@ -172,7 +170,6 @@ class Statement:
     ##############################################
 
     def value_to_python(self, x):
-
         if x:
             if str(x)[0].isdigit():
                 return str(x)
@@ -184,7 +181,6 @@ class Statement:
     ##############################################
 
     def values_to_python(self, values):
-
         return [self.value_to_python(x) for x in values]
 
     ##############################################
@@ -212,7 +208,6 @@ class Title(Statement):
     ##############################################
 
     def __init__(self, line):
-
         super().__init__(line, statement='title')
         self._title = self._line.right_of('.title')
 
@@ -235,7 +230,6 @@ class Lib(Statement):
     ##############################################
 
     def __init__(self, line):
-
         super().__init__(line, statement='lib')
         self._lib = self._line.right_of('.lib')
 
@@ -252,7 +246,6 @@ class Lib(Statement):
     ##############################################
 
     def to_python(self, netlist_name):
-
         return '{}.lib({})'.format(netlist_name, self._lib) + os.linesep
 
 ####################################################################################################
@@ -264,7 +257,6 @@ class Include(Statement):
     ##############################################
 
     def __init__(self, line):
-
         super().__init__(line, statement='include')
         self._include = self._line.right_of('.include').strip('"')
 
@@ -281,7 +273,6 @@ class Include(Statement):
     ##############################################
 
     def to_python(self, netlist_name):
-
         return '{}.include({})'.format(netlist_name, self._include) + os.linesep
 
 ####################################################################################################
@@ -392,8 +383,7 @@ class SubCircuitStatement(Statement):
 
     ##############################################
 
-    def to_python(self, ground=0):
-
+    def to_python(self, ground=Node.SPICE_GROUND_NUMBER):
         subcircuit_name = 'subcircuit_' + self._name
         args = self.values_to_python([subcircuit_name] + self._nodes)
         source_code = ''
@@ -403,7 +393,7 @@ class SubCircuitStatement(Statement):
 
     ##############################################
 
-    def build(self, ground=0):
+    def build(self, ground=Node.SPICE_GROUND_NUMBER):
         subcircuit = SubCircuit(self._name, *self._nodes)
         SpiceParser._build_circuit(subcircuit, self._statements, ground)
         return subcircuit
@@ -519,19 +509,16 @@ class Element(Statement):
     ##############################################
 
     def translate_ground_node(self, ground):
-
         nodes = []
         for node in self._nodes:
             if str(node) == str(ground):
-                node = 0
+                node = Node.SPICE_GROUND_NUMBER
             nodes.append(node)
-
         return nodes
 
     ##############################################
 
-    def to_python(self, netlist_name, ground=0):
-
+    def to_python(self, netlist_name, ground=Node.SPICE_GROUND_NUMBER):
         nodes = self.translate_ground_node(ground)
         args = [self._name]
         if self._prefix != 'X':
@@ -544,8 +531,7 @@ class Element(Statement):
 
     ##############################################
 
-    def build(self, circuit, ground=0):
-
+    def build(self, circuit, ground=Node.SPICE_GROUND_NUMBER):
         factory = getattr(circuit, self.factory.ALIAS)
         nodes = self.translate_ground_node(ground)
         if self._prefix != 'X':
@@ -1012,14 +998,12 @@ class SpiceParser:
 
     ##############################################
 
-    def build_circuit(self, ground=0):
-
+    def build_circuit(self, ground=Node.SPICE_GROUND_NUMBER):
         """Build a :class:`Circuit` instance.
 
         Use the *ground* parameter to specify the node which must be translated to 0 (SPICE ground node).
 
         """
-
         circuit = Circuit(str(self._title))
         self._build_circuit(circuit, self._statements, ground)
         return circuit
@@ -1027,8 +1011,7 @@ class SpiceParser:
     ##############################################
 
     @staticmethod
-    def netlist_to_python(netlist_name, statements, ground=0):
-
+    def netlist_to_python(netlist_name, statements, ground=Node.SPICE_GROUND_NUMBER):
         source_code = ''
         for statement in statements:
             if isinstance(statement, Element):
@@ -1045,7 +1028,7 @@ class SpiceParser:
 
     ##############################################
 
-    def to_python_code(self, ground=0):
+    def to_python_code(self, ground=Node.SPICE_GROUND_NUMBER):
 
         ground = str(ground)
 
