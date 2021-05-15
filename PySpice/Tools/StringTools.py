@@ -78,7 +78,16 @@ def join_list(items):
 
 ####################################################################################################
 
+####################################################################################################
+#
+# Note:
+#   PR #136 has non understood changes
+#     https://github.com/FabriceSalvaire/PySpice/pull/136/files
+#
+####################################################################################################
+
 def join_dict(d):
+    # Fixme: remove trailing _ to key ???
     return ' '.join(["{}={}".format(key, str_spice(value))
                      for key, value in sorted(d.items())
                      if value is not None])
