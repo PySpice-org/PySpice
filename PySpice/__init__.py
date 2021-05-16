@@ -27,8 +27,8 @@ __all__ = [
 
 ####################################################################################################
 
-__version__ = '1.4.3'
-GIT_TAG = 'v1.6'
+__version__ = '1.6'
+GIT_TAG = 'v1.6-branched'
 
 def show_version():
     print('PySpice Version {}'.format(__version__))
