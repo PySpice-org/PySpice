@@ -1,11 +1,12 @@
 ####################################################################################################
 
-import os
+from pathlib import Path
+
 import sys
 
 ####################################################################################################
 
-import PySpice.Tools.Path as PathTools # Fixme: why ?
+import PySpice.Tools.Path as PathTools
 
 ####################################################################################################
 
@@ -44,12 +45,12 @@ OS = OsFactory()
 
 ####################################################################################################
 
-_this_file = PathTools.to_absolute_path(__file__)
+_this_file = Path(__file__).absolute()
 
 class Path:
 
-    pyspice_module_directory = PathTools.parent_directory_of(_this_file, step=2)
-    config_directory = os.path.dirname(_this_file)
+    pyspice_module_directory = _this_file.parents[1]
+    config_directory = _this_file.parent
 
 ####################################################################################################
 
