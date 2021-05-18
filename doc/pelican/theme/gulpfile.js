@@ -20,6 +20,7 @@
 // #################################################################################################
 // IMPORTS
 
+// https://github.com/postcss/autoprefixer
 // https://www.npmjs.com/package/autoprefixer
 // PostCSS plugin to parse CSS and add vendor prefixes to CSS rules using values from Can I Use.
 // It is recommended by Google and used in Twitter.
@@ -28,6 +29,7 @@ var eslint = require('gulp-eslint');
 var fs = require('fs');
 var gulp = require('gulp');
 var gulpif = require('gulp-if');
+// gulp-util is deprecated - replace it, following the guidelines at https://medium.com/gulpjs/gulp-util-ca3b1f9f9ac5
 var gutil = require('gulp-util');
 var header = require('gulp-header');
 var iconfont = require('gulp-iconfont');
@@ -37,12 +39,16 @@ var iconfont_css = require('gulp-iconfont-css');
 var minify_css = require('gulp-clean-css');
 var plumber = require('gulp-plumber');
 var postcss = require('gulp-postcss');
+// https://www.npmjs.com/package/gulp-sass
 var gulp_sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
 // var webpack = require('webpack');
 var browser_sync = require('browser-sync').create();
 
 var argv = require('minimist')(process.argv.slice(2));
+
+// https://www.npmjs.com/package/sass
+gulp_sass.compiler = require('sass');
 
 // #################################################################################################
 // SETTINGS

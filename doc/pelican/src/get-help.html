@@ -7,25 +7,31 @@
 
 {% block content %}
 
-    <div class="jumbotron py-4">
-	<h2><i class="fas fa-users"></i> PySpice Forum</h2>
-	<p class="lead">A Discourse forum to discuss about PySpice and related topics</p>
-	<a class="btn btn-primary btn-lg" href="{{ PYSPICE_FORUM }}" role="button">Go to Forum</a>
+    <div class="mb-4 bg-light rounded-3">
+	<div class="container-fluid py-4">
+	    <h2><i class="fas fa-users"></i> PySpice Forum</h2>
+	    <p class="lead">A Discourse forum to discuss about PySpice and related topics</p>
+	    <a class="btn btn-primary btn-lg" href="{{ PYSPICE_FORUM }}" role="button">Go to Forum</a>
+	</div>
     </div>
 
     <div class="row">
 	<div class="col-sm">
-	    <div class="jumbotron py-4">
-		<h2><i class="fas fa-book"></i> Documentation</h2>
-		<p class="lead">To get the User manual, to lean more about the API</p>
-		<a href="{{ PAGE_LINKS['documentation'].dst_url }}" class="btn btn-primary">Go to Documentation Page</a>
+	    <div class="bg-light rounded-3">
+		<div class="container-fluid py-4">
+		    <h2><i class="fas fa-book"></i> Documentation</h2>
+		    <p class="lead">To get the User manual, to lean more about the API</p>
+		    <a href="{{ PAGE_LINKS['documentation'].dst_url }}" class="btn btn-primary">Go to Documentation Page</a>
+		</div>
 	    </div>
 	</div>
 	<div class="col-sm">
-	    <div class="jumbotron py-4">
-		<h2><i class="fas fa-bug"></i> Bug Tracker</h2>
-		<p class="lead">Pyspice Bug Tracker is hosted on Github</p>
-		<a href="{{ PYSPICE_BUGTRACKER }}" class="btn btn-primary">Go to Bug Tracker</a>
+	    <div class="bg-light rounded-3">
+		<div class="container-fluid py-4">
+		    <h2><i class="fas fa-bug"></i> Bug Tracker</h2>
+		    <p class="lead">Pyspice Bug Tracker is hosted on Github</p>
+		    <a href="{{ PYSPICE_BUGTRACKER }}" class="btn btn-primary">Go to Bug Tracker</a>
+		</div>
 	    </div>
 	</div>
     </div>

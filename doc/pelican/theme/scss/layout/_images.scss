@@ -6,14 +6,14 @@
     img.left {
 	clear: left;
 	float: left;
-	@extend .mr-3;
+	@extend .me-3;
 	// text-align: left;
     }
 
     img.right {
 	clear: right;
 	float: right;
-	// @extend .ml-3;
+	// @extend .ms-3;
 	// text-align: right;
     }
     img.centered {

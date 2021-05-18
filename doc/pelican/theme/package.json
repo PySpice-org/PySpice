@@ -3,13 +3,14 @@
     "private": true,
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.13.0",
-        "bootstrap": "^4.5",
-        "jquery": "3.5.1",
+        "bootstrap": "^5.0.1",
+        "jquery": "3.6.0",
         "outdatedbrowser": "^1.1.5",
         "popper.js": "^1.16.0"
     },
     "devDependencies": {
-        "autoprefixer": "^9.7.3",
+        "@popperjs/core": "^2.9.2",
+        "autoprefixer": "^10.2.5",
         "bower-away": "^1.1.2",
         "browser-sync": "^2.26.7",
         "gulp": "^4.0.2",
@@ -17,18 +18,20 @@
         "gulp-clean-css": "^4.2.0",
         "gulp-eslint": "^6.0.0",
         "gulp-header": "^2.0.9",
-        "gulp-iconfont": "^10.0.3",
+        "gulp-iconfont": "^11.0.0",
         "gulp-iconfont-css": "^3.0.0",
         "gulp-if": "^3.0.0",
-        "gulp-imagemin": "^6.2.0",
+        "gulp-imagemin": "^7.1.0",
         "gulp-plumber": "^1.2.1",
-        "gulp-postcss": "^8.0.0",
+        "gulp-postcss": "^9.0.0",
         "gulp-sass": "^4.0.2",
         "gulp-scss-lint": "^1.0.0",
-        "gulp-sourcemaps": "^2.6.5",
+        "gulp-sourcemaps": "^3.0.0",
         "gulp-util": "^3.0.8",
         "minimist": "^1.2.0",
-        "package.json": "^2.0.1"
+        "package.json": "^2.0.1",
+        "postcss": "^8.2.15",
+        "sass": "^1.32.13"
     },
     "engines": {
         "yarn": ">= 1.0.0"
