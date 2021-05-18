@@ -1,0 +1,541 @@
+@@grammar :: Spice
+@@whitespace :: //
+@@ignorecase :: True
+@@parseinfo :: True
+
+start::Circuit = [ ".TITLE" ] {st} title:text [ {newline}+ lines:lines ] [ newline ".END" ] {newline} ;
+
+# Lines
+
+lines::Lines = {@:circuit_line} ;
+
+circuit_line::CircuitLine = ( @:device
+                            | @:command
+                            | encrypted) @:end_sep ;
+
+netlist_lines::NetlistLines = {@:netlist_line} ;
+
+netlist_line::NetlistLine = ( @:device
+                            | @:netlist_cmds
+                            | encrypted ) @:end_sep ;
+
+encrypted = "$CDNENCSTART" ~ { newline }+ { { /[0-9a-f]/ } { newline }+ } "$CDNENCFINISH" ;
+
+device = | @:nonlinear_dependent_source           # B
+         | @:capacitor                            # C
+         | @:diode                                # D
+         | @:voltage_controlled_voltage_source    # E
+         | @:current_controlled_current_source    # F
+         | @:voltage_controlled_current_source    # G
+         | @:current_controlled_voltage_source    # H
+         | @:current_source                       # I
+         | @:jfet                                 # J
+         | @:inductor                             # L
+         | @:mosfet                               # M
+         | @:bjt                                  # Q
+         | @:resistor                             # R
+         | @:switch                               # S
+         | @:voltage_source                       # V
+         | @:subcircuit ;                         # X
+
+nonlinear_dependent_source::NonLinearDependentSource = &"B" ~ dev:dev
+    sep:sep positive:node sep:sep negative:node ~
+    sep:sep ("V" | "I") [sep:sep] "=" [sep:sep] expr:abm_expression [ sep:sep paramters:parameters ] ;
+
+abm_expression = | lc [sep:sep] @:control_table [sep:sep] rc
+                 | @:braced_expression
+                 | @:tablefile ;
+
+capacitor::Capacitor = &"C" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+     [ sep:sep model:model_name sep:sep value:gen_expr |
+       sep:sep value:gen_expr |
+       sep:sep model:model_name ] [ sep:sep parameters:parameters ] ;
+
+diode::Diode = &"D" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+    sep:sep model:model_name [ sep:sep area:gen_expr ] ;
+
+voltage_controlled_voltage_source::VoltageControlledVoltageSource =
+    &"E" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+                      sep:sep ( ( controller: ( control_value |
+                                             control_table |
+                                             control_voltage_poly) ) |
+                             ( control_positive:node sep:sep control_negative:node sep:sep gain:gen_expr ) ) ;
+
+current_controlled_current_source::CurrentControlledCurrentSource =
+    &"F" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+                      sep:sep ( ( controller:control_current_poly ) |
+                             ( device:dev sep:sep gain:gen_expr ) ) ;
+
+voltage_controlled_current_source::VoltageControlledCurrentSource =
+    &"G" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+                    sep:sep ( ( controller: ( control_value |
+                                           control_table |
+                                           control_voltage_poly) ) |
+                           ( control_positive:node sep:sep control_negative:node sep:sep transconductance:gen_expr ) ) ;
+
+current_controlled_voltage_source::CurrentControlledVoltageSource =
+    &"H" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+                    sep:sep ( ( controller: control_current_poly ) |
+                           ( device:dev sep:sep transresistance:gen_expr ) ) ;
+
+control_value::ControlValue = type:"VALUE" ~ [sep:sep] "=" [sep:sep] expression:braced_expression ;
+
+control_table::ControlTable = type:"TABLE" ~ [sep:sep] braced_expression [sep:sep] "="
+    [sep:sep] (sep:sep)%{ ( lp [sep:sep] input:value [sep:sep] comma [sep:sep] output:value [sep:sep] rp ) |
+    ( input:value [sep:sep] comma [sep:sep] output:value ) }+ ;
+
+control_voltage_poly::ControlVoltagePoly =
+    "POLY" ~ [sep:sep] lp [sep:sep] value:integer [sep:sep] rp
+    [sep:sep] (sep:sep)%{ positive:node sep:sep negative:node |
+                          coefficient:value } ;
+
+control_current_poly::ControlCurrentPoly =
+    "POLY" ~ [sep:sep] lp [sep:sep] value:integer [sep:sep] rp
+    [sep:sep] (sep:sep)%{ device:dev |
+                          coefficient:value } ;
+
+current_source::CurrentSource = &"I" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+     [ sep:sep [dc ~ sep:sep] dc_value:gen_expr ]
+     [ sep:sep ac ~ [sep:sep ac_magnitude:gen_expr [sep:sep ac_phase:gen_expr] ] ]
+     [ sep:sep transient:transient_specification ] ;
+
+jfet::JFET = &"J" ~ dev:dev sep:sep drain:node sep:sep gate:node sep:sep source:node ~
+                       sep:sep model:model_name [ sep:sep area:gen_expr ] [ sep:sep parameters:parameters ] ;
+
+inductor::Inductor = &"L" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+    [ sep:sep model:model_name sep:sep value:gen_expr |
+      sep:sep value:gen_expr |
+      sep:sep model:model_name ] [ sep:sep parameters:parameters ];
+
+mosfet::MOSFET = &"M" ~ dev:dev sep:sep drain:node sep:sep gate:node sep:sep source:node ~
+         sep:sep bulk:node sep:sep model:model_name
+         [ sep:sep (sep:sep)%{ param: ("IC" [sep:sep] "=" ~ [sep:sep] ( [sep:sep] "," [sep:sep] )%{value} | parameter ) } ];
+
+
+bjt::BJT = &"Q" ~ dev:dev sep:sep collector:node sep:sep base:node sep:sep emitter:node ~
+            sep:sep ( substrate:node sep:sep thermal:node sep:sep model:model_name |
+                   ( substrate:{digit}+ | &"[" substrate:node ) sep:sep model:model_name |
+                   thermal:node sep:sep model:model_name |
+                   model:model_name ) [ sep:sep area:gen_expr ] [ sep:sep parameters:parameters ];
+
+resistor::Resistor = &"R" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+    [ sep:sep model:model_name sep:sep value:gen_expr |
+      sep:sep value:gen_expr |
+      sep:sep model:model_name ] [ sep:sep parameters:parameters ] ;
+
+switch::Switch = &"S" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+    sep:sep ( model:model_name [ sep:sep ( "ON" | "OFF" ) ] sep:sep "control" ~ [sep:sep] "=" [sep:sep] braced_expression |
+           control_p:node sep:sep control_n:node sep:sep model:model_name );
+
+voltage_source::VoltageSource = &"V" ~ dev:dev sep:sep positive:node sep:sep negative:node ~
+    [ sep:sep [dc ~ sep:sep] dc_value:gen_expr]
+    [ sep:sep ac ~ [ sep:sep ac_magnitude:gen_expr [ sep:sep ac_phase:gen_expr ] ] ]
+    [ sep:sep transient:transient_specification ] ;
+
+subcircuit::Subcircuit = &"X" ~ dev:dev { sep:sep node:node }+ # We assume the model will be detected as a node
+    [ params:":" ~ [sep:sep] parameters:parameters ] ; # We also assume the params will be detected as a node
+
+dc = "DC" ;
+ac = "AC" ;
+
+transient_specification = | @:transient_pulse
+                          | @:transient_sin
+                          | @:transient_exp
+                          | @:transient_pat
+                          | @:transient_pwl
+                          | @:transient_sffm ;
+
+# The parenthesis are not mandatory
+
+transient_pulse = type:"PULSE"  ( [sep:sep] lp ~ [sep:sep] @:pulse_arguments [sep:sep] rp
+                                | sep:sep @:pulse_arguments ) ;
+
+pulse_arguments = v1:gen_expr sep:sep (sep:sep)%{gen_expr} ;
+
+transient_sin = type:"SIN" ( [sep:sep] lp ~ [sep:sep] @:sin_arguments [sep:sep] rp
+                           | sep:sep @:sin_arguments );
+
+sin_arguments = v0:gen_expr sep:sep va:gen_expr sep:sep freq:gen_expr
+    sep:sep (sep:sep)%{value:gen_expr} ;
+
+transient_exp = type:"EXP" ( [sep:sep] lp ~ [sep:sep] @:exp_arguments [sep:sep] rp
+                           | sep:sep @:exp_arguments ) ;
+
+exp_arguments = v1:gen_expr sep:sep v2:gen_expr
+    sep:sep (sep:sep)%{value:gen_expr} ;
+
+transient_pat = type:"PAT" ( [sep:sep] lp ~ [sep:sep] @:pat_arguments [sep:sep] rp
+                           | sep:sep @:pat_arguments ) ;
+
+pat_arguments = vhi:gen_expr sep:sep vlo:gen_expr
+    sep:sep td:gen_expr sep:sep tr:gen_expr sep:sep tf:gen_expr sep:sep tsample:gen_expr
+    sep:sep data:binary_pattern [ sep:sep repeat:binary ] ;
+
+transient_pwl = type:"PWL" ~ sep:sep ( "FILE" ~ sep:sep ( double_quote filename double_quote |
+                                                    filename ) [sep:sep parameters:parameters] |
+                                    (sep:sep)%{t:value ~ sep:sep v:value}+ ) ;
+
+transient_sffm = type:"SFFM" ( [sep:sep] lp ~ [sep:sep] @:sffm_arguments [sep:sep] rp
+                             | sep:sep @:sffm_arguments ) ;
+
+sffm_arguments = v0:gen_expr sep:sep va:gen_expr
+    sep:sep (sep:sep)%{value:gen_expr} ;
+
+command = | @:ac_cmd
+          | @:ic_cmd # To avoid issues with .DCVOLT and .DC
+          | @:dc_cmd
+          | @:embedded_sampling_cmd
+          | @:include_cmd
+          | @:lib_cmd
+          | @:netlist_cmds
+          | @:subckt_cmd
+          | @:simulator_cmd
+          | @:title_cmd ;
+
+netlist_cmds = | @:data_cmd
+               | @:model_cmd
+               | @:param_cmd
+               | @:subckt_cmd ;
+
+ac_cmd::ACCmd = cmd:".AC" ~ sep:sep ( ( sweep:ac_sweep_type sep:sep points:integer sep:sep start:value sep:sep end:value ) |
+                         ( sweep:"DATA" {st} "=" {st} table:id ) ) ;
+
+ac_sweep_type = | "LIN"
+                | "OCT"
+                | "DEC" ;
+
+data_cmd::DataCmd = cmd:".DATA" ~ sep:sep table:id
+           {sep:sep name:id}+
+           {sep:sep value:value}+
+           sep:end_sep ".ENDDATA" ;
+
+dc_cmd::DCCmd = cmd:".DC" ~ ( ( sep:sep sweep:"DATA" {st} "=" {st} table:id ) |
+                       ( { ([sep:sep sweep:"LIN"] sep:sep name:id sep:sep start:value sep:sep stop:value sep:sep step:value ) |
+                           ( sep:sep sweep:("DEC"|"OCT") sep:sep name:id sep:sep start:value sep:sep stop:value sep:sep points:integer ) |
+                           ( sep:sep name:id sep:sep sweep:"LIST" sep:sep (sep:sep)%{point:value}+ ) }+ ) )  ;
+
+embedded_sampling_cmd::EmbeddedSamplingCmd = cmd:".EMBEDDEDSAMPLING" ~
+    ( ( sep:sep parameter:"param" {st} "=" {st} (es_sep)%{name:id}+
+    sep:sep parameter:"type" {st} "=" {st} (es_sep)%{type:es_parameter_type}+
+    {sep:sep parameter:es_parameter_name {st} "=" {st} (es_sep)%{value:gen_expr}+}) |
+    ( sep:sep parameter:"useExpr" {st} "=" ~ {st} value:boolean ) ) ;
+
+es_parameter_type = | "UNIFORM"
+                    | "NORMAL"
+                    | "GAMMA" ;
+
+es_parameter_name = | "alpha"
+                    | "beta"
+                    | "means"
+                    | "std_deviations"
+                    | "lower_bounds"
+                    | "upper_bounds" ;
+
+es_sep = comma ~ {st} ;
+
+ic_cmd::ICCmd = cmd:(".IC" | ".DCVOLT") ~ ( {sep:sep "V" lp ~ node:node rp {st} "=" {st} value:gen_expr}+ |
+                                     {sep:sep node:node {st}+ value:gen_expr}+ ) ;
+
+include_cmd::IncludeCmd = cmd:( ".INC" | ".INCLUDE" | ".INCL" ) ~ sep:sep ( filename |
+                                                             single_quote ~ filename single_quote |
+                                                             double_quote ~ filename double_quote ) ;
+
+lib_cmd::LibCmd = @:lib_block | @:lib_call ;
+
+lib_call = cmd:".LIB" sep:sep ( double_quote ~ filename:filename double_quote
+                           | single_quote ~ filename:filename single_quote
+                           | filename:filename ) sep:sep entry:id ;
+
+model_cmd::ModelCmd = cmd:".MODEL" ~ sep:sep name:model_name sep:sep type:model_type [ ( [sep:sep] lp ~ [sep:sep] parameters:parameters [sep:sep] rp
+                                                                       | sep:sep parameters:parameters ) ] ;
+model_type = | "CAP"        #
+             | "CORE"       #
+             | "C"          #
+             | "DIG"        #
+             | "D"          #
+             | "IND"        #
+             | "ISWITCH"    #
+             | "LIN"        #
+             | "LTRA"       #
+             | "L"          #
+             | "NJF"        #
+             | "NMF"        #
+             | "NMOS"       #
+             | "NPN"        #
+             | "PJF"        #
+             | "PMF"        #
+             | "PMOS"       #
+             | "PNP"        #
+             | "RES"        #
+             | "R"          #
+             | "SWITCH"     #
+             | "TRANSLINE"  #
+             | "VSWITCH"    #
+             | "MEMRISTOR"  #
+             | "ZOD" ;      #
+
+param_cmd::ParamCmd = cmd:".PARAM" ~ sep:sep parameters:parameters ;
+
+#Ignore simulator command by Simetrix
+simulator_cmd::SimulatorCmd = cmd:".SIMULATOR" ~ sep:sep simulator:id ;
+
+# The param in the subckt is read as a node. The colon is used to detect it and check if
+# the previous node is PARAM in the grammar.
+
+subckt_cmd::SubcktCmd = cmd:".SUBCKT" ~ sep:sep name:model_name { sep:sep node:(node !":") }
+    [ sep:sep "params:" ~ sep:sep parameters:parameters ] sep:cmd_net_sep
+    lines:netlist_lines
+    ".ENDS" ~ [ {st}+ end_name:model_name ];
+
+lib_block = cmd:".LIB" sep:sep entry:id sep:cmd_net_sep ~
+    lines:netlist_lines
+    ".ENDL" ~ [ {st}+ entry:id ] ;
+
+title_cmd::TitleCmd = cmd:".TITLE" ~ title:text ;
+
+# Parameters
+
+parameters = ( [@:sep] comma [@:sep] | @:sep )%{ @:parameter } ;
+
+parameter = name:id [sep:sep] "=" ~ [sep:sep] value:gen_expr ~ { [sep:sep] comma [sep:sep] value:gen_expr } ;
+
+# Expressions
+
+gen_expr = | @:braced_expression
+           | @:value ;
+
+tablefile = func:"tablefile" [sep:sep] lp ~ [sep:sep] ( double_quote ~ filename:filename double_quote
+                                                      | filename:filename ) [sep:sep] rp ;
+
+braced_expression = lc ~ [sep:sep] expression [sep:sep] rc ;
+
+#functions
+
+functions = | functions_1
+            | atan2
+            | ddx
+            | gauss
+            | i_func
+            | if_func
+            | limit
+            | functions_2
+            | rand
+            | unif
+            | v_func ;
+
+functions_1 = func:( "abs"
+                   | "ceil"
+                   | "ddt"
+                   | "floor"
+                   | "int"
+                   | "m"
+                   | "nint"
+                   | "sdt"
+                   | "sgn"
+                   | "stp"
+                   | "sqrt"
+                   | "uramp"
+                   | "Ph"
+                   | "Re"
+                   | "R"
+                   | "Img"
+                   | "Db"
+                   | "acosh"
+                   | "acos"
+                   | "asinh"
+                   | "asin"
+                   | "arctan"
+                   | "atanh"
+                   | "atan"
+                   | "cosh"
+                   | "cos"
+                   | "exp"
+                   | "ln"
+                   | "log"
+                   | "log10"
+                   | "sinh"
+                   | "sin"
+                   | "tanh"
+                   | "tan" ) [sep:sep] lp ~ [sep:sep] x:expression [sep:sep] rp ;
+
+atan2 = func:"atan2" [sep:sep] lp ~ [sep:sep] y:expression [sep:sep] ","
+                                 [sep:sep] x:expression [sep:sep] rp ;
+
+ddx = func:"ddx" [sep:sep] lp ~ [sep:sep] f:id [sep:sep] ","
+                             [sep:sep] x:expression [sep:sep] rp ;
+
+gauss = func:( "agauss"
+             | "gauss" )[sep:sep] lp ~ [sep:sep] mu:expression [sep:sep] ","
+                                    [sep:sep] alpha:expression [sep:sep] ","
+                                    [sep:sep] n:expression [sep:sep] rp ;
+
+i_func = func:"i" [sep:sep] lp ~ [sep:sep] &"V" positive:dev [sep:sep] rp ;
+
+if_func = func:"if" [sep:sep] lp ~ [sep:sep] t:conditional_expression [sep:sep] ","
+                                [sep:sep] x:expression [sep:sep] ","
+                                [sep:sep] y:expression [sep:sep] rp ;
+
+limit = func:"limit" [sep:sep] lp ~ [sep:sep] x:expression [sep:sep] ","
+                                 [sep:sep] y:expression [sep:sep] ","
+                                 [sep:sep] z:expression [sep:sep] rp ;
+
+functions_2 = func:( "min"
+                   | "max"
+                   | "pwrs"
+                   | "pow"
+                   | "pwr"
+                   | "sign" ) [sep:sep] lp ~ [sep:sep] x:expression [sep:sep] ","
+                                          [sep:sep] y:expression [sep:sep] rp ;
+
+rand = func:"rand" [sep:sep] lp ~ [sep:sep] rp ;
+
+unif = func:( "aunif"
+            | "unif" ) [sep:sep] lp ~ [sep:sep] mu:expression [sep:sep] ","
+                                   [sep:sep] alpha:expression [sep:sep] rp ;
+
+v_func = func:"v" [sep:sep] lp ~ [sep:sep] node:node [sep:sep]
+                            [ "," [sep:sep] negative:node [sep:sep] ] rp ;
+
+# Relational and conditional expressions
+
+expression = | t:conditional_expression [sep:sep] op:"?" ~ [sep:sep] x:expression [sep:sep] ":" [sep:sep] y:expression
+             | term ;
+
+conditional_expression = | boolean_or
+                         | boolean ;
+
+boolean_or = | left:boolean_or [sep:sep] op:"|" ~ [sep:sep] right:boolean_xor
+             | boolean_xor ;
+
+boolean_xor = | left:boolean_xor [sep:sep] op:"^" ~ [sep:sep] right:boolean_and
+              | boolean_and ;
+
+boolean_and = | left:boolean_and [sep:sep] op:"&" ~ [sep:sep] right:boolean_not
+              | boolean_not ;
+
+boolean_not = | op:"~" ~ operator:relational
+              | relational ;
+
+relational = left:term [sep:sep] op:( "==" | "!=" | ">=" | "<=" | ">" | "<" ) ~ [sep:sep] right:term ;
+
+# Arithmetic term
+
+term = | left:term [sep:sep] op:( "+" | "-" ) ~ [sep:sep] right:prod
+       | prod ;
+
+prod = | left:prod [sep:sep] op:( "*" | "/" | "%" ) ~ [sep:sep] right:unary
+       | unary ;
+
+unary = | op:( "+" | "-" ) ~ operator:exp
+        | exp ;
+
+exp = | left:exp [sep:sep] op:'**' ~ [sep:sep] right:factor
+      | factor ;
+
+factor = | '(' ~ [sep:sep] @:expression [sep:sep] ')'
+         | @:functions
+         | var:id
+         | @:value ;
+
+special_variables = | "time"
+                    | "temper"
+                    | "temp"
+                    | "freq"
+                    | "vt"
+                    | "pi" ;
+
+value::Value = | ( real:real_value "+" imag:imag_value )
+               | imag:imag_value
+               | real:real_value ;
+
+imag_value::ImagValue = @:real_value "J" ;
+real_value::RealValue = value:number_scale unit:[hz | unit] ;
+
+freq_value = value:number_scale unit:[hz] ;
+
+number_scale::NumberScale = | value:floating_point scale:(meg | mil | [suffix])
+                            | value:integer scale:(meg | mil | [suffix]) ;
+
+suffix = /[tTgGkKmMxXuUnNpPfF]/ ;
+
+meg = /[mM][eE][gG]/ ;
+mil = /[mM][iI][lL]/ ;
+
+unit::Unit = /[a-zA-Z%]+/ ;
+
+hz::Hz = /[Hh][Zz]/ ;
+
+lead_name = /I[SDGBEC1-9]/ ;
+
+floating_point::Float = /[\+\-]?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))([eE][\-\+]?[0-9]{1,3})?/ ;
+
+integer::Int = /[\+\-]?[0-9]+/ ;
+
+digit = /[0-9]/ ;
+
+filename = /[a-zA-Z0-9_:@#\.\$\/]+/ ;
+
+boolean = | "TRUE"
+          | "FALSE" ;
+
+# Patterns
+
+model_name = name:/[a-zA-Z0-9_]+/ !([sep:sep] "=") ;
+
+binary_pattern = /[Bb]/ pattern:{binary}+ ;
+
+binary = /[01]/ ;
+
+# to support bug 1034, the DEV needs to recognize some weird characters, including '+' and '-'
+
+dev = /[a-zA-Z][a-zA-Z0-9_:!`@#\.\+\-]*/ ;
+
+# to support bug 1034, the NODE needs to recognize a lot of weird characters:
+# from bug 1034:
+# ` ~ ! @ # $ % ^ & - _ + [ ] | \ < > . ? |
+# unfortunately, some of these are special regex characters, so they need to be
+# handled with a preceding backslash.  Probably more elegant regex, such as a
+# range of ASCII characters could be used for NODE, but this seems to work for now
+
+node = | /[a-zA-Z0-9_\[\$][a-zA-Z0-9_:\$\-`~!@#%&_\+|<>\?\.\\|\^\*]*[a-zA-Z0-9_\$\-`~!@#%&_\+|<>\?\.\\|\^\*\]]/
+       | /[a-zA-Z0-9_]/ ;
+
+id = | /[a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$\/]*[a-zA-Z0-9_`@#\.\$]/
+     | /[a-zA-Z_`@#\$]/ ;
+
+# Separators
+
+end_sep = | @:cmd_net_sep
+          | {st}+;
+
+sep = | @:cmd_net_sep '+' {st}
+      | {st}+ ;
+
+cmd_net_sep::Separator = {st} comment:[ @:inline_comment ] newline
+    { {st} comment:[ ( @:line_comment | @:inline_comment ) ~ ] newline }
+    {st} ;
+
+#comments
+inline_comment = semicolon {st} @:text ;
+line_comment = asterisk {st} @:text ;
+
+text::Comment = /[^\r\n]*/ ;
+asterisk = "*" ;
+question_mark = "?" ;
+colon = ":" ;
+semicolon = ";" ;
+comma = "," ;
+dot = "." ;
+dollar = "\$" ;
+double_bar = "//" ;
+
+single_quote = "'" ;
+double_quote = '"' ;
+lc = "{" ;
+rc = "}" ;
+lp = "(" ;
+rp = ")" ;
+
+newline = /[\r\n]/ ;
+st = /[ \t]/ ;
+ws = /[^\S\r\n]*/ ;
