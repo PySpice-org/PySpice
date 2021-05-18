@@ -1,4 +1,5 @@
 Title: Legal Notice
+<!-- Template: page -->
 
 ## Copyright and Intellectual Property
 
@@ -14,7 +15,7 @@ Apart from the use of a tracker to measure the site audience.
 
 ## Publisher
 
-**Fabrice SALVAIRE** pyspice AT fabrice-salvaire DOT fr
+**Fabrice SALVAIRE** < fr DOT fabRice-saLvaIre AT pYsPiCe > (reverse and lower case)
 
 ## Website Hosting
 

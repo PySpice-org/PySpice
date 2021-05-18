@@ -117,10 +117,12 @@ ARTICLE_PATHS = ['']
 # A list of directories to exclude when looking for articles in addition to PAGE_PATHS.
 ARTICLE_EXCLUDES = []
 
-# Set to True if you want to copy the articles and pages in their original format (e.g. Markdown or reStructuredText) to the specified OUTPUT_PATH.
+# Set to True if you want to copy the articles and pages in their original format (e.g. Markdown or
+# reStructuredText) to the specified OUTPUT_PATH.
 OUTPUT_SOURCES = False
 
-# Controls the extension that will be used by the SourcesGenerator. Defaults to .text. If not a valid string the default value will be used.
+# Controls the extension that will be used by the SourcesGenerator. Defaults to .text. If not a
+# valid string the default value will be used.
 OUTPUT_SOURCES_EXTENSION = '.text'
 
 # The list of plugins to load. See Plugins.
