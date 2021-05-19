@@ -46,21 +46,9 @@ circuit.R('load', 'out', circuit.gnd, 1@u_kΩ)
 #?# Fixme: circuit.nodes[2].v, circuit.branch.current
 # print circuit.nodes
 
-# Simulator(circuit, ...).transient(...)
 simulator = Simulator.factory(simulator='ngspice')
-# simulator = Simulator.factory(simulator='ngspice-subprocess')
-# simulator = Simulator.factory(simulator='xyce-serial')
 simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
 analysis = simulation.transient(step_time=ac_line.period/200, end_time=ac_line.period*50, log_desk=True)
-
-print(type(analysis))
-print(type(analysis.simulation))
-print(type(analysis.simulation.simulator))
-import pickle
-pickeld_analysis = pickle.dumps(analysis)
-del analysis
-
-analysis = pickle.loads(pickeld_analysis)
 
 figure, ax = plt.subplots(1, figsize=(20, 10))
 
