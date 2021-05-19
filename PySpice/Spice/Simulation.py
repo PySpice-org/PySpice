@@ -118,7 +118,7 @@ class Simulation:
         self.__dict__.update(state)
         # Fixme: ok ??? duplicate simulator ???
         from .Simulator import Simulator
-        self.__simulator = Simulator.factory(simulator=state['_simulator'])
+        self._simulator = Simulator.factory(simulator=state['_simulator'])
 
     ##############################################
 
