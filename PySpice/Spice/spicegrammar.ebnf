@@ -2,6 +2,7 @@
 @@whitespace :: //
 @@ignorecase :: True
 @@parseinfo :: True
+@@left_recursion :: True
 
 start::Circuit
     =
@@ -16,25 +17,25 @@ start::Circuit
 
 lines::Lines
     =
-    description:{@:circuit_line}
+    {@:circuit_line}
     ;
 
 
 circuit_line::CircuitLine
     =
-    description:(@:device | @:command | encrypted) @:end_sep
+    (@:device | @:command | encrypted) @:end_sep
     ;
 
 
 netlist_lines::NetlistLines
     =
-    description:{@:netlist_line}
+    {@:netlist_line}
     ;
 
 
 netlist_line::NetlistLine
     =
-    description:(@:device | @:netlist_cmds | encrypted) @:end_sep
+    (@:device | @:netlist_cmds | encrypted) @:end_sep
     ;
 
 
@@ -81,7 +82,7 @@ nonlinear_dependent_source::NonLinearDependentSource
     '='
     [sep:sep]
     expr:abm_expression
-    [sep:sep parameters:parameters]
+    [sep:sep parameters+:parameters]
     ;
 
 
@@ -109,7 +110,7 @@ capacitor::Capacitor
     | sep:sep model:model_name
     ]
 
-    [sep:sep parameters:parameters]
+    [sep:sep parameters+:parameters]
     ;
 
 
@@ -231,16 +232,16 @@ control_table::ControlTable
         (
             lp
             [sep:sep]
-            input:value
+            input+:value
             [sep:sep]
             comma
             [sep:sep]
-            output:value
+            output+:value
             [sep:sep]
             rp
         )
     |
-        (input:value [sep:sep] comma [sep:sep] output:value)
+        (input+:value [sep:sep] comma [sep:sep] output+:value)
     }+
     ;
 
@@ -256,7 +257,7 @@ control_voltage_poly::ControlVoltagePoly
     [sep:sep]
     rp
     [sep:sep]
-    (sep:sep)%{positive:node sep:sep negative:node | coefficient:value}
+    (sep:sep)%{positive+:node sep:sep negative+:node | coefficient:value}
     ;
 
 
@@ -271,7 +272,7 @@ control_current_poly::ControlCurrentPoly
     [sep:sep]
     rp
     [sep:sep]
-    (sep:sep)%{device:dev | coefficient:value}
+    (sep:sep)%{device+:dev | coefficient+:value}
     ;
 
 
@@ -306,7 +307,7 @@ jfet::JFET
     sep:sep
     model:model_name
     [sep:sep area:gen_expr]
-    [sep:sep parameters:parameters]
+    [sep:sep parameters+:parameters]
     ;
 
 
@@ -326,7 +327,7 @@ inductor::Inductor
     | sep:sep model:model_name
     ]
 
-    [sep:sep parameters:parameters]
+    [sep:sep parameters+:parameters]
     ;
 
 
@@ -348,8 +349,8 @@ mosfet::MOSFET
     model:model_name
     [sep:sep
     (sep:sep)%{
-    param:(
-        | 'IC' [sep:sep] '=' ~ [sep:sep] ([sep:sep] ',' [sep:sep])%{value}
+    param+:(
+        | name:'IC' [sep:sep] '=' ~ [sep:sep] ([sep:sep] ',' [sep:sep])%{value}
         | parameter
     )
     }]
@@ -376,7 +377,7 @@ bjt::BJT
         | model:model_name
     )
     [sep:sep area:gen_expr]
-    [sep:sep parameters:parameters]
+    [sep:sep parameters+:parameters]
     ;
 
 
@@ -396,7 +397,7 @@ resistor::Resistor
     | sep:sep model:model_name
     ]
 
-    [sep:sep parameters:parameters]
+    [sep:sep parameters+:parameters]
     ;
 
 
@@ -427,6 +428,16 @@ switch::Switch
     ;
 
 
+subcircuit::Subcircuit
+    =
+    &'X'
+    ~
+    dev:dev
+    {sep:sep node+:node}
+    [params:':' ~ [sep:sep] parameters+:parameters]
+    ;
+
+
 voltage_source::VoltageSource
     =
     &'V'
@@ -440,16 +451,6 @@ voltage_source::VoltageSource
     [sep:sep [dc ~ sep:sep] dc_value:gen_expr]
     [sep:sep ac ~ [sep:sep ac_magnitude:gen_expr [sep:sep ac_phase:gen_expr]]]
     [sep:sep transient:transient_specification]
-    ;
-
-
-subcircuit::Subcircuit
-    =
-    &'X'
-    ~
-    dev:dev
-    {sep:sep node:node}+
-    [params:':' ~ [sep:sep] parameters:parameters]
     ;
 
 
@@ -776,17 +777,18 @@ include_cmd::IncludeCmd
 
 lib_cmd::LibCmd
     =
-    @:lib_block | @:lib_call
+    cmd:'.LIB'
+    sep:sep
+    ~
+    block::LibBlock:lib_block | call::LibCall:lib_call
     ;
 
 
 lib_call
     =
-    cmd:'.LIB'
-    sep:sep
     (
-        | double_quote ~ filename:filename double_quote
-        | single_quote ~ filename:filename single_quote
+        | double_quote filename:filename double_quote
+        | single_quote filename:filename single_quote
         | filename:filename
     )
     sep:sep
@@ -802,8 +804,10 @@ model_cmd::ModelCmd
     name:model_name
     sep:sep
     type:model_type
-    [| [sep:sep] lp ~ [sep:sep] parameters:parameters [sep:sep] rp
-    | sep:sep parameters:parameters]
+    [
+    | [sep:sep] lp ~ [sep:sep] parameters:parameters [sep:sep] rp
+    | sep:sep parameters:parameters
+    ]
     ;
 
 
@@ -867,11 +871,8 @@ subckt_cmd::SubcktCmd
 
 lib_block
     =
-    cmd:'.LIB'
-    sep:sep
     entry:id
     sep:cmd_net_sep
-    ~
     lines:netlist_lines
     '.ENDL'
     ~
@@ -885,13 +886,13 @@ title_cmd::TitleCmd
     ;
 
 
-parameters
+parameters::Parameters
     =
     ([@:sep] comma [@:sep] | @:sep)%{@:parameter}
     ;
 
 
-parameter
+parameter::Parameter
     =
     name:id
     [sep:sep]
@@ -904,7 +905,7 @@ parameter
     ;
 
 
-gen_expr
+gen_expr::Expression
     =
     @:braced_expression | @:value
     ;
@@ -923,13 +924,13 @@ tablefile
     ;
 
 
-braced_expression
+braced_expression::BracedExpression
     =
-    lc ~ [sep:sep] expression [sep:sep] rc
+    lc ~ [sep:sep] @:ternary [sep:sep] rc
     ;
 
 
-functions
+functions::Functions
     =
     | functions_1
     | atan2
@@ -964,7 +965,6 @@ functions_1
         | 'Re'
         | 'R'
         | 'Img'
-        | 'Db'
         | 'acosh'
         | 'acos'
         | 'asinh'
@@ -987,7 +987,7 @@ functions_1
     lp
     ~
     [sep:sep]
-    x:expression
+    x:ternary
     [sep:sep]
     rp
     ;
@@ -1000,11 +1000,11 @@ atan2
     lp
     ~
     [sep:sep]
-    y:expression
+    y:ternary
     [sep:sep]
     ','
     [sep:sep]
-    x:expression
+    x:ternary
     [sep:sep]
     rp
     ;
@@ -1021,7 +1021,7 @@ ddx
     [sep:sep]
     ','
     [sep:sep]
-    x:expression
+    x:ternary
     [sep:sep]
     rp
     ;
@@ -1034,15 +1034,15 @@ gauss
     lp
     ~
     [sep:sep]
-    mu:expression
+    mu:ternary
     [sep:sep]
     ','
     [sep:sep]
-    alpha:expression
+    alpha:ternary
     [sep:sep]
     ','
     [sep:sep]
-    n:expression
+    n:ternary
     [sep:sep]
     rp
     ;
@@ -1065,11 +1065,11 @@ if_func
     [sep:sep]
     ','
     [sep:sep]
-    x:expression
+    x:ternary
     [sep:sep]
     ','
     [sep:sep]
-    y:expression
+    y:ternary
     [sep:sep]
     rp
     ;
@@ -1082,15 +1082,15 @@ limit
     lp
     ~
     [sep:sep]
-    x:expression
+    x:ternary
     [sep:sep]
     ','
     [sep:sep]
-    y:expression
+    y:ternary
     [sep:sep]
     ','
     [sep:sep]
-    z:expression
+    z:ternary
     [sep:sep]
     rp
     ;
@@ -1103,11 +1103,11 @@ functions_2
     lp
     ~
     [sep:sep]
-    x:expression
+    x:ternary
     [sep:sep]
     ','
     [sep:sep]
-    y:expression
+    y:ternary
     [sep:sep]
     rp
     ;
@@ -1126,11 +1126,11 @@ unif
     lp
     ~
     [sep:sep]
-    mu:expression
+    mu:ternary
     [sep:sep]
     ','
     [sep:sep]
-    alpha:expression
+    alpha:ternary
     [sep:sep]
     rp
     ;
@@ -1150,57 +1150,57 @@ v_func
     ;
 
 
-expression
+ternary::Ternary
     =
         t:conditional_expression
         [sep:sep]
         op:'?'
         ~
         [sep:sep]
-        x:expression
+        x:ternary
         [sep:sep]
         ':'
         [sep:sep]
-        y:expression
+        y:ternary
     |
-        term
+        value:term
     ;
 
 
-conditional_expression
+conditional_expression::Conditional
     =
     boolean_or | boolean
     ;
 
 
-boolean_or
+boolean_or::Or
     =
     | left:boolean_or [sep:sep] op:'|' ~ [sep:sep] right:boolean_xor
-    | boolean_xor
+    | value:boolean_xor
     ;
 
 
-boolean_xor
+boolean_xor::Xor
     =
     | left:boolean_xor [sep:sep] op:'^' ~ [sep:sep] right:boolean_and
-    | boolean_and
+    | value:boolean_and
     ;
 
 
-boolean_and
+boolean_and::And
     =
     | left:boolean_and [sep:sep] op:'&' ~ [sep:sep] right:boolean_not
-    | boolean_not
+    | value:boolean_not
     ;
 
 
-boolean_not
+boolean_not::Not
     =
-    op:'~' ~ operator:relational | relational
+    op:'~' ~ operator:relational | value:relational
     ;
 
 
-relational
+relational::Relational
     =
     left:term
     [sep:sep]
@@ -1211,36 +1211,34 @@ relational
     ;
 
 
-term
+term::AddSub
     =
-    left:term [sep:sep] op:('+' | '-') ~ [sep:sep] right:prod | prod
+    left:term [sep:sep] op:('+' | '-') ~ [sep:sep] right:prod | value:prod
     ;
 
 
-prod
+prod::ProdDivMod
     =
-    left:prod [sep:sep] op:('*' | '/' | '%') ~ [sep:sep] right:unary | unary
+    | left:prod [sep:sep] op:('*' | '/' | '%') ~ [sep:sep] right:unary
+    | value:unary
     ;
 
 
-unary
+unary::Sign
     =
-    op:('+' | '-') ~ operator:exp | exp
+    op:('+' | '-') ~ operator:exp | value:exp
     ;
 
 
-exp
+exp::Exponential
     =
-    left:exp [sep:sep] op:'**' ~ [sep:sep] right:factor | factor
+    left:exp [sep:sep] op:'**' ~ [sep:sep] right:factor | value:factor
     ;
 
 
-factor
+factor::Factor
     =
-    | '(' ~ [sep:sep] @:expression [sep:sep] ')'
-    | @:functions
-    | var:id
-    | @:value
+    '(' ~ [sep:sep] @:ternary [sep:sep] ')' | @:functions | var:id | @:value
     ;
 
 
@@ -1352,7 +1350,7 @@ boolean
     ;
 
 
-model_name
+model_name::ModelName
     =
     name:/[a-zA-Z0-9_]+/ !([sep:sep] '=')
     ;
@@ -1370,7 +1368,7 @@ binary
     ;
 
 
-dev
+dev::Device
     =
     /[a-zA-Z][a-zA-Z0-9_:!`@#\.\+\-]*/
     ;
