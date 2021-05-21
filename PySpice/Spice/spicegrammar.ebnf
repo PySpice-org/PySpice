@@ -777,18 +777,15 @@ include_cmd::IncludeCmd
 
 lib_cmd::LibCmd
     =
-    cmd:'.LIB'
-    sep:sep
-    ~
-    block::LibBlock:lib_block | call::LibCall:lib_call
+    cmd:'.LIB' ~ sep:sep (call:lib_call | block:lib_block)
     ;
 
 
-lib_call
+lib_call::LibCall
     =
     (
-        | double_quote filename:filename double_quote
-        | single_quote filename:filename single_quote
+        | double_quote ~ filename:filename double_quote
+        | single_quote ~ filename:filename single_quote
         | filename:filename
     )
     sep:sep
@@ -865,14 +862,15 @@ subckt_cmd::SubcktCmd
     lines:netlist_lines
     '.ENDS'
     ~
-    [{st}+ end_name:model_name]
+    [{st}+ name:model_name]
     ;
 
 
-lib_block
+lib_block::LibBlock
     =
     entry:id
     sep:cmd_net_sep
+    ~
     lines:netlist_lines
     '.ENDL'
     ~
@@ -888,7 +886,7 @@ title_cmd::TitleCmd
 
 parameters::Parameters
     =
-    ([@:sep] comma [@:sep] | @:sep)%{@:parameter}
+    @:parameter {(([@:sep] comma [@:sep]) | @:sep) @:parameter}
     ;
 
 
@@ -900,7 +898,6 @@ parameter::Parameter
     ~
     [sep:sep]
     value:gen_expr
-    ~
     {[sep:sep] comma [sep:sep] value:gen_expr}
     ;
 
@@ -1396,7 +1393,7 @@ end_sep
 
 sep
     =
-    @:cmd_net_sep '+' {st} | {st}+
+    (@:cmd_net_sep '+' {st}) | {st}+
     ;
 
 
@@ -1405,7 +1402,14 @@ cmd_net_sep::Separator
     {st}
     comment:[@:inline_comment]
     newline
-    {{st} comment:[(@:line_comment | @:inline_comment) ~] newline}
+    {
+        {st}
+        comment:[
+        @:line_comment | @:inline_comment
+        ]
+
+        newline
+    }
     {st}
     ;
 
