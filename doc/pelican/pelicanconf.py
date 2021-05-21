@@ -425,7 +425,7 @@ TEMPLATE_EXTENSIONS = ['.html']
 # generate index pages for collections of content (e.g., category and tag index pages).
 # DIRECT_TEMPLATES are searched for over paths maintained in THEME_TEMPLATES_OVERRIDES.
 DIRECT_TEMPLATES = [
-    'index',
+    # 'index',
     'authors',
     'categories',
     'tags',
