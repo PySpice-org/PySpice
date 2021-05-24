@@ -60,9 +60,9 @@ device
     | @:mosfet
     | @:bjt
     | @:resistor
+    | @:subcircuit
     | @:switch
     | @:voltage_source
-    | @:subcircuit
     ;
 
 
@@ -77,12 +77,12 @@ nonlinear_dependent_source::NonLinearDependentSource
     negative:node
     ~
     sep:sep
-    ('V' | 'I')
+    magnitude:('V' | 'I')
     [sep:sep]
     '='
     [sep:sep]
     expr:abm_expression
-    [sep:sep parameters+:parameters]
+    [sep:sep parameters:parameters]
     ;
 
 
@@ -110,7 +110,7 @@ capacitor::Capacitor
     | sep:sep model:model_name
     ]
 
-    [sep:sep parameters+:parameters]
+    [sep:sep parameters:parameters]
     ;
 
 
@@ -224,7 +224,7 @@ control_table::ControlTable
     type:'TABLE'
     ~
     [sep:sep]
-    braced_expression
+    expr:braced_expression
     [sep:sep]
     '='
     [sep:sep]
@@ -307,7 +307,7 @@ jfet::JFET
     sep:sep
     model:model_name
     [sep:sep area:gen_expr]
-    [sep:sep parameters+:parameters]
+    [sep:sep parameters:parameters]
     ;
 
 
@@ -327,7 +327,7 @@ inductor::Inductor
     | sep:sep model:model_name
     ]
 
-    [sep:sep parameters+:parameters]
+    [sep:sep parameters:parameters]
     ;
 
 
@@ -349,9 +349,15 @@ mosfet::MOSFET
     model:model_name
     [sep:sep
     (sep:sep)%{
-    param+:(
-        | name:'IC' [sep:sep] '=' ~ [sep:sep] ([sep:sep] ',' [sep:sep])%{value}
-        | parameter
+    param:(
+            name:'IC'
+            [sep:sep]
+            '='
+            ~
+            [sep:sep]
+            ([sep:sep] ',' [sep:sep])%{value:value}
+        |
+            parameter:parameter
     )
     }]
     ;
@@ -377,7 +383,7 @@ bjt::BJT
         | model:model_name
     )
     [sep:sep area:gen_expr]
-    [sep:sep parameters+:parameters]
+    [sep:sep parameters:parameters]
     ;
 
 
@@ -397,7 +403,7 @@ resistor::Resistor
     | sep:sep model:model_name
     ]
 
-    [sep:sep parameters+:parameters]
+    [sep:sep parameters:parameters]
     ;
 
 
@@ -434,7 +440,7 @@ subcircuit::Subcircuit
     ~
     dev:dev
     {sep:sep node+:node}
-    [params:':' ~ [sep:sep] parameters+:parameters]
+    [params:':' ~ [sep:sep] parameters:parameters]
     ;
 
 
@@ -466,7 +472,7 @@ ac
     ;
 
 
-transient_specification
+transient_specification::TransientSpecification
     =
     | @:transient_pulse
     | @:transient_sin
@@ -477,7 +483,7 @@ transient_specification
     ;
 
 
-transient_pulse
+transient_pulse::TransientPulse
     =
     type:'PULSE'
     (
@@ -487,13 +493,13 @@ transient_pulse
     ;
 
 
-pulse_arguments
+pulse_arguments::PulseArguments
     =
-    v1:gen_expr sep:sep (sep:sep)%{gen_expr}
+    v1:gen_expr sep:sep (sep:sep)%{value:gen_expr}
     ;
 
 
-transient_sin
+transient_sin::TransientSin
     =
     type:'SIN'
     (
@@ -503,7 +509,7 @@ transient_sin
     ;
 
 
-sin_arguments
+sin_arguments::SinArguments
     =
     v0:gen_expr
     sep:sep
@@ -515,7 +521,7 @@ sin_arguments
     ;
 
 
-transient_exp
+transient_exp::TransientExp
     =
     type:'EXP'
     (
@@ -525,13 +531,13 @@ transient_exp
     ;
 
 
-exp_arguments
+exp_arguments::ExpArguments
     =
     v1:gen_expr sep:sep v2:gen_expr sep:sep (sep:sep)%{value:gen_expr}
     ;
 
 
-transient_pat
+transient_pat::TransientPat
     =
     type:'PAT'
     (
@@ -541,7 +547,7 @@ transient_pat
     ;
 
 
-pat_arguments
+pat_arguments::PatArguments
     =
     vhi:gen_expr
     sep:sep
@@ -560,24 +566,34 @@ pat_arguments
     ;
 
 
-transient_pwl
+transient_pwl::TransientPWL
     =
-    type:'PWL'
-    ~
-    sep:sep
-    (
-            'FILE'
-            ~
-            sep:sep
-            (double_quote filename double_quote | filename)
-            [sep:sep parameters:parameters]
-        |
-            (sep:sep)%{t:value ~ sep:sep v:value}+
-    )
+    type:'PWL' ~ (@:pwl_file_arguments | @:pwl_arguments)
     ;
 
 
-transient_sffm
+pwl_file_arguments::PWLFileArguments
+    =
+    sep:sep
+    'FILE'
+    ~
+    sep:sep
+    (double_quote filename:filename double_quote | filename:filename)
+    [sep:sep parameters:parameters]
+    ;
+
+
+pwl_arguments::PWLArguments
+    =
+    (
+        | {sep:sep} lp ~ {sep:sep t:value sep:sep value:value}+ sep:sep rp
+        | {sep:sep t:value sep:sep value:value}+
+    )
+    [sep:sep parameters:parameters]
+    ;
+
+
+transient_sffm::TransientSFFM
     =
     type:'SFFM'
     (
@@ -587,13 +603,13 @@ transient_sffm
     ;
 
 
-sffm_arguments
+sffm_arguments::SFFMArguments
     =
     v0:gen_expr sep:sep va:gen_expr sep:sep (sep:sep)%{value:gen_expr}
     ;
 
 
-command
+command::Command
     =
     | @:ac_cmd
     | @:ic_cmd
@@ -608,7 +624,7 @@ command
     ;
 
 
-netlist_cmds
+netlist_cmds::NetlistCmds
     =
     @:data_cmd | @:model_cmd | @:param_cmd | @:subckt_cmd
     ;
@@ -764,13 +780,13 @@ ic_cmd::ICCmd
 
 include_cmd::IncludeCmd
     =
-    cmd:('.INC' | '.INCLUDE' | '.INCL')
+    cmd:('.INCLUDE' | '.INCL' | '.INC')
     ~
     sep:sep
     (
-        | filename
-        | single_quote ~ filename single_quote
-        | double_quote ~ filename double_quote
+        | double_quote ~ filename:filename double_quote
+        | single_quote ~ filename:filename single_quote
+        | filename:filename
     )
     ;
 
@@ -908,7 +924,7 @@ gen_expr::Expression
     ;
 
 
-tablefile
+tablefile::TableFile
     =
     func:'tablefile'
     [sep:sep]
@@ -1047,7 +1063,7 @@ gauss
 
 i_func
     =
-    func:'i' [sep:sep] lp ~ [sep:sep] &'V' positive:dev [sep:sep] rp
+    func:'i' [sep:sep] lp ~ [sep:sep] &'V' device:dev [sep:sep] rp
     ;
 
 
@@ -1142,7 +1158,7 @@ v_func
     [sep:sep]
     node:node
     [sep:sep]
-    [',' [sep:sep] negative:node [sep:sep]]
+    [',' [sep:sep] node:node [sep:sep]]
     rp
     ;
 
@@ -1335,9 +1351,9 @@ digit
     ;
 
 
-filename
+filename::Filename
     =
-    ?"[a-zA-Z0-9_:@#\.\$\/]+"
+    ?"[a-zA-Z0-9_:@#\.\$\/][a-zA-Z0-9_:@#\.\$\/\+\-]*"
     ;
 
 
@@ -1353,7 +1369,7 @@ model_name::ModelName
     ;
 
 
-binary_pattern
+binary_pattern::BinaryPattern
     =
     /[Bb]/ pattern:{binary}+
     ;
@@ -1373,7 +1389,7 @@ dev::Device
 
 node
     =
-    | /[a-zA-Z0-9_\[\$][a-zA-Z0-9_:\$\-`~!@#%&_\+|<>\?\.\\|\^\*]*[a-zA-Z0-9_\$\-`~!@#%&_\+|<>\?\.\\|\^\*\]]/
+    | ?"[a-zA-Z0-9_\[\$\/\+\-][a-zA-Z0-9_:\$\-`~!@#%&_\+|<>\?\.\\|\^\*\/]*[a-zA-Z0-9_\$\-`~!@#%&_\+|<>\?\.\\|\^\*\]\/]"
     | /[a-zA-Z0-9_]/
     ;
 
