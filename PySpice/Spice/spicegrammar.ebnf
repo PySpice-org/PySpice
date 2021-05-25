@@ -8,8 +8,20 @@ start::Circuit
     =
     ['.TITLE']
     {st}
+    [asterisk]
+    {st}
     title:text
-    [{newline}+ lines:lines]
+    {newline asterisk {st} title:text}
+    {
+        {st}
+        [
+        line_comment | inline_comment
+        ]
+
+        newline
+    }
+    {st}
+    [lines:lines]
     [newline '.END']
     {newline}
     ;
@@ -257,7 +269,21 @@ control_voltage_poly::ControlVoltagePoly
     [sep:sep]
     rp
     [sep:sep]
-    (sep:sep)%{positive+:node sep:sep negative+:node | coefficient:value}
+    (sep:sep)%{
+        lp
+        [sep:sep]
+        positive+:node
+        [sep:sep]
+        comma
+        [sep:sep]
+        negative+:node
+        [sep:sep]
+        rp
+    |
+        positive+:node sep:sep negative+:node
+    |
+        coefficient:value
+    }
     ;
 
 
@@ -355,7 +381,7 @@ mosfet::MOSFET
             '='
             ~
             [sep:sep]
-            ([sep:sep] ',' [sep:sep])%{value:value}
+            ([sep:sep] comma [sep:sep])%{value:value}
         |
             parameter:parameter
     )
@@ -377,12 +403,20 @@ bjt::BJT
     ~
     sep:sep
     (
-        | substrate:node sep:sep thermal:node sep:sep model:model_name
-        | (substrate:{digit}+ | &'[' substrate:node) sep:sep model:model_name
-        | thermal:node sep:sep model:model_name
-        | model:model_name
+            (substrate:{digit}+ | &'[' substrate:node)
+            [sep:sep thermal:node]
+            sep:sep
+            model:model_name
+        |
+            [
+            substrate:{digit}+ | &'[' substrate:node
+            ]
+
+            model:model_name
+            [sep:sep area:gen_expr]
+        |
+            thermal:node sep:sep model:model_name
     )
-    [sep:sep area:gen_expr]
     [sep:sep parameters:parameters]
     ;
 
@@ -420,7 +454,7 @@ switch::Switch
     sep:sep
     (
             model:model_name
-            [sep:sep ('ON' | 'OFF')]
+            [sep:sep initial_state:('ON' | 'OFF')]
             sep:sep
             'control'
             ~
@@ -429,7 +463,12 @@ switch::Switch
             [sep:sep]
             braced_expression
         |
-            control_p:node sep:sep control_n:node sep:sep model:model_name
+            control_p:node
+            sep:sep
+            control_n:node
+            sep:sep
+            model:model_name
+            [sep:sep initial_state:('ON' | 'OFF')]
     )
     ;
 
@@ -1015,7 +1054,7 @@ atan2
     [sep:sep]
     y:ternary
     [sep:sep]
-    ','
+    comma
     [sep:sep]
     x:ternary
     [sep:sep]
@@ -1032,7 +1071,7 @@ ddx
     [sep:sep]
     f:id
     [sep:sep]
-    ','
+    comma
     [sep:sep]
     x:ternary
     [sep:sep]
@@ -1049,11 +1088,11 @@ gauss
     [sep:sep]
     mu:ternary
     [sep:sep]
-    ','
+    comma
     [sep:sep]
     alpha:ternary
     [sep:sep]
-    ','
+    comma
     [sep:sep]
     n:ternary
     [sep:sep]
@@ -1076,11 +1115,11 @@ if_func
     [sep:sep]
     t:conditional_expression
     [sep:sep]
-    ','
+    comma
     [sep:sep]
     x:ternary
     [sep:sep]
-    ','
+    comma
     [sep:sep]
     y:ternary
     [sep:sep]
@@ -1097,11 +1136,11 @@ limit
     [sep:sep]
     x:ternary
     [sep:sep]
-    ','
+    comma
     [sep:sep]
     y:ternary
     [sep:sep]
-    ','
+    comma
     [sep:sep]
     z:ternary
     [sep:sep]
@@ -1118,7 +1157,7 @@ functions_2
     [sep:sep]
     x:ternary
     [sep:sep]
-    ','
+    comma
     [sep:sep]
     y:ternary
     [sep:sep]
@@ -1141,7 +1180,7 @@ unif
     [sep:sep]
     mu:ternary
     [sep:sep]
-    ','
+    comma
     [sep:sep]
     alpha:ternary
     [sep:sep]
@@ -1158,7 +1197,7 @@ v_func
     [sep:sep]
     node:node
     [sep:sep]
-    [',' [sep:sep] node:node [sep:sep]]
+    [comma [sep:sep] node:node [sep:sep]]
     rp
     ;
 
@@ -1182,7 +1221,8 @@ ternary::Ternary
 
 conditional_expression::Conditional
     =
-    boolean_or | boolean
+    | lp [sep:sep] (boolean_or | boolean) [sep:sep] rp
+    | (boolean_or | boolean)
     ;
 
 
@@ -1251,7 +1291,7 @@ exp::Exponential
 
 factor::Factor
     =
-    '(' ~ [sep:sep] @:ternary [sep:sep] ')' | @:functions | var:id | @:value
+    lp ~ [sep:sep] @:ternary [sep:sep] rp | @:functions | var:id | @:value
     ;
 
 
@@ -1365,7 +1405,7 @@ boolean
 
 model_name::ModelName
     =
-    name:/[a-zA-Z0-9_]+/ !([sep:sep] '=')
+    name:/[a-zA-Z0-9_][a-zA-Z0-9_\-\+]*/ !([sep:sep] '=')
     ;
 
 
