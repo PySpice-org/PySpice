@@ -68,6 +68,7 @@ device
     | @:current_controlled_voltage_source
     | @:current_source
     | @:jfet
+    | @:mutual_inductor
     | @:inductor
     | @:mosfet
     | @:bjt
@@ -139,6 +140,7 @@ diode::Diode
     sep:sep
     model:model_name
     [sep:sep area:gen_expr]
+    [sep:sep parameters:parameters]
     ;
 
 
@@ -334,6 +336,18 @@ jfet::JFET
     model:model_name
     [sep:sep area:gen_expr]
     [sep:sep parameters:parameters]
+    ;
+
+
+mutual_inductor::MutualInductor
+    =
+    &'K'
+    ~
+    dev:dev
+    {sep:sep &'L' inductor:dev}+
+    sep:sep
+    value:gen_expr
+    [sep:sep model:model_name]
     ;
 
 
@@ -1291,7 +1305,11 @@ exp::Exponential
 
 factor::Factor
     =
-    lp ~ [sep:sep] @:ternary [sep:sep] rp | @:functions | var:id | @:value
+    | lp ~ [sep:sep] @:ternary [sep:sep] rp
+    | @:functions
+    | lc [sep:sep] var:id [sep:sep] rc
+    | var:id
+    | @:value
     ;
 
 
