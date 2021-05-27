@@ -925,7 +925,9 @@ subckt_cmd::SubcktCmd
     {sep:sep node:(node !':')}
     [sep:sep 'params:' ~ [sep:sep] parameters:parameters]
     sep:cmd_net_sep
+    {st}
     lines:netlist_lines
+    {st}
     '.ENDS'
     ~
     [{st}+ name:model_name]
@@ -938,6 +940,7 @@ lib_block::LibBlock
     sep:cmd_net_sep
     ~
     lines:netlist_lines
+    {st}
     '.ENDL'
     ~
     [{st}+ entry:id]
@@ -989,7 +992,13 @@ tablefile::TableFile
 
 braced_expression::BracedExpression
     =
-    lc ~ [sep:sep] @:ternary [sep:sep] rc
+    lc [sep:sep] @:parentheses [sep:sep] rc
+    ;
+
+
+parentheses
+    =
+    lp [sep:sep] @:ternary [sep:sep] rp | @:ternary
     ;
 
 
@@ -1050,7 +1059,7 @@ functions_1
     lp
     ~
     [sep:sep]
-    x:ternary
+    x:parentheses
     [sep:sep]
     rp
     ;
@@ -1063,11 +1072,11 @@ atan2
     lp
     ~
     [sep:sep]
-    y:ternary
+    y:parentheses
     [sep:sep]
     comma
     [sep:sep]
-    x:ternary
+    x:parentheses
     [sep:sep]
     rp
     ;
@@ -1084,7 +1093,7 @@ ddx
     [sep:sep]
     comma
     [sep:sep]
-    x:ternary
+    x:parentheses
     [sep:sep]
     rp
     ;
@@ -1097,15 +1106,15 @@ gauss
     lp
     ~
     [sep:sep]
-    mu:ternary
+    mu:parentheses
     [sep:sep]
     comma
     [sep:sep]
-    alpha:ternary
+    alpha:parentheses
     [sep:sep]
     comma
     [sep:sep]
-    n:ternary
+    n:parentheses
     [sep:sep]
     rp
     ;
@@ -1128,11 +1137,11 @@ if_func
     [sep:sep]
     comma
     [sep:sep]
-    x:ternary
+    x:parentheses
     [sep:sep]
     comma
     [sep:sep]
-    y:ternary
+    y:parentheses
     [sep:sep]
     rp
     ;
@@ -1145,15 +1154,15 @@ limit
     lp
     ~
     [sep:sep]
-    x:ternary
+    x:parentheses
     [sep:sep]
     comma
     [sep:sep]
-    y:ternary
+    y:parentheses
     [sep:sep]
     comma
     [sep:sep]
-    z:ternary
+    z:parentheses
     [sep:sep]
     rp
     ;
@@ -1166,11 +1175,11 @@ functions_2
     lp
     ~
     [sep:sep]
-    x:ternary
+    x:parentheses
     [sep:sep]
     comma
     [sep:sep]
-    y:ternary
+    y:parentheses
     [sep:sep]
     rp
     ;
@@ -1189,11 +1198,11 @@ unif
     lp
     ~
     [sep:sep]
-    mu:ternary
+    mu:parentheses
     [sep:sep]
     comma
     [sep:sep]
-    alpha:ternary
+    alpha:parentheses
     [sep:sep]
     rp
     ;
@@ -1220,11 +1229,12 @@ ternary::Ternary
         op:'?'
         ~
         [sep:sep]
-        x:ternary
+        x:parentheses
         [sep:sep]
         ':'
+        ~
         [sep:sep]
-        y:ternary
+        y:parentheses
     |
         value:term
     ;
@@ -1238,38 +1248,35 @@ conditional_expression::Conditional
 
 boolean_or::Or
     =
-    left:boolean_xor [[sep:sep] op:'|' ~ [sep:sep] right:boolean_or]
+    left:boolean_xor [[sep:sep] op:'|' [sep:sep] right:boolean_or]
     ;
 
 
 boolean_xor::Xor
     =
-    left:boolean_and [[sep:sep] op:'^' ~ [sep:sep] right:boolean_xor]
+    left:boolean_and [[sep:sep] op:'^' [sep:sep] right:boolean_xor]
     ;
 
 
 boolean_and::And
     =
-    left:boolean_not [[sep:sep] op:'&' ~ [sep:sep] right:boolean_and]
+    left:boolean_not [[sep:sep] op:'&' [sep:sep] right:boolean_and]
     ;
 
 
 boolean_not::Not
     =
-    op:'~' ~ operator:relational | value:relational
+    [op:'~'] operator:relational
     ;
 
 
 relational::Relational
     =
-        left:term
-        [sep:sep]
+        left:parentheses
+        [[sep:sep]
         op:('==' | '!=' | '>=' | '<=' | '>' | '<')
-        ~
         [sep:sep]
-        right:term
-    |
-        value:term
+        right:parentheses]
     |
         value:boolean
     ;
@@ -1277,42 +1284,43 @@ relational::Relational
 
 term::Term
     =
-    lp [sep] @:add_sub [sep] rp | @:add_sub
+    @:add_sub
     ;
 
 
 add_sub::AddSub
     =
-    left:term [sep:sep] op:('+' | '-') ~ [sep:sep] right:prod | value:prod
+    left:prod [[sep:sep] op:('+' | '-') [sep:sep] right:add_sub]
     ;
 
 
 prod::ProdDivMod
     =
-    | left:prod [sep:sep] op:('*' | '/' | '%') ~ [sep:sep] right:unary
-    | value:unary
+    left:unary [[sep:sep] op:('*' | '/' | '%') [sep:sep] right:prod]
     ;
 
 
 unary::Sign
     =
-    op:('+' | '-') ~ operator:exp | value:exp
+    [op:('+' | '-')] operator:exp
     ;
 
 
 exp::Exponential
     =
-    left:exp [sep:sep] op:'**' ~ [sep:sep] right:factor | value:factor
+    left:functional [[sep:sep] op:'**' [sep:sep] right:exp]
+    ;
+
+
+functional::Functional
+    =
+    @:functions | @:factor
     ;
 
 
 factor::Factor
     =
-    | lp ~ [sep:sep] @:ternary [sep:sep] rp
-    | @:functions
-    | lc [sep:sep] var:var_id [sep:sep] rc
-    | var:var_id
-    | @:value
+    @:parentheses | lc [sep:sep] @:var_id [sep:sep] rc | @:var_id | @:value
     ;
 
 
@@ -1469,13 +1477,13 @@ var_id
 
 end_sep
     =
-    @:cmd_net_sep | {st}+
+    @:cmd_net_sep {st} | {st}+
     ;
 
 
 sep
     =
-    {@:cmd_net_sep '+' {st}}+ | {st}+
+    {@:cmd_net_sep {st} '+' {st}}+ | {st}+
     ;
 
 
@@ -1492,7 +1500,6 @@ cmd_net_sep::Separator
 
         newline
     }
-    {st}
     ;
 
 
