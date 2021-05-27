@@ -22,8 +22,8 @@ start::Circuit
     }
     {st}
     [lines:lines]
-    [newline '.END']
-    {newline}
+    ['.END' end_sep]
+    $
     ;
 
 
@@ -53,7 +53,14 @@ netlist_line::NetlistLine
 
 encrypted
     =
-    '$CDNENCSTART' ~ {newline}+ {{/[0-9a-f]/} {newline}+} '$CDNENCFINISH'
+    '$CDNENCSTART'
+    ~
+    [id]
+    {newline}+
+    {{/[0-9a-f]/} {newline}+}
+    '$CDNENCFINISH'
+    ~
+    [id]
     ;
 
 
@@ -344,7 +351,7 @@ mutual_inductor::MutualInductor
     &'K'
     ~
     dev:dev
-    {sep:sep &'L' inductor:dev}+
+    {sep:sep &'L' inductor+:dev}+
     sep:sep
     value:gen_expr
     [sep:sep model:model_name]
@@ -414,24 +421,16 @@ bjt::BJT
     base:node
     sep:sep
     emitter:node
-    ~
-    sep:sep
-    (
-            (substrate:{digit}+ | &'[' substrate:node)
-            [sep:sep thermal:node]
-            sep:sep
-            model:model_name
-        |
-            [
-            substrate:{digit}+ | &'[' substrate:node
-            ]
-
-            model:model_name
-            [sep:sep area:gen_expr]
-        |
-            thermal:node sep:sep model:model_name
-    )
+    [sep:sep substrate:substrate_node]
+    {sep:sep args+:node}+
+    [sep:sep area:gen_expr]
     [sep:sep parameters:parameters]
+    ;
+
+
+substrate_node::SubstrateNode
+    =
+    substrate:(/[0-9]+/ | &'[' ~ node)
     ;
 
 
@@ -664,9 +663,6 @@ sffm_arguments::SFFMArguments
 
 command::Command
     =
-    | @:ac_cmd
-    | @:ic_cmd
-    | @:dc_cmd
     | @:embedded_sampling_cmd
     | @:include_cmd
     | @:lib_cmd
@@ -674,12 +670,14 @@ command::Command
     | @:subckt_cmd
     | @:simulator_cmd
     | @:title_cmd
+    | @:ac_cmd
+    | @:dc_cmd
     ;
 
 
 netlist_cmds::NetlistCmds
     =
-    @:data_cmd | @:model_cmd | @:param_cmd | @:subckt_cmd
+    @:data_cmd | @:ic_cmd | @:model_cmd | @:param_cmd | @:subckt_cmd
     ;
 
 
@@ -726,7 +724,6 @@ data_cmd::DataCmd
 dc_cmd::DCCmd
     =
     cmd:'.DC'
-    ~
     (
             (sep:sep sweep:'DATA' {st} '=' {st} table:id)
         |
@@ -926,7 +923,7 @@ subckt_cmd::SubcktCmd
     sep:sep
     name:model_name
     {sep:sep node:(node !':')}
-    [sep:sep 'params:' ~ sep:sep parameters:parameters]
+    [sep:sep 'params:' ~ [sep:sep] parameters:parameters]
     sep:cmd_net_sep
     lines:netlist_lines
     '.ENDS'
@@ -1235,29 +1232,25 @@ ternary::Ternary
 
 conditional_expression::Conditional
     =
-    | lp [sep:sep] (boolean_or | boolean) [sep:sep] rp
-    | (boolean_or | boolean)
+    lp [sep:sep] @:boolean_or [sep:sep] rp | @:boolean_or
     ;
 
 
 boolean_or::Or
     =
-    | left:boolean_or [sep:sep] op:'|' ~ [sep:sep] right:boolean_xor
-    | value:boolean_xor
+    left:boolean_xor [[sep:sep] op:'|' ~ [sep:sep] right:boolean_or]
     ;
 
 
 boolean_xor::Xor
     =
-    | left:boolean_xor [sep:sep] op:'^' ~ [sep:sep] right:boolean_and
-    | value:boolean_and
+    left:boolean_and [[sep:sep] op:'^' ~ [sep:sep] right:boolean_xor]
     ;
 
 
 boolean_and::And
     =
-    | left:boolean_and [sep:sep] op:'&' ~ [sep:sep] right:boolean_not
-    | value:boolean_not
+    left:boolean_not [[sep:sep] op:'&' ~ [sep:sep] right:boolean_and]
     ;
 
 
@@ -1269,16 +1262,26 @@ boolean_not::Not
 
 relational::Relational
     =
-    left:term
-    [sep:sep]
-    op:('==' | '!=' | '>=' | '<=' | '>' | '<')
-    ~
-    [sep:sep]
-    right:term
+        left:term
+        [sep:sep]
+        op:('==' | '!=' | '>=' | '<=' | '>' | '<')
+        ~
+        [sep:sep]
+        right:term
+    |
+        value:term
+    |
+        value:boolean
     ;
 
 
-term::AddSub
+term::Term
+    =
+    lp [sep] @:add_sub [sep] rp | @:add_sub
+    ;
+
+
+add_sub::AddSub
     =
     left:term [sep:sep] op:('+' | '-') ~ [sep:sep] right:prod | value:prod
     ;
@@ -1307,8 +1310,8 @@ factor::Factor
     =
     | lp ~ [sep:sep] @:ternary [sep:sep] rp
     | @:functions
-    | lc [sep:sep] var:id [sep:sep] rc
-    | var:id
+    | lc [sep:sep] var:var_id [sep:sep] rc
+    | var:var_id
     | @:value
     ;
 
@@ -1321,24 +1324,26 @@ special_variables
 
 value::Value
     =
-    | (real:real_value '+' imag:imag_value)
-    | imag:imag_value
-    | real:real_value
+    (
+        | (real:real_value '+' imag:imag_value)
+        | imag:imag_value
+        | real:real_value
+    )
+    unit:[
+    hz | unit
+    ]
     ;
 
 
 imag_value::ImagValue
     =
-    @:real_value 'J'
+    value:number_scale 'J'
     ;
 
 
 real_value::RealValue
     =
     value:number_scale
-    unit:[
-    hz | unit
-    ]
     ;
 
 
@@ -1350,8 +1355,8 @@ freq_value
 
 number_scale::NumberScale
     =
-    | value:floating_point scale:(meg | mil | [suffix])
-    | value:integer scale:(meg | mil | [suffix])
+    | value:floating_point scale:(meg | [suffix])
+    | value:integer scale:(meg | [suffix])
     ;
 
 
@@ -1364,12 +1369,6 @@ suffix
 meg
     =
     /[mM][eE][gG]/
-    ;
-
-
-mil
-    =
-    /[mM][iI][lL]/
     ;
 
 
@@ -1441,14 +1440,17 @@ binary
 
 dev::Device
     =
-    /[a-zA-Z][a-zA-Z0-9_:!`@#\.\+\-]*/
+    /[a-zA-Z\$][a-zA-Z0-9_:!`@#\.\+\-\$]*/
     ;
 
 
-node
+node::NetNode
     =
-    | ?"[a-zA-Z0-9_\[\$\/\+\-][a-zA-Z0-9_:\$\-`~!@#%&_\+|<>\?\.\\|\^\*\/]*[a-zA-Z0-9_\$\-`~!@#%&_\+|<>\?\.\\|\^\*\]\/]"
-    | /[a-zA-Z0-9_]/
+    node:(
+        | ?"[a-zA-Z0-9_\[\$\/\+\-][a-zA-Z0-9_:\$\-`~!@#%&_\+|<>\?\.\\|\^\*\/]*[a-zA-Z0-9_\$\-`~!@#%&_\+|<>\?\.\\|\^\*\]\/]"
+        | /[a-zA-Z0-9_]/
+    )
+    !([sep:sep] '=')
     ;
 
 
@@ -1456,6 +1458,12 @@ id
     =
     | ?"[a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$\/]*[a-zA-Z0-9_`@#\.\$]"
     | /[a-zA-Z_`@#\$]/
+    ;
+
+
+var_id
+    =
+    /[a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$]*[a-zA-Z0-9_`@#\.\$]/ | /[a-zA-Z]/
     ;
 
 
@@ -1467,7 +1475,7 @@ end_sep
 
 sep
     =
-    (@:cmd_net_sep '+' {st}) | {st}+
+    {@:cmd_net_sep '+' {st}}+ | {st}+
     ;
 
 
