@@ -73,7 +73,7 @@ class SpiceLibrary:
             extension = path.extension.lower()
             if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
-                spice_parser = SpiceParser(path=path, library=True)
+                spice_parser = SpiceParser.parse(path=path, library=True)
                 for model in spice_parser.models:
                     name = self._suffix_name(model.name, extension)
                     self._models[name.lower()] = path

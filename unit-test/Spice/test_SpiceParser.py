@@ -357,8 +357,8 @@ HNONLIN 100 101 POLY(2) VCNTRL1 VCINTRL2 0.0 13.6 0.2 0.005
 """
 
 def circuit_gft(prb):
-    parser = SpiceParser(source=prb[0])
-    circuit = parser.build_circuit()
+    parser = SpiceParser.parse(source=prb[0])
+    circuit = parser.build()
     circuit.parameter('prb', str(prb[1]))
     simulator = circuit.simulator(simulator='xyce-serial')
     simulator.save(['all'])

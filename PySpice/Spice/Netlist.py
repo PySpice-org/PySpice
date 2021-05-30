@@ -1128,7 +1128,7 @@ class Netlist:
 
         if path not in self._includes:
             self._includes.append(path)
-            library = SpiceParser(path=path)
+            library = SpiceParser.parse(path=path)
             if entry is not None:
                 library = library[entry]
             models = library.models
@@ -1140,7 +1140,7 @@ class Netlist:
                 subcircuit_def = subcircuit.build(parent=self)
                 self.subcircuit(subcircuit_def)
                 self._subcircuits[subcircuit._name.lower()]._included = path
-            parameters = library.parameters
+            parameters = library.params
             for param in parameters:
                 self.param(param)
         else:

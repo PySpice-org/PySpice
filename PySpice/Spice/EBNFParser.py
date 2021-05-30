@@ -127,10 +127,12 @@ class IncludeStatement(Statement):
         root, _ = os.path.split(parent.path)
         file_name = os.path.abspath(os.path.join(root,
                                                  self._include.replace('"', '')))
+        if not (os.path.exists(file_name) and os.path.isfile(file_name)):
+            raise ParseError("{}: File not found: {}".format(parent.path, file_name))
         try:
-            self._contents = SpiceParser(path=file_name)
+            self._contents = SpiceParser.parse(path=file_name, library=True)
         except Exception as e:
-            raise FileNotFoundError("{}: ".format(parent.path) + str(e)) from e
+            raise ParseError("{}: {:s}".format(parent.path, e))
 
     ##############################################
 
@@ -718,11 +720,7 @@ class CircuitStatement(Statement):
 
 class SpiceModelWalker(NodeWalker):
 
-    def __init__(self, filename):
-        self._path = filename
-        self._root = None
-        self._present = None
-        self._context = []
+    def __init__(self):
         self._scales = (Tera(), Giga(), Mega(), Kilo(), Milli(), Micro(), Nano(), Pico(), Femto())
         self._suffix = dict([(normalize("NFKD", unit.prefix).lower(), PrefixedUnit(power=unit))
                              for unit in self._scales] +
@@ -791,29 +789,29 @@ class SpiceModelWalker(NodeWalker):
             ">": GT
         }
 
-    def walk_Circuit(self, node):
-        if self._root is None:
-            self._root = CircuitStatement(
-                self.walk(node.title),
-                self._path
+    def walk_Circuit(self, node, data):
+        if data._root is None:
+            data._root = CircuitStatement(
+                self.walk(node.title, data),
+                data._path
             )
-            self._present = self._root
+            data._present = data._root
         else:
-            raise ValueError('Circuit already created: {}'.format(self._path))
+            raise ValueError('Circuit already created: {}'.format(data._path))
 
-        self.walk(node.lines)
-        if len(self._context) != 0:
-            raise ParseError("Not closed hierarchy: {}".format(self._path))
-        return self._root
+        self.walk(node.lines, data)
+        if len(data._context) != 0:
+            raise ParseError("Not closed hierarchy: {}".format(data._path))
+        return data._root
 
-    def walk_BJT(self, node):
-        device = self.walk(node.dev)
-        args = self.walk(node.args)
+    def walk_BJT(self, node, data):
+        device = self.walk(node.dev, data)
+        args = self.walk(node.args, data)
         l_args = len(args)
         kwargs = {}
-        collector = self.walk(node.collector)
-        base = self.walk(node.base)
-        emitter = self.walk(node.emitter)
+        collector = self.walk(node.collector, data)
+        base = self.walk(node.base, data)
+        emitter = self.walk(node.emitter, data)
         nodes = [
             collector,
             base,
@@ -825,7 +823,7 @@ class SpiceModelWalker(NodeWalker):
             nodes.append(substrate)
         area = None
         if node.area is not None:
-            area = self.walk(node.area)
+            area = self.walk(node.area, data)
         if l_args == 0:
             raise ValueError("The device {} has no model".format(node.dev))
         elif l_args == 1:
@@ -864,13 +862,13 @@ class SpiceModelWalker(NodeWalker):
             raise ValueError("Present device not compatible with BJT definition: {}".format(node.dev))
 
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
             kwargs.update(parameters)
 
         kwargs["model"] = model_name
-        self._present._required_models.add(model_name.lower())
+        data._present._required_models.add(model_name.lower())
 
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 BipolarJunctionTransistor,
                 device,
@@ -879,22 +877,22 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_SubstrateNode(self, node):
+    def walk_SubstrateNode(self, node, data):
         return node.substrate
 
-    def walk_Capacitor(self, node):
-        device = self.walk(node.dev)
+    def walk_Capacitor(self, node, data):
+        device = self.walk(node.dev, data)
         kwargs = {}
         if node.model is not None:
-            model_name = self.walk(node.model)
+            model_name = self.walk(node.model, data)
             kwargs['model'] = model_name
-            self._present._required_models.add(model_name.lower())
+            data._present._required_models.add(model_name.lower())
         value = None
         if node.value is not None:
-            value = self.walk(node.value)
+            value = self.walk(node.value, data)
             kwargs['capacitance'] = value
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
             kwargs.update(parameters)
         if value is None:
             if 'c' in kwargs:
@@ -905,13 +903,13 @@ class SpiceModelWalker(NodeWalker):
                 kwargs['capacitance'] = value
 
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 Capacitor,
                 device,
@@ -920,25 +918,25 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_CurrentControlledCurrentSource(self, node):
-        device = self.walk(node.dev)
+    def walk_CurrentControlledCurrentSource(self, node, data):
+        device = self.walk(node.dev, data)
         if (node.controller is None and node.dev is None and
                 node.gain is None):
             raise ValueError("Device {} not properly defined".format(node.dev))
         if node.controller is not None:
-            controller = self.walk(node.controller)
+            controller = self.walk(node.controller, data)
             kwargs = {"I": controller}
         else:
-            value = self.walk(node.gain)
+            value = self.walk(node.gain, data)
             kwargs = {"I": I(device)*value}
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 BehavioralSource,
                 device,
@@ -947,25 +945,25 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_CurrentControlledVoltageSource(self, node):
-        device = self.walk(node.dev)
+    def walk_CurrentControlledVoltageSource(self, node, data):
+        device = self.walk(node.dev, data)
         if (node.controller is None and node.dev is None and
                 node.gain is None):
             raise ValueError("Device {} not properly defined".format(node.dev))
         if node.controller is not None:
-            controller = self.walk(node.controller)
+            controller = self.walk(node.controller, data)
             kwargs = {"V": controller}
         else:
-            value = self.walk(node.transresistance)
+            value = self.walk(node.transresistance, data)
             kwargs = {"V": I(device)*value}
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 BehavioralSource,
                 device,
@@ -974,25 +972,25 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_CurrentSource(self, node):
-        device = self.walk(node.dev)
+    def walk_CurrentSource(self, node, data):
+        device = self.walk(node.dev, data)
         kwargs = {}
         if node.dc_value is not None:
-            kwargs['dc_value'] = self.walk(node.dc_value)
+            kwargs['dc_value'] = self.walk(node.dc_value, data)
         if node.ac_magnitude is not None:
-            kwargs['ac_magnitude'] = self.walk(node.ac_magnitude)
+            kwargs['ac_magnitude'] = self.walk(node.ac_magnitude, data)
         if node.ac_phase is not None:
-            kwargs['ac_phase'] = self.walk(node.ac_phase)
+            kwargs['ac_phase'] = self.walk(node.ac_phase, data)
         if node.transient is not None:
-            kwargs['transient'] = self.walk(node.transient)
+            kwargs['transient'] = self.walk(node.transient, data)
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 CurrentSource,
                 device,
@@ -1001,26 +999,26 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_Diode(self, node):
-        device = self.walk(node.dev)
+    def walk_Diode(self, node, data):
+        device = self.walk(node.dev, data)
         kwargs = {}
         if node.model is None:
             raise ValueError("The device {} has no model".format(node.dev))
         else:
-            model_name = self.walk(node.model)
+            model_name = self.walk(node.model, data)
             kwargs['model'] = model_name
-            self._present._required_models.add(model_name.lower())
+            data._present._required_models.add(model_name.lower())
         if node.area is not None:
-            area = self.walk(node.area)
+            area = self.walk(node.area, data)
             kwargs['area'] = area
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 Diode,
                 device,
@@ -1029,19 +1027,19 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_Inductor(self, node):
-        device = self.walk(node.dev)
+    def walk_Inductor(self, node, data):
+        device = self.walk(node.dev, data)
         kwargs = {}
         if node.model is not None:
-            model_name = self.walk(node.model)
+            model_name = self.walk(node.model, data)
             kwargs['model'] = model_name
-            self._present._required_models.add(model_name.lower())
+            data._present._required_models.add(model_name.lower())
         value = None
         if node.value is not None:
-            value = self.walk(node.value)
+            value = self.walk(node.value, data)
             kwargs['inductance'] = value
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
             kwargs.update(parameters)
         if value is None:
             if 'l' in kwargs:
@@ -1051,13 +1049,13 @@ class SpiceModelWalker(NodeWalker):
                 value = kwargs.pop('L')
                 kwargs['inductance'] = value
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 Inductor,
                 device,
@@ -1066,31 +1064,31 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_JFET(self, node):
-        device = self.walk(node.dev)
+    def walk_JFET(self, node, data):
+        device = self.walk(node.dev, data)
         kwargs = {}
         if node.model is None:
             raise ValueError("The device {} has no model".format(node.dev))
         else:
-            model_name = self.walk(node.model)
+            model_name = self.walk(node.model, data)
             kwargs["model"] = model_name
-            self._present._required_models.add(model_name.lower())
+            data._present._required_models.add(model_name.lower())
         if node.area is not None:
-            area = self.walk(node.area)
+            area = self.walk(node.area, data)
             kwargs["area"] = area
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
             kwargs.update(parameters)
 
-        drain = self.walk(node.drain)
-        gate = self.walk(node.gate)
-        source = self.walk(node.source)
+        drain = self.walk(node.drain, data)
+        gate = self.walk(node.gate, data)
+        source = self.walk(node.source, data)
         nodes = [
             drain,
             gate,
             source
         ]
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 JunctionFieldEffectTransistor,
                 device,
@@ -1099,36 +1097,36 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_MOSFET(self, node):
-        device = self.walk(node.dev)
+    def walk_MOSFET(self, node, data):
+        device = self.walk(node.dev, data)
         kwargs = {}
         if node.model is None:
             raise ValueError("The device {} has no model".format(node.dev))
         else:
-            model_name = self.walk(node.model)
+            model_name = self.walk(node.model, data)
             kwargs["model"] = model_name
-            self._present._required_models.add(model_name.lower())
+            data._present._required_models.add(model_name.lower())
         if node.param is not None:
             if isinstance(node.param, list):
                 # The separators are not taken into account
                 for parameter in node.param:
                     if isinstance(parameter, list):
-                        kwargs[parameter[0]] = self.walk(parameter[2][::2])
+                        kwargs[parameter[0]] = self.walk(parameter[2][::2], data)
                     else:
-                        kwargs.update(self.walk(parameter))
+                        kwargs.update(self.walk(parameter, data))
             else:
-                kwargs.update(self.walk(node.param))
-        drain = self.walk(node.drain)
-        gate = self.walk(node.gate)
-        source = self.walk(node.source)
-        bulk = self.walk(node.bulk)
+                kwargs.update(self.walk(node.param, data))
+        drain = self.walk(node.drain, data)
+        gate = self.walk(node.gate, data)
+        source = self.walk(node.source, data)
+        bulk = self.walk(node.bulk, data)
         nodes = [
             drain,
             gate,
             source,
             bulk
         ]
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 Mosfet,
                 device,
@@ -1137,24 +1135,24 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_MutualInductor(self, node):
-        device = self.walk(node.dev)
+    def walk_MutualInductor(self, node, data):
+        device = self.walk(node.dev, data)
         kwargs = {}
         if node.model is not None:
-            model_name = self.walk(node.model)
+            model_name = self.walk(node.model, data)
             kwargs['model'] = model_name
-            self._present._required_models.add(model_name.lower())
-        inductors = self.walk(node.inductor)
+            data._present._required_models.add(model_name.lower())
+        inductors = self.walk(node.inductor, data)
         if len(inductors) != 2:
             raise ParseError("Presently, only two inductors are allowed.")
         inductor1 = inductors[0]
         inductor2 = inductors[1]
-        coupling_factor = self.walk(node.value)
+        coupling_factor = self.walk(node.value, data)
         kwargs["inductor1"] = inductor1
         kwargs["inductor2"] = inductor2
         kwargs["coupling_factor"] = coupling_factor
 
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 CoupledInductor,
                 device,
@@ -1162,25 +1160,25 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_NonLinearDependentSource(self, node):
-        device = self.walk(node.dev)
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+    def walk_NonLinearDependentSource(self, node, data):
+        device = self.walk(node.dev, data)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        expr = self.walk(node.expr)
+        expr = self.walk(node.expr, data)
         kwargs = {}
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
             kwargs.update(parameters)
         if node.magnitude == "V":
             kwargs["voltage_expression"] = expr
         else:
             kwargs["current_expression"] = expr
 
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 BehavioralSource,
                 device,
@@ -1189,19 +1187,19 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_Resistor(self, node):
-        device = self.walk(node.dev)
+    def walk_Resistor(self, node, data):
+        device = self.walk(node.dev, data)
         kwargs = {}
         if node.model is not None:
-            model_name = self.walk(node.model)
+            model_name = self.walk(node.model, data)
             kwargs['model'] = model_name
-            self._present._required_models.add(model_name.lower())
+            data._present._required_models.add(model_name.lower())
         value = None
         if node.value is not None:
-            value = self.walk(node.value)
+            value = self.walk(node.value, data)
             kwargs['resistance'] = value
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
             kwargs.update(parameters)
         if value is None:
             if 'r' in kwargs:
@@ -1211,13 +1209,13 @@ class SpiceModelWalker(NodeWalker):
                 value = kwargs.pop('R')
                 kwargs['resistance'] = value
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 Resistor,
                 device,
@@ -1226,9 +1224,9 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_Subcircuit(self, node):
-        device = self.walk(node.dev)
-        node_node = self.walk(node.node)
+    def walk_Subcircuit(self, node, data):
+        device = self.walk(node.dev, data)
+        node_node = self.walk(node.node, data)
         if node.params is not None:
             subcircuit_name = node_node[-2]
             nodes = node_node[:-2]
@@ -1237,10 +1235,10 @@ class SpiceModelWalker(NodeWalker):
             nodes = node_node[:-1]
         kwargs = {}
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
             kwargs.update(parameters)
-        self._present._required_subcircuits.add(subcircuit_name.lower())
-        self._present.append(
+        data._present._required_subcircuits.add(subcircuit_name.lower())
+        data._present.append(
             ElementStatement(
                 SubCircuitElement,
                 device,
@@ -1250,22 +1248,22 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_Switch(self, node):
-        device = self.walk(node.dev)
+    def walk_Switch(self, node, data):
+        device = self.walk(node.dev, data)
         kwargs = {}
         if node.model is not None:
-            model_name = self.walk(node.model)
+            model_name = self.walk(node.model, data)
             kwargs['model'] = model_name
-            self._present._required_models.add(model_name.lower())
+            data._present._required_models.add(model_name.lower())
         if node.initial_state is not None:
             kwargs['initial_state'] = node.initial_state
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         if node.control_p is not None:
             if node.control_n is not None:
-                control_p = self.walk(node.control_p)
-                control_n = self.walk(node.control_n)
+                control_p = self.walk(node.control_p, data)
+                control_n = self.walk(node.control_n, data)
                 nodes = (
                     positive,
                     negative,
@@ -1280,7 +1278,7 @@ class SpiceModelWalker(NodeWalker):
                     positive,
                     negative
                 )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 VoltageControlledSwitch,
                 device,
@@ -1289,25 +1287,25 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_VoltageControlledCurrentSource(self, node):
-        device = self.walk(node.dev)
+    def walk_VoltageControlledCurrentSource(self, node, data):
+        device = self.walk(node.dev, data)
         if (node.controller is None and node.control_positive is None and
                 node.control_negative is None and node.transconductance is None):
             raise ValueError("Device {} not properly defined".format(node.dev))
         if node.controller is not None:
-            controller = self.walk(node.controller)
+            controller = self.walk(node.controller, data)
             kwargs = {"I": controller}
         else:
-            value = self.walk(node.transconductance)
+            value = self.walk(node.transconductance, data)
             kwargs = {"I": V(node.control_positive, node.control_negative) * value}
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 BehavioralSource,
                 device,
@@ -1316,25 +1314,25 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_VoltageControlledVoltageSource(self, node):
-        device = self.walk(node.dev)
+    def walk_VoltageControlledVoltageSource(self, node, data):
+        device = self.walk(node.dev, data)
         if (node.controller is None and node.control_positive is None and
                 node.control_negative is None and node.gain is None):
             raise ValueError("Device {} not properly defined".format(node.dev))
         if node.controller is not None:
-            controller = self.walk(node.controller)
+            controller = self.walk(node.controller, data)
             kwargs = {"V": controller}
         else:
-            value = self.walk(node.gain)
+            value = self.walk(node.gain, data)
             kwargs = {"V": V(node.control_positive, node.control_negative) * value}
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 BehavioralSource,
                 device,
@@ -1343,25 +1341,25 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_VoltageSource(self, node):
-        device = self.walk(node.dev)
+    def walk_VoltageSource(self, node, data):
+        device = self.walk(node.dev, data)
         kwargs = {}
         if node.dc_value is not None:
-            kwargs['dc_value'] = self.walk(node.dc_value)
+            kwargs['dc_value'] = self.walk(node.dc_value, data)
         if node.ac_magnitude is not None:
-            kwargs['ac_magnitude'] = self.walk(node.ac_magnitude)
+            kwargs['ac_magnitude'] = self.walk(node.ac_magnitude, data)
         if node.ac_phase is not None:
-            kwargs['ac_phase'] = self.walk(node.ac_phase)
+            kwargs['ac_phase'] = self.walk(node.ac_phase, data)
         if node.transient is not None:
-            kwargs['transient'] = self.walk(node.transient)
+            kwargs['transient'] = self.walk(node.transient, data)
 
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         nodes = (
             positive,
             negative
         )
-        self._present.append(
+        data._present.append(
             ElementStatement(
                 VoltageSource,
                 device,
@@ -1371,10 +1369,10 @@ class SpiceModelWalker(NodeWalker):
         )
 
 
-    def walk_ControlVoltagePoly(self, node):
-        controllers = self.walk(node.value)
-        positive = self.walk(node.positive)
-        negative = self.walk(node.negative)
+    def walk_ControlVoltagePoly(self, node, data):
+        controllers = self.walk(node.value, data)
+        positive = self.walk(node.positive, data)
+        negative = self.walk(node.negative, data)
         if len(positive) < controllers or len(negative) < controllers:
             raise ValueError(
                 "The number of control nodes is smaller than the expected controllers: {}".format(controllers))
@@ -1396,7 +1394,7 @@ class SpiceModelWalker(NodeWalker):
                        for pair in zip(values_pos, values_neg)
                        for val in pair]
         if node.coefficient:
-            coefficients = self.walk(node.coefficient)
+            coefficients = self.walk(node.coefficient, data)
             if isinstance(coefficients, list):
                 values.extend(coefficients)
             else:
@@ -1408,8 +1406,8 @@ class SpiceModelWalker(NodeWalker):
         parameters = ' '.join(result)
         return '{ POLY (%d) %s }' % (controllers, parameters)
 
-    def walk_ControlCurrentPoly(self, node):
-        controllers = self.walk(node.value)
+    def walk_ControlCurrentPoly(self, node, data):
+        controllers = self.walk(node.value, data)
         if len(node.device) < controllers:
             raise ValueError(
                 "The number of control nodes is smaller than the expected controllers: {}".format(controllers))
@@ -1418,29 +1416,29 @@ class SpiceModelWalker(NodeWalker):
 
         values = []
         if node.coefficient:
-            coefficients = self.walk(node.coefficient)
+            coefficients = self.walk(node.coefficient, data)
             if isinstance(coefficients, list):
                 values.extend(coefficients)
             else:
                 values.append(coefficients)
-        data = [self.walk(dev) for dev in ctrl_dev] + [str(value) for value in values]
+        data = [self.walk(dev, data) for dev in ctrl_dev] + [str(value) for value in values]
         parameters = ' '.join(data)
         return '{ POLY (%d) %s }' % (controllers, parameters)
 
-    def walk_ControlTable(self, node):
-        return Table(self.walk(node.expr),
-                     list(zip(self.walk(node.input),
-                              self.walk(node.output))))
+    def walk_ControlTable(self, node, data):
+        return Table(self.walk(node.expr, data),
+                     list(zip(self.walk(node.input, data),
+                              self.walk(node.output, data))))
 
-    def walk_ControlValue(self, node):
-        return self.walk(node.expression)
+    def walk_ControlValue(self, node, data):
+        return self.walk(node.expression, data)
 
-    def walk_TransientSpecification(self, node):
-        return self.walk(node.ast)
+    def walk_TransientSpecification(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_TransientPulse(self, node):
+    def walk_TransientPulse(self, node, data):
         parameters = dict([(key, value)
-                           for value, key in zip(self.walk(node.ast),
+                           for value, key in zip(self.walk(node.ast, data),
                                                  ("initial_value",
                                                   "pulsed_value",
                                                   "delay_time",
@@ -1451,35 +1449,35 @@ class SpiceModelWalker(NodeWalker):
                                                   "phase"))])
         return PulseMixin, parameters
 
-    def walk_PulseArguments(self, node):
-        v1 = self.walk(node.v1)
+    def walk_PulseArguments(self, node, data):
+        v1 = self.walk(node.v1, data)
         value = []
         if node.value is not None:
-            value = self.walk(node.value)
+            value = self.walk(node.value, data)
         return [v1] + value
 
-    def walk_TransientPWL(self, node):
-        values = self.walk(node.ast)
+    def walk_TransientPWL(self, node, data):
+        values = self.walk(node.ast, data)
 
         return PieceWiseLinearMixin, values
 
-    def walk_PWLArguments(self, node):
-        t = self.walk(node.t)
-        value = self.walk(node.value)
+    def walk_PWLArguments(self, node, data):
+        t = self.walk(node.t, data)
+        value = self.walk(node.value, data)
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
         return (t, value), parameters
 
-    def walk_PWLFileArguments(self, node):
-        filename = self.walk(node.filename)
+    def walk_PWLFileArguments(self, node, data):
+        filename = self.walk(node.filename, data)
         parameters = {}
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
         return filename, parameters
 
-    def walk_TransientSin(self, node):
+    def walk_TransientSin(self, node, data):
         parameters = dict([(key, value)
-                           for value, key in zip(self.walk(node.ast),
+                           for value, key in zip(self.walk(node.ast, data),
                                                  ("offset",
                                                   "amplitude",
                                                   "frequency",
@@ -1487,21 +1485,21 @@ class SpiceModelWalker(NodeWalker):
                                                   "damping_factor"))])
         return SinusoidalMixin, parameters
 
-    def walk_SinArguments(self, node):
-        v0 = self.walk(node.v0)
-        va = self.walk(node.va)
-        freq = self.walk(node.freq)
+    def walk_SinArguments(self, node, data):
+        v0 = self.walk(node.v0, data)
+        va = self.walk(node.va, data)
+        freq = self.walk(node.freq, data)
         value = []
         if node.value is not None:
-            value = self.walk(node.value)
+            value = self.walk(node.value, data)
         if isinstance(value, list):
             return [v0, va, freq] + value
         else:
             return [v0, va, freq, value]
 
-    def walk_TransientPat(self, node):
+    def walk_TransientPat(self, node, data):
         parameters = dict([(key, value)
-                           for value, key in zip(self.walk(node.ast),
+                           for value, key in zip(self.walk(node.ast, data),
                                                  ("high_value",
                                                   "low_value",
                                                   "delay_time",
@@ -1512,61 +1510,64 @@ class SpiceModelWalker(NodeWalker):
                                                   "repeat"))])
         return PatternMixin, parameters
 
-    def walk_PatArguments(self, node):
-        vhi = self.walk(node.vhi)
-        vlo = self.walk(node.vlo)
-        td = self.walk(node.td)
-        tr = self.walk(node.tr)
-        tf = self.walk(node.tf)
-        tsample = self.walk(node.tsample)
-        data = self.walk(node.data)
+    def walk_PatArguments(self, node, data):
+        vhi = self.walk(node.vhi, data)
+        vlo = self.walk(node.vlo, data)
+        td = self.walk(node.td, data)
+        tr = self.walk(node.tr, data)
+        tf = self.walk(node.tf, data)
+        tsample = self.walk(node.tsample, data)
+        data = self.walk(node.data, data)
         repeat = False
         if node.repeat is not None:
             repeat = (node.repeat == '1')
         return [vhi, vlo, td, tr, tf, tsample, data, repeat]
 
-    def walk_ACCmd(self, node):
+    def walk_ACCmd(self, node, data):
         return node.text
 
-    def walk_DataCmd(self, node):
+    def walk_DataCmd(self, node, data):
         table = node.table
         names = node.name
-        values = self.walk(node.value)
+        values = self.walk(node.value, data)
         if len(values) % len(names) != 0:
             raise ValueError("The number of elements per parameter do not match (line: {})".format(node.line))
         parameters = dict([(name, [value for value in values[idx::len(names)]])
                            for idx, name in enumerate(names)])
-        self._root.appendData(
+        data._root.appendData(
             DataStatement(
                 table,
                 **parameters
             )
         )
 
-    def walk_DCCmd(self, node):
+    def walk_DCCmd(self, node, data):
         return node.text
 
-    def walk_IncludeCmd(self, node):
-        filename = self.walk(node.filename)
-        self._present.append(
-            IncludeStatement(
-                self._root,
-                filename
-            )
+    def walk_IncludeCmd(self, node, data):
+        filename = self.walk(node.filename, data)
+        include = IncludeStatement(
+            data._root,
+            filename
         )
+        # The include statement makes available all the parameters, models and
+        # subcircuits in the file.
+        data._present._params.extend(include._contents._params)
+        data._present._models.extend(include._contents._models)
+        data._present._subcircuits.extend(include._contents._subcircuits)
 
-    def walk_ICCmd(self, node):
+    def walk_ICCmd(self, node, data):
         return node.text
 
-    def walk_ModelCmd(self, node):
-        name = self.walk(node.name)
+    def walk_ModelCmd(self, node, data):
+        name = self.walk(node.name, data)
         device = node.type
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
         else:
             parameters = {}
 
-        self._present.appendModel(
+        data._present.appendModel(
             ModelStatement(
                 name,
                 device,
@@ -1574,26 +1575,26 @@ class SpiceModelWalker(NodeWalker):
             )
         )
 
-    def walk_ModelName(self, node):
+    def walk_ModelName(self, node, data):
         return node.name
 
-    def walk_ParamCmd(self, node):
+    def walk_ParamCmd(self, node, data):
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
         else:
             parameters = {}
 
-        self._present.appendParam(
+        data._present.appendParam(
             ParamStatement(**parameters)
         )
 
-    def walk_LibCmd(self, node):
+    def walk_LibCmd(self, node, data):
         if node.block is not None:
-            self.walk(node.block)
+            self.walk(node.block, data)
         else:
-            self.walk(node.call)
+            self.walk(node.call, data)
 
-    def walk_LibBlock(self, node):
+    def walk_LibBlock(self, node, data):
         entries = node.entry
         if len(entries) == 2:
             if entries[0] != entries[1]:
@@ -1601,40 +1602,40 @@ class SpiceModelWalker(NodeWalker):
                     'Begin and end library entries differ: {} != {}'.format(*entries))
             entries = entries[0]
         library = LibraryStatement(entries)
-        self._context.append(self._present)
-        self._present = library
-        self.walk(node.lines)
-        tmp = self._context.pop()
-        tmp.appendLibrary(self._present)
-        self._present = tmp
+        data._context.append(data._present)
+        data._present = library
+        self.walk(node.lines, data)
+        tmp = data._context.pop()
+        tmp.appendLibrary(data._present)
+        data._present = tmp
 
-    def walk_LibCall(self, node):
+    def walk_LibCall(self, node, data):
         entries = node.entry
         if len(entries) == 2:
             if entries[0] != entries[1]:
                 raise NameError(
                     'Begin and end library entries differ: {} != {}'.format(*entries))
             entries = entries[0]
-        filename = self.walk(node.filename)
-        self._present.appendLibraryCall(
+        filename = self.walk(node.filename, data)
+        data._present.appendLibraryCall(
               LibCallStatement(filename, entries)
         )
 
-    def walk_SimulatorCmd(self, node):
+    def walk_SimulatorCmd(self, node, data):
         return node.simulator
 
-    def walk_SubcktCmd(self, node):
-        name = self.walk(node.name)
+    def walk_SubcktCmd(self, node, data):
+        name = self.walk(node.name, data)
         if isinstance(name, list) and len(name) == 2:
             if name[0] != name[1]:
                 raise NameError(
                     'Begin and end library entries differ (file:{}, line:{}): {} != {}'.format(self._path, node.parseinfo.line,
                                                                                  *name))
             name = name[0]
-        nodes = self.walk(node.node)
+        nodes = self.walk(node.node, data)
         parameters = None
         if node.parameters is not None:
-            parameters = self.walk(node.parameters)
+            parameters = self.walk(node.parameters, data)
 
         if nodes is None:
             if parameters is None:
@@ -1646,181 +1647,181 @@ class SpiceModelWalker(NodeWalker):
                 subckt = SubCircuitStatement(name, *nodes)
             else:
                 subckt = SubCircuitStatement(name, *nodes, **parameters)
-        self._context.append(self._present)
-        self._present = subckt
-        self.walk(node.lines)
-        tmp = self._context.pop()
-        tmp.appendSubCircuit(self._present)
-        self._present = tmp
+        data._context.append(data._present)
+        data._present = subckt
+        self.walk(node.lines, data)
+        tmp = data._context.pop()
+        tmp.appendSubCircuit(data._present)
+        data._present = tmp
 
-    def walk_TitleCmd(self, node):
-        if id(self._root) == id(self._present):
-            self._root._title = self.walk(node.title)
+    def walk_TitleCmd(self, node, data):
+        if id(data._root) == id(data._present):
+            data._root._title = self.walk(node.title)
         else:
             raise SyntaxError(".Title command can only be used in the root circuit.")
-        return self._root
+        return data._root
 
-    def walk_Lines(self, node):
-        self.walk(node.ast)
+    def walk_Lines(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_CircuitLine(self, node):
-        self.walk(node.ast)
+    def walk_CircuitLine(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_NetlistLines(self, node):
-        self.walk(node.ast)
+    def walk_NetlistLines(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_NetlistLine(self, node):
-        self.walk(node.ast)
+    def walk_NetlistLine(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_Parameters(self, node):
+    def walk_Parameters(self, node, data):
         if isinstance(node.ast, list):
             result = {}
             # The separators are not taken into account
-            for parameter in self.walk(node.ast[::2]):
+            for parameter in self.walk(node.ast[::2], data):
                 result.update(parameter)
         else:
-            result = self.walk(node.ast)
+            result = self.walk(node.ast, data)
         return result
 
-    def walk_Parameter(self, node):
-        value = self.walk(node.value)
+    def walk_Parameter(self, node, data):
+        value = self.walk(node.value, data)
         return {node.name: value}
 
-    def walk_GenericExpression(self, node):
+    def walk_GenericExpression(self, node, data):
         if node.value is None:
-            return self.walk(node.braced)
+            return self.walk(node.braced, data)
         else:
-            return self.walk(node.value)
+            return self.walk(node.value, data)
 
-    def walk_BracedExpression(self, node):
-        return self.walk(node.ast)
+    def walk_BracedExpression(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_Ternary(self, node):
-        t = self.walk(node.t)
-        x = self.walk(node.x)
-        y = self.walk(node.y)
+    def walk_Ternary(self, node, data):
+        t = self.walk(node.t, data)
+        x = self.walk(node.x, data)
+        y = self.walk(node.y, data)
         return self._functions["if"](t, x, y)
 
-    def walk_Conditional(self, node):
-        return self.walk(node.expr)
+    def walk_Conditional(self, node, data):
+        return self.walk(node.expr, data)
 
-    def walk_And(self, node):
-        left = self.walk(node.left)
+    def walk_And(self, node, data):
+        left = self.walk(node.left, data)
         if node.right is None:
             return left
         else:
             right = node.right
             return And(left, right)
 
-    def walk_Not(self, node):
-        operator = self.walk(node.operator)
+    def walk_Not(self, node, data):
+        operator = self.walk(node.operator, data)
         if node.op is None:
             return operator
         else:
             return Not(operator)
 
-    def walk_Or(self, node):
-        left = self.walk(node.left)
+    def walk_Or(self, node, data):
+        left = self.walk(node.left, data)
         if node.right is None:
             return left
         else:
             right = node.right
             return Or(left, right)
 
-    def walk_Xor(self, node):
-        left = self.walk(node.left)
+    def walk_Xor(self, node, data):
+        left = self.walk(node.left, data)
         if node.right is None:
             return left
         else:
             right = node.right
             return Xor(left, right)
 
-    def walk_Relational(self, node):
+    def walk_Relational(self, node, data):
         if node.factor is None:
-            left = self.walk(node.left)
-            right = self.walk(node.right)
+            left = self.walk(node.left, data)
+            right = self.walk(node.right, data)
             return self._relational[node.op](left, right)
         else:
-            return self.walk(node.factor)
+            return self.walk(node.factor, data)
 
-    def walk_ConditionalFactor(self, node):
+    def walk_ConditionalFactor(self, node, data):
         if node.boolean is None:
-            self.walk(node.expr)
+            self.walk(node.expr, data)
         else:
             return node.boolean.lower == "true"
 
-    def walk_Expression(self, node):
+    def walk_Expression(self, node, data):
         if node.term is None:
-            return self.walk(node.ternary)
+            return self.walk(node.ternary, data)
         else:
-            return self.walk(node.term)
+            return self.walk(node.term, data)
 
-    def walk_Functional(self, node):
-        return self.walk(node.ast)
+    def walk_Functional(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_Functions(self, node):
+    def walk_Functions(self, node, data):
         l_func = node.func.lower()
         function = self._functions[l_func]
         if function.nargs == 0:
             return function()
         elif l_func == 'v':
-            nodes = self.walk(node.node)
+            nodes = self.walk(node.node, data)
             if isinstance(nodes, list):
                 return function(*nodes)
             else:
                 return function(nodes)
         elif l_func == 'i':
-            device = self.walk(node.device)
+            device = self.walk(node.device, data)
             return function(device)
         elif function.nargs == 1:
-            x = self.walk(node.x)
+            x = self.walk(node.x, data)
             return function(x)
         elif l_func == 'limit':
-            x = self.walk(node.x)
-            y = self.walk(node.y)
-            z = self.walk(node.z)
+            x = self.walk(node.x, data)
+            y = self.walk(node.y, data)
+            z = self.walk(node.z, data)
             return function(x, y, z)
         elif l_func == 'atan2':
-            x = self.walk(node.x)
-            y = self.walk(node.y)
+            x = self.walk(node.x, data)
+            y = self.walk(node.y, data)
             return function(y, x)
         elif l_func in ('aunif', 'unif'):
-            mu = self.walk(node.mu)
-            alpha = self.walk(node.alpha)
+            mu = self.walk(node.mu, data)
+            alpha = self.walk(node.alpha, data)
             return function(mu, alpha)
         elif l_func == "ddx":
             f = node.f
-            x = self.walk(node.x)
+            x = self.walk(node.x, data)
             return function(Symbol(f), x)
         elif function.nargs == 2:
-            x = self.walk(node.x)
-            y = self.walk(node.y)
+            x = self.walk(node.x, data)
+            y = self.walk(node.y, data)
             return function(x, y)
         elif l_func == "if":
-            t = self.walk(node.t)
-            x = self.walk(node.x)
-            y = self.walk(node.y)
+            t = self.walk(node.t, data)
+            x = self.walk(node.x, data)
+            y = self.walk(node.y, data)
             return function(t, x, y)
         elif l_func == "limit":
-            x = self.walk(node.x)
-            y = self.walk(node.y)
-            z = self.walk(node.z)
+            x = self.walk(node.x, data)
+            y = self.walk(node.y, data)
+            z = self.walk(node.z, data)
             return function(x, y, z)
         elif l_func in ('agauss', 'gauss'):
-            mu = self.walk(node.mu)
-            alpha = self.walk(node.alpha)
-            n = self.walk(node.n)
+            mu = self.walk(node.mu, data)
+            alpha = self.walk(node.alpha, data)
+            n = self.walk(node.n, data)
             return function(mu, alpha, n)
         else:
             raise NotImplementedError("Function: {}".format(node.func));
 
-    def walk_Term(self, node):
-        return self.walk(node.ast)
+    def walk_Term(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_AddSub(self, node):
-        lhs = self.walk(node.left)
+    def walk_AddSub(self, node, data):
+        lhs = self.walk(node.left, data)
         if node.right is not None:
-            rhs = self.walk(node.right)
+            rhs = self.walk(node.right, data)
             if node.op == "+":
                 return Add(lhs, rhs)
             else:
@@ -1828,10 +1829,10 @@ class SpiceModelWalker(NodeWalker):
         else:
             return lhs
 
-    def walk_ProdDivMod(self, node):
-        lhs = self.walk(node.left)
+    def walk_ProdDivMod(self, node, data):
+        lhs = self.walk(node.left, data)
         if node.right is not None:
-            rhs = self.walk(node.right)
+            rhs = self.walk(node.right, data)
             if node.op == "*":
                 return Mul(lhs, rhs)
             elif node.op == "/":
@@ -1841,8 +1842,8 @@ class SpiceModelWalker(NodeWalker):
         else:
             return lhs
 
-    def walk_Sign(self, node):
-        operator = self.walk(node.operator)
+    def walk_Sign(self, node, data):
+        operator = self.walk(node.operator, data)
         if node.op is not None:
             if node.op == "-":
                 return Neg(operator)
@@ -1851,43 +1852,43 @@ class SpiceModelWalker(NodeWalker):
         else:
             return operator
 
-    def walk_Exponential(self, node):
-        lhs = self.walk(node.left)
+    def walk_Exponential(self, node, data):
+        lhs = self.walk(node.left, data)
         if node.right is not None:
-            rhs = self.walk(node.right)
+            rhs = self.walk(node.right, data)
             return Power(lhs, rhs)
         else:
             return lhs
 
-    def walk_Factor(self, node):
-        return self.walk(node.ast)
+    def walk_Factor(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_Variable(self, node):
+    def walk_Variable(self, node, data):
         if node.variable is None:
-            return self.walk(node.factor)
+            return self.walk(node.factor, data)
         else:
             return Symbol(node.variable)
 
-    def walk_Value(self, node):
+    def walk_Value(self, node, data):
         real = 0.0
         if node.real is not None:
-            real = self.walk(node.real)
+            real = self.walk(node.real, data)
         imag = None
         if node.imag is not None:
-            imag = self.walk(node.imag)
+            imag = self.walk(node.imag, data)
         if imag is None:
             return SpiceModelWalker._to_number(real)
         else:
             return complex(float(real), float(imag))
 
-    def walk_ImagValue(self, node):
-        return self.walk(node.value)
+    def walk_ImagValue(self, node, data):
+        return self.walk(node.value, data)
 
-    def walk_RealValue(self, node):
-        return self.walk(node.value)
+    def walk_RealValue(self, node, data):
+        return self.walk(node.value, data)
 
-    def walk_NumberScale(self, node):
-        value = self.walk(node.value)
+    def walk_NumberScale(self, node, data):
+        value = self.walk(node.value, data)
         scale = node.scale
         if scale is not None:
             scale = normalize("NFKD", scale).lower()
@@ -1896,55 +1897,55 @@ class SpiceModelWalker(NodeWalker):
             result = UnitValue(PrefixedUnit(ZeroPower()), value)
         return result
 
-    def walk_Float(self, node):
+    def walk_Float(self, node, data):
         value = SpiceModelWalker._to_number(node.ast)
         return value
 
-    def walk_Int(self, node):
+    def walk_Int(self, node, data):
         value = int(node.ast)
         return value
 
-    def walk_Comment(self, node):
+    def walk_Comment(self, node, data):
         # TODO implement comments on devices
         return
 
-    def walk_Separator(self, node):
+    def walk_Separator(self, node, data):
         if node.comment is not None:
-            return self.walk(node.comment)
+            return self.walk(node.comment, data)
 
-    def walk_Device(self, node):
+    def walk_Device(self, node, data):
         # Conversion of controlled devices to the B device names
         if node.ast[0] in ("E", "F", "G", "H"):
             return "B" + node.ast
         else:
             return node.ast
 
-    def walk_Command(self, node):
-        return self.walk(node.ast)
+    def walk_Command(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_NetlistCmds(self, node):
-        return self.walk(node.ast)
+    def walk_NetlistCmds(self, node, data):
+        return self.walk(node.ast, data)
 
-    def walk_TableFile(self, node):
-        filename = self.walk(node.filename)
+    def walk_TableFile(self, node, data):
+        filename = self.walk(node.filename, data)
         return TableFile(filename)
 
-    def walk_NetNode(self, node):
+    def walk_NetNode(self, node, data):
         return node.node
 
-    def walk_Filename(self, node):
+    def walk_Filename(self, node, data):
         return node.ast
 
-    def walk_BinaryPattern(self, node):
+    def walk_BinaryPattern(self, node, data):
         return ''.join(node.pattern)
 
-    def walk_list(self, node):
-        return [self.walk(element) for element in node]
-
-    def walk_closure(self, node):
+    def walk_closure(self, node, data):
         return ''.join(node)
 
-    def walk_object(self, node):
+    def walk_list(self, node, data):
+        return [self.walk(e, data) for e in iter(node)]
+
+    def walk_object(self, node, data):
         raise ParseError("No walker defined for the node: {}".format(node))
 
     @staticmethod
@@ -1959,6 +1960,15 @@ class SpiceModelWalker(NodeWalker):
             return int(value)
         except ValueError:
             return float(value)
+
+
+class ParsingData:
+    def __init__(self, filename):
+        self._path = filename
+        self._root = None
+        self._present = None
+        self._context = []
+
 
 class SpiceParser:
     """ This class parse a Spice netlist file and build a syntax tree.
@@ -1977,13 +1987,15 @@ class SpiceParser:
 
     ##############################################
 
-    def __init__(self, path=None, source=None, library=False):
-        # Fixme: empty source
+    _parser = parser(whitespace='', semantics=SpiceModelBuilderSemantics())
+    _walker = SpiceModelWalker()
 
-        self._path = path
-        self._root = None
-        self._present = None
-        self._context = []
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def parse(path=None, source=None, library=False):
+        # Fixme: empty source
 
         if path is not None:
             with open(str(path), 'rb') as f:
@@ -1993,10 +2005,8 @@ class SpiceParser:
         else:
             raise ValueError("No path or source")
 
-        self._parser = parser(whitespace='', semantics=SpiceModelBuilderSemantics())
-
         try:
-            self._model = self._parser.parse(raw_code)
+            model = SpiceParser._parser.parse(raw_code)
         except Exception as e:
             if path is not None:
                 raise ParseError("{}: ".format(path) + str(e)) from e
@@ -2004,19 +2014,21 @@ class SpiceParser:
                 raise ParseError(str(e)) from e
 
         if path is None:
-            self._path = os.getcwd()
-        self._walker = SpiceModelWalker(self._path)
-        self._circuit = self._walker.walk(self._model)
+            path = os.getcwd()
+        data = ParsingData(path)
+        circuit = SpiceParser._walker.walk(model, data)
         if library:
-            self._circuit._required_models = {model.name.lower()
-                                              for model in self._circuit._models}
-            self._circuit._required_subcircuits = {subckt.name.lower()
-                                                   for subckt in self._circuit._subcircuits}
+            circuit._required_models = {model.name.lower()
+                                        for model in circuit._models}
+            circuit._required_subcircuits = {subckt.name.lower()
+                                             for subckt in circuit._subcircuits}
         try:
-            SpiceParser._check_models(self._circuit)
-            SpiceParser._sort_subcircuits(self._circuit)
+            SpiceParser._check_models(circuit)
+            SpiceParser._sort_subcircuits(circuit)
         except Exception as e:
-            raise ParseError("{}: ".format(self._path) + str(e)) from e
+            raise ParseError("{}: ".format(path) + str(e)) from e
+
+        return circuit
 
     @staticmethod
     def _regenerate():
