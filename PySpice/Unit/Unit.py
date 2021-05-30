@@ -1064,9 +1064,9 @@ class UnitValue: # numbers.Real
     def str(self, spice=False, space=False, unit=True):
 
         string = str(self._value)
-        if space:
-            string += ' '
-        string += self._prefixed_unit.str(spice, unit)
+        prefix_string = self._prefixed_unit.str(spice, unit)
+        if space and (prefix_string != ""):
+            string += ' ' + prefix_string
         return string
 
     ##############################################

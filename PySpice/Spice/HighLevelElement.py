@@ -386,6 +386,77 @@ class PieceWiseLinearMixin(SourceMixinAbc):
 
 ####################################################################################################
 
+class PatternMixin(SourceMixinAbc):
+
+    r"""This class implements a Piece-Wise Linear waveform.
+
+    Spice Syntax::
+
+        PAT( VHI VLO TD TR RF TSAMPLE DATA <R>)
+
+    Generates a pattern based on the bit pattern indicated in the DATA field.
+
+    `values` should be given as a list of (`Time`, `Value`)-tuples, e.g.::
+
+        PatternVoltageSource(
+            circuit,
+            'pat1', '1', '0',
+            high_value,
+            low_value,
+            delay_time,
+            rise_time,
+            fall_time,
+            bit_period,
+            bit_pattern,
+            repeat
+        )
+
+    """
+
+    ##############################################
+
+    def __init__(self,
+                 high_value,
+                 low_value,
+                 delay_time,
+                 rise_time,
+                 fall_time,
+                 bit_period,
+                 bit_pattern,
+                 repeat=False):
+
+        # Fixme: default
+
+        self.high_value = self.__as_unit__(high_value)
+        self.low_value = self.__as_unit__(low_value)
+        self.delay_time = as_s(delay_time)
+        self.rise_time = as_s(rise_time)
+        self.fall_time = as_s(fall_time)
+        self.bit_period = as_s(bit_period)
+        self.bit_pattern = bit_pattern
+        self.repeat = repeat
+
+    ##############################################
+
+    def format_spice_parameters(self):
+
+        # Fixme: to func?
+        return ('PAT(' +
+                join_list((self.high_value,
+                           self.low_value,
+                           self.delay_time,
+                           self.rise_time,
+                           self.fall_time,
+                           self.bit_period,
+                           "b" + self.bit_pattern,
+                           1 if self.repeat else 0
+                           )
+                          )
+                + ")"
+                )
+
+####################################################################################################
+
 class SingleFrequencyFMMixin(SourceMixinAbc):
 
     r"""This class implements a Single-Frequency FM waveform.
@@ -738,6 +809,48 @@ class PieceWiseLinearCurrentSource(CurrentSource, CurrentSourceMixinAbc, PieceWi
     ##############################################
 
     format_spice_parameters = PieceWiseLinearMixin.format_spice_parameters
+
+####################################################################################################
+
+class PattermVoltageSource(VoltageSource, VoltageSourceMixinAbc, PatternMixin):
+
+    r"""This class implements a patter voltage source.
+
+    See :class:`PatternMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+
+        VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
+        PatternMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = PatternMixin.format_spice_parameters
+
+####################################################################################################
+
+class PatternCurrentSource(CurrentSource, CurrentSourceMixinAbc, PatternMixin):
+
+    r"""This class implements a pattern current source.
+
+    See :class:`PatternMixin` for documentation.
+
+    """
+
+    ##############################################
+
+    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+
+        CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
+        PatternMixin.__init__(self, *args, **kwargs)
+
+    ##############################################
+
+    format_spice_parameters = PatternMixin.format_spice_parameters
 
 ####################################################################################################
 

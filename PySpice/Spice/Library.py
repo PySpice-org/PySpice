@@ -25,7 +25,7 @@ import logging
 ####################################################################################################
 
 from ..Tools.File import Directory
-from .Parser import SpiceParser
+from .EBNFParser import SpiceParser
 
 ####################################################################################################
 
@@ -73,13 +73,13 @@ class SpiceLibrary:
             extension = path.extension.lower()
             if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
-                spice_parser = SpiceParser(path)
-                for subcircuit in spice_parser.subcircuits:
-                    name = self._suffix_name(subcircuit.name, extension)
-                    self._subcircuits[name.lower()] = path
+                spice_parser = SpiceParser(path=path, library=True)
                 for model in spice_parser.models:
                     name = self._suffix_name(model.name, extension)
                     self._models[name.lower()] = path
+                for subcircuit in spice_parser.subcircuits:
+                    name = self._suffix_name(subcircuit.name, extension)
+                    self._subcircuits[name.lower()] = path
 
     ##############################################
 

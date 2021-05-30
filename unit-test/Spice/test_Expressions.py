@@ -24,62 +24,27 @@ import unittest
 
 ####################################################################################################
 
-from PySpice.Spice.Expression.Parser import Parser
+from PySpice.Spice.Expressions import *
 
 ####################################################################################################
 
-class TestParser(unittest.TestCase):
 
-    ##############################################
+class TestExpression:
 
-    def test_parser(self):
+    def test_symbol(self):
+        x = Symbol('x')
+        V_3 = V(Symbol("3"))
+        cos_V_3 = Cos(V_3)
+        values = {str(V_3): 25}
+        print(cos_V_3(**values))
+        y = Symbol('y')
+        add = Add(x, y)
+        print(add)
+        V_5 = V("5")
+        print(V_5)
+        print(Cos(27))
+        print(Cos(27)())
 
-        parser = Parser()
-
-        parser.parse('1')
-
-        parser.parse('.1')
-        parser.parse('.123')
-        parser.parse('1.')
-        parser.parse('1.1')
-        parser.parse('1.123')
-        parser.parse('1.e2')
-        parser.parse('1.e-2')
-        parser.parse('1.123e2')
-        parser.parse('1.123e-2')
-        parser.parse('1.123e23')
-        parser.parse('1.123e-23')
-
-        parser.parse('-1')
-        parser.parse('-1.1')
-
-        parser.parse('! rised')
-
-        parser.parse('1 ** 2')
-
-        parser.parse('1 * 2')
-        parser.parse('1 / 2')
-        parser.parse('1 % 2')
-        # parser.parse('1 \\ 2')
-        parser.parse('1 + 2')
-
-        parser.parse('1 == 2')
-        parser.parse('1 != 2')
-        parser.parse('1 >= 2')
-        parser.parse('1 >= 2')
-        parser.parse('1 < 2')
-        parser.parse('1 > 2')
-
-        parser.parse('x && y')
-        parser.parse('x || y')
-
-        parser.parse('c ? x : y')
-
-        parser.parse('1 * -2')
-
-        parser.parse('x * -y + z')
-
-####################################################################################################
 
 if __name__ == '__main__':
 

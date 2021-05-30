@@ -116,6 +116,7 @@ from .ElementParameter import (
     IntKeyParameter,
     ModelPositionalParameter,
     )
+from .Expressions import Expression
 
 ####################################################################################################
 
@@ -173,8 +174,8 @@ class SubCircuitElement(NPinElement):
         try:
             self._pins = [Pin(self, PinDefinition(position, name=subcircuit._pins_[position]), netlist.get_node(node, True))
                           for position, node in enumerate(nodes)]
-        except:
-            raise ValueError()
+        except :
+            raise ValueError("Incorrect number of nodes for subcircuit {}".format(subcircuit_name))
 
         super().__init__(netlist, name, subcircuit_name)
 
@@ -259,6 +260,9 @@ class Resistor(DipoleElement):
     temperature = FloatKeyParameter('temp', unit=U_Degree)
     device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
     noisy = BoolKeyParameter('noisy')
+    tc = FloatPairKeyParameter('tc')
+    tc1 = FloatPairKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc1')
 
 ####################################################################################################
 
@@ -779,7 +783,10 @@ class VoltageSource(DipoleElement):
     _prefix_ = 'V'
 
     # Fixme: ngspice manual doesn't describe well the syntax
-    dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_V)
+    dc_value = ExpressionPositionalParameter(position=0, key_parameter=False)
+    ac_magnitude = ExpressionPositionalParameter(position=1, key_parameter=False)
+    ac_phase = ExpressionPositionalParameter(position=2, key_parameter=False)
+    transient = ExpressionPositionalParameter(position=3, key_parameter=False)
 
     def __init__(self, netlist, name, *args, **kwargs):
         number_of_pins = len(self._pins_)
@@ -814,7 +821,10 @@ class CurrentSource(DipoleElement):
     _prefix_ = 'I'
 
     # Fixme: ngspice manual doesn't describe well the syntax
-    dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_A)
+    dc_value = ExpressionPositionalParameter(position=0, key_parameter=False)
+    ac_magnitude = ExpressionPositionalParameter(position=1, key_parameter=False)
+    ac_phase = ExpressionPositionalParameter(position=2, key_parameter=False)
+    transient = ExpressionPositionalParameter(position=3, key_parameter=False)
 
 ####################################################################################################
 
@@ -1000,9 +1010,15 @@ class BehavioralSource(DipoleElement):
         spice_element = self.format_node_names()
         # Fixme: expression
         if self.current_expression is not None:
-            expression = ' i=%s' % self.current_expression
+            if isinstance(self.current_expression, Expression):
+                expression = ' i={%s}' % self.current_expression
+            else:
+                expression = ' i=%s' % self.current_expression
         elif self.voltage_expression is not None:
-            expression = ' v=%s' % self.voltage_expression
+            if isinstance(self.voltage_expression, Expression):
+                expression = ' v={%s}' % self.voltage_expression
+            else:
+                expression = ' v=%s' % self.voltage_expression
         else:
             expression = ''
         spice_element += expression
@@ -1238,7 +1254,7 @@ class BipolarJunctionTransistor(FixedPinElement):
     __alias__ = 'Q'
     __long_alias__ = 'BJT'
     _prefix_ = 'Q'
-    _pins_ = ('collector', 'base', 'emitter', OptionalPin('substrate'))
+    _pins_ = ('collector', 'base', 'emitter', OptionalPin('substrate'), OptionalPin('thermal'))
 
     model = ModelPositionalParameter(position=0, key_parameter=True)
     area = FloatKeyParameter('area')

@@ -521,8 +521,8 @@ class Element(metaclass=ElementParameterMetaClass):
         #self._pins = kwargs.pop('pins',())
 
         # Process remaining args
-        if len(self._positional_parameters_) < len(args):
-            raise NameError("Number of args mismatch")
+        if len(self._positional_parameters_) + self._number_of_optional_pins_ < len(args):
+            raise NameError("Number of args mismatch for device: {}".format(self.name))
         # TODO: Modify the selection of arguments to take into account the RLC model cases.
         if len(args) > 0:
             read = [False]*len(args)
@@ -545,7 +545,7 @@ class Element(metaclass=ElementParameterMetaClass):
                             setattr(self, parameter, value)
                             break
                     else:
-                        raise ValueError('Unknown argument {}={}'.format(key, value))
+                        raise ValueError('Unknown argument for {}: {}={}'.format(self.name, key, value))
 
         netlist._add_element(self)
 
@@ -942,25 +942,27 @@ class Netlist:
     ##############################################
 
     def __getitem__(self, attribute_name):
+        attr = str(attribute_name).lower()
 
-        if attribute_name in self._elements:
-            return self._elements[attribute_name]
-        elif attribute_name in self._models:
-            return self._models[attribute_name]
+        if attr in self._elements:
+            return self._elements[attr]
+        elif attr in self._models:
+            return self._models[attr]
         # Fixme: subcircuits
-        elif attribute_name in self._nodes:
-            return self._nodes[attribute_name]
+        elif attr in self._nodes:
+            return self._nodes[attr]
         else:
-            raise IndexError(attribute_name) # KeyError
+            raise IndexError(attr) # KeyError
 
     def _find_subcircuit(self, name):
-        if name not in self._subcircuits:
-            if hasattr(self, 'parent'):
-                return self.parent._find_subcircuit(name)
+        name_low = name.lower()
+        if name_low not in self._subcircuits:
+            if hasattr(self, 'parent') and self.parent is not None:
+                return self.parent._find_subcircuit(name_low)
             else:
                 return None
         else:
-            return self._subcircuits[name]
+            return self._subcircuits[name_low]
 
     def _add_node(self, node_name):
 
@@ -1011,13 +1013,13 @@ class Netlist:
 
         """Add an element."""
         if element.name not in self._elements:
-            self._elements[element.name] = element
+            self._elements[str(element.name).lower()] = element
             if hasattr(element, 'model'):
                 model = element.model
                 if model is not None:
                     self._used_models.add(str(model).lower())
 
-            if hasattr(element, 'subcircuit_name'):
+            if element.name[0] in "xX":
                 subcircuit_name = element.subcircuit_name
                 if subcircuit_name is not None:
                     self._used_subcircuits.add(str(subcircuit_name).lower())
@@ -1032,7 +1034,7 @@ class Netlist:
 
     def _remove_element(self, element):
         try:
-            del self._elements[element.name]
+            del self._elements[str(element.name).lower()]
         except KeyError:
             raise NameError("Cannot remove undefined element {}".format(element))
 
@@ -1044,7 +1046,7 @@ class Netlist:
 
         model = DeviceModel(str(name).lower(), modele_type, **parameters)
         if model.name not in self._models:
-            self._models[model.name] = model
+            self._models[str(model.name).lower()] = model
         else:
             raise NameError("Model name {} is already defined".format(name))
 
@@ -1058,7 +1060,7 @@ class Netlist:
 
         # Fixme: subcircuit is a class
 
-        self._subcircuits[str(subcircuit.name)] = subcircuit
+        self._subcircuits[str(subcircuit.name).lower()] = subcircuit
         subcircuit.parent=self
 
     ##############################################
@@ -1119,23 +1121,28 @@ class Netlist:
             netlist += os.linesep
         return netlist
 
-    def include(self, path):
-        from .Parser import SpiceParser
+    def include(self, path, entry=None):
+        from .EBNFParser import SpiceParser
 
         """Include a file."""
 
         if path not in self._includes:
             self._includes.append(path)
-            parser = SpiceParser(path=path)
-            models = parser.models
+            library = SpiceParser(path=path)
+            if entry is not None:
+                library = library[entry]
+            models = library.models
             for model in models:
                 self.model(model._name, model._model_type, **model._parameters)
                 self._models[model._name]._included = path
-            subcircuits = parser.subcircuits
+            subcircuits = library.subcircuits
             for subcircuit in subcircuits:
                 subcircuit_def = subcircuit.build(parent=self)
                 self.subcircuit(subcircuit_def)
-                self._subcircuits[subcircuit._name]._included = path
+                self._subcircuits[subcircuit._name.lower()]._included = path
+            parameters = library.parameters
+            for param in parameters:
+                self.param(param)
         else:
             self._logger.warn("Duplicated include")
 
@@ -1251,6 +1258,44 @@ class SubCircuit(Netlist):
 
 ####################################################################################################
 
+class Library(Netlist):
+
+    """This class implements a library netlist."""
+
+    ##############################################
+
+    def __init__(self, entry):
+        self._entry = entry
+
+    ##############################################
+
+    def clone(self, entry=None):
+
+        if entry is None:
+            entry = self._entry
+
+        library = self.__class__(entry)
+        self.copy_to(library)
+
+    ##############################################
+
+    @property
+    def entry(self):
+        return self._entry
+
+    ##############################################
+
+    def __str__(self):
+
+        """Return the formatted library definition."""
+
+        netlist = '.lib ' + self._entry + os.linesep
+        netlist += super().__str__()
+        netlist += '.endl ' + self._entry + os.linesep
+        return netlist
+
+####################################################################################################
+
 class SubCircuitFactory(SubCircuit):
 
     __name__ = None
@@ -1291,6 +1336,7 @@ class Circuit(Netlist):
         self._ground = ground
         self._global_nodes = set(global_nodes) # .global
         self._parameters = {} # .param
+        self._data = {} # .data
 
         # Fixme: not implemented
         #  .csparam
@@ -1327,7 +1373,12 @@ class Circuit(Netlist):
 
     def parameter(self, name, expression):
         """Set a parameter."""
-        self._parameters[str(name)] = str(expression)
+        self._parameters[str(name)] = expression
+
+    ##############################################
+
+    def data(self, table, **kwargs):
+        self._data.update[table] = kwargs
 
     ##############################################
 
@@ -1402,3 +1453,16 @@ class Circuit(Netlist):
 
     def simulator(self, *args, **kwargs):
         return CircuitSimulator.factory(self, *args, **kwargs)
+
+####################################################################################################
+
+class Comment:
+
+    def __init__(self, txt=''):
+        self._txt = txt
+
+    def __str__(self):
+        return self._txt
+
+    def __repr__(self):
+        return "Comment({})".format(repr(self._txt))
