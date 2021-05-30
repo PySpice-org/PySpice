@@ -1134,7 +1134,7 @@ class Netlist:
             models = library.models
             for model in models:
                 self.model(model._name, model._model_type, **model._parameters)
-                self._models[model._name]._included = path
+                self._models[model._name.lower()]._included = path
             subcircuits = library.subcircuits
             for subcircuit in subcircuits:
                 subcircuit_def = subcircuit.build(parent=self)

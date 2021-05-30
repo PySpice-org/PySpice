@@ -374,6 +374,7 @@ class BehavioralResistor(DipoleElement):
     _prefix_ = 'R'
 
     resistance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
+    tc = FloatPairKeyParameter('tc')
     tc1 = FloatKeyParameter('tc1')
     tc2 = FloatKeyParameter('tc2')
 
@@ -435,6 +436,9 @@ class Capacitor(DipoleElement):
     temperature = FloatKeyParameter('temp', unit=U_Degree)
     device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
     initial_condition = FloatKeyParameter('ic')
+    tc = FloatPairKeyParameter('tc')
+    tc1 = FloatPairKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc1')
 
 ####################################################################################################
 
@@ -540,6 +544,7 @@ class BehavioralCapacitor(DipoleElement):
     _prefix_ = 'C'
 
     capacitance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
+    tc = FloatPairKeyParameter('tc')
     tc1 = FloatKeyParameter('tc1')
     tc2 = FloatKeyParameter('tc2')
 
@@ -604,6 +609,9 @@ class Inductor(DipoleElement):
     temperature = FloatKeyParameter('temp', unit=U_Degree)
     device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
     initial_condition = FloatKeyParameter('ic')
+    tc = FloatPairKeyParameter('tc')
+    tc1 = FloatPairKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc1')
 
 ####################################################################################################
 
@@ -638,8 +646,9 @@ class BehavioralInductor(DipoleElement):
     _prefix_ = 'L'
 
     inductance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
-    tc1 = FloatKeyParameter('tc1')
-    tc2 = FloatKeyParameter('tc2')
+    tc = FloatPairKeyParameter('tc')
+    tc1 = FloatPairKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc1')
 
 ####################################################################################################
 
@@ -997,6 +1006,7 @@ class BehavioralSource(DipoleElement):
 
     current_expression = ExpressionKeyParameter('i')
     voltage_expression = ExpressionKeyParameter('v')
+    tc = FloatPairKeyParameter('tc')
     tc1 = FloatKeyParameter('tc1')
     tc2 = FloatKeyParameter('tc2')
     temperature = FloatKeyParameter('temp', unit=U_Degree)
@@ -1022,10 +1032,13 @@ class BehavioralSource(DipoleElement):
         else:
             expression = ''
         spice_element += expression
-        if self.tc1 is not None:
-            spice_element += ' tc1=%f' % self.tc1
-        if self.tc2 is not None:
-            spice_element += ' tc2=%f' % self.tc2
+        if self.tc is not None:
+            spice_element += ' tc1=%f,%f' % self.tc
+        else:
+            if self.tc1 is not None:
+                spice_element += ' tc1=%f' % self.tc1
+            if self.tc2 is not None:
+                spice_element += ' tc2=%f' % self.tc2
         if self.temperature is not None:
             spice_element += ' temp=%f' % self.temperature
         if self.device_temperature is not None:

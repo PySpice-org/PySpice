@@ -390,6 +390,8 @@ class TestSpiceParser(unittest.TestCase):
                           'lo',
                           'vdd',
                           'vss')
+        circuit.R('test_temp', 1, 2, tc=(4, 5))
+        circuit.B('test_tc', 1, 2, v={5}, tc=(7, 8))
         simulator = circuit.simulator(simulator='xyce-serial',
                                       temperature=25,
                                       nominal_temperature=25)
