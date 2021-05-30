@@ -971,9 +971,9 @@ parameter::Parameter
     ;
 
 
-gen_expr::Expression
+gen_expr::GenericExpression
     =
-    @:braced_expression | @:value
+    braced:braced_expression | value:value
     ;
 
 
@@ -992,13 +992,127 @@ tablefile::TableFile
 
 braced_expression::BracedExpression
     =
-    lc [sep:sep] @:parentheses [sep:sep] rc
+    lc [sep:sep] @:expression [sep:sep] rc
     ;
 
 
-parentheses
+expression::Expression
     =
-    lp [sep:sep] @:ternary [sep:sep] rp | @:ternary
+    ternary:ternary | term:term
+    ;
+
+
+ternary::Ternary
+    =
+    t:conditional_expression
+    [sep:sep]
+    op:'?'
+    ~
+    [sep:sep]
+    x:expression
+    [sep:sep]
+    ':'
+    ~
+    [sep:sep]
+    y:expression
+    ;
+
+
+conditional_expression::Conditional
+    =
+    expr:boolean_or
+    ;
+
+
+boolean_or::Or
+    =
+    left:boolean_xor [[sep:sep] op:'|' [sep:sep] right:boolean_or]
+    ;
+
+
+boolean_xor::Xor
+    =
+    left:boolean_and [[sep:sep] op:'^' [sep:sep] right:boolean_xor]
+    ;
+
+
+boolean_and::And
+    =
+    left:boolean_not [[sep:sep] op:'&' [sep:sep] right:boolean_and]
+    ;
+
+
+boolean_not::Not
+    =
+    [op:'~'] operator:relational
+    ;
+
+
+relational::Relational
+    =
+        left:expression
+        [sep:sep]
+        op:('==' | '!=' | '>=' | '<=' | '>' | '<')
+        [sep:sep]
+        right:expression
+    |
+        factor:conditional_factor
+    ;
+
+
+conditional_factor::ConditionalFactor
+    =
+    lp [sep:sep] expr:conditional_expression [sep:sep] rp | boolean:boolean
+    ;
+
+
+term::Term
+    =
+    @:add_sub
+    ;
+
+
+add_sub::AddSub
+    =
+    left:prod [[sep:sep] op:('+' | '-') [sep:sep] right:add_sub]
+    ;
+
+
+prod::ProdDivMod
+    =
+    left:unary [[sep:sep] op:('*' | '/' | '%') [sep:sep] right:prod]
+    ;
+
+
+unary::Sign
+    =
+    [op:('+' | '-')] operator:exp
+    ;
+
+
+exp::Exponential
+    =
+    left:functional [[sep:sep] op:'**' [sep:sep] right:exp]
+    ;
+
+
+functional::Functional
+    =
+    @:functions | @:variable
+    ;
+
+
+variable::Variable
+    =
+    | lc [sep:sep] variable:var_id [sep:sep] rc
+    | variable:var_id
+    | factor:factor
+    ;
+
+
+factor::Factor
+    =
+    lp [sep:sep] @:expression [sep:sep] rp | @:value
     ;
 
 
@@ -1008,12 +1122,12 @@ functions::Functions
     | atan2
     | ddx
     | gauss
-    | i_func
     | if_func
     | limit
     | functions_2
     | rand
     | unif
+    | i_func
     | v_func
     ;
 
@@ -1059,7 +1173,7 @@ functions_1
     lp
     ~
     [sep:sep]
-    x:parentheses
+    x:expression
     [sep:sep]
     rp
     ;
@@ -1072,11 +1186,11 @@ atan2
     lp
     ~
     [sep:sep]
-    y:parentheses
+    y:expression
     [sep:sep]
     comma
     [sep:sep]
-    x:parentheses
+    x:expression
     [sep:sep]
     rp
     ;
@@ -1093,7 +1207,7 @@ ddx
     [sep:sep]
     comma
     [sep:sep]
-    x:parentheses
+    x:expression
     [sep:sep]
     rp
     ;
@@ -1106,15 +1220,15 @@ gauss
     lp
     ~
     [sep:sep]
-    mu:parentheses
+    mu:expression
     [sep:sep]
     comma
     [sep:sep]
-    alpha:parentheses
+    alpha:expression
     [sep:sep]
     comma
     [sep:sep]
-    n:parentheses
+    n:expression
     [sep:sep]
     rp
     ;
@@ -1137,11 +1251,11 @@ if_func
     [sep:sep]
     comma
     [sep:sep]
-    x:parentheses
+    x:expression
     [sep:sep]
     comma
     [sep:sep]
-    y:parentheses
+    y:expression
     [sep:sep]
     rp
     ;
@@ -1154,15 +1268,15 @@ limit
     lp
     ~
     [sep:sep]
-    x:parentheses
+    x:expression
     [sep:sep]
     comma
     [sep:sep]
-    y:parentheses
+    y:expression
     [sep:sep]
     comma
     [sep:sep]
-    z:parentheses
+    z:expression
     [sep:sep]
     rp
     ;
@@ -1175,11 +1289,11 @@ functions_2
     lp
     ~
     [sep:sep]
-    x:parentheses
+    x:expression
     [sep:sep]
     comma
     [sep:sep]
-    y:parentheses
+    y:expression
     [sep:sep]
     rp
     ;
@@ -1198,11 +1312,11 @@ unif
     lp
     ~
     [sep:sep]
-    mu:parentheses
+    mu:expression
     [sep:sep]
     comma
     [sep:sep]
-    alpha:parentheses
+    alpha:expression
     [sep:sep]
     rp
     ;
@@ -1219,108 +1333,6 @@ v_func
     [sep:sep]
     [comma [sep:sep] node:node [sep:sep]]
     rp
-    ;
-
-
-ternary::Ternary
-    =
-        t:conditional_expression
-        [sep:sep]
-        op:'?'
-        ~
-        [sep:sep]
-        x:parentheses
-        [sep:sep]
-        ':'
-        ~
-        [sep:sep]
-        y:parentheses
-    |
-        value:term
-    ;
-
-
-conditional_expression::Conditional
-    =
-    lp [sep:sep] @:boolean_or [sep:sep] rp | @:boolean_or
-    ;
-
-
-boolean_or::Or
-    =
-    left:boolean_xor [[sep:sep] op:'|' [sep:sep] right:boolean_or]
-    ;
-
-
-boolean_xor::Xor
-    =
-    left:boolean_and [[sep:sep] op:'^' [sep:sep] right:boolean_xor]
-    ;
-
-
-boolean_and::And
-    =
-    left:boolean_not [[sep:sep] op:'&' [sep:sep] right:boolean_and]
-    ;
-
-
-boolean_not::Not
-    =
-    [op:'~'] operator:relational
-    ;
-
-
-relational::Relational
-    =
-        left:parentheses
-        [[sep:sep]
-        op:('==' | '!=' | '>=' | '<=' | '>' | '<')
-        [sep:sep]
-        right:parentheses]
-    |
-        value:boolean
-    ;
-
-
-term::Term
-    =
-    @:add_sub
-    ;
-
-
-add_sub::AddSub
-    =
-    left:prod [[sep:sep] op:('+' | '-') [sep:sep] right:add_sub]
-    ;
-
-
-prod::ProdDivMod
-    =
-    left:unary [[sep:sep] op:('*' | '/' | '%') [sep:sep] right:prod]
-    ;
-
-
-unary::Sign
-    =
-    [op:('+' | '-')] operator:exp
-    ;
-
-
-exp::Exponential
-    =
-    left:functional [[sep:sep] op:'**' [sep:sep] right:exp]
-    ;
-
-
-functional::Functional
-    =
-    @:functions | @:factor
-    ;
-
-
-factor::Factor
-    =
-    @:parentheses | lc [sep:sep] @:var_id [sep:sep] rc | @:var_id | @:value
     ;
 
 
@@ -1370,7 +1382,7 @@ number_scale::NumberScale
 
 suffix
     =
-    /[tTgGkKmMxXuUnNpPfF]/
+    /[tTgGkKmMxXuUnNpPfFµ]/
     ;
 
 
