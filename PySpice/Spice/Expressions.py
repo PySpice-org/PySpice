@@ -1,3 +1,5 @@
+import operator
+
 import numpy as np
 import operator as op
 
@@ -103,13 +105,20 @@ class BinaryOperator(Expression):
         return "({:s} {:s} {:s})".format(str(self._lhs), str(self._string), str(self._rhs))
 
     def __call__(self, **kwargs):
-        lhs = self._lhs.subs(**kwargs)
-        rhs = self._rhs.subs(**kwargs)
-        if isinstance(lhs, Expression) or isinstance(rhs, Expression):
-            return self.__class__(lhs, rhs)
+        lhs = self._lhs
+        rhs = self._rhs
+        if kwargs:
+            lhs = lhs.subs(**kwargs)
+            rhs = rhs.subs(**kwargs)
+            if isinstance(lhs, Expression) or isinstance(rhs, Expression):
+                return self.__class__(lhs, rhs)
+            else:
+                return self._op(lhs, rhs)
         else:
-            return self._op(lhs, rhs)
-
+            try:
+                return self._op(lhs, rhs)
+            except:
+                return self.__class__(lhs, rhs)
 
 class UnaryOperator(Expression):
     def __init__(self, op, string, operator):
@@ -121,11 +130,18 @@ class UnaryOperator(Expression):
         return "({:s}({:s}))".format(str(self._string), str(self._operator))
 
     def __call__(self, **kwargs):
-        operator = self._operator.subs(**kwargs)
-        if isinstance(operator, Expression):
-            return self.__class__(operator)
+        operator = self._operator
+        if kwargs:
+            operator.subs(**kwargs)
+            if isinstance(operator, Expression):
+                return self.__class__(operator)
+            else:
+                return self._op(operator)
         else:
-            return self._op(operator)
+            try:
+                return self._op(operator)
+            except:
+                return self.__class__(operator)
 
 
 class Add(BinaryOperator):
@@ -199,23 +215,27 @@ class GT(BinaryOperator):
 
 
 class Not(UnaryOperator):
-    def __init__(self, operator):
-        super(Not, self).__init__(lambda operator: not operator, "not", operator)
+    def __init__(self, value):
+        super(Not, self).__init__(operator.not_, "not", value)
 
 
 class And(BinaryOperator):
     def __init__(self, lhs, rhs):
-        super(And, self).__init__(lambda lhs, rhs: lhs and rhs, "and", lhs, rhs)
+        super(And, self).__init__(operator.and_, "and", lhs, rhs)
 
 
 class Or(BinaryOperator):
     def __init__(self, lhs, rhs):
-        super(Or, self).__init__(lambda lhs, rhs: lhs or rhs, "or", lhs, rhs)
+        super(Or, self).__init__(operator.or_, "or", lhs, rhs)
 
 
 class Xor(BinaryOperator):
+    @staticmethod
+    def _xor(lhs, rhs):
+        return (lhs and not rhs) or (rhs and not lhs)
+
     def __init__(self, lhs, rhs):
-        super(Xor, self).__init__(lambda lhs, rhs: lhs != rhs, "xor", lhs, rhs)
+        super(Xor, self).__init__(Xor._xor, "xor", lhs, rhs)
 
 
 class Abs(Function):
@@ -242,10 +262,14 @@ class ACosh(Function):
 class AGauss(Function):
     nargs = 3
 
+    @staticmethod
+    def _agauss(mu, alpha, n):
+        return np.normal(mu,
+                         alpha / n,
+                         1)
+
     def __init__(self, *symbol):
-        super(AGauss, self).__init__(lambda mu, alpha, n: np.normal(mu,
-                                                                    alpha / n,
-                                                                    1), *symbol)
+        super(AGauss, self).__init__(AGauss._agauss, *symbol)
 
 
 class ASin(Function):
@@ -286,10 +310,14 @@ class ATanh(Function):
 class AUnif(Function):
     nargs = 2
 
+    @staticmethod
+    def _aunif(mu, alpha):
+        return np.uniform(mu - alpha,
+                          mu + alpha,
+                          1)
+
     def __init__(self, *symbol):
-        super(AUnif, self).__init__(lambda mu, alpha: np.uniform(mu - alpha,
-                                                                 mu + alpha,
-                                                                 1), *symbol)
+        super(AUnif, self).__init__(AUnif._aunif, *symbol)
 
 
 class Ceil(Function):
@@ -351,18 +379,26 @@ class Floor(Function):
 class Gauss(Function):
     nargs = 3
 
+    @staticmethod
+    def _gauss(mu, alpha, n):
+        return np.normal(mu,
+                         alpha * mu / n,
+                         1)
+
     def __init__(self, *symbol):
         def __init__(self, *symbol):
-            super(Gauss, self).__init__(lambda mu, alpha, n: np.normal(mu,
-                                                                       alpha * mu / n,
-                                                                       1), *symbol)
+            super(Gauss, self).__init__(Gauss._gauss, *symbol)
 
 
 class If(Function):
     nargs = 3
 
+    @staticmethod
+    def _if(t, x, y):
+        return x if t else y
+
     def __init__(self, *symbol):
-        super(If, self).__init__(lambda t, x, y: x if t else y, *symbol)
+        super(If, self).__init__(If._if, *symbol)
 
 
 class Img(Function):
@@ -382,8 +418,12 @@ class Int(Function):
 class Limit(Function):
     nargs = 3
 
+    @staticmethod
+    def _limit(x, y, z):
+        return y if x < y else z if x > z else x
+
     def __init__(self, *symbol):
-        super(Limit, self).__init__(lambda x, y, z: y if x < y else z if x > z else x, *symbol)
+        super(Limit, self).__init__(Limit._limit, *symbol)
 
 
 class Ln(Function):
@@ -439,28 +479,36 @@ class Pow(Function):
     nargs = 2
 
     def __init__(self, *symbol):
-        super(Pow, self).__init__(lambda x, y: np.power(x, y), *symbol)
+        super(Pow, self).__init__(np.power, *symbol)
 
 
 class Pwr(Function):
     nargs = 2
 
     def __init__(self, *symbol):
-        super(Pwr, self).__init__(lambda x, y: np.power(x, y), *symbol)
+        super(Pwr, self).__init__(np.power, *symbol)
 
 
 class Pwrs(Function):
     nargs = 2
 
+    @staticmethod
+    def _pwrs(x, y):
+        return np.copysign(np.power(np.abs(x), y), x)
+
     def __init__(self, *symbol):
-        super(Pwrs, self).__init__(lambda x, y: np.copysign(np.power(np.abs(x), y), x), *symbol)
+        super(Pwrs, self).__init__(Pwrs._pwrs, *symbol)
 
 
 class Rand(Function):
     nargs = 0
 
+    @staticmethod
+    def _rand():
+        return np.random.rand(1)
+
     def __init__(self, *symbol):
-        super(Rand, self).__init__(np.random.rand(1), *symbol)
+        super(Rand, self).__init__(Rand._rand, *symbol)
 
 
 class Re(Function):
@@ -515,8 +563,12 @@ class Sqrt(Function):
 class Stp(Function):
     nargs = 1
 
+    @staticmethod
+    def _stp(x):
+        return x * (x > 0)
+
     def __init__(self, *symbol):
-        super(Stp, self).__init__(lambda x: x * (x > 0), *symbol)
+        super(Stp, self).__init__(Stp._stp, *symbol)
 
 
 class Tan(Function):
@@ -536,17 +588,25 @@ class Tanh(Function):
 class Unif(Function):
     nargs = 2
 
+    @staticmethod
+    def _unif(mu, alpha):
+        return np.uniform(mu * (1. - alpha),
+                          mu * (1. + alpha),
+                          1)
+
     def __init__(self, *symbol):
-        super(Unif, self).__init__(lambda mu, alpha: np.uniform(mu * (1. - alpha),
-                                                                mu * (1. + alpha),
-                                                                1), *symbol)
+        super(Unif, self).__init__(Unif._unif, *symbol)
 
 
 class URamp(Function):
     nargs = 1
 
+    @staticmethod
+    def _uramp(x):
+        return x * (x > 0)
+
     def __init__(self, *symbol):
-        super(URamp, self).__init__(lambda x: x * (x > 0), *symbol)
+        super(URamp, self).__init__(URamp._uramp, *symbol)
 
 
 class Symbol(Expression):

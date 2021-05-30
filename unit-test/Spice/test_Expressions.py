@@ -25,25 +25,30 @@ import unittest
 ####################################################################################################
 
 from PySpice.Spice.Expressions import *
+import math as m
 
 ####################################################################################################
 
 
-class TestExpression:
+class TestExpression(unittest.TestCase):
 
     def test_symbol(self):
         x = Symbol('x')
         V_3 = V(Symbol("3"))
         cos_V_3 = Cos(V_3)
         values = {str(V_3): 25}
-        print(cos_V_3(**values))
+        self.assertEqual(m.cos(25), cos_V_3(**values))
         y = Symbol('y')
         add = Add(x, y)
-        print(add)
+        self.assertEqual("(x + y)", add)
         V_5 = V("5")
-        print(V_5)
-        print(Cos(27))
-        print(Cos(27)())
+        self.assertEqual("v(5)",V_5)
+        self.assertEqual("cos(27)", Cos(27))
+        self.assertEqual(m.cos(27), Cos(27)())
+        self.assertTrue(Xor(True, False)())
+        self.assertFalse(Xor(True, True)())
+        self.assertTrue(Xor(False, True)())
+        self.assertFalse(Xor(False, False)())
 
 
 if __name__ == '__main__':
