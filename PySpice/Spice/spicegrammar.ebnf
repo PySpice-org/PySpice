@@ -1442,7 +1442,7 @@ boolean
 
 model_name::ModelName
     =
-    name:/[a-zA-Z0-9_][a-zA-Z0-9_\-\+]*/ !([sep:sep] '=')
+    name:/[a-zA-Z0-9_][a-zA-Z0-9_\-\+\.]*/ !([sep:sep] '=')
     ;
 
 

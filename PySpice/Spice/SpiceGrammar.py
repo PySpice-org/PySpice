@@ -3859,7 +3859,7 @@ class SpiceParser(Parser):
 
     @tatsumasu('ModelName')
     def _model_name_(self):  # noqa
-        self._pattern('[a-zA-Z0-9_][a-zA-Z0-9_\\-\\+]*')
+        self._pattern('[a-zA-Z0-9_][a-zA-Z0-9_\\-\\+\\.]*')
         self.name_last_node('name')
         with self._ifnot():
             with self._group():
