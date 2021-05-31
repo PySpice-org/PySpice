@@ -8,6 +8,8 @@ import tatsu
 data = """* Data test
 *More notes
 
+E1 3 0 5 0 10
+
 G1 21 3 POLY(1) 1 3 0 1.57E-6 -0.97e-7
 
 .MODEL DI_HBS410 D  ( IS=130.2n RS=6.366m BV=1.229k IBV=1m

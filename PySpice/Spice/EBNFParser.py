@@ -1326,7 +1326,9 @@ class SpiceModelWalker(NodeWalker):
             kwargs = {"V": controller}
         else:
             value = self.walk(node.gain, data)
-            kwargs = {"V": V(node.control_positive, node.control_negative) * value}
+            ctrl_p = self.walk(node.control_positive, data)
+            ctrl_n = self.walk(node.control_negative, data)
+            kwargs = {"V": V(ctrl_p, ctrl_n) * value}
 
         positive = self.walk(node.positive, data)
         negative = self.walk(node.negative, data)
