@@ -406,17 +406,23 @@ class TestSpiceParser(unittest.TestCase):
         circuit.BehavioralSource('test', '1', '0', voltage_expression='if(0, 0, 1)', smoothbsrc=1)
         expected = """.title MOS Driver
 
-.subckt mosdriver hb hi ho hs li lo vdd vss
 .model diode D (is=1.038e-15 n=1 tt=2e-08 cjo=5e-12 rs=0.5 bv=130)
 
-bhigh hoi hs v={if((v(hi, vss) > 0.5), 5, 0)} smoothbsrc=1
+.subckt mosdriver hb hi ho hs li lo vdd vss
+
+
+xhigh hoi hs hi vss source
 rhoi hoi ho 1
 choi ho hs 1e-09
-blow loi vss v={if((v(li, vss) > 0.5), 5, 0)} smoothbsrc=1
+xlow loi vss li vss source
 rloi loi lo 1
 cloi lo vss 1e-09
 dhb vdd hb diode
 .ends mosdriver
+
+.subckt source vh vl hi lo
+bhigh vh vl v={if((v(hi, lo) > 0.5), 5, 0)} smoothbsrc=1
+.ends source
 
 xtest 0 1 2 3 4 5 mosdriver
 btest 1 0 v=if(0, 0, 1) smoothbsrc=1

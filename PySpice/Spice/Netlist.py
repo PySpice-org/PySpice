@@ -1062,6 +1062,12 @@ class Netlist:
 
         self._subcircuits[str(subcircuit.name).lower()] = subcircuit
         subcircuit.parent=self
+        for model in subcircuit._used_models:
+            if model not in subcircuit._models:
+                self._used_models.add(model)
+        for subckt in subcircuit._used_subcircuits:
+            if subckt not in subcircuit._subcircuits:
+                self._used_subcircuits.add(subckt)
 
     ##############################################
 
