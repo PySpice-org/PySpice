@@ -1101,7 +1101,7 @@ class Netlist:
     def _str_models(self):
         if self._used_models:
             models = [self._models[model]
-                      for model in self._used_models
+                      for model in sorted(self._used_models)
                       if model in self._models]
             return join_lines(models) + os.linesep
         else:
@@ -1112,7 +1112,7 @@ class Netlist:
     def _str_subcircuits(self):
         if self._used_subcircuits:
             subcircuits = [self._subcircuits[subcircuit]
-                           for subcircuit in self._used_subcircuits
+                           for subcircuit in sorted(self._used_subcircuits)
                            if subcircuit in self._subcircuits]
             return join_lines(subcircuits)
         else:
