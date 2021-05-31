@@ -24,6 +24,7 @@ import unittest
 
 ####################################################################################################
 
+from PySpice.Spice.Netlist import Circuit
 from PySpice.Spice.Expressions import *
 import math as m
 
@@ -40,7 +41,13 @@ class TestExpression(unittest.TestCase):
         self.assertEqual(m.cos(25), cos_V_3(**values))
         y = Symbol('y')
         add = Add(x, y)
+        add_operator = x + y
         self.assertEqual("(x + y)", add)
+        self.assertEqual("(x + y)", add_operator)
+        add_float = x + 5.
+        self.assertEqual("(x + 5.0)", add_float)
+        add_float = 5. + x
+        self.assertEqual("(5.0 + x)", add_float)
         V_5 = V("5")
         self.assertEqual("v(5)",V_5)
         self.assertEqual("cos(27)", Cos(27))
@@ -50,6 +57,14 @@ class TestExpression(unittest.TestCase):
         self.assertTrue(Xor(False, True)())
         self.assertFalse(Xor(False, False)())
 
+    def test_expression(self):
+        print(If(V("v_sw", "gnd") < 2. * Symbol("v_3v") / 3., 1, 1e-6))
+        circuit = Circuit("Simulation")
+        circuit.BehavioralResistor('b',
+                                   'na',
+                                   'nb',
+                                   resistance_expression=If(V("v_sw", "gnd") < 2. * Symbol("v_3v") / 3., 1, 1e-6))
+        print(circuit)
 
 if __name__ == '__main__':
 

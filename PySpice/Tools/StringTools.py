@@ -23,7 +23,7 @@ import os
 ####################################################################################################
 
 from PySpice.Unit.Unit import UnitValue
-
+from PySpice.Spice.Expressions import Expression
 ####################################################################################################
 
 def str_spice(obj, unit=True):
@@ -37,6 +37,8 @@ def str_spice(obj, unit=True):
             return obj.str_spice()
         else: # Fixme: ok ???
             return obj.str(spice=False, space=False, unit=False)
+    elif isinstance(obj, Expression):
+        return "{{{}}}".format(obj)
     else:
         return str(obj).lower()
 
