@@ -8,6 +8,9 @@ import tatsu
 data = """* Data test
 *More notes
 
+R 1 2 600000 MDR	
+.MODEL MDR R TC1=0 TC2=0
+
 .SUBCKT AND2 A B Y
 BEINT YINT 0 V = {IF(V(A) > 0.5 & V(B) > 0.5, 1, 0)}
 RINT YINT Y 1
@@ -367,13 +370,13 @@ def circuit_gft(prb):
     circuit = parser.build()
     circuit.parameter('prb', str(prb[1]))
     simulator = circuit.simulator(simulator='xyce-serial')
-    simulator.save(['all'])
+    simulator.save('all')
     return simulator
 
 
 class TestSpiceParser(unittest.TestCase):
     def test_parser(self):
-        # SpiceParser._regenerate()
+        #SpiceParser._regenerate()
         results = list(map(circuit_gft, [(data, -1), (data, 1)]))
         self.assertEqual(len(results), 2)
         values = str(results[0])
@@ -418,12 +421,12 @@ ISIN 4 3 SIN 0 5 3 1
 
         expected = """.title None
 
-vexp 2 0 exp(1 2 3)
-vpat 3 4 pat(3 0 2 1 2 3 b0101 1)
-ipulse 2 3 pulse(1 4 0 0 0)
-ipwl1 1 0 pwl(0 0 2 3 3 2 4 2 4.01 5 r=2 td=1)
-vsffm 1 0 sffm(0 1 2)
-isin 4 3 dc 0 ac sin(0 5 3 1 0)
+vexp 2 0 exp(1v 2v 3s)
+vpat 3 4 pat(3v 0v 2s 1s 2s 3s b0101 1)
+ipulse 2 3 pulse(1a 4a 0s 0s 0s)
+ipwl1 1 0 pwl(0s 0a 2s 3a 3s 2a 4s 2a 4.01s 5a r=2s td=1s)
+vsffm 1 0 sffm(0v 1v 2hz)
+isin 4 3 dc 0a ac sin(0a 5a 3hz 1s 0hz)
 """
         result = str(circuit)
         self.assertEqual(expected, result)
@@ -460,7 +463,35 @@ Xtest42 12 10 test4 params: j = 23
 """)
         circuit = subckt.build()
         print(circuit)
-        expected = """"""
+        expected = """.title None
+
+.param a=23
+.param b=24
+.subckt test1 1 2 3
+
+.ends test1
+
+.subckt test2 1 3 4 params: t=3
+
+.ends test2
+
+.subckt test3 2 3
+.param h=25
+
+.ends test3
+
+.subckt test4 5 6 params: j={(a + b)}
+.param d={(j + 32)}
+
+.ends test4
+
+xtest1 4 5 6 test1
+xtest21 8 7 3 test2
+xtest22 9 5 6 test2 params: t=5
+xtest3 9 10 test3
+xtest41 10 12 test4
+xtest42 12 10 test4 params: j=23
+"""
         result = str(circuit)
         self.assertEqual(expected, result)
 
@@ -489,10 +520,11 @@ bexor yint 0 v={if(((v(A) > 0.5) ^ (v(B) > 0.5)), 1, 0)}
         expected = """.title MOS Driver
 
 .model diode D (is=1.038e-15 n=1 tt=2e-08 cjo=5e-12 rs=0.5 bv=130)
+.subckt source vh vl hi lo
+bhigh vh vl v={if((v(hi, lo) > 0.5), 5, 0)} smoothbsrc=1
+.ends source
 
 .subckt mosdriver hb hi ho hs li lo vdd vss
-
-
 xhigh hoi hs hi vss source
 rhoi hoi ho 1
 choi ho hs 1e-09
@@ -501,10 +533,6 @@ rloi loi lo 1
 cloi lo vss 1e-09
 dhb vdd hb diode
 .ends mosdriver
-
-.subckt source vh vl hi lo
-bhigh vh vl v={if((v(hi, lo) > 0.5), 5, 0)} smoothbsrc=1
-.ends source
 
 xtest 0 1 2 3 4 5 mosdriver
 btest 1 0 v=if(0, 0, 1) smoothbsrc=1

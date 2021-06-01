@@ -125,9 +125,8 @@ capacitor::Capacitor
     negative:node
     ~
     [
-    | sep:sep model:model_name sep:sep value:gen_expr
-    | sep:sep value:gen_expr
-    | sep:sep model:model_name
+    | sep:sep value:gen_expr [sep:sep model:model_name]
+    | sep:sep model:model_name [sep:sep value:gen_expr]
     ]
 
     [sep:sep parameters:parameters]
@@ -369,9 +368,8 @@ inductor::Inductor
     negative:node
     ~
     [
-    | sep:sep model:model_name sep:sep value:gen_expr
-    | sep:sep value:gen_expr
-    | sep:sep model:model_name
+    | sep:sep value:gen_expr [sep:sep model:model_name]
+    | sep:sep model:model_name [sep:sep value:gen_expr]
     ]
 
     [sep:sep parameters:parameters]
@@ -445,9 +443,8 @@ resistor::Resistor
     negative:node
     ~
     [
-    | sep:sep model:model_name sep:sep value:gen_expr
-    | sep:sep value:gen_expr
-    | sep:sep model:model_name
+    | sep:sep value:gen_expr [sep:sep model:model_name]
+    | sep:sep model:model_name [sep:sep value:gen_expr]
     ]
 
     [sep:sep parameters:parameters]

@@ -1067,6 +1067,8 @@ class UnitValue: # numbers.Real
         prefix_string = self._prefixed_unit.str(spice, unit)
         if space and (prefix_string != ""):
             string += ' ' + prefix_string
+        else:
+            string += prefix_string
         return string
 
     ##############################################

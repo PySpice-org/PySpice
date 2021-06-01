@@ -385,22 +385,23 @@ class SpiceParser(Parser):
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
-                    self._model_name_()
-                    self.name_last_node('model')
-                    self._sep_()
-                    self.name_last_node('sep')
                     self._gen_expr_()
                     self.name_last_node('value')
-                with self._option():
-                    self._sep_()
-                    self.name_last_node('sep')
-                    self._gen_expr_()
-                    self.name_last_node('value')
+                    with self._optional():
+                        self._sep_()
+                        self.name_last_node('sep')
+                        self._model_name_()
+                        self.name_last_node('model')
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
                     self._model_name_()
                     self.name_last_node('model')
+                    with self._optional():
+                        self._sep_()
+                        self.name_last_node('sep')
+                        self._gen_expr_()
+                        self.name_last_node('value')
                 self._error(
                     'expecting one of: '
                     '<sep>'
@@ -989,22 +990,23 @@ class SpiceParser(Parser):
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
-                    self._model_name_()
-                    self.name_last_node('model')
-                    self._sep_()
-                    self.name_last_node('sep')
                     self._gen_expr_()
                     self.name_last_node('value')
-                with self._option():
-                    self._sep_()
-                    self.name_last_node('sep')
-                    self._gen_expr_()
-                    self.name_last_node('value')
+                    with self._optional():
+                        self._sep_()
+                        self.name_last_node('sep')
+                        self._model_name_()
+                        self.name_last_node('model')
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
                     self._model_name_()
                     self.name_last_node('model')
+                    with self._optional():
+                        self._sep_()
+                        self.name_last_node('sep')
+                        self._gen_expr_()
+                        self.name_last_node('value')
                 self._error(
                     'expecting one of: '
                     '<sep>'
@@ -1187,22 +1189,23 @@ class SpiceParser(Parser):
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
-                    self._model_name_()
-                    self.name_last_node('model')
-                    self._sep_()
-                    self.name_last_node('sep')
                     self._gen_expr_()
                     self.name_last_node('value')
-                with self._option():
-                    self._sep_()
-                    self.name_last_node('sep')
-                    self._gen_expr_()
-                    self.name_last_node('value')
+                    with self._optional():
+                        self._sep_()
+                        self.name_last_node('sep')
+                        self._model_name_()
+                        self.name_last_node('model')
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
                     self._model_name_()
                     self.name_last_node('model')
+                    with self._optional():
+                        self._sep_()
+                        self.name_last_node('sep')
+                        self._gen_expr_()
+                        self.name_last_node('value')
                 self._error(
                     'expecting one of: '
                     '<sep>'

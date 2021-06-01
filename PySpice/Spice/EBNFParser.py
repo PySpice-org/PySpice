@@ -1668,7 +1668,7 @@ class SpiceModelWalker(NodeWalker):
         )
         # The include statement makes available all the parameters, models and
         # subcircuits in the file.
-        data._present._params.extend(include._contents._params)
+        data._present._parameters.extend(include._contents._parameters)
         data._present._models.extend(include._contents._models)
         data._present._subcircuits.extend(include._contents._subcircuits)
 

@@ -1041,6 +1041,12 @@ class Netlist:
 
     ##############################################
 
+    def parameter(self, name, expression):
+        """Set a parameter."""
+        self._parameters[str(name)] = expression
+
+    ##############################################
+
     def model(self, name, modele_type, **parameters):
 
         """Add a model."""
@@ -1158,9 +1164,9 @@ class Netlist:
                 subcircuit_def = subcircuit.build(parent=self)
                 self.subcircuit(subcircuit_def)
                 self._subcircuits[subcircuit._name.lower()]._included = path
-            parameters = library.params
+            parameters = library.parameters
             for param in parameters:
-                self.param(param)
+                self.parameters(*param)
         else:
             self._logger.warn("Duplicated include")
 
@@ -1392,11 +1398,6 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def parameter(self, name, expression):
-        """Set a parameter."""
-        self._parameters[str(name)] = expression
-
-    ##############################################
 
     def data(self, table, **kwargs):
         self._data.update[table] = kwargs
@@ -1413,7 +1414,8 @@ class Circuit(Netlist):
         netlist = self._str_title()
         netlist += os.linesep
         # netlist += self._str_includes(simulator)
-        netlist += self._str_globals()
+        if self._global_nodes:
+            netlist += self._str_globals() + os.linesep
         netlist += super().__str__()
         return netlist
 
@@ -1446,7 +1448,8 @@ class Circuit(Netlist):
     def _str_globals(self):
 
         if self._global_nodes:
-            return '.global ' + join_list(self._global_nodes) + os.linesep
+            return join_lines(['.global {}'.format(str_spice(node))
+                               for node in self._global_nodes])
         else:
             return ''
 
