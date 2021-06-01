@@ -1471,7 +1471,8 @@ class SpiceModelWalker(NodeWalker):
                 values.extend(coefficients)
             else:
                 values.append(coefficients)
-        data = [self.walk(dev, data) for dev in ctrl_dev] + [str(value) for value in values]
+        data = ["i({})".format(self.walk(dev, data))
+                for dev in ctrl_dev] + [str(value) for value in values]
         parameters = ' '.join(data)
         return '{ POLY (%d) %s }' % (controllers, parameters)
 

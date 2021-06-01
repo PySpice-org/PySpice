@@ -8,6 +8,8 @@ import tatsu
 data = """* Data test
 *More notes
 
+FB    7 99 POLY(5) VB VC VE VLP VLN 0 147.3E6 -100E6 100E6 100E6 -100E6
+
 R 1 2 600000 MDR	
 .MODEL MDR R TC1=0 TC2=0
 
