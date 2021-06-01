@@ -145,7 +145,7 @@ class PulseMixin(SourceMixinAbc):
     +--------+---------------+---------------+-------+
     | V1     + initial value +               + V, A  |
     +--------+---------------+---------------+-------+
-    | V2     + pulsed value  +               + V, A  |
+    | V2     + pulse value  +               + V, A  |
     +--------+---------------+---------------+-------+
     | Td     + delay time    + 0.0           + sec   |
     +--------+---------------+---------------+-------+
@@ -201,7 +201,7 @@ class PulseMixin(SourceMixinAbc):
 
       :attr:`pulse_width`
 
-      :attr:`pulsed_value`
+      :attr:`pulse_value`
 
       :attr:`rise_time`
 
@@ -210,8 +210,8 @@ class PulseMixin(SourceMixinAbc):
     ##############################################
 
     def __init__(self,
-                 initial_value, pulsed_value,
-                 pulse_width, period,
+                 initial_value, pulse_value=0,
+                 pulse_width=None, period=None,
                  delay_time=0, rise_time=0, fall_time=0,
                  phase=None):
 
@@ -220,18 +220,15 @@ class PulseMixin(SourceMixinAbc):
         #  pulse_width, period = Tstop
 
         self.initial_value = self.__as_unit__(initial_value)
-        self.pulsed_value = self.__as_unit__(pulsed_value)
+        self.pulse_value = self.__as_unit__(pulse_value)
         self.delay_time = as_s(delay_time)
         self.rise_time = as_s(rise_time)
         self.fall_time = as_s(fall_time)
-        self.pulse_width = as_s(pulse_width)
-        self.period = as_s(period) # Fixme: protect by setter?
+        self.pulse_width = as_s(pulse_width, none=True)
+        self.period = as_s(period, none=True) # Fixme: protect by setter?
 
         # XSPICE
-        if phase is not None:
-            self.phase = as_s(phase)
-        else:
-            self.phase = None
+        self.phase = as_s(phase, none=True)
 
         # # Fixme: to func?
         # # Check parameters
@@ -253,12 +250,24 @@ class PulseMixin(SourceMixinAbc):
     ##############################################
 
     def format_spice_parameters(self):
-
+        values = [self.initial_value]
+        if self.pulse_value is not None:
+            values.append(self.pulse_value)
+            if self.delay_time is not None:
+                values.append(self.delay_time)
+                if self.rise_time is not None:
+                    values.append(self.rise_time)
+                    if self.fall_time is not None:
+                        values.append(self.fall_time)
+                        if self.pulse_width is not None:
+                            values.append(self.pulse_width)
+                            if self.period is not None:
+                                values.append(self.period)
+                                if self.phase is not None:
+                                    values.append(self.phase)
         # Fixme: to func?
         return ('PULSE(' +
-                join_list((self.initial_value, self.pulsed_value, self.delay_time,
-                           self.rise_time, self.fall_time, self.pulse_width, self.period,
-                           self.phase)) +
+                join_list(values) +
                 ')')
 
 ####################################################################################################
@@ -272,15 +281,15 @@ class ExponentialMixin(SourceMixinAbc):
     +------+--------------------+---------------+-------+
     | Name + Parameter          + Default Value + Units |
     +------+--------------------+---------------+-------+
-    | V1   + Initial value      +               + V, A  |
+    | V1   + Initial amplitude  +               + V, A  |
     +------+--------------------+---------------+-------+
-    | V2   + pulsed value       +               + V, A  |
+    | V2   + amplitude          +               + V, A  |
     +------+--------------------+---------------+-------+
     | Td1  + rise delay time    + 0.0           + sec   |
     +------+--------------------+---------------+-------+
     | tau1 + rise time constant + Tstep         + sec   |
     +------+--------------------+---------------+-------+
-    | Td2  + fall delay time    + Td1+Tstep     + sec   |
+    | Td2  + delay fall time    + Td1+Tstep     + sec   |
     +------+--------------------+---------------+-------+
     | tau2 + fall time constant + Tstep         + sec   |
     +------+--------------------+---------------+-------+
@@ -308,29 +317,35 @@ class ExponentialMixin(SourceMixinAbc):
     ##############################################
 
     def __init__(self,
-                 initial_value, pulsed_value,
+                 initial_amplitude, amplitude,
                  rise_delay_time=.0, rise_time_constant=None,
-                 fall_delay_time=None, fall_time_constant=None):
+                 delay_fall_time=None, fall_time_constant=None):
 
         # Fixme: default
 
-        self.initial_value = self.__as_unit__(initial_value)
-        self.pulsed_value = self.__as_unit__(pulsed_value)
+        self.initial_amplitude = self.__as_unit__(initial_amplitude)
+        self.amplitude = self.__as_unit__(amplitude)
         self.rise_delay_time = as_s(rise_delay_time)
-        self.rise_time_constant = as_s(rise_time_constant)
-        self.fall_delay_time = as_s(fall_delay_time)
-        self.fall_time_constant = as_s(fall_time_constant)
+        self.rise_time_constant = as_s(rise_time_constant, none=True)
+        self.delay_fall_time = as_s(delay_fall_time, none=True)
+        self.fall_time_constant = as_s(fall_time_constant, none=True)
 
     ##############################################
 
     def format_spice_parameters(self):
 
         # Fixme: to func?
+        values = [self.initial_amplitude, self.amplitude,
+                           self.rise_delay_time]
+        if self.rise_time_constant is not None:
+            values.append(self.rise_time_constant)
+            if self.delay_fall_time is not None:
+                values.append(self.delay_fall_time)
+                if self.fall_time_constant is not None:
+                    values.append(self.fall_time_constant)
+
         return ('EXP(' +
-                join_list((self.initial_value, self.pulsed_value,
-                           self.rise_delay_time, self.rise_time_constant,
-                           self.fall_delay_time, self.fall_time_constant,
-                       )) +
+                join_list(values) +
                 ')')
 
 ####################################################################################################
@@ -365,13 +380,13 @@ class PieceWiseLinearMixin(SourceMixinAbc):
 
     ##############################################
 
-    def __init__(self, values, repeate_time=0, delay_time=.0):
+    def __init__(self, values, repeat_time=0, time_delay=.0):
 
         # Fixme: default
 
         self.values = sum(([as_s(t), self.__as_unit__(x)] for (t, x) in values), [])
-        self.repeate_time = as_s(repeate_time)
-        self.delay_time = as_s(delay_time)
+        self.repeat_time = as_s(repeat_time)
+        self.time_delay = as_s(time_delay)
 
     ##############################################
 
@@ -381,7 +396,7 @@ class PieceWiseLinearMixin(SourceMixinAbc):
         return ('PWL(' +
                 join_list(self.values) +
                 ' ' +
-                join_dict({'r':self.repeate_time, 'td':self.delay_time}) + # OrderedDict(
+                join_dict({'r':self.repeat_time, 'td':self.time_delay}) + # OrderedDict(
                 ')')
 
 ####################################################################################################
@@ -489,22 +504,28 @@ class SingleFrequencyFMMixin(SourceMixinAbc):
 
     ##############################################
 
-    def __init__(self, offset, amplitude, carrier_frequency, modulation_index, signal_frequency):
+    def __init__(self, offset, amplitude, carrier_frequency=None, modulation_index=None, signal_frequency=None):
 
         self.offset = self.__as_unit__(offset)
         self.amplitude = self.__as_unit__(amplitude)
-        self.carrier_frequency = as_Hz(carrier_frequency)
+        self.carrier_frequency = as_Hz(carrier_frequency, none=True)
         self.modulation_index = modulation_index
-        self.signal_frequency = as_Hz(signal_frequency)
+        self.signal_frequency = as_Hz(signal_frequency, none=True)
 
     ##############################################
 
     def format_spice_parameters(self):
+        values = [self.offset, self.amplitude]
+        if self.carrier_frequency is not None:
+            values.append(self.carrier_frequency)
+            if self.modulation_index is not None:
+                values.append(self.modulation_index)
+                if self.signal_frequency is not None:
+                    values.append(self.signal_frequency)
 
         # Fixme: to func?
         return ('SFFM(' +
-                join_list((self.offset, self.amplitude, self.carrier_frequency,
-                           self.modulation_index, self.signal_frequency)) +
+                join_list(values) +
                 ')')
 
 ####################################################################################################
@@ -812,9 +833,9 @@ class PieceWiseLinearCurrentSource(CurrentSource, CurrentSourceMixinAbc, PieceWi
 
 ####################################################################################################
 
-class PattermVoltageSource(VoltageSource, VoltageSourceMixinAbc, PatternMixin):
+class PatternVoltageSource(VoltageSource, VoltageSourceMixinAbc, PatternMixin):
 
-    r"""This class implements a patter voltage source.
+    r"""This class implements a pattern voltage source.
 
     See :class:`PatternMixin` for documentation.
 

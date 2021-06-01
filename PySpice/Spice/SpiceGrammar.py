@@ -1739,19 +1739,38 @@ class SpiceParser(Parser):
                     def block2():
                         self._sep_()
                         self.name_last_node('sep')
+                    self._closure(block2)
+                    self._value_()
+                    self.name_last_node('t')
+                    self._sep_()
+                    self.name_last_node('sep')
+                    self._value_()
+                    self.name_last_node('value')
+
+                    def block7():
+                        self._sep_()
+                        self.name_last_node('sep')
                         self._value_()
                         self.name_last_node('t')
                         self._sep_()
                         self.name_last_node('sep')
                         self._value_()
                         self.name_last_node('value')
-                    self._positive_closure(block2)
-                    self._sep_()
-                    self.name_last_node('sep')
+                    self._closure(block7)
+                    with self._optional():
+                        self._sep_()
+                        self.name_last_node('sep')
+                        self._parameters_()
+                        self.name_last_node('parameters')
+
+                    def block14():
+                        self._sep_()
+                        self.name_last_node('sep')
+                    self._closure(block14)
                     self._rp_()
                 with self._option():
 
-                    def block8():
+                    def block16():
                         self._sep_()
                         self.name_last_node('sep')
                         self._value_()
@@ -1760,7 +1779,7 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._value_()
                         self.name_last_node('value')
-                    self._positive_closure(block8)
+                    self._positive_closure(block16)
                 self._error(
                     'expecting one of: '
                     '<lp> <sep>'

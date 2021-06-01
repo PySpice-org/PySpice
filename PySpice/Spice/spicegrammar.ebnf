@@ -638,8 +638,19 @@ pwl_file_arguments::PWLFileArguments
 pwl_arguments::PWLArguments
     =
     (
-        | {sep:sep} lp ~ {sep:sep t:value sep:sep value:value}+ sep:sep rp
-        | {sep:sep t:value sep:sep value:value}+
+            {sep:sep}
+            lp
+            ~
+            {sep:sep}
+            t:value
+            sep:sep
+            value:value
+            {sep:sep t:value sep:sep value:value}
+            [sep:sep parameters:parameters]
+            {sep:sep}
+            rp
+        |
+            {sep:sep t:value sep:sep value:value}+
     )
     [sep:sep parameters:parameters]
     ;

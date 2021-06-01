@@ -236,9 +236,14 @@ class Include(Statement):
 
     ##############################################
 
-    def __init__(self, line):
+    def __init__(self, line, parent):
+        import os
+        root, _ = os.path.split(parent.path)
         super().__init__(line, statement='include')
         self._include = self._line.right_of('.include')
+        file_name = os.path.abspath(os.path.join(root,
+                                                 self._include.replace('"', '')))
+        self._contents = SpiceParser(path=file_name)
 
     ##############################################
 
@@ -255,6 +260,8 @@ class Include(Statement):
     def to_python(self, netlist_name):
         return '{}.include({})'.format(netlist_name, self._include) + os.linesep
 
+    def contents(self):
+        return self._contents
 
 ####################################################################################################
 
@@ -272,9 +279,13 @@ class Model(Statement):
     def __init__(self, line):
         super().__init__(line, statement='model')
 
-        base, self._parameters = line.split_keyword('.model')
-        self._name, self._model_type = base
+        elements, parameters = line.split_keyword('.model')
+        if len(elements) != 2:
+            line.split_keyword('.model')
+        self._name, self._model_type = elements
+        self._parameters = parameters
         self._name = self._name.lower()
+        self._model_type = self._model_type.lower()
 
     ##############################################
 
@@ -304,7 +315,7 @@ class Model(Statement):
 ####################################################################################################
 
 class Param(Statement):
-    """ This class implements a model definition.
+    """ This class implements a param definition.
 
     Spice syntax::
 
@@ -493,11 +504,17 @@ class SubCircuitStatement(Statement):
 
         # Fixme
         parameters, dict_parameters = self._line.split_keyword('.subckt')
-        if parameters[-1].lower() == 'params:':
+        if len(parameters) < 1:
+            ParseError('Incorrect subcircuit declaration: {}'.format(line))
+        if parameters[-1] == 'params:':
             parameters = parameters[:-1]
+            self._parameters = dict_parameters
+        else:
+            self._parameters = {}
+            if len(dict_parameters) != 0:
+                ParseError('Incorrect subcircuit sintax: {}'.format(line))
         self._name, self._nodes = parameters[0], parameters[1:]
         self._name = self._name.lower()
-        self._parameters = dict_parameters
 
         self._statements = []
         self._subcircuits = []
@@ -621,8 +638,11 @@ class Element(Statement):
 
         super().__init__(line)
 
-        line_str = str(line)
+        line_str = str(line).lower()
         # self._logger.debug(os.linesep + line_str)
+
+        if len(line_str) < 1:
+            ParseError(line_str)
 
         # Retrieve device prefix
         prefix = line_str[0]
@@ -634,6 +654,8 @@ class Element(Statement):
 
         # Retrieve device name
         args, kwargs = line.split_element(prefix)
+        if len(args) < 1:
+            ParseError('Name not found: {}'.format(line))
         self._name = args.pop(0)
 
         self._nodes = []
@@ -952,6 +974,8 @@ class Line:
             if location != -1:
                 text = line[:location].strip()
                 comment = line[location:].strip()
+                if location == 0:
+                    is_comment = True
             else:
                 text = line
                 comment = ''
@@ -1101,74 +1125,113 @@ class Line:
 
     @staticmethod
     def _partition(text):
-        parts = []
-        for part in text.split():
-            if '=' in part and part != '=':
-                left, right = [x for x in part.split('=')]
-                parts.append(left)
-                parts.append('=')
-                if right:
-                    parts.append(right)
-            else:
-                parts.append(part)
-        return parts
+        # Physical suffix
+        # T E+12 G E+09 XorMEG E+06 K E+03 M E-03 U E-06 N E-09 P E-12 F E-15
+        # Both upper and lower case letters are
+        # T 1,000,000,000,000 Tera
+        # G 1,000,000,000 Giga
+        # X or MEG 1,000,000 Mega
+        # K 1,000 Kilo
+        # M 0.001 Milli
+        # U 0.000001 Micro
+        # N 0.000000001 Nano
+        # P 0.000000000001 Pico
+        # F 0.000000000000001 Femto
+        # The letters after the suffix are ignored
 
-    @staticmethod
-    def _partition_in_parentheses(text):
-        parts = []
-        values = text.replace(',', ' ')
-        for part in values.split():
-            if '=' in part and part != '=':
-                left, right = [x for x in part.split('=')]
-                parts.append(left)
-                parts.append('=')
-                if right:
-                    parts.append(right)
+        left = regex.compile(r'\+?\s*([\w\/][\w\/\.\+\-]*\:?|\{([^\{\}]|(?R))*?\}|([\+\-]?([0-9]+\.?[0-9]*|\.[0-9]+)(e[\+\-]?[0-9]*)?(meg|mil|[tgxkmunpfµ\%])?[a-z]*))(\s*|$)')
+        right = regex.compile(r'\s*(\{([^\{\}]|(?R))*?\}|([\+\-]?([0-9]+\.?[0-9]*|\.[0-9]+)(e[\+\-]?[0-9]*)?(meg|mil|[tgxkmunpfµ\%])?[a-z]*))(\s*$?)')
+        parentheses = regex.compile(r'\s*\(([^\(\)\{\}]|(?R))*?\)\s*')
+        elements = []
+        parameters = {}
+
+        values = str(text).lower()
+
+        rhs_comma_error = False
+
+        while len(values) != 0:
+            lhs = regex.match(left, values)
+            if lhs is None:
+                lhs = regex.match(parentheses, values)
+                if lhs is None:
+                    if rhs_comma_error:
+                        raise ParseError('No data after ,')
+                    else:
+                        raise ParseError('Unable to parse token: {}'.format(text))
+                else:
+                    rhs_comma_error = False
+            if len(values) > lhs.end() and values[lhs.end()] == "=":
+                values = values[lhs.end() + 1:]
+                rhs = regex.match(right, values)
+                if rhs is not None:
+                    data = rhs.group(1)
+                    while len(values) > rhs.end() and values[rhs.end()] == ",":
+                        values = values[rhs.end() + 1:]
+                        rhs = regex.match(right, values)
+                        if rhs is None:
+                            rhs_comma_error = True
+                            break
+                        data += "," + rhs.group(1)
+                    else:
+                        if len(values) > rhs.end():
+                            values = values[rhs.end():]
+                        else:
+                            values = ''
+                    parameters[lhs.group(1)] = data
+                    if rhs_comma_error:
+                        continue
+                else:
+                    raise ParseError('Parameter without rhs: {}'.format(text))
             else:
-                parts.append(part)
-        return parts
+                elements.append(lhs.group(1))
+                values = values[lhs.end():]
+        return elements, parameters
 
     @staticmethod
     def _partition_parentheses(text):
         p = regex.compile(r'\(([^\(\)]|(?R))*?\)')
-        parts = []
+
+        elements = []
+        parameters = {}
+
         previous_start = 0
         for m in regex.finditer(p, text):
-            parts.extend(Line._partition_in_parentheses(text[previous_start:m.start()]))
-            parts.append(m.group())
+            parts = Line._partition(text[previous_start:m.start()])
+            elements.extend(parts[0])
+            elements.append(m.group())
+            parameters.update(parts[1])
             previous_start = m.end()
-        parts.extend(Line._partition(text[previous_start:]))
-        return parts
+        parts = Line._partition(text[previous_start:])
+        elements.extend(parts[0])
+        parameters.update(parts[1])
+        return elements, parameters
 
     @staticmethod
     def _partition_braces(text):
-        p = regex.compile(r'\{([^\{\}]|(?R))*?\}')
-        parts = []
-        previous_start = 0
-        for m in regex.finditer(p, text):
-            parts.extend(Line._partition_parentheses(text[previous_start:m.start()]))
-            parts.append(m.group())
-            previous_start = m.end()
-        parts.extend(Line._partition_parentheses(text[previous_start:]))
-        return parts
+        equals = regex.compile(r'\+?\s*([\w\/][\w\/\.]*[\+\-]?)\s*=\s*\{([^\{\}]|(?R))*?\}\s*')
+        braces = regex.compile(r'\{([^\{\}]|(?R))*?\}')
 
-    @staticmethod
-    def _check_parameters(parts):
-        parameters = []
-        dict_parameters = {}
+        elements = []
+        parameters = {}
 
-        i = 0
-        i_stop = len(parts)
-        while i < i_stop:
-            if i + 1 < i_stop and parts[i + 1] == '=':
-                key, value = parts[i], parts[i + 2]
-                dict_parameters[key] = value
-                i += 3
+        values = text
+
+        while len(values) != 0:
+            equalities = regex.match(equals, values)
+            if equalities is None:
+                parts = regex.match(braces, values)
+                if parts is not None:
+                    part = parts.group(1)
+                    values = values[parts.end():]
+                    elements.append(part)
+                else:
+                    raise ParseError(text)
             else:
-                parameters.append(parts[i])
-                i += 1
-
-        return parameters, dict_parameters
+                left = equalities.group(1)
+                right = equalities.group(2)
+                values = values[equalities.end():]
+                parameters[left] = right
+        return elements, parameters
 
     def split_keyword(self, keyword):
 
@@ -1181,32 +1244,48 @@ class Line:
 
         """
 
-        text = self.right_of(keyword)
+        text = self.right_of(keyword).lower()
 
         p = regex.compile(r'\(([^\(\)]|(?R))*?\)')
         b = regex.compile(r'\{([^\{\}]|(?R))*?\}')
-        parts = []
+
+        elements = []
+        parameters = {}
 
         mp = regex.search(p, text)
         mb = regex.search(b, text)
         if mb is not None:
             if mp is not None:
                 if (mb.start() > mp.start()) and (mb.end() < mp.end()):
-                    parts.extend(Line._partition(text[:mp.start()]))
-                    parts.extend(Line._partition_braces(mp.group()[1:-1]))
+                    parts = Line._partition(text[:mp.start()])
+                    elements.extend(parts[0])
+                    parameters.update(parts[1])
+                    parts = Line._partition(mp.group()[1:-1])
+                    elements.extend(parts[0])
+                    parameters.update(parts[1])
                 elif (mb.start() < mp.start()) and (mb.end() > mp.end()):
-                    parts.extend(Line._partition_braces(text))
+                    parts = Line._partition(text)
+                    elements.extend(parts[0])
+                    parameters.update(parts[1])
                 else:
                     raise ValueError("Incorrect format {}".format(text))
             else:
-                parts.extend(Line._partition_braces(text))
+                parts = Line._partition(text)
+                elements.extend(parts[0])
+                parameters.update(parts[1])
         else:
             if mp is not None:
-                parts.extend(Line._partition_in_parentheses(text[:mp.start()]))
-                parts.extend(Line._partition_in_parentheses(mp.group()[1:-1]))
+                parts = Line._partition(text[:mp.start()])
+                elements.extend(parts[0])
+                parameters.update(parts[1])
+                parts = Line._partition(mp.group()[1:-1])
+                elements.extend(parts[0])
+                parameters.update(parts[1])
             else:
-                parts.extend(Line._partition_in_parentheses(text))
-        return Line._check_parameters(parts)
+                parts = Line._partition(text)
+                elements.extend(parts[0])
+                parameters.update(parts[1])
+        return elements, parameters
 
     def split_element(self, prefix):
 
@@ -1220,14 +1299,11 @@ class Line:
 
         # Fixme: cf. get_kwarg
 
-        parameters = []
-        dict_parameters = {}
+        text = self.right_of(prefix).lower()
 
-        text = self.right_of(prefix)
+        elements, parameters = Line._partition(text)
 
-        parts = Line._partition_braces(text)
-
-        return Line._check_parameters(parts)
+        return elements, parameters
 
 
 ####################################################################################################
@@ -1253,6 +1329,8 @@ class SpiceParser:
 
         # Fixme: empty source
 
+        self._path = path
+
         if path is not None:
             with open(str(path), 'rb') as f:
                 raw_lines = [line.decode('utf-8') for line in f]
@@ -1276,11 +1354,13 @@ class SpiceParser:
         A line starting with "+" continues the preceding line.
         """
 
+        follows = regex.compile(r'\s*(\+)')
         lines = []
         current_line = None
         for line_index, line_string in enumerate(raw_lines):
-            if line_string.startswith('+'):
-                current_line.append(line_string[1:].strip('\r\n'))
+            result = regex.match(follows, line_string)
+            if result is not None:
+                current_line.append(line_string[result.end():].strip('\r\n'))
             else:
                 line_string = line_string.strip(' \t\r\n')
                 if line_string:
@@ -1357,11 +1437,15 @@ class SpiceParser:
         circuit = CircuitStatement(lines[0])
         stack = []
         scope = circuit
-        for line in lines[1:]:
+        encripted = False
+        for line_idx, line in enumerate(lines[1:]):
             # print('>', repr(line))
             text = str(line)
             lower_case_text = text.lower()  # !
-            if line.is_comment:
+            if encripted:
+                if line.comment.startswith('$CDNENCFINISH'):
+                    encripted = False
+            elif line.is_comment:
                 scope.append(Comment(line))
             elif lower_case_text.startswith('.'):
                 lower_case_text = lower_case_text[1:]
@@ -1369,6 +1453,9 @@ class SpiceParser:
                     stack.append(scope)
                     scope = SubCircuitStatement(line)
                 elif lower_case_text.startswith('ends'):
+                    if len(stack) < 1:
+                        ParseError('Unbalanced subcircuit definition: {}, {}'.format(line,
+                                                                                     line_idx + 2))
                     parent = stack.pop()
                     parent.appendSubCircuit(scope)
                     scope = parent
@@ -1379,11 +1466,18 @@ class SpiceParser:
                 elif lower_case_text.startswith('end'):
                     pass
                 elif lower_case_text.startswith('model'):
-                    model = Model(line)
+                    try:
+                        model = Model(line)
+                    except Exception as e:
+                        raise ParseError(line, e)
                     scope.appendModel(model)
                 elif lower_case_text.startswith('include'):
-                    include = Include(line)
+                    include = Include(line, self._path)
                     scope.append(include)
+                    for model in include.contents().models:
+                        scope.appendModel(model)
+                    for subcircuit in include.contents().subcircuits:
+                        scope.appendSubCircuit(subcircuit)
                 elif lower_case_text.startswith('param'):
                     param = Param(line)
                     scope.appendParam(param)
@@ -1394,6 +1488,8 @@ class SpiceParser:
                     # .func .csparam .temp .if
                     # { expr } are allowed in .model lines and in device lines.
                     self._logger.warn('Parser ignored: {}'.format(line))
+            elif line.comment.startswith('$CDNENCSTART'):
+                encripted = True
             else:
                 try:
                     element = Element(line)
@@ -1406,6 +1502,12 @@ class SpiceParser:
                         scope._required_models.add(name)
                 except ParseError:
                     pass
+        n = len(stack)
+        if n != 0:
+            if n == 1:
+                ParseError('One unbalanced subcircuit definition')
+            else:
+                ParseError('{} unbalanced subcircuits definitions')
         SpiceParser._check_models(circuit)
         SpiceParser._sort_subcircuits(circuit)
         return circuit

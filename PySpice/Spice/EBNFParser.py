@@ -1,5 +1,6 @@
 import logging
 import os
+import csv
 
 from unicodedata import normalize
 from PySpice.Unit.Unit import UnitValue, ZeroPower, PrefixedUnit
@@ -24,13 +25,25 @@ from .BasicElement import (BehavioralSource,
                            SubCircuitElement,
                            VoltageControlledSwitch,
                            VoltageSource)
-from .HighLevelElement import (PulseMixin,
-                               SinusoidalMixin,
-                               SingleFrequencyFMMixin,
+from .HighLevelElement import (ExponentialCurrentSource,
                                ExponentialMixin,
-                               AmplitudeModulatedMixin,
+                               ExponentialVoltageSource,
+                               PatternCurrentSource,
                                PatternMixin,
-                               PieceWiseLinearMixin)
+                               PatternVoltageSource,
+                               PieceWiseLinearCurrentSource,
+                               PieceWiseLinearMixin,
+                               PieceWiseLinearVoltageSource,
+                               PulseCurrentSource,
+                               PulseMixin,
+                               PulseVoltageSource,
+                               SinusoidalCurrentSource,
+                               SinusoidalMixin,
+                               SinusoidalVoltageSource,
+                               SingleFrequencyFMCurrentSource,
+                               SingleFrequencyFMMixin,
+                               SingleFrequencyFMVoltageSource)
+
 from .SpiceGrammar import SpiceParser as parser
 from .SpiceModel import SpiceModelBuilderSemantics
 from tatsu import to_python_sourcecode, to_python_model, compile
@@ -975,6 +988,7 @@ class SpiceModelWalker(NodeWalker):
     def walk_CurrentSource(self, node, data):
         device = self.walk(node.dev, data)
         kwargs = {}
+        element = CurrentSource
         if node.dc_value is not None:
             kwargs['dc_value'] = self.walk(node.dc_value, data)
         if node.ac_magnitude is not None:
@@ -982,7 +996,22 @@ class SpiceModelWalker(NodeWalker):
         if node.ac_phase is not None:
             kwargs['ac_phase'] = self.walk(node.ac_phase, data)
         if node.transient is not None:
-            kwargs['transient'] = self.walk(node.transient, data)
+            transient = self.walk(node.transient, data)
+            if transient[0] == ExponentialMixin:
+                element = ExponentialCurrentSource
+            elif transient[0] == PatternMixin:
+                element = PatternCurrentSource
+            elif transient[0] == PieceWiseLinearMixin:
+                element = PieceWiseLinearCurrentSource
+            elif transient[0] == PulseMixin:
+                element = PulseCurrentSource
+            elif transient[0] == SingleFrequencyFMMixin:
+                element = SingleFrequencyFMCurrentSource
+            elif transient[0] == SinusoidalMixin:
+                element = SinusoidalCurrentSource
+            else:
+                raise ParseError("Unknown transient: {}".format(transient[0]))
+            kwargs.update(transient[1])
 
         positive = self.walk(node.positive, data)
         negative = self.walk(node.negative, data)
@@ -992,7 +1021,7 @@ class SpiceModelWalker(NodeWalker):
         )
         data._present.append(
             ElementStatement(
-                CurrentSource,
+                element,
                 device,
                 *nodes,
                 **kwargs
@@ -1348,6 +1377,7 @@ class SpiceModelWalker(NodeWalker):
     def walk_VoltageSource(self, node, data):
         device = self.walk(node.dev, data)
         kwargs = {}
+        element = VoltageSource
         if node.dc_value is not None:
             kwargs['dc_value'] = self.walk(node.dc_value, data)
         if node.ac_magnitude is not None:
@@ -1355,7 +1385,22 @@ class SpiceModelWalker(NodeWalker):
         if node.ac_phase is not None:
             kwargs['ac_phase'] = self.walk(node.ac_phase, data)
         if node.transient is not None:
-            kwargs['transient'] = self.walk(node.transient, data)
+            transient = self.walk(node.transient, data)
+            if transient[0] == ExponentialMixin:
+                element = ExponentialVoltageSource
+            elif transient[0] == PatternMixin:
+                element = PatternVoltageSource
+            elif transient[0] == PieceWiseLinearMixin:
+                element = PieceWiseLinearVoltageSource
+            elif transient[0] == PulseMixin:
+                element = PulseVoltageSource
+            elif transient[0] == SingleFrequencyFMMixin:
+                element = SingleFrequencyFMVoltageSource
+            elif transient[0] == SinusoidalMixin:
+                element = SinusoidalVoltageSource
+            else:
+                raise ParseError("Unknown transient: {}".format(transient[0]))
+            kwargs.update(transient[1])
 
         positive = self.walk(node.positive, data)
         negative = self.walk(node.negative, data)
@@ -1365,7 +1410,7 @@ class SpiceModelWalker(NodeWalker):
         )
         data._present.append(
             ElementStatement(
-                VoltageSource,
+                element,
                 device,
                 *nodes,
                 **kwargs
@@ -1444,7 +1489,7 @@ class SpiceModelWalker(NodeWalker):
         parameters = dict([(key, value)
                            for value, key in zip(self.walk(node.ast, data),
                                                  ("initial_value",
-                                                  "pulsed_value",
+                                                  "pulse_value",
                                                   "delay_time",
                                                   "rise_time",
                                                   "fall_time",
@@ -1458,19 +1503,44 @@ class SpiceModelWalker(NodeWalker):
         value = []
         if node.value is not None:
             value = self.walk(node.value, data)
-        return [v1] + value
+        if isinstance(value, list):
+            return [v1] + value
+        else:
+            return [v1, value]
 
     def walk_TransientPWL(self, node, data):
-        values = self.walk(node.ast, data)
-
-        return PieceWiseLinearMixin, values
+        data, parameters = self.walk(node.ast, data)
+        keys = list(parameters.keys())
+        low_keys = [key.lower() for key in keys]
+        if 'r' in low_keys:
+            idx = low_keys.index('r')
+            key = keys[idx]
+            repeat_time = parameters.pop(key)
+            parameters['repeat_time'] = repeat_time
+        if 'td' in low_keys:
+            idx = low_keys.index('td')
+            key = keys[idx]
+            time_delay = parameters.pop(key)
+            parameters['time_delay'] = time_delay
+        if isinstance(data, list):
+            parameters.update({"values": data})
+        else:
+            with open(data) as ifile:
+                ext = os.path.splitext(data)[1]
+                reader = csv.reader(ifile, delimiter=',' if ext.lower() == ".csv" else ' ')
+                data = [(SpiceModelWalker._to_number(t),
+                         SpiceModelWalker._to_number(value))
+                        for t, value in reader]
+            parameters.update({"values": data})
+        return PieceWiseLinearMixin, parameters
 
     def walk_PWLArguments(self, node, data):
         t = self.walk(node.t, data)
         value = self.walk(node.value, data)
+        parameters = {}
         if node.parameters is not None:
             parameters = self.walk(node.parameters, data)
-        return (t, value), parameters
+        return list(zip(t, value)), parameters
 
     def walk_PWLFileArguments(self, node, data):
         filename = self.walk(node.filename, data)
@@ -1526,6 +1596,47 @@ class SpiceModelWalker(NodeWalker):
         if node.repeat is not None:
             repeat = (node.repeat == '1')
         return [vhi, vlo, td, tr, tf, tsample, data, repeat]
+
+    def walk_TransientExp(self, node, data):
+        parameters = dict([(key, value)
+                           for value, key in zip(self.walk(node.ast, data),
+                                                 ("initial_amplitude",
+                                                  "amplitude",
+                                                  "rise_delay_time",
+                                                  "rise_time_constant",
+                                                  "delay_fall_time",
+                                                  "fall_time_constant"))])
+        return ExponentialMixin, parameters
+
+    def walk_ExpArguments(self, node, data):
+        v1 = self.walk(node.v1, data)
+        v2 = self.walk(node.v2, data)
+        if node.value is not None:
+            value = self.walk(node.value, data)
+        if isinstance(value, list):
+            return [v1, v2] + value
+        else:
+            return [v1, v2, value]
+
+    def walk_TransientSFFM(self, node, data):
+        parameters = dict([(key, value)
+                           for value, key in zip(self.walk(node.ast, data),
+                                                 ("offset",
+                                                  "amplitude",
+                                                  "carrier_frequency",
+                                                  "modulation_index",
+                                                  "signal_frequency"))])
+        return SingleFrequencyFMMixin, parameters
+
+    def walk_SFFMArguments(self, node, data):
+        v0 = self.walk(node.v0, data)
+        va = self.walk(node.va, data)
+        if node.value is not None:
+            value = self.walk(node.value, data)
+        if isinstance(value, list):
+            return [v0, va] + value
+        else:
+            return [v0, va, value]
 
     def walk_ACCmd(self, node, data):
         return node.text
@@ -1714,7 +1825,7 @@ class SpiceModelWalker(NodeWalker):
         if node.right is None:
             return left
         else:
-            right = node.right
+            right = self.walk(node.right, data)
             return And(left, right)
 
     def walk_Not(self, node, data):
@@ -1729,7 +1840,7 @@ class SpiceModelWalker(NodeWalker):
         if node.right is None:
             return left
         else:
-            right = node.right
+            right = self.walk(node.right, data)
             return Or(left, right)
 
     def walk_Xor(self, node, data):
@@ -1737,7 +1848,7 @@ class SpiceModelWalker(NodeWalker):
         if node.right is None:
             return left
         else:
-            right = node.right
+            right = self.walk(node.right, data)
             return Xor(left, right)
 
     def walk_Relational(self, node, data):
@@ -1899,7 +2010,7 @@ class SpiceModelWalker(NodeWalker):
             result = UnitValue(self._suffix[scale], value)
         else:
             result = UnitValue(PrefixedUnit(ZeroPower()), value)
-        return result
+        return SpiceModelWalker._to_number(result)
 
     def walk_Float(self, node, data):
         value = SpiceModelWalker._to_number(node.ast)
@@ -1954,14 +2065,13 @@ class SpiceModelWalker(NodeWalker):
 
     @staticmethod
     def _to_number(value):
-        if isinstance(value, UnitValue):
-            newValue = int(value)
-            if value == newValue:
-                return value
-            else:
-                return float(value)
         try:
-            return int(value)
+            int_value = int(value)
+            float_value = float(value)
+            if int_value == float_value:
+                return int_value
+            else:
+                return float_value
         except ValueError:
             return float(value)
 

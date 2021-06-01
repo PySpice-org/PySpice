@@ -74,9 +74,6 @@ class Expression:
     def __gt__(self, other):
         return GT(self, other)
 
-    def __not__(self):
-        return Not(self)
-
 
 class Function(Expression):
     nargs = 0
@@ -234,17 +231,17 @@ class GT(BinaryOperator):
 
 class Not(UnaryOperator):
     def __init__(self, value):
-        super(Not, self).__init__(operator.not_, "not", value)
+        super(Not, self).__init__(operator.not_, "~", value)
 
 
 class And(BinaryOperator):
     def __init__(self, lhs, rhs):
-        super(And, self).__init__(operator.and_, "and", lhs, rhs)
+        super(And, self).__init__(operator.and_, "&", lhs, rhs)
 
 
 class Or(BinaryOperator):
     def __init__(self, lhs, rhs):
-        super(Or, self).__init__(operator.or_, "or", lhs, rhs)
+        super(Or, self).__init__(operator.or_, "|", lhs, rhs)
 
 
 class Xor(BinaryOperator):
@@ -253,7 +250,7 @@ class Xor(BinaryOperator):
         return (lhs and not rhs) or (rhs and not lhs)
 
     def __init__(self, lhs, rhs):
-        super(Xor, self).__init__(Xor._xor, "xor", lhs, rhs)
+        super(Xor, self).__init__(Xor._xor, "^", lhs, rhs)
 
 
 class Abs(Function):
