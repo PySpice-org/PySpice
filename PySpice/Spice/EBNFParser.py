@@ -1451,12 +1451,10 @@ class SpiceModelWalker(NodeWalker):
                 values.extend(coefficients)
             else:
                 values.append(coefficients)
-        result = ['v(%s,%s)' % nodes
-                  for nodes in zip(ctrl_pos,
-                                   ctrl_neg)]
-        result += [str(value) for value in values]
-        parameters = ' '.join(result)
-        return '{ POLY (%d) %s }' % (controllers, parameters)
+        controllers = [V(*nodes)
+                       for nodes in zip(ctrl_pos,
+                                        ctrl_neg)]
+        return Poly(controllers, values)
 
     def walk_ControlCurrentPoly(self, node, data):
         controllers = self.walk(node.value, data)
@@ -1464,19 +1462,21 @@ class SpiceModelWalker(NodeWalker):
             raise ValueError(
                 "The number of control nodes is smaller than the expected controllers: {}".format(controllers))
 
-        ctrl_dev = node.device[:controllers]
+        ctrl_dev = [self.walk(dev, data)
+                    for dev in node.device[:controllers]]
 
         values = []
+        if controllers > len(node.device):
+            values = [SpiceModelWalker._to_number(self.walk(value, data))
+                      for value in node.device[controllers:]]
         if node.coefficient:
             coefficients = self.walk(node.coefficient, data)
             if isinstance(coefficients, list):
                 values.extend(coefficients)
             else:
                 values.append(coefficients)
-        data = ["i({})".format(self.walk(dev, data))
-                for dev in ctrl_dev] + [str(value) for value in values]
-        parameters = ' '.join(data)
-        return '{ POLY (%d) %s }' % (controllers, parameters)
+        controllers = [I(dev) for dev in ctrl_dev]
+        return Poly(controllers, values)
 
     def walk_ControlTable(self, node, data):
         return Table(self.walk(node.expr, data),

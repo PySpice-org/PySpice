@@ -3,7 +3,6 @@ import operator
 import numpy as np
 import operator as op
 
-
 class Expression:
     def __call__(self, **kwargs):
         raise NotImplementedError("The call function is not implemented in class: {}".format(type(self)))
@@ -659,12 +658,22 @@ class V(Symbol):
                                             str(nodes[1]))
         super(V, self).__init__(string)
 
+class Poly(Symbol):
+    def __init__(self, controllers, coefficient):
+        self._controllers = controllers
+        self._coefficient = coefficient
+        string = "poly({}) {} {}".format(len(self._controllers),
+                                         " ".join([str(controller)
+                                                   for controller in self._controllers]),
+                                         " ".join([str(coeff)
+                                                   for coeff in self._coefficient]))
+        super(Poly, self).__init__(string)
 
 class Table(Symbol):
     def __init__(self, expression, points):
         self._expression = expression
         self._points = points
-        string = "table: {{{}}} = {}".format(self._expression,
+        string = "table {{{}}} = {}".format(self._expression,
                                              " ".join(["({}, {})".format(*point)
                                                        for point in self._points]))
         super(Table, self).__init__(string)

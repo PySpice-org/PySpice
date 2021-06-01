@@ -3,10 +3,21 @@ from PySpice.Spice.Netlist import Circuit
 from PySpice.Spice.EBNFParser import SpiceParser
 from multiprocessing import Pool, cpu_count
 import os
-import tatsu
 
 data = """* Data test
 *More notes
+
+BG1 IOUTp IOUTm I={TABLE {V(VCp,VCm)} =
++(0, 12.09e-6)
++(26.6667, 0.0002474)
++(53.3333, 0.00029078)
++(71.1111, 0.0003197)
++(72, 0.00032115)
++(73.7778, 0.00032404)
++(75.5556, 0.00032693)
++(77.3333, 0.00032982)
++(79.1111, 0.00033272)
++(80, 0.00275)}
 
 BG1 IOUT- IOUT+ I={IF( (V(VC+,VC-)<=0),0,GAIN*V(VC+,VC-) )}
 
@@ -380,7 +391,7 @@ def circuit_gft(prb):
 
 class TestSpiceParser(unittest.TestCase):
     def test_parser(self):
-        #SpiceParser._regenerate()
+        # SpiceParser._regenerate()
         results = list(map(circuit_gft, [(data, -1), (data, 1)]))
         self.assertEqual(len(results), 2)
         values = str(results[0])
@@ -425,7 +436,7 @@ ISIN 4 3 SIN 0 5 3 1
 """)
         circuit = transient.build()
 
-        expected = """.title None
+        expected = """.title
 
 vexp 2 0 exp(1v 2v 3s)
 vpat 3 4 pat(3v 0v 2s 1s 2s 3s b0101 1)
@@ -469,7 +480,7 @@ Xtest42 12 10 test4 params: j = 23
 """)
         circuit = subckt.build()
         print(circuit)
-        expected = """.title None
+        expected = """.title
 
 .param a=23
 .param b=24
@@ -508,7 +519,7 @@ BEOR YINT 0 V = {IF(V(A) > 0.5 | V(B) > 0.5, 1, 0)}
 BEXOR YINT 0 V = {IF(V(A) > 0.5 ^ V(B) > 0.5, 1, 0)}
 """)
         circuit = and2.build()
-        expected = """.title None
+        expected = """.title
 
 beand yint 0 v={if(((v(A) > 0.5) & (v(B) > 0.5)), 1, 0)}
 beor yint 0 v={if(((v(A) > 0.5) | (v(B) > 0.5)), 1, 0)}

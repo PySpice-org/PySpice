@@ -248,21 +248,40 @@ control_table::ControlTable
     [sep:sep]
     '='
     [sep:sep]
-    (sep:sep)%{
-        (
-            lp
-            [sep:sep]
-            input+:value
-            [sep:sep]
-            comma
-            [sep:sep]
-            output+:value
-            [sep:sep]
-            rp
-        )
-    |
-        (input+:value [sep:sep] comma [sep:sep] output+:value)
-    }+
+    (
+            (
+                lp
+                [sep:sep]
+                input+:value
+                [sep:sep]
+                comma
+                [sep:sep]
+                output+:value
+                [sep:sep]
+                rp
+                {
+                    {sep:sep}+
+                    lp
+                    [sep:sep]
+                    input+:value
+                    [sep:sep]
+                    comma
+                    [sep:sep]
+                    output+:value
+                    [sep:sep]
+                    rp
+                }
+            )
+        |
+            (
+                input+:value
+                [sep:sep]
+                comma
+                [sep:sep]
+                output+:value
+                {{sep:sep}+ input+:value [sep:sep] comma [sep:sep] output+:value}
+            )
+    )
     ;
 
 

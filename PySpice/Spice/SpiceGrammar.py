@@ -685,13 +685,7 @@ class SpiceParser(Parser):
         with self._optional():
             self._sep_()
             self.name_last_node('sep')
-
-        def sep5():
-            with self._group():
-                self._sep_()
-                self.name_last_node('sep')
-
-        def block5():
+        with self._group():
             with self._choice():
                 with self._option():
                     with self._group():
@@ -714,6 +708,33 @@ class SpiceParser(Parser):
                             self._sep_()
                             self.name_last_node('sep')
                         self._rp_()
+
+                        def block11():
+
+                            def block12():
+                                self._sep_()
+                                self.name_last_node('sep')
+                            self._positive_closure(block12)
+                            self._lp_()
+                            with self._optional():
+                                self._sep_()
+                                self.name_last_node('sep')
+                            self._value_()
+                            self.add_last_node_to_name('input')
+                            with self._optional():
+                                self._sep_()
+                                self.name_last_node('sep')
+                            self._comma_()
+                            with self._optional():
+                                self._sep_()
+                                self.name_last_node('sep')
+                            self._value_()
+                            self.add_last_node_to_name('output')
+                            with self._optional():
+                                self._sep_()
+                                self.name_last_node('sep')
+                            self._rp_()
+                        self._closure(block11)
                 with self._option():
                     with self._group():
                         self._value_()
@@ -727,11 +748,29 @@ class SpiceParser(Parser):
                             self.name_last_node('sep')
                         self._value_()
                         self.add_last_node_to_name('output')
+
+                        def block24():
+
+                            def block25():
+                                self._sep_()
+                                self.name_last_node('sep')
+                            self._positive_closure(block25)
+                            self._value_()
+                            self.add_last_node_to_name('input')
+                            with self._optional():
+                                self._sep_()
+                                self.name_last_node('sep')
+                            self._comma_()
+                            with self._optional():
+                                self._sep_()
+                                self.name_last_node('sep')
+                            self._value_()
+                            self.add_last_node_to_name('output')
+                        self._closure(block24)
                 self._error(
                     'expecting one of: '
                     '<lp> <value>'
                 )
-        self._positive_join(block5, sep5)
         self._define(
             ['expr', 'sep', 'type'],
             ['input', 'output']
