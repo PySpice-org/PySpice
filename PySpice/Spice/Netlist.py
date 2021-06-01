@@ -1424,7 +1424,10 @@ class Circuit(Netlist):
     ##############################################
 
     def _str_title(self):
-        return '.title {}'.format(self.title) + os.linesep
+        if self.title:
+            return '.title {}'.format(self.title) + os.linesep
+        else:
+            return '.title' + os.linesep
 
     ##############################################
 
