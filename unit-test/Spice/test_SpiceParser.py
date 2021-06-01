@@ -8,6 +8,8 @@ import tatsu
 data = """* Data test
 *More notes
 
+BG1 IOUT- IOUT+ I={IF( (V(VC+,VC-)<=0),0,GAIN*V(VC+,VC-) )}
+
 FB    7 99 POLY(5) VB VC VE VLP VLN 0 147.3E6 -100E6 100E6 100E6 -100E6
 
 R 1 2 600000 MDR	
@@ -383,6 +385,8 @@ class TestSpiceParser(unittest.TestCase):
         self.assertEqual(len(results), 2)
         values = str(results[0])
         self.assertNotRegex(values, r'(\.ic)')
+        circuit_gft(values)
+        self.assertNotRegex(values, r'([Nn][Oo][Nn][Ee])')
 
     def test_library(self):
         from PySpice.Spice.Library import SpiceLibrary

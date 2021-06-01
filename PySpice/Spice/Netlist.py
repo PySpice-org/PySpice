@@ -1360,6 +1360,8 @@ class Circuit(Netlist):
 
         super().__init__()
 
+        if title is None:
+            title = ""
         self.title = str(title)
         self._ground = ground
         self._global_nodes = set(global_nodes) # .global

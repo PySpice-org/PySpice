@@ -5,7 +5,8 @@ import csv
 from unicodedata import normalize
 from PySpice.Unit.Unit import UnitValue, ZeroPower, PrefixedUnit
 from PySpice.Unit.SiUnits import Tera, Giga, Mega, Kilo, Milli, Micro, Nano, Pico, Femto
-from PySpice.Spice.Expressions import *
+from PySpice.Tools.StringTools import join_lines
+from .Expressions import *
 from .ElementParameter import FlagParameter
 from .Netlist import (Circuit,
                       DeviceModel,
@@ -805,8 +806,9 @@ class SpiceModelWalker(NodeWalker):
 
     def walk_Circuit(self, node, data):
         if data._root is None:
+            title = join_lines(self.walk(node.title, data))
             data._root = CircuitStatement(
-                self.walk(node.title, data),
+                title,
                 data._path
             )
             data._present = data._root
@@ -1863,7 +1865,7 @@ class SpiceModelWalker(NodeWalker):
 
     def walk_ConditionalFactor(self, node, data):
         if node.boolean is None:
-            self.walk(node.expr, data)
+            return self.walk(node.expr, data)
         else:
             return node.boolean.lower == "true"
 
@@ -2024,7 +2026,7 @@ class SpiceModelWalker(NodeWalker):
 
     def walk_Comment(self, node, data):
         # TODO implement comments on devices
-        return
+        return node.ast
 
     def walk_Separator(self, node, data):
         if node.comment is not None:
