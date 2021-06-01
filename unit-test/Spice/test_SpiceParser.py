@@ -8,6 +8,12 @@ import tatsu
 data = """* Data test
 *More notes
 
+.SUBCKT AND2 A B Y
+BEINT YINT 0 V = {IF(V(A) > 0.5 & V(B) > 0.5, 1, 0)}
+RINT YINT Y 1
+CINT Y 0 1n
+.ENDS AND2
+
 E1 3 0 5 0 10
 
 G1 21 3 POLY(1) 1 3 0 1.57E-6 -0.97e-7
@@ -164,8 +170,6 @@ XFELT 1 2 FILTER1 PARAMS: CENTER=200kHz
 .SUBCKT MYGND 25 28 7 MYPWR
 .ENDS
 
-V99     99 26 DC 0 AC 0 PULSE 0 0 0 100n 100n 500n 1u
-
 .SUBCKT UNITAMP 1 2
 .ENDS
 
@@ -211,8 +215,8 @@ XFOLLOW IN OUT VCC VEE OUT OPAMP
 
 IPWL1 1 0 PWL 0S 0A 2S 3A 3S 2A 4S 2A 4.01S 5A r=2s td=1
 IPWL2 2 0 PWL FILE "ipwl.txt"
-IPWL3 3 0 PWL file "ipwl.csv"
-IPWL4 4 0 PWL FILE ipwl.csv
+VPWL3 3 0 PWL file "vpwl.csv"
+VPWL4 4 0 PWL FILE vpwl.csv
 
 ISLOW 1 22 SIN(0.5 1.0ma 1KHz 1ms)
 IPULSE 1 3 PULSE(-1 1 2ns 2ns 2ns 50ns 100ns)
@@ -399,6 +403,82 @@ class TestSpiceParser(unittest.TestCase):
                                       nominal_temperature=25)
         simulator.options('device smoothbsrc=1')
         print(simulator)
+
+    def test_transient(self):
+        transient = SpiceParser.parse(source="""
+VEXP 2 0 EXP(1 2 3)
+VPAT 3 4 PAT(3 0 2 1 2 3 b0101 1)
+IPULSE 2 3 PULSE(1 4)
+IPWL1 1 0 PWL( 0S 0A 2S 3A 3S 2A 4S 2A 4.01S 5A r=2s td=1)
+IPWL1 1 0 PWL(0S 0A 2S 3A 3S 2A 4S 2A 4.01S 5A r=2s td=1 )
+VSFFM 1 0 SFFM (0 1 2)
+ISIN 4 3 SIN 0 5 3 1
+""")
+        circuit = transient.build()
+
+        expected = """.title None
+
+vexp 2 0 exp(1 2 3)
+vpat 3 4 pat(3 0 2 1 2 3 b0101 1)
+ipulse 2 3 pulse(1 4 0 0 0)
+ipwl1 1 0 pwl(0 0 2 3 3 2 4 2 4.01 5 r=2 td=1)
+vsffm 1 0 sffm(0 1 2)
+isin 4 3 dc 0 ac sin(0 5 3 1 0)
+"""
+        result = str(circuit)
+        self.assertEqual(expected, result)
+
+    def test_subcircuits(self):
+        subckt = SpiceParser.parse(source="""
+
+.param a = 23
+.param b = 24
+
+.subckt test1 1 2 3
+.ends
+
+Xtest1 4 5 6 test1
+
+.subckt test2 1 3 4 params: t=3
+.ends
+
+Xtest21 8 7 3 test2
+Xtest22 9 5 6 test2 params: t = 5
+
+.subckt test3 2 3
+.param h = 25
+.ends
+
+Xtest3 9 10 test3
+
+.subckt test4 5 6 params: j = {a+b}
+.param d = {j + 32}
+.ends
+
+Xtest41 10 12 test4
+Xtest42 12 10 test4 params: j = 23
+""")
+        circuit = subckt.build()
+        print(circuit)
+        expected = """"""
+        result = str(circuit)
+        self.assertEqual(expected, result)
+
+    def test_boolean(self):
+        and2 = SpiceParser.parse(source = """
+BEAND YINT 0 V = {IF(V(A) > 0.5 & V(B) > 0.5, 1, 0)}
+BEOR YINT 0 V = {IF(V(A) > 0.5 | V(B) > 0.5, 1, 0)}
+BEXOR YINT 0 V = {IF(V(A) > 0.5 ^ V(B) > 0.5, 1, 0)}
+""")
+        circuit = and2.build()
+        expected = """.title None
+
+beand yint 0 v={if(((v(A) > 0.5) & (v(B) > 0.5)), 1, 0)}
+beor yint 0 v={if(((v(A) > 0.5) | (v(B) > 0.5)), 1, 0)}
+bexor yint 0 v={if(((v(A) > 0.5) ^ (v(B) > 0.5)), 1, 0)}
+"""
+        result = str(circuit)
+        self.assertEqual(expected, result)
 
     def test_subcircuit(self):
         print(os.getcwd())

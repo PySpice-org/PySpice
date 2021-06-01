@@ -464,14 +464,14 @@ class SubCircuitStatement(Statement):
 
         self._name = name
         self._nodes = nodes
-        self._parameters = params
+        self._params = params
 
         self._statements = []
         self._subcircuits = []
         self._models = []
         self._required_subcircuits = set()
         self._required_models = set()
-        self._params = []
+        self._parameters = []
 
     ##############################################
 
@@ -503,8 +503,8 @@ class SubCircuitStatement(Statement):
     ##############################################
 
     def __repr__(self):
-        if self._parameters:
-            text = 'SubCircuit {} {} Params: {}'.format(self._name, self._nodes, self._parameters) + os.linesep
+        if self._params:
+            text = 'SubCircuit {} {} Params: {}'.format(self._name, self._nodes, self._params) + os.linesep
         else:
             text = 'SubCircuit {} {}'.format(self._name, self._nodes) + os.linesep
         text += os.linesep.join([repr(model) for model in self._models]) + os.linesep
@@ -516,7 +516,7 @@ class SubCircuitStatement(Statement):
 
     def __iter__(self):
         """ Return an iterator on the statements. """
-        return iter(self._models + self._subcircuits + self._statements)
+        return iter(self._parameters + self._models + self._subcircuits + self._statements)
 
     ##############################################
 
@@ -534,7 +534,7 @@ class SubCircuitStatement(Statement):
 
         """ Append a param to the statement's list. """
 
-        self._params.append(statement)
+        self._parameters.append(statement)
 
     def appendSubCircuit(self, statement):
 
@@ -556,9 +556,9 @@ class SubCircuitStatement(Statement):
     ##############################################
 
     def build(self, ground=0, parent=None):
-        subcircuit = SubCircuit(self._name, *self._nodes, **self._parameters)
+        subcircuit = SubCircuit(self._name, *self._nodes, **self._params)
         subcircuit.parent = parent
-        for statement in self._params:
+        for statement in self._parameters:
             statement.build(subcircuit)
         for statement in self._models:
             model = statement.build(subcircuit)
@@ -597,7 +597,7 @@ class CircuitStatement(Statement):
         self._models = []
         self._required_subcircuits = set()
         self._required_models = set()
-        self._params = []
+        self._parameters = []
         self._data = {}
 
     ##############################################
@@ -633,9 +633,9 @@ class CircuitStatement(Statement):
         return self._subcircuits
 
     @property
-    def params(self):
+    def parameters(self):
         """ Parameters of the circuit. """
-        return self._params
+        return self._parameters
 
     ##############################################
 
@@ -643,6 +643,7 @@ class CircuitStatement(Statement):
 
         text = 'Library {}'.format(self._title) + os.linesep
         text += os.linesep.join([repr(library) for library in self._libraries]) + os.linesep
+        text += os.linesep.join([repr(parameter) for parameter in self._parameters]) + os.linesep
         text += os.linesep.join([repr(model) for model in self._models]) + os.linesep
         text += os.linesep.join([repr(subcircuit) for subcircuit in self._subcircuits]) + os.linesep
         text += os.linesep.join(['  ' + repr(statement) for statement in self._statements])
@@ -654,7 +655,7 @@ class CircuitStatement(Statement):
 
         """ Return an iterator on the statements. """
 
-        return iter(self._libraries, self._models + self._subcircuits + self._statements)
+        return iter(self._libraries, self._parameters + self._models + self._subcircuits + self._statements)
 
     ##############################################
 
@@ -692,7 +693,7 @@ class CircuitStatement(Statement):
 
         """ Append a param to the statement's list. """
 
-        self._params.append(statement)
+        self._parameters.append(statement)
 
     def appendSubCircuit(self, statement):
 
@@ -716,7 +717,7 @@ class CircuitStatement(Statement):
         circuit = Circuit(self._title)
         for statement in self._library_calls:
             statement.build(circuit, self._libraries)
-        for statement in self._params:
+        for statement in self._parameters:
             statement.build(circuit)
         for statement in self._models:
             statement.build(circuit)

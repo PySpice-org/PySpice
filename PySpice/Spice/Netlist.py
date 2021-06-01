@@ -87,7 +87,7 @@ import networkx
 
 ####################################################################################################
 
-from ..Tools.StringTools import join_lines, join_list, join_dict
+from ..Tools.StringTools import join_lines, join_list, join_dict, str_spice
 from .ElementParameter import (
     ParameterDescriptor,
     PositionalElementParameter,
@@ -872,10 +872,11 @@ class Netlist:
 
         self._subcircuits = OrderedDict() # to keep the declaration order
         self._elements = OrderedDict() # to keep the declaration order
-        self._models = {}
+        self._models = OrderedDict()
         self._includes = [] # .include
         self._used_models = set()
         self._used_subcircuits = set()
+        self._parameters = OrderedDict()
 
         self.raw_spice = ''
 
@@ -1077,33 +1078,44 @@ class Netlist:
 
         # Fixme: order ???
         netlist = self._str_raw_spice()
-        models = self._str_models()
-        if models:
+        if self._parameters:
+            parameters = self._str_parameters()
+            netlist += parameters
+            netlist += os.linesep
+        if self._models:
+            models = self._str_models()
             netlist += models
             netlist += os.linesep
-        subcircuits = self._str_subcircuits()
-        if subcircuits:
+        if self._subcircuits:
+            subcircuits = self._str_subcircuits()
             netlist +=  subcircuits# before elements
             netlist += os.linesep
-        netlist += self._str_elements()
+        netlist += self._str_elements() + os.linesep
 
         return netlist
+
+    ##############################################
+
+    def _str_parameters(self):
+        parameters = [".param {}={}".format(key, str_spice(value))
+                      for key, value in self._parameters.items()]
+        return join_lines(parameters)
 
     ##############################################
 
     def _str_elements(self):
 
         elements = [element for element in self.elements if element.enabled]
-        return join_lines(elements) + os.linesep
+        return join_lines(elements)
 
     ##############################################
 
     def _str_models(self):
         if self._used_models:
             models = [self._models[model]
-                      for model in sorted(self._used_models)
-                      if model in self._models]
-            return join_lines(models) + os.linesep
+                      for model in self._models
+                      if model in self._used_models]
+            return join_lines(models)
         else:
             return ''
 
@@ -1112,8 +1124,8 @@ class Netlist:
     def _str_subcircuits(self):
         if self._used_subcircuits:
             subcircuits = [self._subcircuits[subcircuit]
-                           for subcircuit in sorted(self._used_subcircuits)
-                           if subcircuit in self._subcircuits]
+                           for subcircuit in self._subcircuits
+                           if subcircuit in self._used_subcircuits]
             return join_lines(subcircuits)
         else:
             return ''
@@ -1177,7 +1189,7 @@ class SubCircuit(Netlist):
         self._ground = kwargs.get(ground, 0)
         if ground in kwargs:
             kwargs.pop(ground)
-        self._parameters = kwargs
+        self._params = kwargs
 
     ##############################################
 
@@ -1199,7 +1211,7 @@ class SubCircuit(Netlist):
 
         """Set a parameter."""
 
-        self._parameters[str(name)] = str(expression)
+        self._parameters[str(name)] = expression
 
     ##############################################
 
@@ -1255,9 +1267,13 @@ class SubCircuit(Netlist):
         """Return the formatted subcircuit definition."""
 
         nodes = join_list(self._external_nodes)
-        parameters = join_list(['{}={}'.format(key, value)
-                                for key, value in self._parameters.items()])
-        netlist = '.subckt ' + join_list((self._name, nodes, parameters)) + os.linesep
+
+        netlist = '.subckt ' + join_list((self._name, nodes))
+        if self._params:
+            parameters = join_list(['{}={}'.format(key, str_spice(value))
+                                    for key, value in self._params.items()])
+            netlist += ' params: ' + parameters
+        netlist += os.linesep
         netlist += super().__str__()
         netlist += '.ends ' + self._name + os.linesep
         return netlist
@@ -1341,7 +1357,6 @@ class Circuit(Netlist):
         self.title = str(title)
         self._ground = ground
         self._global_nodes = set(global_nodes) # .global
-        self._parameters = {} # .param
         self._data = {} # .data
 
         # Fixme: not implemented
@@ -1399,7 +1414,6 @@ class Circuit(Netlist):
         netlist += os.linesep
         # netlist += self._str_includes(simulator)
         netlist += self._str_globals()
-        netlist += self._str_parameters()
         netlist += super().__str__()
         return netlist
 
@@ -1433,15 +1447,6 @@ class Circuit(Netlist):
 
         if self._global_nodes:
             return '.global ' + join_list(self._global_nodes) + os.linesep
-        else:
-            return ''
-
-    ##############################################
-
-    def _str_parameters(self):
-        if self._parameters:
-            return join_lines([key + ("" if value is None else " = " + str(value))
-                               for key, value in self._parameters.items()], prefix='.param ') + os.linesep
         else:
             return ''
 
