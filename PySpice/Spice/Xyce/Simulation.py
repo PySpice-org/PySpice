@@ -26,6 +26,7 @@
 import logging
 
 ####################################################################################################
+import os
 
 from ..Simulation import CircuitSimulator
 from .Server import XyceServer
@@ -50,6 +51,9 @@ class XyceCircuitSimulator(CircuitSimulator):
 
         xyce_command = kwargs.get('xyce_command', None)
         self._xyce_server = XyceServer(xyce_command=xyce_command)
+
+    def save_str(self):
+        return ".save" + os.linesep
 
     ##############################################
 

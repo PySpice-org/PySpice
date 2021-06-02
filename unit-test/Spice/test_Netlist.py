@@ -169,6 +169,20 @@ r1 in out 9kohm
         circuit.R(1, 'in', 'out', raw_spice='9kOhm')
         circuit.raw_spice += 'R2 out 0 1kOhm'
         self._test_spice_declaration(circuit, spice_declaration)
+        simulator = circuit.simulator(simulator='xyce-serial')
+        simulator.save('all')
+        result = simulator.transient(1e-9, 1e-6)
+        simulate_txt = str(simulator)
+        self.assertRegex(simulate_txt, "\.save" + os.linesep)
+        self.assertTrue(result is not None)
+        simulator = circuit.simulator(simulator='ngspice-subprocess')
+        simulator.save('all')
+        result = simulator.transient(1e-9, 1e-6)
+        simulate_txt = str(simulator)
+        self.assertRegex(simulate_txt, "\.save all" + os.linesep)
+        self.assertTrue(result is not None)
+
+
 
     ##############################################
 
@@ -182,7 +196,7 @@ r1 in out 9kohm
     def test_transformer(self):
         import os
         from PySpice.Spice.Netlist import Circuit
-        circuit = Circuit('Diode Characteristic Curve')
+        circuit = Circuit('Transformer')
         circuit.L('primary', 'Vlp', 'Vdrain', '{l_trf}')
         circuit.C('resonance', 'Vlv', 'Vdrain', '{cap_r}')
         circuit.L('secondary', 'Vls', 'ghv', '{Ls}')
