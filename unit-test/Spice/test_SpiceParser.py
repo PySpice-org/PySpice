@@ -420,9 +420,35 @@ class TestSpiceParser(unittest.TestCase):
         circuit.B('test_tc', 1, 2, v={5}, tc=(7, 8))
         simulator = circuit.simulator(simulator='xyce-serial',
                                       temperature=25,
-                                      nominal_temperature=25)
+                                      nominal_temperature=25,
+                                      working_directory='.')
         simulator.options('device smoothbsrc=1')
-        print(simulator)
+        simulator.transient(1e-9, 1e-3)
+
+    def test_working_dir(self):
+        circuit = Circuit('Test working directory')
+        circuit.PulseVoltageSource('hlp',
+                                   1,
+                                   0,
+                                   initial_value=0,
+                                   pulse_value=1,
+                                   delay_time=0,
+                                   rise_time=0.1,
+                                   fall_time=0.1,
+                                   pulse_width=1,
+                                   period=2)
+        circuit.Resistor('load', 1, 0, 1e3)
+        simulator = circuit.simulator(simulator='xyce-serial',
+                                      temperature=25,
+                                      nominal_temperature=25)
+        result = simulator.transient(1e-2, 10)
+        simulator = circuit.simulator(simulator='xyce-serial',
+                                      temperature=25,
+                                      nominal_temperature=25,
+                                      working_directory='.')
+        result = simulator.transient(1e-2, 10)
+        self.assertTrue(os.path.exists('input.cir') and os.path.isfile('input.cir'))
+        self.assertTrue(os.path.exists('output.raw') and os.path.isfile('output.raw'))
 
     def test_transient(self):
         transient = SpiceParser.parse(source="""

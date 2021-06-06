@@ -40,6 +40,7 @@ import logging
 
 _module_logger = logging.getLogger(__name__)
 
+
 ####################################################################################################
 
 class Variable(VariableAbc):
@@ -78,10 +79,10 @@ class Variable(VariableAbc):
         else:
             return self.name
 
+
 ####################################################################################################
 
 class RawFile(RawFileAbc):
-
     """ This class parse the stdout of ngspice and the raw data output.
 
     Public Attributes:
@@ -120,7 +121,6 @@ class RawFile(RawFileAbc):
 
         self._simulation = None
 
-
     ##############################################
 
     def _read_header(self, output):
@@ -145,7 +145,10 @@ class RawFile(RawFileAbc):
         self.plot_name = self._read_header_field_line(header_line_iterator, 'Plotname')
         self.flags = self._read_header_field_line(header_line_iterator, 'Flags')
         self.number_of_variables = int(self._read_header_field_line(header_line_iterator, 'No. Variables'))
-        self.number_of_points = int(self._read_header_field_line(header_line_iterator, 'No. Points'))
+        try:
+            self.number_of_points = int(self._read_header_field_line(header_line_iterator, 'No. Points'))
+        except ValueError:
+            self.number_of_points = -1  # Simulation not finished
         self._read_header_field_line(header_line_iterator, 'Variables')
         self._read_header_variables(header_line_iterator)
 
@@ -158,8 +161,8 @@ class RawFile(RawFileAbc):
         """ Ngspice return lower case names. This method fixes the case of the variable names. """
 
         circuit = self.circuit
-        element_translation = {element.upper():element for element in circuit.element_names}
-        node_translation = {node.upper():node for node in circuit.node_names}
+        element_translation = {element.upper(): element for element in circuit.element_names}
+        node_translation = {node.upper(): node for node in circuit.node_names}
         for variable in self.variables.values():
             variable.fix_case(element_translation, node_translation)
 

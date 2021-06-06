@@ -71,6 +71,9 @@ class XyceServer:
     def __init__(self, **kwargs):
 
         self._xyce_command = kwargs.get('xyce_command') or self.XYCE_COMMAND
+        self._working_directory = kwargs.get('working_directory')
+        if self._working_directory is not None:
+            self._working_directory = os.path.abspath(self._working_directory)
 
     ##############################################
 
@@ -112,9 +115,13 @@ class XyceServer:
 
         self._logger.debug('Start the xyce subprocess')
 
-        tmp_dir = tempfile.mkdtemp()
-        input_filename = os.path.join(tmp_dir, 'input.cir')
-        output_filename = os.path.join(tmp_dir, 'output.raw')
+        wd = self._working_directory
+        if wd is None:
+            wd = tempfile.mkdtemp()
+        else:
+            os.makedirs(wd, exist_ok=True)
+        input_filename = os.path.join(wd, 'input.cir')
+        output_filename = os.path.join(wd, 'output.raw')
         with open(input_filename, 'w') as f:
             f.write(str(spice_input))
 
@@ -135,6 +142,7 @@ class XyceServer:
         # self._logger.debug(output)
 
         raw_file = RawFile(output)
-        shutil.rmtree(tmp_dir)
+        if self._working_directory is None:
+            shutil.rmtree(wd)
 
         return raw_file
