@@ -21,6 +21,7 @@
 ####################################################################################################
 
 import os
+import numpy as np
 
 from ..RawFile import VariableAbc, RawFileAbc
 
@@ -113,10 +114,21 @@ class RawFile(RawFileAbc):
 
     ##############################################
 
-    def __init__(self, output):
-
-        raw_data = self._read_header(output)
-        self._read_variable_data(raw_data)
+    def __init__(self, output=None, filename=None):
+        if filename:
+            binary_line = b'Binary:\n'
+            header = b""
+            with open(filename, 'rb') as ifile:
+                for line in ifile:
+                    header += line
+                    if line == binary_line:
+                        break
+                idx = ifile.tell()
+            self._read_header(header)
+            self._read_file_variable_data(filename, idx)
+        else:
+            raw_data = self._read_header(output)
+            self._read_variable_data(raw_data)
         # self._to_analysis()
 
         self._simulation = None
@@ -153,6 +165,32 @@ class RawFile(RawFileAbc):
         self._read_header_variables(header_line_iterator)
 
         return raw_data
+
+    def _read_file_variable_data(self, filename, idx):
+        """ Read the raw data and set the variable values. """
+
+        if self.flags == 'real':
+            number_of_columns = self.number_of_variables
+        elif self.flags == 'complex':
+            number_of_columns = 2 * self.number_of_variables
+        else:
+            raise NotImplementedError
+
+        input_data = np.fromfile(filename,
+                                 count=self.number_of_points*self.number_of_variables,
+                                 dtype='f8',
+                                 offset=idx)
+
+        number_of_rows = input_data.shape[0] // number_of_columns
+        input_data = input_data[:number_of_rows * number_of_columns]
+        input_data = input_data.reshape((-1, number_of_columns)).transpose()
+        if self.flags == 'complex':
+            raw_data = input_data
+            input_data = np.array(raw_data[0::2], dtype='complex64')
+            input_data.imag = raw_data[1::2]
+        for variable in self.variables.values():
+            variable.data = input_data[variable.index]
+        return input_data
 
     ##############################################
 

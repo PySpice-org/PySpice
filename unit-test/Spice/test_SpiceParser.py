@@ -426,6 +426,7 @@ class TestSpiceParser(unittest.TestCase):
         simulator.transient(1e-9, 1e-3)
 
     def test_working_dir(self):
+        from PySpice.Spice.Xyce.RawFile import RawFile
         circuit = Circuit('Test working directory')
         circuit.PulseVoltageSource('hlp',
                                    1,
@@ -449,6 +450,8 @@ class TestSpiceParser(unittest.TestCase):
         result = simulator.transient(1e-2, 10)
         self.assertTrue(os.path.exists('input.cir') and os.path.isfile('input.cir'))
         self.assertTrue(os.path.exists('output.raw') and os.path.isfile('output.raw'))
+        data = RawFile(filename="output.raw")
+        print(data.nodes())
 
     def test_transient(self):
         transient = SpiceParser.parse(source="""
