@@ -78,15 +78,12 @@ class SpiceServer:
     ##############################################
 
     def __init__(self, **kwargs):
-
         self._spice_command = kwargs.get('spice_command') or self.SPICE_COMMAND
 
     ##############################################
 
     def _decode_number_of_points(self, line):
-
         """Decode the number of points in the given line."""
-
         match = re.match(r'@@@ (\d+) (\d+)', line)
         if match is not None:
             return int(match.group(2))
