@@ -52,6 +52,13 @@ class XyceSimulator(Simulator):
 
     ##############################################
 
+    @property
+    def simulator_version(self):
+        # Fixme: How to implement ?
+        return ''
+
+    ##############################################
+
     def simulation(self, circuit, **kwargs):
         return XyceSimulation(self, circuit, **kwargs)
 

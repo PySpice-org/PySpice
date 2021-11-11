@@ -143,6 +143,12 @@ class Simulator:
 
     ##############################################
 
+    @property
+    def simulator_version(self):
+        raise NotImplementedError
+
+    ##############################################
+
     def customise(self, simulation):
         """Customise the simulation"""
         pass

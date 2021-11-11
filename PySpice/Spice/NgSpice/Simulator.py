@@ -56,6 +56,13 @@ class NgSpiceSubprocessSimulator(NgSpiceSimulator):
 
     ##############################################
 
+    @property
+    def simulator_version(self):
+        # Fixme: How to implement ?
+        return ''
+
+    ##############################################
+
     def customise(self, simulation):
         # quicker to subclass...
         simulation.options('NOINIT')
@@ -91,6 +98,12 @@ class NgSpiceSharedSimulator(NgSpiceSimulator):
     @property
     def ngspice(self):
         return self._ngspice_shared
+
+    ##############################################
+
+    @property
+    def simulator_version(self):
+        return self._ngspice_shared.ngspice_version
 
     ##############################################
 

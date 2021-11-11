@@ -27,6 +27,7 @@ starting by a dot at the end of the desk.
 
 ####################################################################################################
 
+from datetime import datetime
 import logging
 import os
 
@@ -101,6 +102,10 @@ class Simulation:
         self.temperature = kwargs.get('temperature', self.DEFAULT_TEMPERATURE)
         self.nominal_temperature = kwargs.get('nominal_temperature', self.DEFAULT_TEMPERATURE)
 
+        self._simulator_version = None
+        self._simulation_date = None
+        self._simulation_duration = None
+
     ##############################################
 
     def __getstate__(self):
@@ -129,6 +134,20 @@ class Simulation:
     @property
     def simulator(self):
         return self._simulator
+
+    ##############################################
+
+    @property
+    def simulator_version(self):
+        return self._simulator_version
+
+    @property
+    def simulation_date(self):
+        return self._simulation_date
+
+    @property
+    def simulation_duration(self):
+        return self._simulation_duration
 
     ##############################################
 
@@ -724,7 +743,11 @@ class Simulation:
 
         # Run simulation ?
         if run:
-            return self._simulator.run(self)
+            self._simulator_version = self._simulator.ngspice.ngspice_version
+            self._simulation_date = datetime.now()
+            _ = self._simulator.run(self)
+            self._simulation_duration = datetime.now() - self._simulation_date
+            return _
 
         ##############################################
 

@@ -75,6 +75,10 @@ if not run_simulation:
     print(f"Save {pickle_file_path}")
     with open(pickle_file_path, 'rb') as fh:
         analysis = pickle.load(fh)
+    simulation = analysis.simulation
+    print(f"Simulation date: {simulation.simulation_date}")
+    print(f"Simulation duration: {simulation.simulation_duration}")
+    print(f"Simulator: {simulation.simulator.SIMULATOR} {simulation.simulator_version}")
 
     #r# The circuit and the simulation parameters was saved.
     print(analysis.simulation.circuit)
