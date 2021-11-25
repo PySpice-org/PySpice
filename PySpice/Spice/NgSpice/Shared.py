@@ -1,3 +1,4 @@
+
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
@@ -594,7 +595,7 @@ class NgSpiceShared:
         except KeyError:
             # See SimulationType.py
             self._simulation_type = EnumFactory('SimulationType', SIMULATION_TYPE['last'])
-            self._logger.warning("Unsupported Ngspice version {}".format(self._ngspice_version))
+            self._logger.warning("Newer Ngspice version that could be unsupported {}".format(self._ngspice_version))
         self._type_to_unit = {
             self._simulation_type.time: u_s,
             self._simulation_type.voltage: u_V,
