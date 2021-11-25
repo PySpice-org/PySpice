@@ -691,14 +691,18 @@ class Simulation:
 
     ##############################################
 
-    def __str__(self):
+    def str_netlist(self):
+        return self._circuit.str(simulator=self.simulator.SIMULATOR)
 
-        netlist = self._circuit.str(simulator=self.simulator.SIMULATOR)
-        netlist += self.str_options()
+    ##############################################
+
+    def str_simulation(self):
+        # Fixme: join os.linesep -> TextBuffer class
+        lines = self.str_options()
         if self._initial_condition:
-            netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
+            lines += '.ic ' + join_dict(self._initial_condition) + os.linesep
         if self._node_set:
-            netlist += '.nodeset ' + join_dict(self._node_set) + os.linesep
+            lines += '.nodeset ' + join_dict(self._node_set) + os.linesep
 
         if self._saved_nodes:
             # Place 'all' first
@@ -708,13 +712,18 @@ class Simulation:
                 saved_nodes.remove('all')
             else:
                 all_str = ''
-            netlist += '.save ' + all_str + join_list(saved_nodes) + os.linesep
+            lines += '.save ' + all_str + join_list(saved_nodes) + os.linesep
         for measure_parameters in self._measures:
-            netlist += str(measure_parameters) + os.linesep
+            lines += str(measure_parameters) + os.linesep
         for analysis_parameters in self._analyses.values():
-            netlist += str(analysis_parameters) + os.linesep
-        netlist += '.end' + os.linesep
-        return netlist
+            lines += str(analysis_parameters) + os.linesep
+        lines += '.end' + os.linesep
+        return lines
+
+    ##############################################
+
+    def __str__(self):
+        return self.str_netlist() + self.str_simulation()
 
     ##############################################
 
