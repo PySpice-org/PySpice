@@ -25,8 +25,8 @@ import re
 
 ####################################################################################################
 
-from ..Tools.File import Directory
 from .Parser import SpiceParser
+from PySpice.Tools import PathTools
 
 ####################################################################################################
 
@@ -66,13 +66,13 @@ class SpiceLibrary:
 
     def __init__(self, root_path, recurse=False, section=None):
 
-        self._directory = Directory(root_path).expand_vars_and_user()
+        self._directory = PathTools.expand_path(root_path)
 
         self._subcircuits = {}
         self._models = {}
 
-        for path in self._directory.iter_file():
-            extension = path.extension.lower()
+        for path in PathTools.walk(self._directory):
+            extension = path.suffix.lower()
             if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
                 try:

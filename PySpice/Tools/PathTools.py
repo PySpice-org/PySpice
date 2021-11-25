@@ -18,19 +18,34 @@
 #
 ####################################################################################################
 
-__all__= ['find']
+__all__= ["expand_path", "find", "walk"]
 
 ####################################################################################################
 
 import os
+from pathlib import Path
 
 ####################################################################################################
 
 def find(file_name, directories):
+    # Fixme: bytes ???
     if isinstance(directories, bytes):
         directories = (directories,)
     for directory in directories:
-        for directory_path, sub_directories, file_names in os.walk(directory):
+        for directory_path, _, file_names in os.walk(directory):
             if file_name in file_names:
                 return os.path.join(directory_path, file_name)
     raise NameError("File %s not found in directories %s" % (file_name, str(directories)))
+
+####################################################################################################
+
+def expand_path(path):
+    _ = os.path.expandvars(path)
+    return Path(_).expanduser().absolute()
+
+####################################################################################################
+
+def walk(path, followlinks=False):
+    for root, _, files in os.walk(path, followlinks=followlinks):
+        for filename in files:
+            yield Path(root).joinpath(filename)
