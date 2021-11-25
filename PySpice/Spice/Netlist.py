@@ -87,7 +87,7 @@ import os
 
 ####################################################################################################
 
-from PySpice.Tools.StringTools import join_lines, join_list
+from PySpice.Tools.StringTools import join_lines, join_list, prefix_lines, TextBuffer
 from .DeviceModel import DeviceModel
 from .Element import Pin
 
@@ -330,7 +330,6 @@ class Netlist:
     ##############################################
 
     def __getitem__(self, attribute_name):
-
         if attribute_name in self._elements:
             return self.element(attribute_name)
         elif attribute_name in self._models:
@@ -445,41 +444,34 @@ class Netlist:
     def __str__(self):
         """ Return the formatted list of element and model definitions. """
         # Fixme: order ???
-        netlist = self._str_raw_spice()
+        netlist = TextBuffer()
+        netlist += self._str_raw_spice()
         netlist += self._str_subcircuits()   # before elements
         netlist += self._str_elements()
         netlist += self._str_models()
-        return netlist
-
-    ##############################################
-
-    def _str_elements(self):
-        elements = [element for element in self.elements if element.enabled]
-        return join_lines(elements) + os.linesep
-
-    ##############################################
-
-    def _str_models(self):
-        if self._models:
-            return join_lines(self.models) + os.linesep
-        else:
-            return ''
-
-    ##############################################
-
-    def _str_subcircuits(self):
-        if self._subcircuits:
-            return join_lines(self.subcircuits)
-        else:
-            return ''
+        return str(netlist)
 
     ##############################################
 
     def _str_raw_spice(self):
-        netlist = self.raw_spice
-        if netlist and not netlist.endswith(os.linesep):
-            netlist += os.linesep
-        return netlist
+        return self.raw_spice.rstrip()
+
+    ##############################################
+
+    def _str_subcircuits(self):
+        # ensure list instead of odict_values
+        return list(self.subcircuits)
+
+    ##############################################
+
+    def _str_elements(self):
+        return [element for element in self.elements if element.enabled]
+
+    ##############################################
+
+    def _str_models(self):
+        # ensure list instead of dict_values
+        return list(self.models)
 
 ####################################################################################################
 
@@ -536,9 +528,7 @@ class SubCircuit(Netlist):
     ##############################################
 
     def check_nodes(self):
-
         """Check for dangling nodes in the subcircuit."""
-
         nodes = self._external_nodes
         connected_nodes = set()
         for element in self.elements:
@@ -551,13 +541,14 @@ class SubCircuit(Netlist):
 
     def __str__(self):
         """Return the formatted subcircuit definition."""
+        netlist = TextBuffer()
         nodes = join_list(self._external_nodes)
         parameters = join_list(['f{key}={value}'
                                 for key, value in self._parameters.items()])
-        netlist = '.subckt ' + join_list((self._name, nodes, parameters)) + os.linesep
+        netlist += '.subckt ' + join_list((self._name, nodes, parameters))
         netlist += super().__str__()
-        netlist += '.ends ' + self._name + os.linesep
-        return netlist
+        netlist += '.ends ' + self._name
+        return str(netlist)
 
 ####################################################################################################
 
@@ -660,18 +651,19 @@ class Circuit(Netlist):
         """
         # if not self.has_ground_node():
         #     raise NameError("Circuit don't have ground node")
-        netlist = self._str_title()
+        netlist = TextBuffer()
+        netlist += self._str_title()
         netlist += self._str_includes(simulator)
         netlist += self._str_libs(simulator)
         netlist += self._str_globals()
         netlist += self._str_parameters()
         netlist += super().__str__()
-        return netlist
+        return str(netlist)
 
     ##############################################
 
     def _str_title(self):
-        return f'.title {self.title}' + os.linesep
+        return f'.title {self.title}'
 
     ##############################################
 
@@ -686,10 +678,9 @@ class Circuit(Netlist):
                     if path_flavour.exists():
                         path = path_flavour
                 real_paths.append(path)
-
-            return join_lines(real_paths, prefix='.include ') + os.linesep
+            return prefix_lines(real_paths, prefix='.include ')
         else:
-            return ''
+            return None
 
     ##############################################
 
@@ -706,26 +697,25 @@ class Circuit(Netlist):
                 if section:
                     s += f" {section}"
                 libs.append(s)
-            return os.linesep.join(libs) + os.linesep
+            return libs
         else:
-            return ''
+            return None
 
     ##############################################
 
     def _str_globals(self):
         if self._global_nodes:
-            return '.global ' + join_list(self._global_nodes) + os.linesep
+            return '.global ' + join_list(self._global_nodes)
         else:
-            return ''
+            return None
 
     ##############################################
 
     def _str_parameters(self):
         if self._parameters:
-            return ''.join([f'.param {key}={value}' + os.linesep
-                            for key, value in self._parameters.items()])
+            return [f'.param {key}={value}' for key, value in self._parameters.items()]
         else:
-            return ''
+            return None
 
     ##############################################
 
@@ -735,7 +725,7 @@ class Circuit(Netlist):
     ##############################################
 
     def str_end(self):
-        return str(self) + '.end' + os.linesep
+        return str(self) + '.end'
 
     ##############################################
 

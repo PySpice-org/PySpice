@@ -24,6 +24,8 @@ __all__ = [
     'join_list',
     'str_spice',
     'str_spice_list',
+    'prefix_lines',
+    'TextBufer',
 ]
 
 ####################################################################################################
@@ -37,11 +39,8 @@ from PySpice.Unit.Unit import UnitValue
 ####################################################################################################
 
 def str_spice(obj, unit=True):
-
     # Fixme: right place ???
-
-    """Convert an object to a Spice compatible string."""
-
+    '''Convert an object to a Spice compatible string.'''
     if isinstance(obj, UnitValue):
         if unit:
             return obj.str_spice()
@@ -57,10 +56,15 @@ def str_spice_list(*args):
 
 ####################################################################################################
 
+def prefix_lines(items, prefix=''):
+    return [prefix + str(item)
+            for item in items
+            if item is not None] # Fixme: and item
+
+####################################################################################################
+
 def join_lines(items, prefix=''):
-    return os.linesep.join([prefix + str(item)
-                            for item in items
-                            if item is not None])   # Fixme: and item
+    return os.linesep.join(prefix_lines(items, prefix))
 
 ####################################################################################################
 
@@ -88,6 +92,38 @@ def join_list(items):
 
 def join_dict(d):
     # Fixme: remove trailing _ to key ???
-    return ' '.join([f"{key}={str_spice(value)}"
+    return ' '.join([f'{key}={str_spice(value)}'
                      for key, value in sorted(d.items())
                      if value is not None])
+
+####################################################################################################
+
+class TextBuffer:
+
+    ##############################################
+
+    def __init__(self):
+        self._lines = []
+
+    ##############################################
+
+    def _append_line(self, line):
+        if line is not None:
+            _ = str(line)
+            if _:
+                self._lines.append(_)
+
+    ##############################################
+
+    def __iadd__(self, obj):
+        if isinstance(obj, (list, tuple)):
+            for _ in obj:
+                self._append_line(_)
+        else:
+            self._append_line(obj)
+        return self
+
+    ##############################################
+
+    def __str__(self):
+        return os.linesep.join(self._lines)

@@ -33,7 +33,7 @@ import os
 
 ####################################################################################################
 
-from ..Tools.StringTools import join_list, join_dict, str_spice
+from ..Tools.StringTools import join_list, join_dict, str_spice, TextBuffer
 from ..Unit import as_Degree, u_Degree
 from .AnalysisParameters import (
     ACAnalysisParameters,
@@ -584,7 +584,7 @@ class Simulation:
         if variation not in ('dec', 'lin', 'oct'):
             raise NameError("variation must be 'dec' or 'lin' or 'oct'")
 
-        output = 'V({},{})'.format(output_node, ref_node)
+        output = f'V({output_node}, {ref_node})'
 
         self._add_analysis(
             NoiseAnalysisParameters(output, src, variation, points, start_frequency, stop_frequency, points_per_summary)
@@ -673,20 +673,18 @@ class Simulation:
     ##############################################
 
     def str_options(self, unit=True):
-
         # Fixme: use cls settings ???
         if unit:
             _str = str_spice
         else:
             _str = lambda x: str_spice(x, unit)
-
-        netlist = ''
+        netlist = TextBuffer()
         if self.options:
             for key, value in self._options.items():
                 if value is not None:
-                    netlist += '.options {} = {}'.format(key, _str(value)) + os.linesep
+                    netlist += f'.options {key} = {_str(value)}'
                 else:
-                    netlist += '.options {}'.format(key) + os.linesep
+                    netlist += f'.options {key}'
         return netlist
 
     ##############################################
@@ -697,12 +695,11 @@ class Simulation:
     ##############################################
 
     def str_simulation(self):
-        # Fixme: join os.linesep -> TextBuffer class
         lines = self.str_options()
         if self._initial_condition:
-            lines += '.ic ' + join_dict(self._initial_condition) + os.linesep
+            lines += '.ic ' + join_dict(self._initial_condition)
         if self._node_set:
-            lines += '.nodeset ' + join_dict(self._node_set) + os.linesep
+            lines += '.nodeset ' + join_dict(self._node_set)
 
         if self._saved_nodes:
             # Place 'all' first
@@ -712,13 +709,13 @@ class Simulation:
                 saved_nodes.remove('all')
             else:
                 all_str = ''
-            lines += '.save ' + all_str + join_list(saved_nodes) + os.linesep
+            lines += '.save ' + all_str + join_list(saved_nodes)
         for measure_parameters in self._measures:
-            lines += str(measure_parameters) + os.linesep
+            lines += str(measure_parameters)
         for analysis_parameters in self._analyses.values():
-            lines += str(analysis_parameters) + os.linesep
-        lines += '.end' + os.linesep
-        return lines
+            lines += str(analysis_parameters)
+        lines += '.end'
+        return str(lines)
 
     ##############################################
 
