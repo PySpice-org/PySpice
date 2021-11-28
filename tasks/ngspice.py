@@ -223,3 +223,10 @@ def get_windows_dll(ctx):
     url = WINDOWS_DLL_URL.format(version)
     dst_path = 'ngspice-{}_dll_64.zip'.format(version)
     donwload_file(url, dst_path)
+
+####################################################################################################
+
+@task()
+def extract_examples(ctx, input, output):
+    from PySpice.Spice.NgSpice.ManualExampleExtractor import Extractor
+    Extractor(input, output)
