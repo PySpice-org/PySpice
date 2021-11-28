@@ -15,7 +15,6 @@ class OsFactory:
     ##############################################
 
     def __init__(self):
-
         if sys.platform.startswith('linux'):
             self._name = 'linux'
         elif sys.platform.startswith('win'):
