@@ -144,7 +144,11 @@ class Simulator:
     ##############################################
 
     @property
-    def simulator_version(self):
+    def name(self):
+        return self._AS_SIMULATOR
+
+    @property
+    def version(self):
         raise NotImplementedError
 
     ##############################################

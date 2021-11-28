@@ -57,7 +57,7 @@ class NgSpiceSubprocessSimulator(NgSpiceSimulator):
     ##############################################
 
     @property
-    def simulator_version(self):
+    def version(self):
         # Fixme: How to implement ?
         return ''
 
@@ -102,7 +102,7 @@ class NgSpiceSharedSimulator(NgSpiceSimulator):
     ##############################################
 
     @property
-    def simulator_version(self):
+    def version(self):
         return self._ngspice_shared.ngspice_version
 
     ##############################################

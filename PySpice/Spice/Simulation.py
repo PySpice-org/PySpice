@@ -102,7 +102,6 @@ class Simulation:
         self.temperature = kwargs.get('temperature', self.DEFAULT_TEMPERATURE)
         self.nominal_temperature = kwargs.get('nominal_temperature', self.DEFAULT_TEMPERATURE)
 
-        self._simulator_version = None
         self._simulation_date = None
         self._simulation_duration = None
 
@@ -112,7 +111,7 @@ class Simulation:
         # Pickle: get state
         state = self.__dict__.copy()
         # state['_simulator'] = self._simulator.__class__.__name__
-        state['_simulator'] = self._simulator._AS_SIMULATOR
+        state['_simulator'] = self._simulator.name
         # state['_circuit'] = ...
         return state
 
@@ -138,8 +137,12 @@ class Simulation:
     ##############################################
 
     @property
+    def simulator_name(self):
+        return self._simulator.name
+
+    @property
     def simulator_version(self):
-        return self._simulator_version
+        return self._simulator.version
 
     @property
     def simulation_date(self):
@@ -749,7 +752,6 @@ class Simulation:
 
         # Run simulation ?
         if run:
-            self._simulator_version = self._simulator.ngspice.ngspice_version
             self._simulation_date = datetime.now()
             _ = self._simulator.run(self)
             self._simulation_duration = datetime.now() - self._simulation_date

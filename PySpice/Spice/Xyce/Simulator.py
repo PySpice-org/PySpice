@@ -53,7 +53,7 @@ class XyceSimulator(Simulator):
     ##############################################
 
     @property
-    def simulator_version(self):
+    def version(self):
         # Fixme: How to implement ?
         return ''
 
