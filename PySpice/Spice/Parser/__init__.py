@@ -27,6 +27,7 @@ from enum import IntEnum   # , auto
 import os
 
 from .SpiceSyntax import ElementLetters
+from .Lexer import Lexer
 
 ####################################################################################################
 
@@ -134,6 +135,8 @@ class SpiceLine:
     ##############################################
 
     def cleanup(self):
+        """Remove multi-space"""
+        # Fixme: tab ???
         command = self._command
         self._command = ''
         last_c = None
@@ -707,6 +710,7 @@ class SpiceParser:
 
     def __init__(self, path: str | Path):
         self._path = Path(path)
+        self._lexer = Lexer()
         self._parse()
 
     ##############################################
@@ -727,6 +731,7 @@ class SpiceParser:
     ##############################################
 
     def _parse(self):
+        # Fixme: parse text
         with open(self._path, 'r') as fh:
             state = ParserState.HEADER
             self._lines = []
@@ -764,23 +769,33 @@ class SpiceParser:
                         last_command = last_line
 
         # print(self.header)
+        # Fixme: first line should be the title line
         for line in self._lines:
             line.cleanup()
-            if line.is_element:
-                element = Element(line)
-                print(element)
-            elif line.is_dot_command:
-                handler = getattr(DotCommandHandlers, line.dot_command)
-                if handler is not None:
-                    dot_command = handler(line)
-                    print(dot_command)
+            if line.is_element or line.is_dot_command:
+                print()
+                print('='*100)
+                print('>>>', line)
+                print()
+                self._lexer.lex(line.command)
+            # if line.is_element:
+            #     element = Element(line)
+            #     print(element)
+            # elif line.is_dot_command:
+            #     handler = getattr(DotCommandHandlers, line.dot_command)
+            #     if handler is not None:
+            #         dot_command = handler(line)
+            #         print(dot_command)
             # print(line)
 
     ##############################################
 
     @property
     def header(self) -> str:
+        # Fixme: first line should be the title line
         top = self._lines[0]
         if top.is_comment:
             return top.comment
         return ''
+
+####################################################################################################
