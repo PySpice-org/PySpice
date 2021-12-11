@@ -23,6 +23,14 @@
 
 ####################################################################################################
 
+# Fixme:
+#
+#  Valid syntax ???
+#  print res .endc
+#
+
+####################################################################################################
+
 import logging
 
 ####################################################################################################
@@ -379,6 +387,7 @@ class Lexer:
 
         'DOT_COMMAND',
         'ID',
+        'INNER_ID',
         'NUMBER',
     ] + list(reserved.values())
 
@@ -441,7 +450,10 @@ class Lexer:
     t_STRING = r'"((\\")|[^"])*"'
 
     t_DOT_COMMAND = r'\.(?i:[a-z]+)'
-    t_ID = r'(?i:[a-z_0-9]+)'    # Fixme:
+
+    # Fixme:
+    # t_ID = r'(?i:[a-z_0-9]+)'    # Fixme:
+    t_ID = r'(?i:[a-z_0-9]+(\.[a-z_0-9.]+)?)'    # Fixme:
 
     # @TOKEN(identifier)
     def t_NUMBER(self, t):
@@ -484,15 +496,24 @@ class Lexer:
 
     def p_dot_command(self, p):
         '''statement : DOT_COMMAND expression_list_space
+                     | DOT_COMMAND
         '''
-        p[0] = ('dot_command', p[1], p[2])
+        if len(p) == 3:
+            p[0] = ('dot_command', p[1], p[2])
+        else:
+            p[0] = ('dot_command', p[1])
         return p[0]
 
     def p_element(self, p):
         '''statement : ID expression_list_space
+                     | ID
         '''
+        # Fixme: op
         # Fixme: [a-z]...
-        p[0] = ('element', p[1], p[2])
+        if len(p) == 3:
+            p[0] = ('command', p[1], p[2])
+        else:
+            p[0] = ('command', p[1])
         return p[0]
 
     # def p_empty(self, p):
@@ -508,6 +529,19 @@ class Lexer:
         '''branch_id : ID BRANCH
         '''
         p[0] = ('branch', p[1])
+
+    def p_tilde(self, p):
+        # Fixme: node, number is integer
+        '''expression : TILDE ID
+                      | TILDE NUMBER
+        '''
+        p[0] = ('~', p[2])
+
+    def p_inner_parameter(self, p):
+        '''expression : AT ID LEFT_BRACKET ID RIGHT_BRACKET
+        '''
+#                      | AT INNER_ID LEFT_BRACKET ID RIGHT_BRACKET
+        p[0] = ('@', p[2], p[4])
 
     def p_value(self, p):
         '''expression : NUMBER
@@ -557,10 +591,15 @@ class Lexer:
         '''
         p[0] = ('?', p[1], p[3], p[5])
 
-    def p_brace(self, p):
-        '''expression : LEFT_BRACE expression RIGHT_BRACE
+    def p_brace_expression(self, p):
+        '''brace_expression : LEFT_BRACE expression RIGHT_BRACE
         '''
         p[0] = ('{}', p[2])
+
+    def p_brace(self, p):
+        '''expression : brace_expression
+        '''
+        p[0] = p[1]
 
     def p_quote(self, p):
         '''expression : QUOTE expression QUOTE
@@ -591,12 +630,35 @@ class Lexer:
         '''expression : LEFT_BRACKET expression_list_space RIGHT_BRACKET'''
         p[0] = ('[]', p[2])
 
+
+    def p_tuple(self, p):
+        '''tuple : LEFT_PARENTHESIS expression COMMA expression RIGHT_PARENTHESIS
+        '''
+        p[0] = ('tuple', p[2], p[4])
+        # '''tuple : LEFT_PARENTHESIS expression_list_comma RIGHT_PARENTHESIS
+        # '''
+        # p[0] = ('tuple', p[1])
+
+    def p_tuple_list(self, p):
+        '''tuple_list : tuple
+                      | tuple_list tuple
+        '''
+        if len(p) == 3:
+            p[1].append(p[2])
+            p[0] = p[1]
+        else:
+            p[0] = [p[1]]
+
     def p_function(self, p):
         '''function : ID LEFT_PARENTHESIS expression_list_comma RIGHT_PARENTHESIS
                     | ID LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
         '''
         # | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
         p[0] = ('function', p[1], p[3])
+        # '''function : ID tuple
+        # '''
+        # # | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
+        # p[0] = ('function', p[1], p[2])
 
     def p_function_expression(self, p):
         '''expression : function'''
@@ -610,10 +672,18 @@ class Lexer:
         p[0] = ('model_function', p[1], p[3])
 
     def p_parameter(self, p):
+        # Fixme:
+        #   .ic v(cc) = 0 v(cc2) = 0
+        #   Q23 10 24 13 QMOD IC=0.6, 5.0
         '''expression : ID SET expression
                       | function SET expression
+                      | brace_expression SET tuple_list
+                      | ID SET expression COMMA expression
         '''
-        p[0] = ('=', p[1], p[3])
+        if len(p) == 5:
+            p[0] = ('=', p[1], (p[3], p[5]))
+        else:
+            p[0] = ('=', p[1], p[3])
 
     def p_error(self, p):
         if p is not None:
