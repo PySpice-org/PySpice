@@ -1,3 +1,30 @@
+# Input file structure
+
+The circuit to be analyzed is described to ngspice by a set of element instance lines, which
+define the circuit topology and element instance values, and a set of control lines, which
+define the model parameters and the run controls.
+
+All lines are assembled in an input file to be read by ngspice.
+
+The input file will be scanned for valid utf-8 characters.
+
+Two lines are essential:
+* The first line in the input file must be the title, which is the only comment line that
+does not need any special character in the first place.
+* The last line must be .end, plus a newline delimiter.
+
+The order of the remaining lines is alomost arbitrary (except, of course, that continuation
+lines must immediately follow the line being continued, .subckt ... .ends, .if ... .endif,
+or .control ... .endc have to enclose their specific lines).
+
+Leading white spaces in a line are ignored, as well as empty lines.
+
+The lines described in sections 2.1 to 2.12 are typically used in the core of the input file,
+outside of a `.control` section.
+
+The `.include includefile` line may be placed anywhere in the input file. The contents of includefile
+will be inserted exactly in place of the .include line.
+
 # Naming conventions
 
 Fields on a line are separated by one or more blanks, a comma, an equal (=) sign, or a left
@@ -100,9 +127,18 @@ character strings, not starting with a number.
 | #     | branch current `sourcename#branch`                |
 | @     | internal parameter `@dev[param]`                  |
 | ~     | XSpice invert signal                              |
+| "     | string                                            |
 
 **Unused ASCII Characters**
-* "
 * `
 * &
 * |
+
+# Title
+
+The title line must be the first in the input file. Its contents are printed verbatim as the
+heading for each section of output.
+
+As an alternative, you may place a `.TITLE <any title>` line anywhere in your input deck. The first
+line of your input deck will be overridden by the contents of this line following the `.TITLE`
+statement.
