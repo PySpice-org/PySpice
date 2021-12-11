@@ -13,6 +13,8 @@ Conventions string identifier is of the form [sEF]sha_digest
 * SE means skipped example
 * F  means general form
 
+Skipped line are prefixed by :code:`*s* `.
+
 Usage::
 
     for cls in ManualExamples.Examples.subclasses():
@@ -762,7 +764,9 @@ Rr2_cmc 1 0 rmodel w=1u l=20u isnoisy=1
 .control
 op
 let res = v(1) / -v1#branch
-print res .endc
+*s* print res .endc
+ print res
+.endc
 .end
 """
 
@@ -1090,14 +1094,14 @@ VIN 3 0 PULSE(-1 1 2NS 2NS 2NS 50NS 100NS)
 ##################################################
 # @7287
 
-    Ee4d9 = """
+    SEe4d9 = """
 SIN(VO VA FREQ TD THETA PHASE)
 """
 
 ##################################################
 # @7292
 
-    Ed097 = """
+    SEd097 = """
 VIN 3 0 SIN(0 1 100MEG 1NS 1E10)
 """
 
@@ -1202,7 +1206,7 @@ EXTERNAL
 
     Ee7f4 = """
 Vex 1  0 dc 0 external
-Iex i1 i2 dc 0 external <m = xx>
+*s* Iex i1 i2 dc 0 external <m = xx>
 """
 
 ############################################################
@@ -1374,14 +1378,14 @@ Xres 33 10 nlres rb=1k
 *Rres 33 10 1k
 Vres 10 0 DC 0
 .control
-define check(a,b) vecmax(abs(a - b))
-ac lin 10 100 1k
-* some checks
-print v(1) v(2) v(3)
-if check(v(1), frequency) < 1e-12
-echo "INFO: ok"
-end
-plot vres#branch
+*s* define check(a,b) vecmax(abs(a - b))
+*s* ac lin 10 100 1k
+*s* * some checks
+*s* print v(1) v(2) v(3)
+*s* if check(v(1), frequency) < 1e-12
+*s* echo "INFO: ok"
+*s* end
+*s* plot vres#branch
 .endc
 .end
 """
@@ -1595,7 +1599,7 @@ R 11 0 1k
 # @9210
 
     E5122 = """
-VCCS, VCVS, non-linear dependency
+*s* VCCS, VCVS, non-linear dependency
 .param Vi=1
 .param Offs='0.01*Vi'
 * VCCS depending on V(3)
@@ -2569,7 +2573,7 @@ plot v(10) v(9)
 # @29408
 
     Ef8af = """
-*** input file
+*s* input file
 * ...
 .tran 1ns 1000ns
 * ...
@@ -2586,7 +2590,7 @@ write outputfile data
 # @29447
 
     Ee729 = """
-File: simple-meas-tran.sp
+*s* File: simple-meas-tran.sp
 * Simple .measure examples
 * transient simulation of two sine
 * signals with different frequencies
@@ -2806,7 +2810,7 @@ plot v(1) v(2)
 ##################################################
 # @30041
 
-    Ec010 = """
+    SEc010 = """
 .plot dc v(4) v(5) v(1)
 .plot tran v(17, 5) (2, 5) i(vin) v(17) (1, 9)
 .plot ac vm(5) vm(31, 24) vdb(5) vp(5)
@@ -3026,7 +3030,7 @@ cat input.cir|ngspice -s|less
 # @30751
 
     Ecd75 = """
-*** test -s
+*s* test -s
 v1 1 0 1
 r1 1 0 2k
 .options filetype=ascii
@@ -3128,7 +3132,7 @@ echo "End processing"
 # @31079
 
     Ed6c8 = """
-*** parameter sweep
+*s* parameter sweep
 * resistive divider, R1 swept from start_r to stop_r
 * replaces .STEP R1 1k 10k 1k
 
@@ -5983,7 +5987,7 @@ class ExampleCircuits1(Examples):
 # @38301
 
     Ea724 = """
-*** A Berkeley SPICE3 compatible circuit
+*s* A Berkeley SPICE3 compatible circuit
 *
 * This circuit contains only Berkeley SPICE3 components.
 *
@@ -6017,7 +6021,7 @@ remitter emit 0 1k
 # @38457
 
     Ea426 = """
-*** SIMPLE DIFFERENTIAL PAIR
+*s* SIMPLE DIFFERENTIAL PAIR
 VCC 7 0 12
 VEE 8 0 -12
 VIN 1 0 AC 1
@@ -6044,7 +6048,7 @@ RE 4 8 10K
 # @38481
 
     E4961 = """
-*** MOS OUTPUT CHARACTERISTICS
+*s* MOS OUTPUT CHARACTERISTICS
 .OPTIONS NODE NOPAGE
 VDS 3 0
 VGS 2 0
@@ -6066,7 +6070,7 @@ VIDS 3 1
 # @38500
 
     Ed09d = """
-*** SIMPLE RTL INVERTER
+*s* SIMPLE RTL INVERTER
 VCC 4 0 5
 VIN 1 0 PULSE 0 5 2NS 2NS 2NS 30NS
 RB 1 2 10K
@@ -6087,7 +6091,7 @@ RC 3 4 1K
 # @38518
 
     Ebf52 = """
-*** ADDER - 4 BIT ALL-NAND-GATE BINARY ADDER
+*s* ADDER - 4 BIT ALL-NAND-GATE BINARY ADDER
 *** SUBCIRCUIT DEFINITIONS
 .SUBCKT NAND 1 2 3 4
 * NODES: INPUT(2), OUTPUT, VCC
@@ -6171,7 +6175,7 @@ RCOUT 13 0 1K
 # @38599
 
     Ee066 = """
-*** ADDER - 4 BIT ALL-NAND-GATE BINARY ADDER
+*s* ADDER - 4 BIT ALL-NAND-GATE BINARY ADDER
 *** SUBCIRCUIT DEFINITIONS
 .SUBCKT NAND in1 in2 out VDD
 * NODES:  INPUT(2), OUTPUT, VCC
@@ -6213,7 +6217,7 @@ X2   5  6  7  8 11 12 16 14 15   TWOBIT
 # @38641
 
     Ed072 = """
-*** POWER
+*s* POWER
 VCC   99  0   DC 3.3V
 *** INPUTS
 VIN1A  1  0   DC 0 PULSE(0 3 0 5NS 5NS   20NS   50NS)
@@ -6250,7 +6254,7 @@ X1     1  2  3  4  5  6  7  8  9 10 11 12  0 13 99 FOURBIT
 # @38675
 
     E9f54 = """
-*** Transmission-line inverter
+*s* Transmission-line inverter
 
 v1 1 0 pulse(0 1 0 0.1n)
 r1 1 2 50
@@ -6355,7 +6359,7 @@ R2 4 6  R = 'res + 0.033 * res*V(r2)'
 # @38875
 
     E5aa8 = """
-*** Perform Monte Carlo simulation in ngspice
+*s* Perform Monte Carlo simulation in ngspice
 V1 N001 0 AC 1 DC 0
 R1 N002 N001 141
 *
@@ -6369,39 +6373,39 @@ C3 OUT N003 250e-12
 R2 0 OUT 141
 *
 .control
-  let mc_runs = 100
-  let run = 1
-  set curplot = new       $ create a new plot
-  set scratch = $curplot  $ store its name to 'scratch'
-*
-  define unif(nom, var) (nom + nom*var * sunif(0))
-  define aunif(nom, avar) (nom + avar * sunif(0))
-  define gauss(nom, var, sig) (nom + nom*var/sig * sgauss(0))
-  define agauss(nom, avar, sig) (nom + avar/sig * sgauss(0))
-*
-  dowhile run <= mc_runs
-*   alter c1 = unif(1e-09, 0.1)
-*   alter l1 = aunif(10e-06, 2e-06)
-*   alter c2 = aunif(1e-09, 100e-12)
-*   alter l2 = unif(10e-06, 0.2)
-*   alter l3 = aunif(40e-06, 8e-06)
-*   alter c3 = unif(250e-12, 0.15)
-    alter c1 = gauss(1e-09, 0.1, 3)
-    alter l1 = agauss(10e-06, 2e-06, 3)
-    alter c2 = agauss(1e-09, 100e-12, 3)
-    alter l2 = gauss(10e-06, 0.2, 3)
-    alter l3 = agauss(40e-06, 8e-06, 3)
-    alter c3 = gauss(250e-12, 0.15, 3)
-    ac oct 100 250K 10Meg
-    set run ="$&run"     $ create a variable from the vector
-    set dt = $curplot    $ store the current plot to dt
-    setplot $scratch     $ make 'scratch' the active plot
-* store the output vector to plot 'scratch'
-    let vout{$run}={$dt}.v(out)
-    setplot $dt          $ go back to the previous plot
-    let run = run + 1
-  end
-  plot db({$scratch}.all)
+*s*   let mc_runs = 100
+*s*   let run = 1
+*s*   set curplot = new       $ create a new plot
+*s*   set scratch = $curplot  $ store its name to 'scratch'
+*s* *
+*s*   define unif(nom, var) (nom + nom*var * sunif(0))
+*s*   define aunif(nom, avar) (nom + avar * sunif(0))
+*s*   define gauss(nom, var, sig) (nom + nom*var/sig * sgauss(0))
+*s*   define agauss(nom, avar, sig) (nom + avar/sig * sgauss(0))
+*s* *
+*s*   dowhile run <= mc_runs
+*s* *   alter c1 = unif(1e-09, 0.1)
+*s* *   alter l1 = aunif(10e-06, 2e-06)
+*s* *   alter c2 = aunif(1e-09, 100e-12)
+*s* *   alter l2 = unif(10e-06, 0.2)
+*s* *   alter l3 = aunif(40e-06, 8e-06)
+*s* *   alter c3 = unif(250e-12, 0.15)
+*s*     alter c1 = gauss(1e-09, 0.1, 3)
+*s*     alter l1 = agauss(10e-06, 2e-06, 3)
+*s*     alter c2 = agauss(1e-09, 100e-12, 3)
+*s*     alter l2 = gauss(10e-06, 0.2, 3)
+*s*     alter l3 = agauss(40e-06, 8e-06, 3)
+*s*     alter c3 = gauss(250e-12, 0.15, 3)
+*s*     ac oct 100 250K 10Meg
+*s*     set run ="$&run"     $ create a variable from the vector
+*s*     set dt = $curplot    $ store the current plot to dt
+*s*     setplot $scratch     $ make 'scratch' the active plot
+*s* * store the output vector to plot 'scratch'
+*s*     let vout{$run}={$dt}.v(out)
+*s*     setplot $dt          $ go back to the previous plot
+*s*     let run = run + 1
+*s*   end
+*s*   plot db({$scratch}.all)
 .endc
 
 .end
@@ -6493,7 +6497,7 @@ class ExecutionProcedures(Examples):
 # @39404
 
     E5682 = """
-*** Small Signal Amplifier
+*s* Small Signal Amplifier
 *
 * This circuit simulates a simple small signal amplifier.
 *
@@ -6573,7 +6577,7 @@ X1 Amp_In 0 Amp_Out
 # @39553
 
     E9e63 = """
-*** Small Signal Amplifier
+*s* Small Signal Amplifier
 *
 * This circuit simulates a small signal amplifier
 * with a diode limiter.
@@ -6606,7 +6610,7 @@ R_Load    Amp_Out 0           1000
 # @39604
 
     Eb87c = """
-*** Supply ramping option
+*s* Supply ramping option
 *
 * This circuit demonstrates the use of the option
 * "ramptime" that ramps independent sources and the
@@ -6647,7 +6651,7 @@ r5 5 0 1k
 # @39675
 
     E5109 = """
-*** Code Model Test: new xxor
+*s* Code Model Test: new xxor
 *
 *** analysis type ***
 .tran .01s 4s
@@ -6704,7 +6708,7 @@ class ExampleCircuits2(Examples):
 # @39742
 
     Ee350 = """
-*** A transistor amplifier circuit
+*s* A transistor amplifier circuit
 *
 .tran 1e-5 2e-3
 *
@@ -6731,7 +6735,7 @@ rbig coll 0 1e12
 # @39807
 
     E0dd0 = """
-*** Mixed IO types
+*s* Mixed IO types
 * This circuit contains a mixture of IO types, including
 * analog, digital, user-defined (real), and 'null'.
 *
