@@ -18,12 +18,13 @@
 #
 ####################################################################################################
 
-__all__ = ["SpiceParser"]
+__all__ = ["SpiceParser", "SpiceFile"]
 
 ####################################################################################################
 
-from pathlib import Path
 from enum import IntEnum   # , auto
+from pathlib import Path
+from typing import Generator
 import os
 
 from .SpiceSyntax import ElementLetters
@@ -114,7 +115,7 @@ class SpiceLine:
             _ = self._command[1:]
         else:
             _ = self._command[1:i]
-        return _.upper()
+        return _.lower()
 
     @property
     def element_letter(self) -> str:
@@ -125,7 +126,7 @@ class SpiceLine:
 
     ##############################################
 
-    def append(self, line_number, command, comment):
+    def append(self, line_number, command, comment) -> None:
         self._stop = line_number
         if command:
             self._command += ' ' + command
@@ -134,7 +135,7 @@ class SpiceLine:
 
     ##############################################
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Remove multi-space"""
         # Fixme: tab ???
         command = self._command
@@ -708,10 +709,10 @@ class SpiceParser:
 
     ##############################################
 
-    def __init__(self, path: str | Path):
-        self._path = Path(path)
+    def __init__(self) -> None:
         self._lexer = Lexer()
-        self._parse()
+        self._lines = []
+        self._title_line = None
 
     ##############################################
 
@@ -730,43 +731,46 @@ class SpiceParser:
 
     ##############################################
 
-    def _parse(self):
-        # Fixme: parse text
-        with open(self._path, 'r') as fh:
-            state = ParserState.HEADER
-            self._lines = []
-            last_line = None
-            last_command = None
-            for line_number, line in enumerate(fh.readlines()):
-                # print(f'>>>{line_number}///{line.rstrip()}')
-                # Skip empty line
-                if not line.strip():
+    def parse(self, generator: Generator[tuple[int, str], None, None], title_line: bool=True) -> None:
+        self._lines = []
+        self._title_line = None
+        last_line = None
+        last_command = None
+        for line_number, line in generator:
+            # print(f'>>>{line_number}///{line.rstrip()}')
+            # handle first line
+            if line_number == 0 and title_line:
+                self._title_line = SpiceLine(line_number, line_number, None, line)
+                self._lines.append(self._title_line)
+                continue
+            # Skip empty line
+            if not line.strip():
+                continue
+            command = ''
+            comment = ''
+            # Handle continuation line
+            if line.startswith('+'):
+                _ = line[1:].strip()
+                command, comment = self._split_command_comment(_)
+                if last_command:
+                    last_command.append(line_number, command, comment)
                     continue
-                command = ''
-                comment = ''
-                # Handle continuation line
-                if line.startswith('+'):
-                    _ = line[1:].strip()
-                    command, comment = self._split_command_comment(_)
-                    if last_command:
-                        last_command.append(line_number, command, comment)
-                        continue
-                    else:
-                        raise ParserError(f"Continuation line in {self._path} at {line_number} doesn't follow a command line")
-                # Handle comment line
-                elif line.startswith('*'):
-                    comment = line[1:].strip()
                 else:
-                    command, comment = self._split_command_comment(line)
-                # print(f'>>>{line_number}///{command}///{comment}///')
-                # Is continuing comment ?
-                if not command and last_line and last_line.is_comment:
-                    last_line.append(line_number, '', comment)
-                else:
-                    last_line = SpiceLine(line_number, line_number, command, comment)
-                    self._lines.append(last_line)
-                    if command:
-                        last_command = last_line
+                    raise ParserError(f"Continuation line at {line_number} doesn't follow a command line")
+            # Handle comment line
+            elif line.startswith('*'):
+                comment = line[1:].strip()
+            else:
+                command, comment = self._split_command_comment(line)
+            # print(f'>>>{line_number}///{command}///{comment}///')
+            # Is continuing comment ?
+            if not command and last_line and last_line.is_comment:
+                last_line.append(line_number, '', comment)
+            else:
+                last_line = SpiceLine(line_number, line_number, command, comment)
+                self._lines.append(last_line)
+                if command:
+                    last_command = last_line
 
         # print(self.header)
         # Fixme: first line should be the title line
@@ -777,7 +781,19 @@ class SpiceParser:
                 print('='*100)
                 print('>>>', line)
                 print()
-                self._lexer.lex(line.command)
+                if line.is_dot_command and line.dot_command in (
+                        # 'control',
+                        # 'end',
+                        # 'ends',
+                        'include',
+                        x'lib',
+                        # 'op',
+                        'title',
+                ):
+                    continue
+                else:
+                    # self._lexer.lex(line.command)
+                    self._lexer.parse(line.command)
             # if line.is_element:
             #     element = Element(line)
             #     print(element)
@@ -790,12 +806,30 @@ class SpiceParser:
 
     ##############################################
 
+    def parse_string(self, code: str, title_line: bool=True) -> None:
+        generator = enumerate(code.splitlines())
+        self.parse(generator, title_line)
+
+    ##############################################
+
+    def parse_file(self, path: str | Path) -> None:
+        with open(path, 'r', encoding='utf-8') as fh:
+            generator = enumerate(fh.readlines())
+            self.parse(generator, title_line=True)
+
+    ##############################################
+
     @property
-    def header(self) -> str:
-        # Fixme: first line should be the title line
-        top = self._lines[0]
-        if top.is_comment:
-            return top.comment
-        return ''
+    def title(self) -> str:
+        return self._title_line
 
 ####################################################################################################
+
+class SpiceFile(SpiceParser):
+
+    ##############################################
+
+    def __init__(self, path: str | Path):
+        super().__init__()
+        self._path = Path(path)
+        self.parse_file(path)
