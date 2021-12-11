@@ -26,6 +26,7 @@ __all__ = ['Extractor']
 
 import hashlib
 import os
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 
@@ -35,7 +36,7 @@ class Extractor:
 
     ##############################################
 
-    def __init__(self, input_, output):
+    def __init__(self, input_: str | Path, output: str | Path) -> None:
         self._input = input_
         self._output = output
 
@@ -62,22 +63,22 @@ class Extractor:
     ##############################################
 
     @staticmethod
-    def _selector(tag):
+    def _selector(tag: BeautifulSoup.Tag) -> BeautifulSoup.Tag:
         return tag.name in ('h1', 'h2') or (
             tag.name == 'div' and tag.has_attr('class') and tag.attrs['class'][0] == "lyx_code_item"
         )
 
     ##############################################
 
-    def _write_line(self, line):
+    def _write_line(self, line: str) -> None:
         self._fh.write(line + os.linesep)
 
-    def _write_lines(self, lines):
+    def _write_lines(self, lines: str) -> None:
         self._fh.write(os.linesep.join(lines) + os.linesep)
 
     ##############################################
 
-    def _handle_h(self, tag):
+    def _handle_h(self, tag: BeautifulSoup.Tag) -> None:
         RULE = '#'*100
         text = []
         for _ in tag.text.splitlines():
@@ -95,7 +96,7 @@ class Extractor:
 
     ##############################################
 
-    def _handle_pre(self, tag):
+    def _handle_pre(self, tag: BeautifulSoup.Tag) -> None:
         TRIPLE_QUOTE = '"'*3
         for pre in tag.find_all('pre', 'listings'):
             text = pre.text
