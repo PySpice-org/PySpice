@@ -18,25 +18,23 @@
 #
 ####################################################################################################
 
-"""This module implements a parser for Spice expressions.
+"""This module implements a LALR parser for Spice.
 """
 
 ####################################################################################################
-
 # Fixme:
 #
 #  Valid syntax ???
 #  print res .endc
 #
-
 ####################################################################################################
 
 import logging
 
-####################################################################################################
-
 import ply.lex as lex
 import ply.yacc as yacc
+
+from .Ast import *
 
 ####################################################################################################
 
@@ -61,7 +59,7 @@ class SpiceParser:
     #     expression length (longer expressions are added first).
 
     tokens = [
-        'END_OF_LINE_COMMENT',
+        # 'END_OF_LINE_COMMENT',
 
         'MINUS',
         'NOT',
@@ -99,18 +97,13 @@ class SpiceParser:
 
         'DOT_COMMAND',
         'ID',
-        'INNER_ID',
         'NUMBER',
     ] + list(reserved.values())
 
     ##############################################
 
     def t_error(self, token):
-        self._logger.error(
-            "Illegal character '%s' at line %u and position %u" %
-            (token.value[0],
-             token.lexer.lineno,
-             token.lexer.lexpos))
+        self._logger.error(f"Illegal character '{token.value[0]}' at line {token.lexer.lineno} and position {token.lexer.lexpos}")
         # token.lexer.skip(1)
         raise NameError('Lexer error')
 
@@ -120,7 +113,7 @@ class SpiceParser:
 
     ##############################################
 
-    t_END_OF_LINE_COMMENT = r';|\$'
+    # t_END_OF_LINE_COMMENT = r';|\$'
 
     t_MINUS = r'-'
     t_NOT = r'!'
@@ -166,19 +159,45 @@ class SpiceParser:
     # Fixme:
     # t_ID = r'(?i:[a-z_0-9]+)'    # Fixme:
     t_ID = r'(?i:[a-z_0-9]+(\.[a-z_0-9.]+)?)'    # Fixme:
+    # def t_ID(self, t):
+    #     r'(?i:[a-z_0-9]+(\.[a-z_0-9.]+)?)'
+    #     t.value = Id(t.value)
+    #     return t
 
     # @TOKEN(identifier)
     def t_NUMBER(self, t):
-        # Match 1 1. 1.23 .1
-        #   https://www.debuggex.com
-        r'(?i:(?P<NUMBER_PART>\d+\.\d+(e(\+|-)?(\d+))?|\d+\.(e(\+|-)?(\d+))?|\.\d+(e(\+|-)?(\d+))?|\d+)(?P<UNIT_PART>(meg)|(mil)|[tgkmunpf])?(?P<EXTRA_UNIT>[a-z]*))'
+        # Fixme: CONTEXTUAL SYNTAX !!! in_offset=[0.1 -0.2]
+        r'''
+        (?i:
+            (?P<NUMBER_PART>
+                # [-+]?
+                (?:
+                    (?: \d* \. \d+ )   # .1 .12 ... 9.1 98.1 ...
+                    |
+                    (?: \d+ \.? )      # 1. 12. ... 1 12 ...
+                )
+                (?: e [+-]? \d+ ) ?
+            )
+            (?P<UNIT_PART>
+                (meg) | (mil) | [tgkmunpf]
+            ) ?
+            (?P<EXTRA_UNIT>
+                [a-z]*
+            )
+        )
+        '''
         match = t.lexer.lexmatch.groupdict()
         value = match['NUMBER_PART']
+        unit = match['UNIT_PART']
+        extra_unit = match['EXTRA_UNIT']
         try:
             value = int(value)
         except ValueError:
             value = float(value)
-        t.value = (value, match['UNIT_PART'], match['EXTRA_UNIT'])
+        if isinstance(value, int) and not unit and not extra_unit:
+            t.value = Integer(value)
+        else:
+            t.value = Number(value, unit, extra_unit)
         return t
 
     ##############################################
@@ -211,9 +230,9 @@ class SpiceParser:
                      | DOT_COMMAND
         '''
         if len(p) == 3:
-            p[0] = ('dot_command', p[1], p[2])
+            p[0] = DotCommand(p[1], p[2])
         else:
-            p[0] = ('dot_command', p[1])
+            p[0] = DotCommand(p[1])
         return p[0]
 
     def p_element(self, p):
@@ -223,55 +242,50 @@ class SpiceParser:
         # Fixme: op
         # Fixme: [a-z]...
         if len(p) == 3:
-            p[0] = ('command', p[1], p[2])
+            p[0] = Element(p[1], p[2])
         else:
-            p[0] = ('command', p[1])
+            p[0] = Element(p[1], None)    # Fixme: !!!
         return p[0]
 
-    # def p_empty(self, p):
-    #     'empty :'
-    #     pass
-
-    def p_modulo_id(self, p):
-        '''modulo_id : MODULO ID
-        '''
-        p[0] = ('modulo_id', p[1])
-
     def p_branch(self, p):
-        '''branch_id : ID BRANCH
+        # '''branch_id : ID BRANCH
+        '''expression : ID BRANCH
         '''
-        p[0] = ('branch', p[1])
+        p[0] = Branch(p[1])
 
     def p_tilde(self, p):
-        # Fixme: node, number is integer
+        # Fixme: node, number is a node integer
         '''expression : TILDE ID
                       | TILDE NUMBER
         '''
-        p[0] = ('~', p[2])
+        p[0] = InvertedInput(p[2])
 
     def p_inner_parameter(self, p):
         '''expression : AT ID LEFT_BRACKET ID RIGHT_BRACKET
         '''
-#                      | AT INNER_ID LEFT_BRACKET ID RIGHT_BRACKET
-        p[0] = ('@', p[2], p[4])
+        # | AT INNER_ID LEFT_BRACKET ID RIGHT_BRACKET
+        p[0] = InnerParameter(p[2], p[4])
 
-    def p_value(self, p):
+    def p_number(self, p):
         '''expression : NUMBER
-                      | ID
-                      | branch_id
         '''
         p[0] = p[1]
+
+    def p_id(self, p):
+        '''expression : ID
+        '''
+        p[0] = Id(p[1])
 
     def p_uminus(self, p):
         '''expression : MINUS expression %prec UMINUS'''
         # %prec UMINUS overrides the default rule precedence-setting it to that of UMINUS in the precedence specifier.
-        p[0] = (p[1], p[2])
+        p[0] = Negation(p[2])
 
     def p_unnary_operation(self, p):
         '''expression : NOT expression
         '''
         # ADD expression
-        p[0] = (p[1], p[2])
+        p[0] = Not(p[2])
 
     def p_binary_operation(self, p):
         '''expression : expression POWER expression
@@ -290,23 +304,23 @@ class SpiceParser:
                       | expression AND expression
                       | expression OR expression
         '''
-        p[0] = (p[2], p[1], p[3])
+        p[0] = Operator.get_binary(p[2])(p[1], p[3])
 
     def p_parenthesis(self, p):
         '''expression : LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
         '''
         # | LEFT_BRACE expression RIGHT_BRACE
-        p[0] = ('()', p[2])
+        p[0] = ParenthesisGroup(p[2])
 
     def p_if(self, p):
         '''expression : expression QUESTION expression COLON expression
         '''
-        p[0] = ('?', p[1], p[3], p[5])
+        p[0] = If(p[1], p[3], p[5])
 
     def p_brace_expression(self, p):
         '''brace_expression : LEFT_BRACE expression RIGHT_BRACE
         '''
-        p[0] = ('{}', p[2])
+        p[0] = BraceGroup(p[2])
 
     def p_brace(self, p):
         '''expression : brace_expression
@@ -316,7 +330,7 @@ class SpiceParser:
     def p_quote(self, p):
         '''expression : QUOTE expression QUOTE
         '''
-        p[0] = ("''", p[2])
+        p[0] = QuoteGroup(p[2])
 
     def p_expression_list_space(self, p):
         '''expression_list_space : expression
@@ -326,27 +340,26 @@ class SpiceParser:
             p[1].append(p[2])
             p[0] = p[1]
         else:
-            p[0] = [p[1]]
+            p[0] = SpaceList(p[1])
 
     def p_expression_list_comma(self, p):
         '''expression_list_comma : expression
                                  | expression_list_comma COMMA expression
         '''
-        if len(p) == 3:
-            p[1].append(p[2])
+        if len(p) == 4:
+            p[1].append(p[3])
             p[0] = p[1]
         else:
-            p[0] = [p[1]]
+            p[0] = CommaList(p[1])
 
     def p_array(self, p):
         '''expression : LEFT_BRACKET expression_list_space RIGHT_BRACKET'''
-        p[0] = ('[]', p[2])
-
+        p[0] = BracketGroup(p[2])
 
     def p_tuple(self, p):
         '''tuple : LEFT_PARENTHESIS expression COMMA expression RIGHT_PARENTHESIS
         '''
-        p[0] = ('tuple', p[2], p[4])
+        p[0] = Tuple(p[2], p[4])
         # '''tuple : LEFT_PARENTHESIS expression_list_comma RIGHT_PARENTHESIS
         # '''
         # p[0] = ('tuple', p[1])
@@ -359,14 +372,17 @@ class SpiceParser:
             p[1].append(p[2])
             p[0] = p[1]
         else:
-            p[0] = [p[1]]
+            p[0] = SpaceList(p[1])
 
     def p_function(self, p):
         '''function : ID LEFT_PARENTHESIS expression_list_comma RIGHT_PARENTHESIS
-                    | ID LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+                    | ID LEFT_PARENTHESIS expression_list_space RIGHT_PARENTHESIS
         '''
+        # Match: sqrt(9)
+        p[0] = Function(p[1], p[3])
+
+        #?# | ID LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
         # | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
-        p[0] = ('function', p[1], p[3])
         # '''function : ID tuple
         # '''
         # # | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
@@ -376,26 +392,46 @@ class SpiceParser:
         '''expression : function'''
         p[0] = p[1]
 
-    def p_model_function(self, p):
-        '''expression : ID LEFT_PARENTHESIS expression_list_space RIGHT_PARENTHESIS
-                      | modulo_id LEFT_PARENTHESIS expression_list_space RIGHT_PARENTHESIS
+    # def p_model_function(self, p):
+    #     '''expression : ID LEFT_PARENTHESIS expression_list_space RIGHT_PARENTHESIS
+    #     '''
+    #     # | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
+    #     # p[0] = ModelFunction(p[1], p[3])
+
+    def p_port_type_modifier(self, p):
+        '''port_type_modifier : MODULO ID
         '''
-        # | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
-        p[0] = ('model_function', p[1], p[3])
+        # Fixme: use token %[a-z]+ ?
+        p[0] = PortTypeModifier(p[2])
+
+    def p_port_modifier_function(self, p):
+        '''expression : port_type_modifier LEFT_PARENTHESIS expression_list_space RIGHT_PARENTHESIS
+        '''
+        p[0] = PortModifierFunction(p[1], p[3])
+
+    def p_port_modifier_vector(self, p):
+        '''expression : port_type_modifier LEFT_BRACKET expression_list_space RIGHT_BRACKET
+        '''
+        p[0] = PortModifierVector(p[1], p[3])
+
+    def p_set_id(self, p):
+        '''expression : ID SET expression
+                      | ID SET expression COMMA expression
+        '''
+        if len(p) == 5:
+            p[0] = Set(Id(p[1]), Tuple(p[3], p[5]))
+        else:
+            p[0] = Set(Id(p[1]), p[3])
 
     def p_parameter(self, p):
         # Fixme:
         #   .ic v(cc) = 0 v(cc2) = 0
         #   Q23 10 24 13 QMOD IC=0.6, 5.0
-        '''expression : ID SET expression
-                      | function SET expression
+        # Fixme: expression => recursive
+        '''expression : function SET expression
                       | brace_expression SET tuple_list
-                      | ID SET expression COMMA expression
         '''
-        if len(p) == 5:
-            p[0] = ('=', p[1], (p[3], p[5]))
-        else:
-            p[0] = ('=', p[1], p[3])
+        p[0] = Set(p[1], p[3])
 
     def p_error(self, p):
         if p is not None:
@@ -433,5 +469,5 @@ class SpiceParser:
 
     def parse(self, text):
         # self._parser.defaulted_states = {}
-        _ = self._parser.parse(text, lexer=self._lexer, debug=False)
-        print(f'ast {_}')
+        ast = self._parser.parse(text, lexer=self._lexer, debug=False)
+        return ast

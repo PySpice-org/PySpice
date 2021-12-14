@@ -658,7 +658,7 @@ class SpiceCode:
                            ast = [line.right_of('.title')]
                 if ast is None:
                     ast = self._parser.parse(line.command)
-                    print(ast)
+                    print(ast.pretty_print())
             # if line.is_element:
             #     element = Element(line)
             #     print(element)
