@@ -142,3 +142,40 @@ heading for each section of output.
 As an alternative, you may place a `.TITLE <any title>` line anywhere in your input deck. The first
 line of your input deck will be overridden by the contents of this line following the `.TITLE`
 statement.
+
+# XSpice
+
+Square brackets `[]` are used to enclose vector input nodes. In addition, these brackets
+are used to delineate vectors of parameters.
+
+The literal string `null`, when included in a node list, is interpreted as no connection at
+that input to the model. `Null` is not allowed as the name of a model’s input or output if
+the model only has one input or one output. Also, `null` should only be used to indicate a
+missing connection for a code model; use on other XSPICE component is not interpreted
+as a missing connection, but will be interpreted as an actual node name.
+
+The tilde, `~`, when prepended to a digital node name, specifies that the logical value of
+that node be inverted prior to being passed to the code model. This allows for simple
+inversion of input and output polarities of a digital model in order to handle logically
+equivalent cases and others that frequently arise in digital system design.
+
+**Port Type Modifiers**
+
+The specification `%v` preceding the input and output node numbers indicate that the inputs to the model should be single-ended voltage
+values, e.g. `a1 %v(1) %v(2) amp`.
+
+| Modifier | Interpretation |
+|----------|----------------|
+| %v       | represents a single-ended voltage port - one node name or number is expected for each port. |
+| %i       | represents a single-ended current port - one node name or number is expected for each port. |
+| %g       | represents a single-ended voltage-input, current-output (VCCS) port - one node name or number is expected for each port. |
+|          | This type of port is automatically an input/output. |
+| %h       | represents a single-ended current-input, voltage-output (CCVS) port - one node name or number is expected for each port. |
+|          | This type of port is automatically an input/output. |
+| %d       | represents a digital port - one node name or number is expected for each port. This type of port may be either an input or an output. |
+| %vnam    | represents the name of a voltage source, the current through which is taken as an input. |
+|          | This notation is provided primarily in order to allow models defined using SPICE2G6 syntax to operate properly in XSPICE. |
+| %vd      | represents a differential voltage port - two node names or numbers are expected for each port. |
+| %id      | represents a differential current port - two node names or numbers are expected for each port. |
+| %gd      | represents a differential VCCS port - two node names or numbers are expected for each port. |
+| %hd      | represents a differential CCVS port - two node names or numbers are expected for each port. |
