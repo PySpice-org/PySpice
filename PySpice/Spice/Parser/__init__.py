@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Generator
 import os
 
+from PySpice.Tools.StringTools import remove_multi_space
 from .SpiceSyntax import ElementLetters
 from .Parser import SpiceParser
 
@@ -125,14 +126,7 @@ class SpiceLine:
     def cleanup(self) -> None:
         """Remove multi-space"""
         # Fixme: tab ???
-        command = self._command
-        self._command = ''
-        last_c = None
-        for c in command:
-            if c == ' ' and last_c == ' ':
-                continue
-            self._command += c
-            last_c = c
+        self._command = remove_multi_space(self._command)
 
     ##############################################
 

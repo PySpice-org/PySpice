@@ -55,6 +55,7 @@ import logging
 import ply.lex as lex
 import ply.yacc as yacc
 
+# from PySpice.Tools.StringTools import remove_multi_space
 from .Ast import *
 
 ####################################################################################################
@@ -287,7 +288,11 @@ class SpiceParser:
     def p_uminus(self, p):
         '''expression : MINUS expression %prec UMINUS'''
         # %prec UMINUS overrides the default rule precedence-setting it to that of UMINUS in the precedence specifier.
-        p[0] = Negation(p[2])
+        _ = p[2]
+        if isinstance(_, Number):
+            p[0] = _.negate()
+        else:
+            p[0] = Negation(_)
 
     def p_unnary_operation(self, p):
         '''expression : NOT expression
@@ -446,18 +451,55 @@ class SpiceParser:
 
     def lex(self, text: str):
         self._lexer.input(text)
-        root = Ast()
         while True:
             token = self._lexer.token()
             if token:
-                root.append_token(token)
+                yield token
             else:
                 break
-        root.process()
 
     ##############################################
 
-    def parse(self, text):
+    def _add_brace_in_bracket(self, text: str) -> str:
+        """Hack to add brace in bracket space list.
+
+        It assumes there is only space to separate items!!!
+        It assumes there is any inner bracket group within a bracket list.
+
+        """
+        new_text = ''
+        position = 0
+        while True:
+            left_bracket = text.find('[', position)
+            if left_bracket != -1:
+                right_bracket = text.find(']', left_bracket)
+                if right_bracket == -1:
+                    raise ValueError('Unmatched bracket')
+                if right_bracket > (left_bracket + 1):
+                    new_text += text[position:left_bracket]
+                    inner = text[left_bracket:right_bracket+1]
+                    inner = inner.replace('[ ', '[')
+                    inner = inner.replace(' ]', ']')
+                    if ' ' in inner:
+                        inner = inner.replace('[', '[{')
+                        inner = inner.replace(']', '}]')
+                        # multi-space was removed
+                        # inner = remove_multi_space(inner)
+                        inner = inner.replace(' ', '} {')
+                    new_text += inner
+                else:
+                    new_text += text[position:right_bracket+1]
+                position = right_bracket +1
+            else:
+                new_text += text[position:]
+                break
+        return new_text
+
+    ##############################################
+
+    def parse(self, text: str) -> Command:
         # self._parser.defaulted_states = {}
+        # Dangerous hack !!!
+        # text = self._add_brace_in_bracket(text)
         ast = self._parser.parse(text, lexer=self._lexer, debug=False)
         return ast

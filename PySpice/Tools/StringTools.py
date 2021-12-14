@@ -25,6 +25,7 @@ __all__ = [
     'str_spice',
     'str_spice_list',
     'prefix_lines',
+    'remove_multi_space',
     'TextBufer',
 ]
 
@@ -95,6 +96,20 @@ def join_dict(d):
     return ' '.join([f'{key}={str_spice(value)}'
                      for key, value in sorted(d.items())
                      if value is not None])
+
+####################################################################################################
+
+def remove_multi_space(txt: str) -> str:
+    """Remove multi-space"""
+    # Fixme: tab ???
+    new_txt = ''
+    last_c = None
+    for c in txt:
+        if c == ' ' and last_c == ' ':
+            continue
+        new_txt += c
+        last_c = c
+    return new_txt
 
 ####################################################################################################
 

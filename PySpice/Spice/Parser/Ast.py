@@ -50,7 +50,6 @@ __all__ = [
     'Less',
     'LessEqual',
     'List',
-    'ModelFunction',
     'Modulo',
     'Multiplication',
     'Negation',
@@ -76,6 +75,8 @@ __all__ = [
 
 import os
 
+from typing import Optional, Iterator
+
 ####################################################################################################
 
 class AstNode:
@@ -93,9 +94,39 @@ class AstNode:
             _ += os.linesep
         return _
 
+    ##############################################
+
+    @property
+    def is_node(self) -> bool:
+        return True
+
+    @property
+    def is_leaf(self) -> bool:
+        return False
+
+    ##############################################
+
+    def __iter__(self) -> Iterator['AstNode']:
+        raise NotImplementedError
+
 ####################################################################################################
 
-class Integer(AstNode):
+class AstLeaf(AstNode):
+
+    ##############################################
+
+    @property
+    def is_node(self) -> bool:
+        return False
+
+    @property
+    def is_leaf(self) -> bool:
+        return True
+
+####################################################################################################
+####################################################################################################
+
+class Integer(AstLeaf):
 
     ##############################################
 
@@ -107,13 +138,18 @@ class Integer(AstNode):
     def pretty_print(self, level: int=0) -> str:
         return self.pretty_print_class(level, False) + f" {self._value}"
 
+    ##############################################
+
+    def negate(self) -> 'Number':
+        return Number(-self._value)
+
 ####################################################################################################
 
-class Number(AstNode):
+class Number(AstLeaf):
 
     ##############################################
 
-    def __init__(self, value: int | float, unit: str | None, extra_unit: str | None) -> None:
+    def __init__(self, value: int | float, unit: Optional[str], extra_unit: Optional[str]) -> None:
         self._value = value
         self._unit = unit
         self._extra_unit = extra_unit
@@ -124,9 +160,15 @@ class Number(AstNode):
     def pretty_print(self, level: int=0) -> str:
         return self.pretty_print_class(level, False) + f" {self._value} {self._unit} {self._extra_unit}"
 
+    ##############################################
+
+    def negate(self) -> 'Number':
+        self._value = - self._value
+        return self
+
 ####################################################################################################
 
-class Id(AstNode):
+class Id(AstLeaf):
 
     ##############################################
 
@@ -140,7 +182,7 @@ class Id(AstNode):
 
 ####################################################################################################
 
-class PortTypeModifier(AstNode):
+class PortTypeModifier(AstLeaf):
 
     ##############################################
 
@@ -160,7 +202,7 @@ class PortTypeModifier(AstNode):
 
 ####################################################################################################
 
-class Branch(AstNode):
+class Branch(AstLeaf):
 
     ##############################################
 
@@ -175,23 +217,7 @@ class Branch(AstNode):
 
 ####################################################################################################
 
-class InvertedInput(AstNode):
-
-    ##############################################
-
-    def __init__(self, node: str) -> None:
-        self._node = node
-
-    ##############################################
-
-    def pretty_print(self, level: int=0) -> str:
-        txt = self.pretty_print_class(level)
-        txt += self._node.pretty_print(level +1)
-        return txt
-
-####################################################################################################
-
-class InnerParameter(AstNode):
+class InnerParameter(AstLeaf):
 
     """
     Format::
@@ -212,13 +238,35 @@ class InnerParameter(AstNode):
         return self.pretty_print_class(level, False) + f" {self._element_path} {self._parameter_name}"
 
 ####################################################################################################
+####################################################################################################
+
+class InvertedInput(AstNode):
+
+    ##############################################
+
+    def __init__(self, child: str) -> None:
+        self._child = child
+
+    ##############################################
+
+    def __iter__(self) -> Iterator[AstNode]:
+        yield self._child
+        # return iter((self._child,))
+
+    ##############################################
+
+    def pretty_print(self, level: int=0) -> str:
+        txt = self.pretty_print_class(level)
+        txt += self._child.pretty_print(level +1)
+        return txt
+
+####################################################################################################
 
 class Operator(AstNode):
 
     NUMBER_OF_OPERANDS = None
     OPERATOR = None
 
-    # _operators = []
     _unary_operator_map = {}
     _binary_operator_map = {}
 
@@ -226,18 +274,11 @@ class Operator(AstNode):
 
     def __init_subclass__(cls, **kwargs) -> None:
         if cls.OPERATOR is not None:
-            # cls._operators.append(cls)
             if issubclass(cls, BinaryOperator):
                 d = cls._binary_operator_map
             elif issubclass(cls, UnaryOperator):
                 d = cls._unary_operator_map
             d[cls.OPERATOR] = cls
-
-    ##############################################
-
-    # @classmethod
-    # def operator_iter(cls):
-    #     return iter(cls._operators)
 
     ##############################################
 
@@ -257,20 +298,19 @@ class Operator(AstNode):
         if (self.NUMBER_OF_OPERANDS is not None
             and len(args) != self.NUMBER_OF_OPERANDS):
             raise ValueError("Wrong number of operands")
-        self._operands = args
+        self._childs = args
 
     ##############################################
 
-    @property
-    def operands(self):
-        return iter(self._operands)
+    def __iter__(self) -> Iterator[AstNode]:
+        return iter(self._childs)
 
     ##############################################
 
     def pretty_print(self, level: int=0) -> str:
         indentation = self.indentation(level)
         txt = indentation + self.OPERATOR + os.linesep
-        for operand in self.operands:
+        for operand in self:
             txt += operand.pretty_print(level +1).rstrip() + os.linesep
         return txt
 
@@ -289,11 +329,11 @@ class UnaryOperator(Operator):
 
     @property
     def operand(self) -> AstNode:
-        return self._operands[0]
+        return self._childs[0]
 
     @property
     def operand1(self) -> AstNode:
-        return self._operands[0]
+        return self._childs[0]
 
     ##############################################
 
@@ -317,7 +357,7 @@ class BinaryOperator(UnaryOperator):
 
     @property
     def operand2(self) -> AstNode:
-        return self._operands[1]
+        return self._childs[1]
 
     ##############################################
 
@@ -441,17 +481,8 @@ class If(AstNode):
 
     ##############################################
 
-    # def _str_compound_expression(self, expressions):
-    #     string = '(' + os.linesep
-    #     if expressions:
-    #         string += str(expressions) + os.linesep
-    #     string += ')'
-    #     return string
-
-    ##############################################
-
-    # def __str__(self):
-    #     return '{} ? {} : {}'.format(self._condition, self._then_expression, self._else_expression)
+    def __iter__(self) -> Iterator[AstNode]:
+        return iter((self._condition, self._then_expression, self._else_expression))
 
     ##############################################
 
@@ -462,19 +493,30 @@ class If(AstNode):
         txt += self._else_expression.pretty_print(level +1).rstrip() + os.linesep
         return txt
 
+    ##############################################
+
+    def __str__(self):
+        return f'{self._condition} ? {self._then_expression} : {self._else_expression}'
+
 ####################################################################################################
 
 class Group(AstNode):
 
     ##############################################
 
-    def __init__(self, ast_node: AstNode) -> None:
-        self._ast_node = ast_node
+    def __init__(self, child: AstNode) -> None:
+        self._child = child
+
+    ##############################################
+
+    def __iter__(self) -> Iterator[AstNode]:
+        yield self._child
+        # return iter((self._node,))
 
     ##############################################
 
     def pretty_print(self, level: int=0) -> str:
-        return self.pretty_print_class(level) + self._ast_node.pretty_print(level +1)
+        return self.pretty_print_class(level) + self._child.pretty_print(level +1)
 
 ####################################################################################################
 
@@ -495,6 +537,55 @@ class BracketGroup(Group):
     RIGHT = ']'
     # Fixme: CONTEXTUAL SYNTAX !!! in_offset=[0.1 -0.2]
 
+    ##############################################
+
+    def __init__(self, child: AstNode) -> None:
+        self._child = self._fix_uminus(child)
+
+    ##############################################
+
+    @classmethod
+    def _fix_uminus(cls, child: AstNode) -> AstNode:
+        """Fix pattern like::
+
+              -
+                  -
+                      -
+                          Number -0.1 None
+                          Number 0.2 None
+                      Number 0.3 None
+                  Number 0.4 None
+        """
+        new_child = SpaceList()
+        for node in child:
+            # Is it a subtraction not within a brace ?
+            if isinstance(node, Subtraction):
+                for _ in cls._fix_uminus_subtraction(node):
+                    new_child.append(_)
+            else:
+                new_child.append(node)
+        return new_child
+
+    ##############################################
+
+    @classmethod
+    def _fix_uminus_subtraction(cls, node: Subtraction) -> AstNode:
+        left = node.operand1
+        right = node.operand2
+        if isinstance(left, Subtraction) and isinstance(right, Number):
+            # Fix recursive case
+            # Replace (- (- ... b) c) by (... -b -c) in the AST
+            new_child = SpaceList()
+            for _ in cls._fix_uminus_inner(left):
+                new_child.append(_)
+            new_child.append(right.negate())
+        elif isinstance(left, Number) and isinstance(right, Number):
+            # Replace (- a b) by (a -b) in the AST
+            new_child = SpaceList(left, right.negate())
+        else:
+            return node
+        return new_child
+
 ####################################################################################################
 
 class List(AstNode):
@@ -502,23 +593,23 @@ class List(AstNode):
     ##############################################
 
     def __init__(self, *args: AstNode) -> None:
-        self._list = list(args)
+        self._childs = list(args)
 
     ##############################################
 
     def append(self, item: AstNode) -> None:
-        self._list.append(item)
+        self._childs.append(item)
 
     ##############################################
 
     def __len__(self) -> int:
-        return len(self._list)
+        return len(self._childs)
 
     def __bool__(self) -> int:
-        return bool(self._list)
+        return bool(self._childs)
 
-    def __iter__(self) -> int:
-        return iter(self._list)
+    def __iter__(self) -> Iterator[AstNode]:
+        return iter(self._childs)
 
     ##############################################
 
@@ -558,20 +649,8 @@ class Function(AstNode):
 
     ##############################################
 
-    def pretty_print(self, level: int=0) -> str:
-        txt = self.pretty_print_class(level, False) + f' {self._name}' + os.linesep
-        txt += self._parameters.pretty_print(level +1)
-        return txt
-
-####################################################################################################
-
-class ModelFunction(AstNode):
-
-    ##############################################
-
-    def __init__(self, name: str, parameters: SpaceList) -> None:
-        self._name = name
-        self._parameters = parameters
+    def __iter__(self) -> Iterator[AstNode]:
+        return iter(self._parameters)
 
     ##############################################
 
@@ -589,6 +668,11 @@ class PortModifierFunction(AstNode):
     def __init__(self, port_type: PortTypeModifier, parameters: SpaceList) -> None:
         self._port_type = port_type
         self._parameters = parameters
+
+    ##############################################
+
+    def __iter__(self) -> Iterator[AstNode]:
+        return iter(self._parameters)
 
     ##############################################
 
@@ -614,6 +698,11 @@ class Set(AstNode):
 
     ##############################################
 
+    def __iter__(self) -> Iterator[AstNode]:
+        return iter((self._left, self._right))
+
+    ##############################################
+
     def pretty_print(self, level: int=0) -> str:
         txt = self.pretty_print_class(level)
         txt += self._left.pretty_print(level +1).rstrip() + os.linesep
@@ -626,28 +715,33 @@ class Command(AstNode):
 
     ##############################################
 
-    def __init__(self, name: str, expressions: SpaceList=None) -> None:
+    def __init__(self, name: str, childs: SpaceList=None) -> None:
         self._name = name
-        self._expressions = expressions
+        self._childs = childs
+
+    ##############################################
+
+    def __iter__(self) -> Iterator[AstNode]:
+        return iter(self._childs)
 
     ##############################################
 
     def pretty_print(self, level: int=0) -> str:
         txt = self.pretty_print_class(level, False) + f' {self._name}' + os.linesep
-        if self._expressions is not None:
-            txt += self._expressions.pretty_print(level +1)
+        if self._childs is not None:
+            txt += self._childs.pretty_print(level +1)
         return txt
 
     ##############################################
 
     @property
-    def first_letter(self):
+    def first_letter(self) -> str:
         return self._name[0].lower()
 
     ##############################################
 
     @property
-    def is_dot_command(self):
+    def is_dot_command(self) -> bool:
         return self.first_letter == '.'
 
 ####################################################################################################
@@ -657,5 +751,5 @@ class DotCommand(Command):
     ##############################################
 
     @property
-    def is_dot_command(self):
+    def is_dot_command(self) -> bool:
         return True
