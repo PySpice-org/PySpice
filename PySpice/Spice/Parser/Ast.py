@@ -33,9 +33,9 @@ __all__ = [
     'BracketGroup',
     'Branch',
     'CommaList',
+    'Command',
     'Division',
     'DotCommand',
-    'Element',
     'Equal',
     'Function',
     'Greater',
@@ -622,11 +622,11 @@ class Set(AstNode):
 
 ####################################################################################################
 
-class DotCommand(AstNode):
+class Command(AstNode):
 
     ##############################################
 
-    def __init__(self, name: str, expressions: SpaceList | None=None) -> None:
+    def __init__(self, name: str, expressions: SpaceList=None) -> None:
         self._name = name
         self._expressions = expressions
 
@@ -637,23 +637,25 @@ class DotCommand(AstNode):
         if self._expressions is not None:
             txt += self._expressions.pretty_print(level +1)
         return txt
+
+    ##############################################
+
+    @property
+    def first_letter(self):
+        return self._name[0].lower()
+
+    ##############################################
+
+    @property
+    def is_dot_command(self):
+        return self.first_letter == '.'
 
 ####################################################################################################
 
-class Element(AstNode):
-
-    # Fixme: command
+class DotCommand(Command):
 
     ##############################################
 
-    def __init__(self, name: str, expressions: SpaceList) -> None:
-        self._name = name
-        self._expressions = expressions
-
-    ##############################################
-
-    def pretty_print(self, level: int=0) -> str:
-        txt = self.pretty_print_class(level, False) + f' {self._name}' + os.linesep
-        if self._expressions is not None:
-            txt += self._expressions.pretty_print(level +1)
-        return txt
+    @property
+    def is_dot_command(self):
+        return True

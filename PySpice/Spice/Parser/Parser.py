@@ -18,15 +18,36 @@
 #
 ####################################################################################################
 
-"""This module implements a LALR parser for Spice.
+"""This module tries to implements a LALR parser for Spice.
+
+**Notes**
+
+* Ngspice only use a LALR parser to parse mathematical expression.
+* Ngspice syntax is sometimes contextual.
+* We can implement a tokenizer.
+* But the Ngspice's rules to group the tokens is unknown, i.e. how to handle :code:`() {} [] '' =`
+  and to make the AST.
+* Moreover it is more difficult to implement by hand such algorithm.  Some experimental codes was
+  removed in favour of this LALR parser.
+
+**Known Syntax Issues**
+
+* :code:`in_offset=[0.1 -0.2]` is interpreted as a subtraction due to the space token separator.  We
+  could fix that by adding the unary minus in the float regexp, but it would break the parsing of
+  mathematical expressions.  A workaround is to use a brace expression, :code:`{-0.2}`.  Can we fix
+  the AST afterwards ???  For example, remove recursively the unary minus from the AST.
+
 """
+
+__all__ = ['SpiceParser']
 
 ####################################################################################################
 # Fixme:
 #
 #  Valid syntax ???
 #  print res .endc
-#
+####################################################################################################
+
 ####################################################################################################
 
 import logging
@@ -45,11 +66,6 @@ _module_logger = logging.getLogger(__name__)
 class SpiceParser:
 
     _logger = _module_logger.getChild('SpiceParser')
-
-    ##############################################
-
-    reserved = {
-    }
 
     ##############################################
 
@@ -98,7 +114,7 @@ class SpiceParser:
         'DOT_COMMAND',
         'ID',
         'NUMBER',
-    ] + list(reserved.values())
+    ]
 
     ##############################################
 
@@ -219,36 +235,29 @@ class SpiceParser:
 
     # Normally, the first rule found in a yacc specification defines the starting grammar rule
     # (top level rule). To change this, simply supply a start specifier in your file.
-    # start = 'statement'
+    # start = ''
 
-    # def p_program(self, p):
-    #     'program : statement'
-    #     return p[1]
+    def _command(self, p, cls):
+        if len(p) == 3:
+            p[0] = cls(p[1], p[2])
+        else:
+            p[0] = cls(p[1])
+        return p[0]
 
+    def p_command(self, p):
+        '''command : ID expression_list_space
+                   | ID
+        '''
+        return self._command(p, Command)
+
+    # Fixme: could be merged with command
     def p_dot_command(self, p):
-        '''statement : DOT_COMMAND expression_list_space
-                     | DOT_COMMAND
+        '''command : DOT_COMMAND expression_list_space
+                   | DOT_COMMAND
         '''
-        if len(p) == 3:
-            p[0] = DotCommand(p[1], p[2])
-        else:
-            p[0] = DotCommand(p[1])
-        return p[0]
-
-    def p_element(self, p):
-        '''statement : ID expression_list_space
-                     | ID
-        '''
-        # Fixme: op
-        # Fixme: [a-z]...
-        if len(p) == 3:
-            p[0] = Element(p[1], p[2])
-        else:
-            p[0] = Element(p[1], None)    # Fixme: !!!
-        return p[0]
+        return self._command(p, DotCommand)
 
     def p_branch(self, p):
-        # '''branch_id : ID BRANCH
         '''expression : ID BRANCH
         '''
         p[0] = Branch(p[1])
@@ -263,7 +272,6 @@ class SpiceParser:
     def p_inner_parameter(self, p):
         '''expression : AT ID LEFT_BRACKET ID RIGHT_BRACKET
         '''
-        # | AT INNER_ID LEFT_BRACKET ID RIGHT_BRACKET
         p[0] = InnerParameter(p[2], p[4])
 
     def p_number(self, p):
@@ -284,7 +292,6 @@ class SpiceParser:
     def p_unnary_operation(self, p):
         '''expression : NOT expression
         '''
-        # ADD expression
         p[0] = Not(p[2])
 
     def p_binary_operation(self, p):
@@ -309,7 +316,6 @@ class SpiceParser:
     def p_parenthesis(self, p):
         '''expression : LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
         '''
-        # | LEFT_BRACE expression RIGHT_BRACE
         p[0] = ParenthesisGroup(p[2])
 
     def p_if(self, p):
@@ -360,9 +366,6 @@ class SpiceParser:
         '''tuple : LEFT_PARENTHESIS expression COMMA expression RIGHT_PARENTHESIS
         '''
         p[0] = Tuple(p[2], p[4])
-        # '''tuple : LEFT_PARENTHESIS expression_list_comma RIGHT_PARENTHESIS
-        # '''
-        # p[0] = ('tuple', p[1])
 
     def p_tuple_list(self, p):
         '''tuple_list : tuple
@@ -381,22 +384,9 @@ class SpiceParser:
         # Match: sqrt(9)
         p[0] = Function(p[1], p[3])
 
-        #?# | ID LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
-        # | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
-        # '''function : ID tuple
-        # '''
-        # # | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
-        # p[0] = ('function', p[1], p[2])
-
     def p_function_expression(self, p):
         '''expression : function'''
         p[0] = p[1]
-
-    # def p_model_function(self, p):
-    #     '''expression : ID LEFT_PARENTHESIS expression_list_space RIGHT_PARENTHESIS
-    #     '''
-    #     # | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
-    #     # p[0] = ModelFunction(p[1], p[3])
 
     def p_port_type_modifier(self, p):
         '''port_type_modifier : MODULO ID
@@ -443,12 +433,12 @@ class SpiceParser:
 
     ##############################################
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._build()
 
     ##############################################
 
-    def _build(self, **kwargs):
+    def _build(self, **kwargs) -> None:
         self._lexer = lex.lex(module=self, **kwargs)
         self._parser = yacc.yacc(module=self, **kwargs)
 
