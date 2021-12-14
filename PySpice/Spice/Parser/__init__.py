@@ -23,12 +23,19 @@ __all__ = ["SpiceCode", "SpiceFile"]
 ####################################################################################################
 
 from pathlib import Path
-from typing import Generator
+from typing import Generator, Optional
+import logging
 import os
 
 from PySpice.Tools.StringTools import remove_multi_space
-from .SpiceSyntax import ElementLetters
+from . import Ast
+from .Ast import AstNode
 from .Parser import SpiceParser
+from .SpiceSyntax import ElementLetters
+
+####################################################################################################
+
+_module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
@@ -38,6 +45,8 @@ class ParserError(NameError):
 ####################################################################################################
 
 class SpiceLine:
+
+    _logger = _module_logger.getChild('SpiceLine')
 
     ##############################################
 
@@ -93,24 +102,24 @@ class SpiceLine:
     ##############################################
 
     @property
-    def dot_command(self) -> str:
+    def dot_command(self) -> Optional[str]:
         if not self.is_dot_command:
             return None
         if self._dot_command is None:
             i = self._command.find(' ')
             if i == -1:
-                _ = self._command[1:]
+                _ = self._command
             else:
-                _ = self._command[1:i]
+                _ = self._command[:i]
             self._dot_command = _.lower()
         return self._dot_command
 
-    @property
-    def element_letter(self) -> str:
-        if self.is_element:
-            return self._command[0].upper()
-        else:
-            raise ValueError
+    # @property
+    # def element_letter(self) -> str:
+    #     if self.is_element:
+    #         return self._command[0].upper()
+    #     else:
+    #         raise ValueError
 
     ##############################################
 
@@ -143,18 +152,31 @@ class SpiceLine:
 
     ##############################################
 
-    def right_of(self, prefix: str) -> str:
-        return self._command[len(prefix):].strip()
+    # def right_of(self, prefix: str) -> str:
+    #     return self._command[len(prefix):].strip()
 
 ####################################################################################################
 
-class Statement:
+class Command:
 
     DOT_COMMAND = None
+    _dot_command_maps = {}
 
     ##############################################
 
-    def __init__(self, line: SpiceLine, ast: tuple=None) -> None:
+    def __init_subclass__(cls, **kwargs) -> None:
+        if cls.DOT_COMMAND is not None:
+            cls._dot_command_maps[cls.DOT_COMMAND] = cls
+
+    ##############################################
+
+    @classmethod
+    def get_cls(cls, name: str) -> 'Command':
+        return cls._dot_command_maps[name]
+
+    ##############################################
+
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
         self._line = line
         self._ast = ast
 
@@ -164,9 +186,13 @@ class Statement:
     def line(self) -> SpiceLine:
         return self._line
 
+    @property
+    def ast(self) -> AstNode:
+        return self._ast
+
 ####################################################################################################
 
-class Element(Statement):
+class Element(Command):
 
     """ This class implements an element definition.
 
@@ -178,12 +204,12 @@ class Element(Statement):
 
     ##############################################
 
-    def __init__(self, line: SpiceLine) -> None:
-        super().__init__(line)
-        command = line.command
-        self._letter = command[0].upper()
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
+        self._letter = ast.first_letter
         if not getattr(ElementLetters, self._letter):
             raise ParserError(f"Invalid element letter in element command @{line.str_location} {command}")
+        self._name = ast.after_first_letter
 
     ##############################################
 
@@ -202,7 +228,7 @@ class Element(Statement):
 
 ####################################################################################################
 
-class Csparam(Statement):
+class Csparam(Command):
 
     """This class implements a csparam statement.
 
@@ -221,10 +247,13 @@ class Csparam(Statement):
         .CSPARAM pap='pp+p'
     """
 
+    DOT_COMMAND = '.param'
+
     ##############################################
 
-    def __init__(self, line):
-        super().__init__(line)
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
+        # Fixme:
 
     ##############################################
 
@@ -233,7 +262,7 @@ class Csparam(Statement):
 
 ####################################################################################################
 
-class Func(Statement):
+class Func(Command):
 
     """This class implements a func statement.
 
@@ -251,10 +280,16 @@ class Func(Statement):
         .FUNC foo(a,b) = {a + b}
     """
 
+    DOT_COMMAND = '.func'
+
     ##############################################
 
-    def __init__(self, line):
-        super().__init__(line)
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
+        # Fixme:
+        self._name = ''
+        self._variables = ''
+        self._expression = ''
 
     ##############################################
 
@@ -277,7 +312,7 @@ class Func(Statement):
 
 ####################################################################################################
 
-class Global(Statement):
+class Global(Command):
 
     """This class implements a global command.
 
@@ -291,11 +326,14 @@ class Global(Statement):
         .GLOBAL gnd vcc
     """
 
+    DOT_COMMAND = '.global'
+
     ##############################################
 
-    def __init__(self, line):
-        super().__init__(line)
-        # self._nodes =
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
+        # Fixme
+        self._nodes = ()
 
     ##############################################
 
@@ -310,7 +348,7 @@ class Global(Statement):
 
 ####################################################################################################
 
-class Include(Statement):
+class Include(Command):
 
     """This class implements a include command.
 
@@ -323,25 +361,28 @@ class Include(Statement):
         .INCLUDE /users/spice/common/bsim3-param.mod
     """
 
+    DOT_COMMAND = '.include'
+
     ##############################################
 
-    def __init__(self, line):
-        super().__init__(line)
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
+        self._path = Path(str(ast.child))
 
     ##############################################
 
     @property
-    def path(self) -> str:
+    def path(self) -> Path:
         return self._path
 
     ##############################################
 
     def __repr__(self) -> str:
-        return f'Include {self._path}'
+        return f'Include "{self._path}"'
 
 ####################################################################################################
 
-class Lib(Statement):
+class Lib(Command):
 
     """This class implements a library command.
 
@@ -354,17 +395,19 @@ class Lib(Statement):
         .LIB /users/spice/common/mosfets.lib mos1
     """
 
+    DOT_COMMAND = '.lib'
+
     ##############################################
 
-    def __init__(self, line):
-        super().__init__(line)
-        # Fixme: space in filename
-        self._path, self._libname = line.slipt_right_of('.lib')
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
+        self._path, self._libname = [str(_) for _ in ast]
+        self._path = Path(self._path)
 
     ##############################################
 
     @property
-    def path(self) -> str:
+    def path(self) -> Path:
         return self._path
 
     @property
@@ -374,11 +417,11 @@ class Lib(Statement):
     ##############################################
 
     def __repr__(self) -> str:
-        return f'Lib {self._path} {self._libname}'
+        return f'Lib "{self._path}" {self._libname}'
 
 ####################################################################################################
 
-class Model(Statement):
+class Model(Command):
 
     """This class implements a model command.
 
@@ -391,10 +434,20 @@ class Model(Statement):
         .MODEL MOD1 npn (bf=50 is=1e-13 vbf=50)
     """
 
+    DOT_COMMAND = '.model'
+
     ##############################################
 
-    def __init__(self, line: SpiceLine):
-        super().__init__(line)
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
+        self._name = str(ast.child)
+        child1 = ast[1]
+        if isinstance(child1, Ast.Function):
+            self._type = child1.name
+        else:
+            self._type = str(child1)
+        # Fixme:
+        self._parameters = {}
 
     ##############################################
 
@@ -417,7 +470,7 @@ class Model(Statement):
 
 ####################################################################################################
 
-class Param(Statement):
+class Param(Command):
 
     """This class implements a param command.
 
@@ -434,10 +487,12 @@ class Param(Statement):
         .PARAM pop='pp+p'
     """
 
+    DOT_COMMAND = '.param'
+
     ##############################################
 
-    def __init__(self, line):
-        super().__init__(line)
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
         self._parameters = {}
 
     ##############################################
@@ -453,7 +508,7 @@ class Param(Statement):
 
 ####################################################################################################
 
-class Subcircuit(Statement):
+class Subcircuit(Command):
 
     """This class implements a subcircuit command.
 
@@ -474,10 +529,23 @@ class Subcircuit(Statement):
     Each :code:`<value>` is either a SPICE number or a brace expression :code:`{<expr>}`.
     """
 
+    DOT_COMMAND = '.subckt'
+
     ##############################################
 
-    def __init__(self, line):
-        super().__init__(line)
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
+        self._name = str(ast.child)
+        self._nodes = []
+        position = 0
+        for child in ast[1:]:
+            if child.is_leaf:
+               self._nodes.append(str(child))
+            else:
+                break
+            position += 1
+        # Fixme:
+        self._parameters = {}
 
     ##############################################
 
@@ -500,7 +568,7 @@ class Subcircuit(Statement):
 
 ####################################################################################################
 
-class Temp(Statement):
+class Temp(Command):
 
     """This class implements a temp command.
 
@@ -519,10 +587,9 @@ class Temp(Statement):
 
     ##############################################
 
-    def __init__(self, line):
-        super().__init__(line)
-         # Fixme:
-        self._temperature = None
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
+        self._temperature = float(ast.child)
 
     ##############################################
 
@@ -537,15 +604,17 @@ class Temp(Statement):
 
 ####################################################################################################
 
-class Title(Statement):
+class Title(Command):
 
     """This class implements a title command."""
 
+    DOT_COMMAND = '.title'
+
     ##############################################
 
-    def __init__(self, line):
-        super().__init__(line)
-        self._title = line.right_of('.title')
+    def __init__(self, line: SpiceLine, ast: AstNode) -> None:
+        super().__init__(line, ast)
+        self._title = str(ast.child)
 
     ##############################################
 
@@ -555,11 +624,13 @@ class Title(Statement):
     ##############################################
 
     def __repr__(self) -> str:
-        return f'Title {self._title}'
+        return f'Title "{self._title}"'
 
 ####################################################################################################
 
 class SpiceCode:
+
+    _logger = _module_logger.getChild('SpiceCode')
 
     ##############################################
 
@@ -631,37 +702,30 @@ class SpiceCode:
         for line in self._lines:
             line.cleanup()
             if line.is_element or line.is_dot_command:
-                print()
-                print('='*100)
-                print('>>>', line)
-                print()
-                ast = None
-                dot_command = line.dot_command
-                if dot_command is not None:
-                    match dot_command:
-                       # Fixme: use parser ?
-                       case 'include':
-                           ast = [line.right_of('.include').strip('"')]
-                       case 'lib':
-                           # Fixme: how ngspice handle space in filename ?
-                           _ = line.right_of('.lib')
-                           i = _.rfind(' ')
-                           ast = [_[:i].rstrip(), _[i+1:]]
-                       case 'title':
-                           # Not handled by parser by commodity
-                           ast = [line.right_of('.title')]
-                if ast is None:
+                self._logger.debug(os.linesep + str(line))
+                # print()
+                # print('='*100)
+                # print('>>>', line)
+                # print()
+                try:
                     ast = self._parser.parse(line.command)
-                    print(ast.pretty_print())
-            # if line.is_element:
-            #     element = Element(line)
-            #     print(element)
-            # elif line.is_dot_command:
-            #     handler = getattr(DotCommandHandlers, line.dot_command)
-            #     if handler is not None:
-            #         dot_command = handler(line)
-            #         print(dot_command)
-            # print(line)
+                    # print(ast.pretty_print())
+                    self._logger.debug(os.linesep + str(ast.pretty_print()))
+                except NameError as e:
+                    raise ParserError(str(e))
+            if line.is_element:
+                element = Element(line, ast)
+                # print(element)
+                self._logger.debug(os.linesep + repr(element))
+            elif line.is_dot_command:
+                try:
+                    cls = Command.get_cls(line.dot_command)
+                    dot_command = cls(line, ast)
+                    # print(dot_command)
+                    self._logger.debug(os.linesep + repr(dot_command))
+                except KeyError:
+                    # raise
+                    pass
 
     ##############################################
 

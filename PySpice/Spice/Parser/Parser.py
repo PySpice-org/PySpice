@@ -51,6 +51,7 @@ __all__ = ['SpiceParser']
 ####################################################################################################
 
 import logging
+from typing import Optional
 
 import ply.lex as lex
 import ply.yacc as yacc
@@ -288,7 +289,7 @@ class SpiceParser:
         '''expression : MINUS expression %prec UMINUS'''
         # %prec UMINUS overrides the default rule precedence-setting it to that of UMINUS in the precedence specifier.
         _ = p[2]
-        if isinstance(_, Number):
+        if isinstance(_, (Integer, Number)):
             p[0] = _.negate()
         else:
             p[0] = Negation(_)
@@ -459,7 +460,63 @@ class SpiceParser:
 
     ##############################################
 
-    def parse(self, text: str) -> Command:
+    @staticmethod
+    def dot_command(line: str) -> Optional[str]:
+        if not line.startswith('.'):
+            return None
+        i = line.find(' ')
+        if i == -1:
+            _ = line
+        else:
+            _ = line[:i]
+        return _.lower()
+
+    @staticmethod
+    def right_of(line: str, prefix: str) -> str:
+        return line[len(prefix):].strip()
+
+    ##############################################
+
+    def parse(self, line: str) -> Command:
+        """Parse a spice line.
+
+        The LALR parser don't handle :code:`.include`, :code:`.lib` and :code:`.title`.
+
+        It raises :code:`NameError('Syntax Error')`
+
+        """
+
+        line = line.strip()
+
+        dot_command = self.dot_command(line)
+        if dot_command is not None:
+            match dot_command:
+                case '.include':
+                    return DotCommand(
+                        '.include',
+                        SpaceList(
+                            Text(self.right_of(line, '.include').strip('"'))
+                        )
+                    )
+                case '.lib':
+                    # Fixme: how ngspice handle space in filename ?
+                    _ = self.right_of(line, '.lib')
+                    i = _.rfind(' ')
+                    return DotCommand(
+                        '.lib',
+                        SpaceList(
+                            Text(_[:i].rstrip()),
+                            Text(_[i+1:])
+                        )
+                    )
+                case '.title':
+                    # Not handled by parser by commodity
+                    return DotCommand(
+                        '.title',
+                        SpaceList(
+                            Text(self.right_of(line, '.title'))
+                        )
+                    )
+
         # self._parser.defaulted_states = {}
-        ast = self._parser.parse(text, lexer=self._lexer, debug=False)
-        return ast
+        return self._parser.parse(line, lexer=self._lexer, debug=False)
