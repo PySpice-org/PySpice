@@ -18,7 +18,7 @@
 #
 ####################################################################################################
 
-"""This module implements a AST for Spice.
+"""This module implements an AST for Spice syntax.
 """
 
 # Fixme: duplicate code
