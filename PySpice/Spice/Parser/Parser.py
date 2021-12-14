@@ -461,7 +461,5 @@ class SpiceParser:
 
     def parse(self, text: str) -> Command:
         # self._parser.defaulted_states = {}
-        # Dangerous hack !!!
-        # text = self._add_brace_in_bracket(text)
         ast = self._parser.parse(text, lexer=self._lexer, debug=False)
         return ast
