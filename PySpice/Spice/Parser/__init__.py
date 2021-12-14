@@ -18,32 +18,16 @@
 #
 ####################################################################################################
 
-__all__ = ["SpiceParser", "SpiceFile"]
+__all__ = ["SpiceCode", "SpiceFile"]
 
 ####################################################################################################
 
-from enum import IntEnum   # , auto
 from pathlib import Path
 from typing import Generator
 import os
 
 from .SpiceSyntax import ElementLetters
-from .Lexer import Lexer
-
-####################################################################################################
-
-def n_iterator(items, strip):
-    number_of_pairs = len(items) // strip
-    if number_of_pairs * strip != len(items):
-        raise ValueError("List is odd")
-    for i in range(number_of_pairs):
-        yield items[strip*i], items[strip*(i+1)-1]
-
-def pair_iterator(items):
-    return n_iterator(items, 2)
-
-def tri_iterator(items):
-    return n_iterator(items, 3)
+from .Parser import SpiceParser
 
 ####################################################################################################
 
@@ -52,21 +36,18 @@ class ParserError(NameError):
 
 ####################################################################################################
 
-class ParserState(IntEnum):
-    HEADER = 0
-    COMMAND = 1
-
-####################################################################################################
-
 class SpiceLine:
 
     ##############################################
 
-    def __init__(self, start: int, stop: int, command: str, comment: str):
+    def __init__(self, start: int, stop: int, command: str, comment: str) -> None:
         self._start = start
         self._stop = stop
         self._command = command
         self._comment = comment
+        self._is_dot_command = None
+        self._is_element = None
+        self._dot_command = None
 
     ##############################################
 
@@ -79,11 +60,11 @@ class SpiceLine:
         return f"[{self._start}:{self._stop}]"
 
     @property
-    def command(self):
+    def command(self) -> str:
         return self._command
 
     @property
-    def comment(self):
+    def comment(self) -> str:
         return self._comment
 
     ##############################################
@@ -98,24 +79,30 @@ class SpiceLine:
 
     @property
     def is_dot_command(self) -> bool:
-        return self._command and self._command.startswith('.')
+        if self._is_dot_command is None:
+            self._is_dot_command = self._command and self._command.startswith('.')
+        return self._is_dot_command
 
     @property
     def is_element(self) -> bool:
-        return self.is_command and not self.is_dot_command
+        if self._is_element is None:
+            self._is_element = self.is_command and not self.is_dot_command
+        return self._is_element
 
     ##############################################
 
     @property
     def dot_command(self) -> str:
         if not self.is_dot_command:
-            raise ValueError
-        i = self._command.find(' ')
-        if i == -1:
-            _ = self._command[1:]
-        else:
-            _ = self._command[1:i]
-        return _.lower()
+            return None
+        if self._dot_command is None:
+            i = self._command.find(' ')
+            if i == -1:
+                _ = self._command[1:]
+            else:
+                _ = self._command[1:i]
+            self._dot_command = _.lower()
+        return self._dot_command
 
     @property
     def element_letter(self) -> str:
@@ -126,7 +113,7 @@ class SpiceLine:
 
     ##############################################
 
-    def append(self, line_number, command, comment) -> None:
+    def append(self, line_number: int, command: str | None, comment: str | None) -> None:
         self._stop = line_number
         if command:
             self._command += ' ' + command
@@ -165,47 +152,17 @@ class SpiceLine:
     def right_of(self, prefix: str) -> str:
         return self._command[len(prefix):].strip()
 
-    ##############################################
-
-    def slipt_right_of(self, prefix: str) -> list[str]:
-        return self.right_of(prefix).split(' ')
-
-    ##############################################
-
-    def tokenize(self, prefix: str=None, exclude: str=None) -> list[str]:
-        if prefix:
-            command = self.right_of(prefix)
-        else:
-            command = self.command
-        tokens = []
-        append = False
-        for c in command:
-            match c:
-                case '=' | '{' | '}' | "'":
-                    tokens.append(c)
-                    append = False
-                case ' ':
-                    append = False
-                # case '=' | '{' | '}' | "'" | ' ':
-                #     append = False
-                case _:
-                    if append:
-                        tokens[-1] += c
-                    else:
-                        tokens.append(c)
-                        append = True
-        if exclude:
-            tokens = [_ for _ in tokens if _ not in exclude]
-        return tokens
-
 ####################################################################################################
 
 class Statement:
 
+    DOT_COMMAND = None
+
     ##############################################
 
-    def __init__(self, line: SpiceLine):
+    def __init__(self, line: SpiceLine, ast: tuple=None) -> None:
         self._line = line
+        self._ast = ast
 
     ##############################################
 
@@ -227,20 +184,12 @@ class Element(Statement):
 
     ##############################################
 
-    def __init__(self, line: SpiceLine):
+    def __init__(self, line: SpiceLine) -> None:
         super().__init__(line)
         command = line.command
         self._letter = command[0].upper()
         if not getattr(ElementLetters, self._letter):
             raise ParserError(f"Invalid element letter in element command @{line.str_location} {command}")
-        i = command.find(' ')
-        if i >= 2:
-            self._name = command[1:i]
-        elif i == 1:
-            self._name = ''
-        else:
-            raise ParserError(f"Error in element command @{line.str_location} {command}")
-        self._right_part = command[i:].strip()
 
     ##############################################
 
@@ -252,14 +201,10 @@ class Element(Statement):
     def name(self) -> str:
         return self._name
 
-    @property
-    def right_part(self) -> str:
-        return self._right_part
-
     ##############################################
 
     def __repr__(self) -> str:
-        return f"Element {self._letter}[{self._name}] {self._right_part}"
+        return f"Element {self._letter}[{self._name}]"
 
 ####################################################################################################
 
@@ -286,7 +231,6 @@ class Csparam(Statement):
 
     def __init__(self, line):
         super().__init__(line)
-        # Fixme: !!!
 
     ##############################################
 
@@ -317,17 +261,6 @@ class Func(Statement):
 
     def __init__(self, line):
         super().__init__(line)
-
-        command = line.command
-        # Fixme: ok ???
-        # Fixme: -> func
-        # remove space around =
-        command = command.replace(' =', '=')
-        command = command.replace('= ', '=')
-        left, right = command.split('{')
-        self._expression = right.rstrip('}')
-        self._name, variables = left.split('(')
-        self._variables = variables.strip(')=').split(',')
 
     ##############################################
 
@@ -368,7 +301,7 @@ class Global(Statement):
 
     def __init__(self, line):
         super().__init__(line)
-        self._nodes = line.split_right_of('.global')
+        # self._nodes =
 
     ##############################################
 
@@ -400,7 +333,6 @@ class Include(Statement):
 
     def __init__(self, line):
         super().__init__(line)
-        self._path = line.right_of('.include').strip('"')
 
     ##############################################
 
@@ -432,6 +364,7 @@ class Lib(Statement):
 
     def __init__(self, line):
         super().__init__(line)
+        # Fixme: space in filename
         self._path, self._libname = line.slipt_right_of('.lib')
 
     ##############################################
@@ -468,22 +401,6 @@ class Model(Statement):
 
     def __init__(self, line: SpiceLine):
         super().__init__(line)
-        command = line.command
-        # remove space around =
-        command = command.replace(' =', '=')
-        command = command.replace('= ', '=')
-        # use space as splitter
-        # () is optional
-        items = command.split(' ')
-        self._name = items[1]
-        self._type = items[2]
-        self._parameters = {}
-        for _ in items[3:]:
-            # cleanup for ()
-            _ = _.strip('()')
-            if _:
-                key, value = _.split('=')
-                self._parameters[key] = value
 
     ##############################################
 
@@ -527,11 +444,7 @@ class Param(Statement):
 
     def __init__(self, line):
         super().__init__(line)
-
         self._parameters = {}
-        tokens = self.line.tokenize(prefix='.param', exclude="={}'")
-        for key, value in pair_iterator(tokens):
-            self._parameters[key] = value
 
     ##############################################
 
@@ -571,20 +484,6 @@ class Subcircuit(Statement):
 
     def __init__(self, line):
         super().__init__(line)
-        tokens = self.line.tokenize(prefix='.subckt', exclude="{}'")
-        self._name = tokens[0]
-        found = False
-        for i, _ in enumerate(tokens):
-            if _ == '=':
-                found = True
-                break
-        self._parameters = {}
-        if found:
-            self._nodes = tokens[1:i-1]
-            for key, value in tri_iterator(tokens[i-1:]):
-                self._parameters[key] = value
-        else:
-            self._nodes = tokens[1:]
 
     ##############################################
 
@@ -622,11 +521,14 @@ class Temp(Statement):
         .TEMP 27
     """
 
+    COMMAND = '.temp'
+
     ##############################################
 
     def __init__(self, line):
         super().__init__(line)
-        self._temperature = float(line.right_of('.temp'))
+         # Fixme:
+        self._temperature = None
 
     ##############################################
 
@@ -663,54 +565,12 @@ class Title(Statement):
 
 ####################################################################################################
 
-class DotCommandHandlers:
-    AC = None
-    CONTROL = None
-    CSPARAM = Csparam
-    DC = None
-    DISTO = None
-    ELSE = None   # to be implemented
-    ELSEIF = None   # to be implemented
-    END = None
-    ENDC = None
-    ENDIF = None   # to be implemented
-    ENDS = None    # cf. subcircuit
-    FOUR = None
-    FUNC = Func
-    GLOBAL = Global
-    IC = None
-    IF = None   # to be implemented
-    INCLUDE = Include
-    LIB = Lib
-    MEAS = None
-    MODEL = Model
-    NODESET = None
-    NOISE = None
-    OP = None
-    OPTIONS = None
-    PARAM = Param
-    PLOT = None
-    PRINT = None
-    PROBE = None
-    PSS = None
-    PZ = None
-    SAVE = None
-    SENS = None
-    SUBCKT = Subcircuit
-    TEMP = Temp
-    TF = None
-    TITLE = Title
-    TRAN = None
-    WIDTH = None
-
-####################################################################################################
-
-class SpiceParser:
+class SpiceCode:
 
     ##############################################
 
     def __init__(self) -> None:
-        self._lexer = Lexer()
+        self._parser = SpiceParser()
         self._lines = []
         self._title_line = None
 
@@ -781,19 +641,24 @@ class SpiceParser:
                 print('='*100)
                 print('>>>', line)
                 print()
-                if line.is_dot_command and line.dot_command in (
-                        # 'control',
-                        # 'end',
-                        # 'ends',
-                        'include',
-                        x'lib',
-                        # 'op',
-                        'title',
-                ):
-                    continue
-                else:
-                    # self._lexer.lex(line.command)
-                    self._lexer.parse(line.command)
+                ast = None
+                dot_command = line.dot_command
+                if dot_command is not None:
+                    match dot_command:
+                       # Fixme: use parser ?
+                       case 'include':
+                           ast = [line.right_of('.include').strip('"')]
+                       case 'lib':
+                           # Fixme: how ngspice handle space in filename ?
+                           _ = line.right_of('.lib')
+                           i = _.rfind(' ')
+                           ast = [_[:i].rstrip(), _[i+1:]]
+                       case 'title':
+                           # Not handled by parser by commodity
+                           ast = [line.right_of('.title')]
+                if ast is None:
+                    ast = self._parser.parse(line.command)
+                    print(ast)
             # if line.is_element:
             #     element = Element(line)
             #     print(element)
@@ -825,7 +690,7 @@ class SpiceParser:
 
 ####################################################################################################
 
-class SpiceFile(SpiceParser):
+class SpiceFile(SpiceCode):
 
     ##############################################
 
