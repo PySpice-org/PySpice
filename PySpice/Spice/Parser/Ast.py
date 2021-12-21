@@ -175,6 +175,14 @@ class Number(AstLeaf):
 
     ##############################################
 
+    def __str__(self) -> str:
+        _ = str(self._value)
+        if self._unit is not None:
+            _ += str(self._unit)
+        if self._extra_unit is not None:
+            _ += str(self._extra_unit)
+        return _
+
     def pretty_print(self, level: int=0) -> str:
         return self.pretty_print_class(level, False) + f" {self._value} {self._unit} {self._extra_unit}"
 
@@ -239,6 +247,9 @@ class PortTypeModifier(AstLeaf):
 
     ##############################################
 
+    def __str__(self) -> str:
+        return self._name
+
     # def pretty_print(self, level: int=0) -> str:
     #     return self.pretty_print_class(level, False) + f" {self._name}"
 
@@ -253,6 +264,9 @@ class Branch(AstLeaf):
         self._name = name
 
     ##############################################
+
+    def __str__(self) -> str:
+        return f'{self._name}#branch'
 
     def pretty_print(self, level: int=0) -> str:
         return self.pretty_print_class(level, False) + f" {self._name}"
@@ -276,6 +290,9 @@ class InnerParameter(AstLeaf):
 
     ##############################################
 
+    def __str__(self) -> str:
+        return f'@{self._element_path}[self._parameter_name]'
+
     def pretty_print(self, level: int=0) -> str:
         return self.pretty_print_class(level, False) + f" {self._element_path} {self._parameter_name}"
 
@@ -296,6 +313,9 @@ class InvertedInput(AstNode):
         # return iter((self._child,))
 
     ##############################################
+
+    def __str__(self) -> str:
+        return f'!{self._child}'
 
     def pretty_print(self, level: int=0) -> str:
         txt = self.pretty_print_class(level)
@@ -379,6 +399,9 @@ class UnaryOperator(Operator):
 
     ##############################################
 
+    def __str__(self) -> str:
+        return f'{self.OPERATOR} {self.operand}'
+
     # def pretty_print(self, level: int=0) -> str:
     #     # return ' '.join((self.OPERATOR, str(self.operand1)))
     #     indentation = self.indentation(level)
@@ -402,6 +425,9 @@ class BinaryOperator(UnaryOperator):
         return self._childs[1]
 
     ##############################################
+
+    def __str__(self) -> str:
+        return f'{self.operand1} {self.OPERATOR} {self.operand2}'
 
     # def pretty_print(self, level: int=0) -> str:
     # return ' '.join((str(self.operand1), self.OPERATOR, str(self.operand2)))
@@ -528,17 +554,15 @@ class If(AstNode):
 
     ##############################################
 
+    def __str__(self):
+        return f'{self._condition} ? {self._then_expression} : {self._else_expression}'
+
     def pretty_print(self, level: int=0) -> str:
         txt = self.pretty_print_class(level)
         txt += self._condition.pretty_print(level +1)
         txt += self._then_expression.pretty_print(level +1).rstrip() + os.linesep
         txt += self._else_expression.pretty_print(level +1).rstrip() + os.linesep
         return txt
-
-    ##############################################
-
-    def __str__(self):
-        return f'{self._condition} ? {self._then_expression} : {self._else_expression}'
 
 ####################################################################################################
 
@@ -556,6 +580,10 @@ class Group(AstNode):
         # return iter((self._node,))
 
     ##############################################
+
+    def __str__(self) -> str:
+        # if self._child is not None:
+        return f'{self.LEFT} {self._child} {self.RIGHT}'
 
     def pretty_print(self, level: int=0) -> str:
         return self.pretty_print_class(level) + self._child.pretty_print(level +1)
@@ -658,6 +686,9 @@ class List(AstNode):
 
     ##############################################
 
+    def __str__(self) -> str:
+        return self.SEPARATOR.join([str(_) for _ in self._childs])
+
     def pretty_print(self, level: int=0) -> str:
         txt = ''
         for obj in self:
@@ -675,6 +706,9 @@ class CommaList(List):
 class Tuple(CommaList):
 
     ##############################################
+
+    def __str__(self) -> str:
+        return '(' + super().__str__() + ')'
 
     def pretty_print(self, level: int=0) -> str:
         txt = self.pretty_print_class(level)
@@ -705,6 +739,10 @@ class Function(AstNode):
 
     ##############################################
 
+    def __str__(self) -> str:
+        # if self._parameters:
+        return f'{self._name}({self._parameters})'
+
     def pretty_print(self, level: int=0) -> str:
         txt = self.pretty_print_class(level, False) + f' {self._name}' + os.linesep
         txt += self._parameters.pretty_print(level +1)
@@ -726,6 +764,9 @@ class PortModifierFunction(AstNode):
         return iter(self._parameters)
 
     ##############################################
+
+    def __str__(self) -> str:
+        return f'{self._port_type}({self._parameters})'
 
     def pretty_print(self, level: int=0) -> str:
         txt = self.pretty_print_class(level, False) + f' {self._port_type.name}' + os.linesep
@@ -753,6 +794,9 @@ class Set(AstNode):
         return iter((self._left, self._right))
 
     ##############################################
+
+    def __str__(self) -> str:
+        return f'{self._left}={self._right}'
 
     def pretty_print(self, level: int=0) -> str:
         txt = self.pretty_print_class(level)
@@ -792,6 +836,12 @@ class Command(AstNode):
         return self._childs[0]
 
     ##############################################
+
+    def __str__(self) -> str:
+        if self._childs:
+            return f'{self._name} {self._childs}'
+        else:
+            return f'{self._name}'
 
     def pretty_print(self, level: int=0) -> str:
         txt = self.pretty_print_class(level, False) + f' {self._name}' + os.linesep
