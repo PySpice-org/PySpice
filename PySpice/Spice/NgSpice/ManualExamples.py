@@ -841,7 +841,7 @@ C1 a b q = '1u*(4*atan(V(a,b)/4)*2+V(a,b))/3'
 # @6075
 
     Eb125 = """
-Behavioral Capacitor
+*s* Behavioral Capacitor
 .param Cl=5n Ch=1n Vt=1m Il=100n
 .ic v(cc) = 0    v(cc2) = 0
 * capacitor depending on control voltage V(cc)
