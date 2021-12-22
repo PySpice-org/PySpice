@@ -78,6 +78,11 @@ class SpiceParser:
     tokens = [
         # 'END_OF_LINE_COMMENT',
 
+        # in this order
+        'ID',
+        'NUMBER',
+
+        # sorted by length
         'MINUS',
         'NOT',
         'POWER',
@@ -113,8 +118,6 @@ class SpiceParser:
         'STRING',
 
         'DOT_COMMAND',
-        'ID',
-        'NUMBER',
     ]
 
     ##############################################
@@ -173,13 +176,18 @@ class SpiceParser:
 
     t_DOT_COMMAND = r'\.(?i:[a-z]+)'
 
-    # Fixme:
-    # t_ID = r'(?i:[a-z_0-9]+)'    # Fixme:
-    t_ID = r'(?i:[a-z_0-9]+(\.[a-z_0-9.]+)?)'    # Fixme:
-    # def t_ID(self, t):
-    #     r'(?i:[a-z_0-9]+(\.[a-z_0-9.]+)?)'
-    #     t.value = Id(t.value)
-    #     return t
+    # Note: ID and NUMBER must be defined in a function in order to be sorted the right order
+    #       Else 2N2222A will be split in two tokens
+
+    def t_ID(self, t):
+        # Fixme:
+        r'''
+        (?i:
+            [a-z_0-9]+
+            (\.[a-z_0-9.]+) ?
+        )'''
+        # t.value = Id(t.value)
+        return t
 
     # @TOKEN(identifier)
     def t_NUMBER(self, t):
