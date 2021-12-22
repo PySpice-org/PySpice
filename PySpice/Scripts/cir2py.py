@@ -29,7 +29,8 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Spice.Parser import SpiceParser
+from PySpice.Spice.Parser import SpiceFile
+from PySpice.Spice.Parser.Translator import Builder, ToPython
 
 ####################################################################################################
 
@@ -49,6 +50,10 @@ def main():
                         default=0,
                         help='Ground node')
 
+    parser.add_argument('--format',
+                        default=False, action='store_true',
+                        help='Format circuit')
+
     parser.add_argument('--build',
                         default=False, action='store_true',
                         help='Build circuit')
@@ -57,12 +62,15 @@ def main():
 
     ##############################################
 
-    parser = SpiceParser(path=args.circuit_file)
+    spice_file = SpiceFile(path=args.circuit_file)
+
+    if args.format:
+        print(spice_file.to_spice(comment=True, line_length_max=100))
 
     if args.build:
-        parser.build_circuit()
+        Builder().translate(spice_file)
 
-    circuit = parser.to_python_code(ground=args.ground)
+    circuit = ToPython().translate(spice_file, ground=args.ground)
     if args.output is not None:
         with open(args.output, 'w') as f:
             f.write(circuit)

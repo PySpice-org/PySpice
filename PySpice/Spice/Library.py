@@ -20,12 +20,16 @@
 
 ####################################################################################################
 
+from pathlib import Path
+from typing import Iterator
+
 import logging
+import os
 import re
 
 ####################################################################################################
 
-from .Parser import SpiceParser
+from .Parser import SpiceFile, ParseError, Subcircuit, Model
 from PySpice.Tools import PathTools
 
 ####################################################################################################
@@ -64,7 +68,7 @@ class SpiceLibrary:
 
     ##############################################
 
-    def __init__(self, root_path, recurse=False, section=None):
+    def __init__(self, root_path: str | Path) -> None:
 
         self._directory = PathTools.expand_path(root_path)
 
@@ -74,38 +78,37 @@ class SpiceLibrary:
         for path in PathTools.walk(self._directory):
             extension = path.suffix.lower()
             if extension in self.EXTENSIONS:
-                self._logger.debug("Parse {}".format(path))
-                try:
-                    spice_parser = SpiceParser(path=path, recurse=recurse, section=section)
-                    for lib in spice_parser.incl_libs:
-                        self._subcircuits.update(lib._subcircuits)
-                        self._models.update(lib._models)
-                except Exception as e:
-                    # Parse problem with this file, so skip it and keep going.
-                    self._logger.warn("Problem parsing {path} - {e}".format(**locals()))
-                    continue
-                if spice_parser.is_only_subcircuit():
-                    for subcircuit in spice_parser.subcircuits:
-                        name = self._suffix_name(subcircuit.name, extension)
-                        self._subcircuits[name] = path
-                elif spice_parser.is_only_model():
-                    for model in spice_parser.models:
-                        name = self._suffix_name(model.name, extension)
-                        self._models[name] = path
+                self._handle_library(path, extension)
+
+    ##############################################
+
+    def _handle_library(self, path: Path, extension: str) -> None:
+        self._logger.info(f"Parse {path}")
+        try:
+            library = SpiceFile(path)
+            if library.is_only_subcircuit:
+                for subcircuit in library.subcircuits:
+                    name = self._suffix_name(subcircuit.name, extension)
+                    self._subcircuits[name] = path
+            elif library.is_only_model:
+                for model in library.models:
+                    name = self._suffix_name(model.name, extension)
+                    self._models[name] = path
+        except ParseError as exception:
+            # Parse problem with this file, so skip it and keep going.
+            self._logger.warn(f"Parse error in Spice library {path}{os.linesep}{exception}")
 
     ##############################################
 
     @staticmethod
-    def _suffix_name(name, extension):
-
+    def _suffix_name(name: str, extension: str) -> str:
         if extension.endswith('@xyce'):
             name += '@xyce'
-
         return name
 
     ##############################################
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> Subcircuit | Model:
         if name in self._subcircuits:
             return self._subcircuits[name]
         elif name in self._models:
@@ -118,12 +121,12 @@ class SpiceLibrary:
     ##############################################
 
     @property
-    def subcircuits(self):
+    def subcircuits(self) -> Iterator[Subcircuit]:
         """ Dictionary of sub-circuits """
         return iter(self._subcircuits)
 
     @property
-    def models(self):
+    def models(self) -> Iterator[Model]:
         """ Dictionary of models """
         return iter(self._models)
 
@@ -139,11 +142,12 @@ class SpiceLibrary:
 
     # ##############################################
 
-    def search(self, s):
+    def search(self, regexp: str) -> dict[str, Subcircuit | Model]:
         """ Return dict of all models/subcircuits with names matching regex s. """
+        regexp = re.compile(regexp)
         matches = {}
         models_subcircuits = {**self._models, **self._subcircuits}
-        for name, mdl_subckt in models_subcircuits.items():
-            if re.search(s, name):
-                matches[name] = mdl_subckt
+        for name, _ in models_subcircuits.items():
+            if regexp.search(name):
+                matches[name] = _
         return matches
