@@ -149,7 +149,7 @@ class Integer(AstLeaf):
     ##############################################
 
     def pretty_print(self, level: int=0) -> str:
-        return self.pretty_print_class(level, False) + f" {self._value}"
+        return self.pretty_print_class(level, False) + f' {self._value}'
 
     ##############################################
 
@@ -170,8 +170,22 @@ class Number(AstLeaf):
 
     ##############################################
 
-    def __float__(self) -> float:
+    @property
+    def value(self):
         return self._value
+
+    @property
+    def unit(self):
+        return self._unit
+
+    @property
+    def extra_unit(self):
+        return self._extra_unit
+
+    ##############################################
+
+    def __float__(self) -> float:
+        return float(self._value)
 
     ##############################################
 
@@ -184,7 +198,7 @@ class Number(AstLeaf):
         return _
 
     def pretty_print(self, level: int=0) -> str:
-        return self.pretty_print_class(level, False) + f" {self._value} {self._unit} {self._extra_unit}"
+        return self.pretty_print_class(level, False) + f' {self._value} {self._unit} {self._extra_unit}'
 
     ##############################################
 
@@ -209,7 +223,7 @@ class Id(AstLeaf):
     ##############################################
 
     def pretty_print(self, level: int=0) -> str:
-        return self.pretty_print_class(level, False) + f" {self._name}"
+        return self.pretty_print_class(level, False) + f' {self._name}'
 
 ####################################################################################################
 
@@ -228,7 +242,7 @@ class Text(AstLeaf):
     ##############################################
 
     def pretty_print(self, level: int=0) -> str:
-        return self.pretty_print_class(level, False) + f" {self._text}"
+        return self.pretty_print_class(level, False) + f' {self._text}'
 
 ####################################################################################################
 
@@ -251,7 +265,7 @@ class PortTypeModifier(AstLeaf):
         return self._name
 
     # def pretty_print(self, level: int=0) -> str:
-    #     return self.pretty_print_class(level, False) + f" {self._name}"
+    #     return self.pretty_print_class(level, False) + f' {self._name}'
 
 ####################################################################################################
 
@@ -269,7 +283,7 @@ class Branch(AstLeaf):
         return f'{self._name}#branch'
 
     def pretty_print(self, level: int=0) -> str:
-        return self.pretty_print_class(level, False) + f" {self._name}"
+        return self.pretty_print_class(level, False) + f' {self._name}'
 
 ####################################################################################################
 
@@ -294,7 +308,7 @@ class InnerParameter(AstLeaf):
         return f'@{self._element_path}[self._parameter_name]'
 
     def pretty_print(self, level: int=0) -> str:
-        return self.pretty_print_class(level, False) + f" {self._element_path} {self._parameter_name}"
+        return self.pretty_print_class(level, False) + f' {self._element_path} {self._parameter_name}'
 
 ####################################################################################################
 ####################################################################################################
@@ -359,7 +373,7 @@ class Operator(AstNode):
     def __init__(self, *args: AstNode) -> None:
         if (self.NUMBER_OF_OPERANDS is not None
             and len(args) != self.NUMBER_OF_OPERANDS):
-            raise ValueError("Wrong number of operands")
+            raise ValueError('Wrong number of operands')
         self._childs = args
 
     ##############################################
@@ -660,6 +674,8 @@ class BracketGroup(Group):
 
 class List(AstNode):
 
+    SEPARATOR = ''
+
     ##############################################
 
     def __init__(self, *args: AstNode) -> None:
@@ -681,7 +697,7 @@ class List(AstNode):
     def __iter__(self) -> Iterator[AstNode]:
         return iter(self._childs)
 
-    def __getitem__(self, _slice):
+    def __getitem__(self, _slice: slice) -> AstNode:
         return self._childs[_slice]
 
     ##############################################
@@ -694,6 +710,39 @@ class List(AstNode):
         for obj in self:
             txt += obj.pretty_print(level).rstrip() + os.linesep
         return txt
+
+    ##############################################
+
+    # def iter_on_leaf(self, slice_: slice=None) -> Iterator[tuple[int, AstLeaf]]:
+    def iter_on_leaf(self, slice_: slice=None) -> Iterator[AstLeaf]:
+        childs = self._childs
+        if slice_ is not None:
+            childs = childs[slice_]
+        for position, child in enumerate(childs):
+            if child.is_leaf:
+                # yield position, child
+                yield child
+            else:
+                break
+
+    ##############################################
+
+    # def iter_on_set(self, slice_: slice=None) -> Iterator['Set']:
+    #     # Fixme: duplicated
+    #     childs = self._childs
+    #     if slice_ is not None:
+    #         childs = childs[slice_]
+    #     for child in childs:
+    #         if isinstance(child, Set):
+    #             yield child
+
+    ##############################################
+
+    def find_first_set(self) -> int:
+        for position, child in enumerate(self._childs):
+            if isinstance(child, Set):
+                return position
+        return -1
 
 ####################################################################################################
 
@@ -793,6 +842,21 @@ class Set(AstNode):
     def __iter__(self) -> Iterator[AstNode]:
         return iter((self._left, self._right))
 
+    @property
+    def left(self) -> AstNode:
+        return self._left
+
+    @property
+    def right(self) -> AstNode:
+        return self._right
+
+    @property
+    def left_id(self) -> str:
+        if isinstance(self._left, Id):
+            return str(self._left)
+        else:
+            raise ValueError('left is not an Id instance')
+
     ##############################################
 
     def __str__(self) -> str:
@@ -822,18 +886,24 @@ class Command(AstNode):
     def __iter__(self) -> Iterator[AstNode]:
         return iter(self._childs)
 
-    def __getitem__(self, _slice):
+    def __getitem__(self, _slice: slice) -> Iterator[AstNode]:
         return self._childs[_slice]
 
     ##############################################
 
     @property
-    def childs(self):
+    def name(self):
+        return self._name
+
+    @property
+    def childs(self) -> SpaceList:
         return self._childs
 
     @property
-    def child(self):
+    def first_child(self) -> AstNode:
         return self._childs[0]
+
+    child = first_child
 
     ##############################################
 
