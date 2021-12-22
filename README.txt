@@ -3,9 +3,9 @@
 .. include:: project-links.txt
 .. include:: abbreviation.txt
 
-=====================================================================================
+======================================================================================
  PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
-=====================================================================================
+======================================================================================
 
 |Pypi License|
 |Pypi Python Version|
@@ -94,7 +94,7 @@ pull requests blindly then there is a high risk this software will become a mess
 Credits
 =======
 
-Authors: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_ and `contributors <https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md>`_
+Authors: `Fabrice SALVAIRE <http://fabrice-salvaire.fr>`_ and `contributors <https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md>`_
 
 News
 ====
