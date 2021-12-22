@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from KiCadRW.Schema import KiCadSchema
-from KiCadRW.CircuitMacros import CircuitMacrosDumper
+from KiCadRW.Drawings.CircuitMacros import CircuitMacrosDumper
 from PySpice.KiCad import PythonDumper
 
 ####################################################################################################
