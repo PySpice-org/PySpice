@@ -2,14 +2,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="generator" content="Docutils 0.16: http://docutils.sourceforge.net/" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <title>PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators</title>
 <style type="text/css">
 
 /* Minimal style sheet for the HTML output of Docutils.                    */
 /*                                                                         */
 /* :Author: Günter Milde, based on html4css1.css by David Goodger          */
-/* :Id: $Id: minimal.css 8397 2019-09-20 11:09:34Z milde $               */
+/* :Id: $Id: minimal.css 8642 2021-03-26 13:51:14Z milde $               */
 /* :Copyright: © 2015 Günter Milde.                                        */
 /* :License: Released under the terms of the `2-Clause BSD license`_,      */
 /*    in short:                                                            */
@@ -28,81 +29,67 @@
 /* .. _CSS2.1: http://www.w3.org/TR/CSS2                                  */
 /* .. _validates: http://jigsaw.w3.org/css-validator/validator$link       */
 
-/* alignment of text and inline objects inside block objects*/
-.align-left   { text-align: left; }
-.align-right  { text-align: right; }
-.align-center { clear: both; text-align: center; }
-.align-top    { vertical-align: top; }
-.align-middle { vertical-align: middle; }
-.align-bottom { vertical-align: bottom; }
-
 /* titles */
-h1.title, p.subtitle {
-  text-align: center;
-}
 p.topic-title,
-p.sidebar-title,
-p.rubric,
 p.admonition-title,
 p.system-message-title {
   font-weight: bold;
 }
-h1 + p.subtitle,
-h1 + p.section-subtitle {
-  font-size: 1.6em;
+p.sidebar-title,
+p.rubric {
+  font-weight: bold;
+  font-size: larger;
 }
-h2 + p.section-subtitle { font-size: 1.28em; }
+p.rubric {
+  color: maroon;
+}
 p.subtitle,
 p.section-subtitle,
 p.sidebar-subtitle {
   font-weight: bold;
   margin-top: -0.5em;
 }
-p.sidebar-title,
-p.rubric {
-  font-size: larger;
+h1 + p.subtitle {
+  font-size: 1.6em;
 }
-p.rubric { color: maroon; }
-a.toc-backref {
+h2 + p.section-subtitle, a.toc-backref {
   color: black;
-  text-decoration: none; }
+  text-decoration: none;
+}
 
 /* Warnings, Errors */
-div.caution p.admonition-title,
-div.attention p.admonition-title,
-div.danger p.admonition-title,
-div.error p.admonition-title,
-div.warning p.admonition-title,
-div.system-messages h1,
-div.error,
-span.problematic,
-p.system-message-title {
+.system-messages h2,
+.system-message-title,
+span.problematic {
   color: red;
 }
 
-/* inline literals */
-span.docutils.literal {
+/* Inline Literals */
+.docutils.literal {
   font-family: monospace;
   white-space: pre-wrap;
 }
-/* do not wraph at hyphens and similar: */
+/* do not wrap at hyphens and similar: */
 .literal > span.pre { white-space: nowrap; }
 
 /* Lists */
 
 /* compact and simple lists: no margin between items */
-.simple  li, .compact li,
-.simple  ul, .compact ul,
-.simple  ol, .compact ol,
-.simple > li p, .compact > li p,
-dl.simple > dd, dl.compact > dd {
+.simple  li, .simple  ul, .simple  ol,
+.compact li, .compact ul, .compact ol,
+.simple  > li p, dl.simple  > dd,
+.compact > li p, dl.compact > dd {
   margin-top: 0;
   margin-bottom: 0;
 }
+/* Nested Paragraphs */
+p:first-child { margin-top: 0; }
+p:last-child { margin-bottom: 0; }
+td > p, th > p { margin-bottom: 0; }
 
 /* Table of Contents */
-div.topic.contents { margin: 0.5em 0; }
-div.topic.contents ul {
+.topic.contents { margin: 0.5em 0; }
+.topic.contents ul.auto-toc {
   list-style-type: none;
   padding-left: 1.5em;
 }
@@ -114,14 +101,14 @@ ol.upperalpha { list-style: upper-alpha }
 ol.lowerroman { list-style: lower-roman }
 ol.upperroman { list-style: upper-roman }
 
-dt span.classifier { font-style: italic }
-dt span.classifier:before {
+/* Definition Lists and Derivatives */
+dt .classifier { font-style: italic }
+dt .classifier:before {
   font-style: normal;
   margin: 0.5em;
   content: ":";
 }
-
-/* Field Lists and drivatives */
+/* Field Lists and similar */
 /* bold field name, content starts on the same line */
 dl.field-list > dt,
 dl.option-list > dt,
@@ -139,7 +126,7 @@ dl.citation > dt {
 dl.field-list > dd,
 dl.option-list > dd,
 dl.docinfo > dd {
-  margin-left:  9em; /* ca. 14 chars in the test examples */
+  margin-left:  9em; /* ca. 14 chars in the test examples, fit all Docinfo fields */
 }
 /* start field-body on a new line after long field names */
 dl.field-list > dd > *:first-child,
@@ -156,18 +143,20 @@ dl.docinfo > dt:after {
 }
 
 /* Bibliographic Fields (docinfo) */
-pre.address { font: inherit; }
-dd.authors > p { margin: 0; }
+dl.docinfo pre.address {
+  font: inherit;
+  margin: 0.5em 0;
+}
+dl.docinfo > dd.authors > p { margin: 0; }
 
 /* Option Lists */
-dl.option-list { margin-left: 1.5em; }
 dl.option-list > dt { font-weight: normal; }
 span.option { white-space: nowrap; }
 
 /* Footnotes and Citations  */
-dl.footnote.superscript > dd {margin-left: 1em; }
-dl.footnote.brackets > dd {margin-left: 2em; }
-dl > dt.label { font-weight: normal; }
+dl.footnote.superscript > dd { margin-left: 1em; }
+dl.footnote.brackets > dd { margin-left: 2em; }
+dl.footnote > dt { font-weight: normal; }
 a.footnote-reference.brackets:before,
 dt.label > span.brackets:before { content: "["; }
 a.footnote-reference.brackets:after,
@@ -175,130 +164,113 @@ dt.label > span.brackets:after { content: "]"; }
 a.footnote-reference.superscript,
 dl.footnote.superscript > dt.label {
   vertical-align: super;
-  font-size: smaller;
+  font-size: small;
 }
-dt.label > span.fn-backref { margin-left: 0.2em; }
+dt.label > span.fn-backref {
+  margin-left: 0.2em;
+  font-weight: normal;
+}
 dt.label > span.fn-backref > a { font-style: italic; }
 
-/* Line Blocks */
-div.line-block { display: block; }
-div.line-block div.line-block {
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-left: 40px;
+/* Alignment */
+.align-left   {
+  text-align: left;
+  margin-right: auto;
 }
+.align-center {
+  clear: both;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+.align-right  {
+  text-align: right;
+  margin-left: auto;
+}
+.align-top    { vertical-align: top; }
+.align-middle { vertical-align: middle; }
+.align-bottom { vertical-align: bottom; }
 
-/* Figures, Images, and Tables */
-.figure.align-left,
-figure.align-left,
-img.align-left,
-object.align-left,
-table.align-left {
-  margin-right: auto;
-}
-.figure.align-center,
-figure.align-center,
-img.align-center,
-object.align-center,
-table.align-center {
-  margin-left: auto;
-  margin-right: auto;
-}
-.figure.align-right,
-figure.align-right,
-img.align-right,
-object.align-right,
-table.align-right {
-  margin-left: auto;
-}
-.figure.align-center, .figure.align-right,
-figure.align-center, figure.align-right,
-img.align-center, img.align-right,
-object.align-center, object.align-right {
-  display: block;
-}
 /* reset inner alignment in figures and tables */
-.figure.align-left, .figure.align-right,
 figure.align-left, figure.align-right,
 table.align-left, table.align-center, table.align-right {
   text-align: inherit;
 }
 
-/* Admonitions and System Messages */
-div.admonition,
-div.system-message,
-div.sidebar,
-aside.sidebar {
-  margin: 1em 1.5em;
-  border: medium outset;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-  padding-right: 1em;
-  padding-left: 1em;
+/* Text Blocks */
+blockquote,
+div.topic,
+aside.topic {
+  margin: 1em 2em;
 }
-
-/* Sidebar */
-div.sidebar,
-aside.sidebar {
+.sidebar,
+.admonition,
+.system-message {
+  border: thin solid;
+  margin: 1em 2em;
+  padding: 0.5em 1em;
+}
+.sidebar {
   width: 30%;
   max-width: 26em;
   float: right;
   clear: right;
 }
+div.line-block { display: block; }
+div.line-block div.line-block, pre { margin-left: 2em; }
 
-/* Text Blocks */
-blockquote,
-div.topic,
-pre.literal-block,
-pre.doctest-block,
-pre.math,
-pre.code {
-  margin-left: 1.5em;
-  margin-right: 1.5em;
+/* Code line numbers: dropped when copying text from the page */
+pre.code .ln { display: none; }
+pre.code code:before {
+  content: attr(data-lineno); /* …, none) fallback not supported by any browser */
+  color: gray;
 }
-pre.code .ln { color: gray; } /* line numbers */
 
 /* Tables */
-table { border-collapse: collapse; }
+table {
+  border-collapse: collapse;
+}
 td, th {
-  border-style: solid;
-  border-color: silver;
+  border: thin solid silver;
   padding: 0 1ex;
-  border-width: thin;
 }
-td > p:first-child, th > p:first-child { margin-top: 0; }
-td > p, th > p { margin-bottom: 0; }
-
-table > caption {
-  text-align: left;
-  margin-bottom: 0.25em
-}
-
-table.borderless td, table.borderless th {
+.borderless td, .borderless th {
   border: 0;
   padding: 0;
   padding-right: 0.5em /* separate table cells */
 }
 
-/* Document Header and Footer */
-/* div.header,				      */
-/* header { border-bottom: 1px solid black; } */
-/* div.footer,				      */
-/* footer { border-top: 1px solid black; }    */
+table > caption {
+  text-align: left;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+table.captionbelow {
+  caption-side: bottom;
+}
 
-/* new HTML5 block elements: set display for older browsers */
-header, section, footer, aside, nav, main, article, figure {
+/* Document Header and Footer */
+header { border-bottom: 1px solid black; }
+footer { border-top: 1px solid black; }
+
+/* Images are block-level by default in Docutils */
+/* New HTML5 block elements: set display for older browsers */
+img, header, section, footer, aside, nav, main, article, figure, video {
   display: block;
+}
+/* inline images */
+p img, p video, figure img, figure video {
+  display: inline;
 }
 
 </style>
 <style type="text/css">
 
 /* CSS31_ style sheet for the output of Docutils HTML writers.             */
-/* Rules for easy reading and pre-defined style variants.		   */
+/* Rules for easy reading and pre-defined style variants.                  */
 /*                                                                         */
 /* :Author: Günter Milde, based on html4css1.css by David Goodger          */
-/* :Id: $Id: plain.css 8397 2019-09-20 11:09:34Z milde $               */
+/* :Id: $Id: plain.css 8636 2021-03-19 00:23:33Z milde $                                                               */
 /* :Copyright: © 2015 Günter Milde.                                        */
 /* :License: Released under the terms of the `2-Clause BSD license`_,      */
 /*    in short:                                                            */
@@ -306,11 +278,11 @@ header, section, footer, aside, nav, main, article, figure {
 /*    Copying and distribution of this file, with or without modification, */
 /*    are permitted in any medium without royalty provided the copyright   */
 /*    notice and this notice are preserved.                                */
-/*    	     	      	     	 					   */
+/*                                                                         */
 /*    This file is offered as-is, without any warranty.                    */
 /*                                                                         */
 /* .. _2-Clause BSD license: http://www.spdx.org/licenses/BSD-2-Clause     */
-/* .. _CSS3: http://www.w3.org/TR/CSS3		        		   */
+/* .. _CSS3: http://www.w3.org/TR/CSS3                                     */
 
 
 /* Document Structure */
@@ -321,23 +293,26 @@ body {
   margin: 0;
   background-color: #dbdbdb;
 }
-div.document,
-main {
+main, footer, header {
   line-height:1.3;
-  counter-reset: table;
-  /* counter-reset: figure; */
   /* avoid long lines --> better reading */
+  /* optimum is 45…75 characters/line <http://webtypography.net/2.1.2> */
   /* OTOH: lines should not be too short because of missing hyphenation, */
-  max-width: 50em;
+  max-width: 50rem;
   padding: 1px 2%; /* 1px on top avoids grey bar above title (mozilla) */
   margin: auto;
+}
+main {
+  counter-reset: table figure;
   background-color: white;
 }
-
-/* Sections */
+footer, header {
+  font-size: smaller;
+  padding: 0.5em 2%;
+  border: none;
+}
 
 /* Transitions */
-
 hr.docutils {
   width: 80%;
   margin-top: 1em;
@@ -346,10 +321,9 @@ hr.docutils {
 }
 
 /* Paragraphs */
-/* ========== */
 
 /* vertical space (parskip) */
-p, ol, ul, dl,
+p, ol, ul, dl, li, dd,
 div.line-block,
 div.topic,
 table {
@@ -368,10 +342,12 @@ dl > dd {
 /* Lists */
 /* ===== */
 
-/* Definition Lists */
+/* Separate list entries in compound lists */
+dl > dd, ol > li,
 
-/* lists nested in definition lists */
-/* (:only-child is new in CSS 3) */
+/* Definition Lists */
+/* Indent lists nested in definition lists */
+/* (:only-child is new in CSS 3)           */
 dd > ul:only-child, dd > ol:only-child { padding-left: 1em; }
 
 /* Description Lists */
@@ -412,28 +388,16 @@ div.dedication p.topic-title {
   font-style: normal;
 }
 
-/* Citations */
-dl.citation dt.label {
-  font-weight: bold;
-}
-span.fn-backref {
-  font-weight: normal;
-}
-
 /* Text Blocks */
 /* =========== */
 
 /* Literal Blocks */
-
-pre.literal-block,
-pre.doctest-block,
-pre.math,
-pre.code {
+pre.literal-block, pre.doctest-block,
+pre.math, pre.code {
   font-family: monospace;
 }
 
 /* Block Quotes */
-
 blockquote > table,
 div.topic > table {
   margin-top: 0;
@@ -495,32 +459,45 @@ dl.footnote {
 /* Images and Figures */
 
 /* let content flow to the side of aligned images and figures */
-.figure.align-left,
 figure.align-left,
 img.align-left,
+video.align-left,
 object.align-left {
-  display: block;
   clear: left;
   float: left;
   margin-right: 1em;
 }
-.figure.align-right,
 figure.align-right,
 img.align-right,
+video.align-right,
 object.align-right {
-  display: block;
   clear: right;
   float: right;
   margin-left: 1em;
 }
-/* Stop floating sidebars, images and figures at section level 1,2,3 */
-h1, h2, h3 { clear: both; }
+/* Stop floating sidebars, images and figures */
+h1, h2, h3, h4, footer, header { clear: both; }
+
+/* Numbered figures */
+figure.numbered > figcaption > p:before {
+  counter-increment: figure;
+  content: "Figure " counter(figure) ": ";
+  font-weight: bold;
+}
+
+/* Admonitions and System Messages */
+.caution p.admonition-title,
+.attention p.admonition-title,
+.danger p.admonition-title,
+.error p.admonition-title,
+.warning p.admonition-title,
+div.error {
+  color: red;
+}
 
 /* Sidebar */
-
 /* Move right. In a layout with fixed margins, */
-/* it can be moved into the margin.   	       */
-div.sidebar,
+/* it can be moved into the margin.            */
 aside.sidebar {
   width: 30%;
   max-width: 26em;
@@ -530,10 +507,8 @@ aside.sidebar {
 }
 
 /* Code */
-
 pre.code { padding: 0.7ex }
 pre.code, code { background-color: #eeeeee }
-pre.code .ln { color: gray; } /* line numbers */
 /* basic highlighting: for a complete scheme, see */
 /* http://docutils.sourceforge.net/sandbox/stylesheets/ */
 pre.code .comment, code .comment { color: #5C6576 }
@@ -552,30 +527,8 @@ pre.code .inserted, code .inserted { background-color: #A3D289}
 /* Compound Paragraph */
 /* Container          */
 
-/* can be styled in a custom stylesheet */
-
-/* Document Header and Footer */
-
-footer, header,
-div.footer, div.header {
-  font-size: smaller;
-  clear: both;
-  padding: 0.5em 2%;
-  background-color: #ebebee;
-  border: none;
-}
-
 /* Inline Markup */
 /* ============= */
-
-/* Emphasis           */
-/*   em               */
-/* Strong Emphasis    */
-/*   strong	      */
-/* Interpreted Text   */
-/*   span.interpreted */
-/* Title Reference    */
-/*   cite	      */
 
 /* Inline Literals                                          */
 /* possible values: normal, nowrap, pre, pre-wrap, pre-line */
@@ -586,7 +539,7 @@ a { text-decoration: none; }
 
 /* External Targets       */
 /*   span.target.external */
-/* Internal Targets  	  */
+/* Internal Targets       */
 /*   span.target.internal */
 /* Footnote References    */
 /*   a.footnote-reference */
@@ -596,19 +549,19 @@ a { text-decoration: none; }
 </style>
 </head>
 <body>
-<div class="document" id="pyspice-simulate-electronic-circuit-using-python-and-the-ngspice-xyce-simulators">
+<main id="pyspice-simulate-electronic-circuit-using-python-and-the-ngspice-xyce-simulators">
 <h1 class="title">PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators</h1>
 
 <!-- -*- Mode: rst -*- -->
 <!-- -*- Mode: rst -*- -->
 <!-- -*- Mode: rst -*- -->
-<p><a class="reference external" href="https://pypi.python.org/pypi/PySpice"><img alt="PySpice license" src="https://img.shields.io/pypi/l/PySpice.svg" /></a>
-<a class="reference external" href="https://pypi.python.org/pypi/PySpice"><img alt="PySpice python version" src="https://img.shields.io/pypi/pyversions/PySpice.svg" /></a></p>
-<p><a class="reference external" href="https://pypi.python.org/pypi/PySpice"><img alt="PySpice last version" src="https://img.shields.io/pypi/v/PySpice.svg" /></a></p>
-<p><a class="reference external" href="https://anaconda.org/conda-forge/pyspice/badges/version.svg"><img alt="Anaconda last version" src="https://anaconda.org/conda-forge/pyspice/badges/version.svg" /></a>
-<a class="reference external" href="https://anaconda.org/conda-forge/pyspice/badges/downloads.svg"><img alt="Anaconda donwloads" src="https://anaconda.org/conda-forge/pyspice/badges/downloads.svg" /></a></p>
-<p><a class="reference external" href="https://travis-ci.com/FabriceSalvaire/PySpice"><img alt="PySpice build status &#64;travis-ci.org" src="https://travis-ci.com/FabriceSalvaire/PySpice.svg?branch=master" /></a></p>
-<p><a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml"><img alt="Pyspice Test" src="https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml/badge.svg?branch=devel" /></a></p>
+<p><a class="reference external image-reference" href="https://pypi.python.org/pypi/PySpice"><img alt="PySpice license" src="https://img.shields.io/pypi/l/PySpice.svg" /></a>
+<a class="reference external image-reference" href="https://pypi.python.org/pypi/PySpice"><img alt="PySpice python version" src="https://img.shields.io/pypi/pyversions/PySpice.svg" /></a></p>
+<p><a class="reference external image-reference" href="https://pypi.python.org/pypi/PySpice"><img alt="PySpice last version" src="https://img.shields.io/pypi/v/PySpice.svg" /></a></p>
+<p><a class="reference external image-reference" href="https://anaconda.org/conda-forge/pyspice/badges/version.svg"><img alt="Anaconda last version" src="https://anaconda.org/conda-forge/pyspice/badges/version.svg" /></a>
+<a class="reference external image-reference" href="https://anaconda.org/conda-forge/pyspice/badges/downloads.svg"><img alt="Anaconda donwloads" src="https://anaconda.org/conda-forge/pyspice/badges/downloads.svg" /></a></p>
+<p><a class="reference external image-reference" href="https://travis-ci.com/FabriceSalvaire/PySpice"><img alt="PySpice build status &#64;travis-ci.org" src="https://travis-ci.com/FabriceSalvaire/PySpice.svg?branch=master" /></a></p>
+<p><a class="reference external image-reference" href="https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml"><img alt="Pyspice Test" src="https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml/badge.svg?branch=devel" /></a></p>
 <p><strong>Quick Links</strong></p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/tree/devel">Devel Branch</a></p></li>
@@ -621,29 +574,29 @@ a { text-decoration: none; }
 <li><p><a class="reference external" href="https://sourceforge.net/p/ngspice/bugs">Ngspice Bug Tracker</a></p></li>
 <li><p><a class="reference external" href="https://xyce.sandia.gov">Xyce of Sandia National Laboratories</a></p></li>
 </ul>
-<div class="section" id="brief-notes">
-<h1>Brief Notes</h1>
+<section id="brief-notes">
+<h2>Brief Notes</h2>
 <p>Thanks to <a class="reference external" href="https://www.discourse.org">Discourse</a>, PySpice now has a <strong>Forum</strong> hosted at <a class="reference external" href="https://pyspice.discourse.group">https://pyspice.discourse.group</a></p>
 <p><strong>Disclaimer: PySpice is developed on my free time actually, so I could be busy with other tasks and less reactive.</strong></p>
 <p>An issue was found with NgSpice Shared, we must <cite>setlocale(LC_NUMERIC, &quot;C&quot;);</cite> see <a class="reference external" href="https://sourceforge.net/p/ngspice/bugs/490/">https://sourceforge.net/p/ngspice/bugs/490/</a></p>
-</div>
-<div class="section" id="overview">
-<h1>Overview</h1>
-<div class="section" id="what-is-pyspice">
-<h2>What is PySpice ?</h2>
+</section>
+<section id="overview">
+<h2>Overview</h2>
+<section id="what-is-pyspice">
+<h3>What is PySpice ?</h3>
 <p>PySpice is a Python module which interface <a class="reference external" href="http://python.org">Python</a> to the <a class="reference external" href="http://ngspice.sourceforge.net">Ngspice</a> and <a class="reference external" href="https://xyce.sandia.gov">Xyce</a> circuit simulators.</p>
-</div>
-<div class="section" id="where-is-the-documentation">
-<h2>Where is the Documentation ?</h2>
+</section>
+<section id="where-is-the-documentation">
+<h3>Where is the Documentation ?</h3>
 <p>The documentation is available on the <a class="reference external" href="https://pyspice.fabrice-salvaire.fr">PySpice Home Page</a>.</p>
 <p><em>Note: This site is hosted on my own infrastructure, if the site seems done, please create an issue to notify me.</em></p>
-</div>
-<div class="section" id="where-to-get-help-or-talk-about-pyspice">
-<h2>Where to get help or talk about PySpice ?</h2>
+</section>
+<section id="where-to-get-help-or-talk-about-pyspice">
+<h3>Where to get help or talk about PySpice ?</h3>
 <p>Thanks to <a class="reference external" href="https://www.discourse.org">Discourse</a>, PySpice now has a <strong>Forum</strong> hosted at <a class="reference external" href="https://pyspice.discourse.group">https://pyspice.discourse.group</a></p>
-</div>
-<div class="section" id="what-are-the-main-features">
-<h2>What are the main features ?</h2>
+</section>
+<section id="what-are-the-main-features">
+<h3>What are the main features ?</h3>
 <ul class="simple">
 <li><p>support Ngspice and Xyce circuit simulators</p></li>
 <li><p>support <strong>Linux</strong>, <strong>Windows</strong> and Mac <strong>OS X</strong> platforms</p></li>
@@ -658,28 +611,28 @@ a { text-decoration: none; }
 <li><p>implement a <strong>documentation generator</strong></p></li>
 <li><p>provides many <strong>examples</strong></p></li>
 </ul>
-</div>
-<div class="section" id="how-to-install-it">
-<h2>How to install it ?</h2>
+</section>
+<section id="how-to-install-it">
+<h3>How to install it ?</h3>
 <p>Look at the <a class="reference external" href="https://pyspice.fabrice-salvaire.fr/releases/latest/installation.html">installation</a> section in the documentation.</p>
-</div>
-</div>
-<div class="section" id="pull-request-recommendation">
-<h1>Pull Request Recommendation</h1>
+</section>
+</section>
+<section id="pull-request-recommendation">
+<h2>Pull Request Recommendation</h2>
 <p>To make it easier to merge your pull request, you should divide your PR into smaller and easier-to-verify units.</p>
 <p>Please do not make a pull requests with a lot of modifications which are difficult to check.  <strong>If I merge
 pull requests blindly then there is a high risk this software will become a mess quickly for everybody.</strong></p>
-</div>
-<div class="section" id="credits">
-<h1>Credits</h1>
-<p>Authors: <a class="reference external" href="http://fabrice-salvaire.fr">Fabrice Salvaire</a> and <a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md">contributors</a></p>
-</div>
-<div class="section" id="news">
-<h1>News</h1>
+</section>
+<section id="credits">
+<h2>Credits</h2>
+<p>Authors: <a class="reference external" href="http://fabrice-salvaire.fr">Fabrice SALVAIRE</a> and <a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md">contributors</a></p>
+</section>
+<section id="news">
+<h2>News</h2>
 <!-- -*- Mode: rst -*- -->
 <!-- no title here -->
-<div class="section" id="vx-y-0-whishes">
-<h2>Vx.y.0 (whishes)</h2>
+<section id="vx-y-0-wishes">
+<h3>Vx.y.0 (wishes)</h3>
 <ul class="simple">
 <li><p>The circuit API is actually low level. It is fastidious to work with
 and error-prone.  Skidl has a very good approach to make the
@@ -687,12 +640,11 @@ connections between elements.  A clever idea is to make the
 connection through loop, e.g. <cite>gnd &amp; C1 &amp; (R1 | R2) &amp; D1 &amp; vcc</cite>.</p></li>
 <li><p>Improve Spice library handling, e.g. we have to read the library
 code to know how to map the pins, etc.</p></li>
-<li><p>Improve the Spice parser.</p></li>
 <li><p>Unit should be provided by a third party.  We need a library that works well with Spice.</p></li>
 </ul>
-</div>
-<div class="section" id="v1-6-0-development-release">
-<h2>V1.6.0 (development release)</h2>
+</section>
+<section id="v1-6-0-development-release">
+<h3>V1.6.0 (development release)</h3>
 <ul>
 <li><p><strong>New Simulation API</strong></p>
 <pre class="code python literal-block"><code><span class="comment single"># build a circuit</span>
@@ -704,27 +656,34 @@ code to know how to map the pins, etc.</p></li>
 <span class="comment single"># same as</span>
 <span class="name">simulator</span> <span class="operator">=</span> <span class="name">Simulator</span><span class="operator">.</span><span class="name">factory</span><span class="punctuation">(</span><span class="name">simulator</span><span class="operator">=</span><span class="literal string single">'ngspice-shared'</span><span class="punctuation">)</span>
 
-<span class="comment single"># create a simulation, it corresponds to the Spice code part with lines starting with &quot;.someting ...&quot;</span>
+<span class="comment single"># create a simulation, it corresponds to the Spice code part with lines starting with &quot;.something ...&quot;</span>
 <span class="name">simulation</span> <span class="operator">=</span> <span class="name">simulator</span><span class="operator">.</span><span class="name">simulation</span><span class="punctuation">(</span><span class="name">circuit</span><span class="punctuation">,</span> <span class="name">temperature</span><span class="operator">=</span><span class="literal number integer">25</span><span class="punctuation">,</span> <span class="name">nominal_temperature</span><span class="operator">=</span><span class="literal number integer">25</span><span class="punctuation">)</span>
-<span class="comment single"># define a analysis and run it</span>
+<span class="comment single"># define an analysis and run it</span>
 <span class="name">analysis</span> <span class="operator">=</span> <span class="name">simulation</span><span class="operator">.</span><span class="name">transient</span><span class="punctuation">(</span><span class="name">step_time</span><span class="operator">=</span><span class="name">ac_line</span><span class="operator">.</span><span class="name">period</span><span class="operator">/</span><span class="literal number integer">200</span><span class="punctuation">,</span> <span class="name">end_time</span><span class="operator">=</span><span class="name">ac_line</span><span class="operator">.</span><span class="name">period</span><span class="operator">*</span><span class="literal number integer">50</span><span class="punctuation">,</span> <span class="name">log_desk</span><span class="operator">=</span><span class="keyword constant">True</span><span class="punctuation">)</span>
 <span class="comment single"># analysis is now Pickable</span></code></pre>
 </li>
 <li><p>Simulation output is now Pickable</p></li>
+<li><p>The <strong>Spice parser</strong> was rewritten from scratch using the <a class="reference external" href="https://www.dabeaz.com/ply">PLY</a>
+library, which is an implementation of lex and yacc parsing tools for Python.  The LALR parser
+generates an AST from a BNF grammar written from scratch using the Ngspice manual.  Up to now, it
+only requires a hack to handle the grammar, cf. XSpice vector syntax <code>[1 -1 -2]</code> which
+interfere with mathematical expression.  PySpice is now able to parse completely and properly all
+the examples from the Ngspice manual.  However, the processing of the AST does actually the bare
+minimum.</p></li>
 <li><p><strong>KiCadTools</strong> a proof of concept module to read KiCad 6
 <cite>.kicad_sch</cite> schema file and compute the netlist.  <em>This module can
-be used to perform any kind of processings on a KiCad schema.  It is
+be used to perform any kind of processing on a KiCad schema.  It is
 actually hosted in the source but could become a standalone
 project.</em> For PySpice, it provides a very flexible way to draft a
 circuit with the help of KiCad and then generate the netlist without
 using the netlist export feature of KiCad.  And thus leverage the
-writing of fastidious cicruit.</p></li>
+writing of fastidious circuit.</p></li>
 <li><p>The most common PySpice parts can be imported from <code>from PySpice import ...</code></p></li>
-<li><p>Logging setup code cleanup</p></li>
+<li><p>Logging setup code clean-up</p></li>
 </ul>
-</div>
-<div class="section" id="v1-5-0-production-release-2021-05-xx">
-<h2>V1.5.0 (production release) 2021-05-xx</h2>
+</section>
+<section id="v1-5-0-production-release-2021-05-15">
+<h3>V1.5.0 (production release) 2021-05-15</h3>
 <ul class="simple">
 <li><p>Support Ngspice up to version 34</p></li>
 <li><p>Renamed custom dunders &quot;__dunder__&quot; to &quot;CONSTANT&quot; or &quot;_private&quot; class attributes</p></li>
@@ -742,14 +701,14 @@ writing of fastidious cicruit.</p></li>
 <li><p><cite>Netlist.py</cite>: Fix wrong method when joining parameters during netlist parse #245 (thanks to cyber-g)</p></li>
 <li><p>Unit: add Pickle support</p></li>
 <li><p>Add Parser code from #136 (thanks to jmgc) but not yet merged</p></li>
-<li><p>Unit: add np.mean</p></li>
+<li><p>Unit: add <code>np.mean</code></p></li>
 </ul>
-</div>
-<div class="section" id="v1-4-3-2020-07-04">
-<h2>V1.4.3 2020-07-04</h2>
+</section>
+<section id="v1-4-3-2020-07-04">
+<h3>V1.4.3 2020-07-04</h3>
 <p>A huge effort, thanks to &#64;stuarteberg Stuart Berg, has been made to make Ngspice and PySpice
 available on Anaconda (conda-forge) for the Window, OSX and Linux platforms.  Thanks to the
-conda-forge continuous integration platform, we can now run unit tests and the examples on theses
+conda-forge continuous integration platform, we can now run unit tests and the examples on these
 platforms automatically.  Hope this will make the software more robust and easier to run !</p>
 <ul class="simple">
 <li><p>PySpice is now available on Anaconda(conda-forge) as well as a wheel on PyPI</p></li>
@@ -757,29 +716,29 @@ platforms automatically.  Hope this will make the software more robust and easie
 It should now simplify considerably the PySpice installation on Windows.</p></li>
 <li><p>This tool can also download the examples and the Ngspice PDF manual.</p></li>
 <li><p>On Linux and OSX, a Ngspice package is now available on Anaconda(conda-forge).
-Note that theses two platforms do not download a binary from Ngspice since a compiler can easily be installed on theses platforms.</p></li>
+Note that theses two platforms do not download a binary from Ngspice since a compiler can easily be installed on these platforms.</p></li>
 <li><p>Updated installation documentation for Linux, the main distributions now provide a ngspice shared package.</p></li>
-<li><p>Added a front-end web site so as to keep older releases documentation available on the web.</p></li>
+<li><p>Added a front-end website to keep older releases documentation available on the web.</p></li>
 <li><p>fixed and rebuilt all examples (but mistakes could happen ...)</p></li>
 <li><p>examples are now available as Python files and Jupyter notebooks
 (but some issues must be fixed, e.g. due to the way Jupyter handles Matplotlib plots)</p></li>
 <li><p>support NgSpice 32 API (no change)</p></li>
-<li><p>removed &#64;substitution&#64; in PySpice/__init__.py, beacause it breaks pip install from git</p></li>
+<li><p>removed <code>&#64;substitution&#64;</code> in PySpice/__init__.py, beacause it breaks pip install from git</p></li>
 <li><p>fixed some logging spams</p></li>
 <li><p>fixed NonLinearVoltageSource</p></li>
 <li><p>fixed Unicode issue with °C (° is Extended ASCII)</p></li>
 <li><p>fixed ffi_string_utf8 for UnicodeDecodeError</p></li>
-<li><p>fixed logging formater for OSX (removed ANSI codes)</p></li>
+<li><p>fixed logging formatter for OSX (removed ANSI codes)</p></li>
 <li><p>reworded &quot;Invalid plot name&quot; exception</p></li>
 <li><p>removed diacritics in example filenames</p></li>
-<li><p>cir2py has been converted to an entry point so as to work on all platforms</p></li>
+<li><p>cir2py has been converted to an entry point to work on all platforms</p></li>
 <li><p>updated Matplotlib subplots in examples</p></li>
 <li><p>added a unit example</p></li>
 <li><p>added a NMOS example (thanks to cyber-g) cf. #221</p></li>
 </ul>
-</div>
-<div class="section" id="v1-4-0-2020-05-05">
-<h2>V1.4.0 2020-05-05</h2>
+</section>
+<section id="v1-4-0-2020-05-05">
+<h3>V1.4.0 2020-05-05</h3>
 <p>This release is yanked due to broken Windows support.</p>
 <ul class="simple">
 <li><p>fixed nasty issue with NgSpice shared for <cite>setlocale(LC_NUMERIC, &quot;C&quot;);</cite> cf. #172</p></li>
@@ -792,23 +751,23 @@ Note that theses two platforms do not download a binary from Ngspice since a com
 <li><p>support NgSpice 31 API (no change)</p></li>
 <li><p>added check for <cite>CoupledInductor</cite> #157</p></li>
 <li><p>added <cite>check-installation</cite> tool to help to fix broken installation</p></li>
-<li><p>added pole-zero, noise, distorsion, transfer-function analyses (thanks to Peter Garrone) #191</p></li>
+<li><p>added pole-zero, noise, distortion, transfer-function analyses (thanks to Peter Garrone) #191</p></li>
 <li><p>added <cite>.measure</cite> support (thanks to ceprio) #160</p></li>
 <li><p>added <cite>log_desk</cite> parameter to <cite>CircuitSimulator</cite></p></li>
 <li><p>added <cite>listing</cite> command method to <cite>NgSpiceShared</cite></p></li>
 <li><p>added Xyce Mosfet nfin #177</p></li>
 </ul>
-</div>
-<div class="section" id="v1-3-2-2019-03-11">
-<h2>V1.3.2  2019-03-11</h2>
+</section>
+<section id="v1-3-2-2019-03-11">
+<h3>V1.3.2  2019-03-11</h3>
 <ul class="simple">
 <li><p>support Ngspice 30 and Xyce 6.10</p></li>
 <li><p>fixed NgSpice and Xyce support on Windows 10</p></li>
 <li><p>bug fixes</p></li>
 </ul>
-</div>
-<div class="section" id="v1-2-0-2018-06-07">
-<h2>V1.2.0 2018-06-07</h2>
+</section>
+<section id="v1-2-0-2018-06-07">
+<h3>V1.2.0 2018-06-07</h3>
 <ul class="simple">
 <li><p>Initial support of the <a class="reference external" href="https://xyce.sandia.gov">Xyce</a> simulator.  Xyce is an open source, SPICE-compatible,
 high-performance analog circuit simulator, capable of solving extremely large circuit problems
@@ -820,7 +779,7 @@ research use.</p></li>
 <li><p>Implemented missing transmission line devices</p></li>
 <li><p>Implemented high level current sources
 <strong>Notice: Some classes were renamed !</strong></p></li>
-<li><p>Implemented node kwarg e.g. <code>circuit.Q(1, base=1, collector=2, emitter=3, model='npn')</code></p></li>
+<li><p>Implemented node kwargs e.g. <code>circuit.Q(1, base=1, collector=2, emitter=3, model='npn')</code></p></li>
 <li><p>Implemented raw spice pass through (see <a class="reference external" href="/faq.html">User FAQ</a>)</p></li>
 <li><p>Implemented access to internal parameters (cf. <code>save &#64;device[parameter]</code>)</p></li>
 <li><p>Implemented check for missing ground node</p></li>
@@ -834,41 +793,41 @@ research use.</p></li>
 <li><p>Rebased <cite>WaveForm</cite> to <cite>UnitValues</cite></p></li>
 </ul>
 </li>
-<li><p>Fixed node order so as to not confuse users <strong>Now PySpice matches SPICE order for two ports elements !</strong></p></li>
+<li><p>Fixed node order to not confuse users <strong>Now PySpice matches SPICE order for two ports elements !</strong></p></li>
 <li><p>Fixed device shortcuts in <cite>Netlist</cite> class</p></li>
-<li><p>Fixed model kwarg for BJT <strong>Notice: it must be passed exclusively as kwarg !</strong></p></li>
+<li><p>Fixed model kwargs for BJT <strong>Notice: it must be passed exclusively as kwargs !</strong></p></li>
 <li><p>Fixed subcircuit nesting</p></li>
 <li><p>Outsourced documentation generator to <a class="reference external" href="https://github.com/FabriceSalvaire/Pyterate">Pyterate</a></p></li>
 <li><p>Updated <cite>setup.py</cite> for wheel</p></li>
 </ul>
 <!-- :ref:`user-faq-page` -->
-</div>
-<div class="section" id="v1-1-0-2017-09-06">
-<h2>V1.1.0 2017-09-06</h2>
+</section>
+<section id="v1-1-0-2017-09-06">
+<h3>V1.1.0 2017-09-06</h3>
 <ul class="simple">
 <li><p>Enhanced shared mode</p></li>
 <li><p>Shared mode is now set as default on Linux</p></li>
 </ul>
-</div>
-<div class="section" id="v1-0-0-2017-09-06">
-<h2>V1.0.0 2017-09-06</h2>
+</section>
+<section id="v1-0-0-2017-09-06">
+<h3>V1.0.0 2017-09-06</h3>
 <ul class="simple">
 <li><p>Bump version to v1.0.0 since it just works!</p></li>
 <li><p>Support Windows platform using Ngspice shared mode</p></li>
 <li><p>Fixed shared mode</p></li>
 <li><p>Fixed and completed Spice parser : tested on example's libraries</p></li>
 </ul>
-</div>
-<div class="section" id="v0-4-2">
-<h2>V0.4.2</h2>
+</section>
+<section id="v0-4-2">
+<h3>V0.4.2</h3>
 <ul class="simple">
 <li><p>Fixed Spice parser for lower case device prefix.</p></li>
 </ul>
-</div>
-<div class="section" id="v0-4-0-2017-07-31">
-<h2>V0.4.0 2017-07-31</h2>
+</section>
+<section id="v0-4-0-2017-07-31">
+<h3>V0.4.0 2017-07-31</h3>
 <ul class="simple">
-<li><p>Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size.</p></li>
+<li><p>Git repository clean-up: filtered generated doc and useless files to shrink the repository size.</p></li>
 <li><p>Improved documentation generator: Implemented <code>format</code> for RST content and Tikz figure.</p></li>
 <li><p>Improved unit support: It implements now the International System of Units.
 And we can now use unit helper like <code>u_mV</code> or compute the value of <code>1.2&#64;u_kΩ / 2&#64;u_mA</code>.
@@ -876,34 +835,34 @@ The relevant documentation is on this <a class="reference external" href="api/Py
 <li><p>Added the Simulation instance to the Analysis class.</p></li>
 <li><p>Refactored simulation parameters as classes.</p></li>
 </ul>
-</div>
-<div class="section" id="v0-3-2-2017-02-22">
-<h2>V0.3.2 2017-02-22</h2>
+</section>
+<section id="v0-3-2-2017-02-22">
+<h3>V0.3.2 2017-02-22</h3>
 <ul class="simple">
 <li><p>fixed CCCS and CCVS</p></li>
 </ul>
-</div>
-<div class="section" id="v0-3-1-2017-02-22">
-<h2>V0.3.1 2017-02-22</h2>
+</section>
+<section id="v0-3-1-2017-02-22">
+<h3>V0.3.1 2017-02-22</h3>
 <ul class="simple">
 <li><p>fixed ngspice shared</p></li>
 </ul>
-</div>
-<div class="section" id="v0-3-0-2015-12-08">
-<h2>V0.3.0 2015-12-08</h2>
+</section>
+<section id="v0-3-0-2015-12-08">
+<h3>V0.3.0 2015-12-08</h3>
 <ul class="simple">
 <li><p>Added an example to show how to use the NgSpice Shared Simulation Mode.</p></li>
 <li><p>Completed the Spice netlist parser and added examples, we could now use a schematic editor
 to define the circuit.  The program <em>cir2py</em> translates a circuit file to Python.</p></li>
 </ul>
-</div>
-<div class="section" id="v0-2014-03-21">
-<h2>V0 2014-03-21</h2>
+</section>
+<section id="v0-2014-03-21">
+<h3>V0 2014-03-21</h3>
 <p>Started project</p>
 <!-- End -->
 <!-- End -->
-</div>
-</div>
-</div>
+</section>
+</section>
+</main>
 </body>
 </html>
