@@ -25,6 +25,24 @@ outside of a `.control` section.
 The `.include includefile` line may be placed anywhere in the input file. The contents of includefile
 will be inserted exactly in place of the .include line.
 
+# Continuation lines
+
+General Form:
+
+```
+< any command >
++ < continuation of any command > ; some comment
++ < further continuation of any command >
+```
+
+If input lines get overly long, they may be split into two or more lines (e.g. for better
+readability). Internally they will be merged into a single line.
+
+* Each follow-up line starts with charachter `+ ` plus additional space.
+* Follw-up lines have to follow immediately after each other.
+* End-of-line comments will be ignored.
+* The following lines do not allow using continuation lines: .title, .lib, and .include.
+
 # Naming conventions
 
 Fields on a line are separated by one or more blanks, a comma, an equal (=) sign, or a left
