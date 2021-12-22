@@ -24,17 +24,67 @@
 
 ####################################################################################################
 
-__all__ = ["SpiceCode", "SpiceFile"]
+__all__ = [
+    'Ac',
+    'Command',
+    'Control',
+    'Csparam',
+    'Dc',
+    'Distorsion',
+    'DotCommand',
+    'Element',
+    'Else',
+    'ElseIf',
+    'EndControl',
+    'End',
+    'EndIf',
+    'EndSubcircuit',
+    'Fourier',
+    'Function',
+    'Global',
+    'If',
+    'Include',
+    'InitialCondition',
+    'Library',
+    'Measure',
+    'Model',
+    'Netlist',
+    'NodeSet',
+    'Noise',
+    'Op',
+    'Options',
+    'Param',
+    'ParseError',
+    'PeriodicSteadyState',
+    'Plot',
+    'PoleZero',
+    'Print',
+    'Probe',
+    'Save',
+    'Sensitivity',
+    'SpiceSource',
+    'SpiceFile',
+    'SpiceLine',
+    'SpiceStates',
+    'Subcircuit',
+    'Temperature',
+    'Title',
+    'Transient',
+    'Width',
+]
 
 ####################################################################################################
 
+from enum import IntEnum
 from pathlib import Path
-from typing import Generator, Optional
+from typing import Generator, Iterator, Optional
 import logging
 import os
 
+from PySpice.Spice.Netlist import Node
 from PySpice.Tools.StringTools import remove_multi_space
 from . import Ast
+from . import ElementData
 from .Ast import AstNode
 from .Parser import SpiceParser
 from .SpiceSyntax import ElementLetters
@@ -45,7 +95,7 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-class ParserError(NameError):
+class ParseError(NameError):
     pass
 
 ####################################################################################################
@@ -68,12 +118,16 @@ class SpiceLine:
     ##############################################
 
     @property
+    def start(self) -> int:
+        return self._start
+
+    @property
     def location(self) -> slice:
         return slice(self._start, self._stop)
 
     @property
     def str_location(self) -> str:
-        return f"[{self._start}:{self._stop}]"
+        return f'[{self._start}:{self._stop}]'
 
     @property
     def command(self) -> str:
@@ -86,12 +140,12 @@ class SpiceLine:
     ##############################################
 
     @property
-    def is_comment(self) -> str:
-        return self._comment and not self._command
+    def is_comment(self) -> bool:
+        return not self._command
 
     @property
-    def is_command(self) -> str:
-        return self._command
+    def is_command(self) -> bool:
+        return bool(self._command)
 
     @property
     def is_dot_command(self) -> bool:
@@ -148,13 +202,13 @@ class SpiceLine:
     def __repr__(self) -> str:
         line_number = self.str_location
         if self.is_comment:
-            return f"{line_number} COMMENT{os.linesep}{self._comment}"
+            return f'{line_number} COMMENT{os.linesep}    {self._comment}'
         else:
             if self.is_dot_command:
-                label = "DOT COMMAND"
+                label = 'DOT COMMAND'
             else:
-                label = "ELEMENT"
-            return f"{line_number} {label}{os.linesep}{self._command} ; {self._comment}"
+                label = 'ELEMENT / CONTROL COMMAND'
+            return f'{line_number} {label}{os.linesep}    {self._command} ; {self._comment}'
 
     ##############################################
 
@@ -177,8 +231,16 @@ class Command:
     ##############################################
 
     @classmethod
-    def get_cls(cls, name: str) -> 'Command':
-        return cls._dot_command_maps[name]
+    def get_cls(cls, line: SpiceLine, in_control: bool) -> 'Command':
+        # Fixme: use AST instead ?
+        if not in_control and line.is_element:
+            return Element
+        elif in_control or line.is_dot_command:
+            try:
+                return cls._dot_command_maps[line.dot_command]
+            except KeyError:
+                return cls
+        return None
 
     ##############################################
 
@@ -196,6 +258,31 @@ class Command:
     def ast(self) -> AstNode:
         return self._ast
 
+    ##############################################
+
+    @staticmethod
+    def format_parameters(parameters: dict) -> dict[str, str]:
+        return {key: str(value) for key, value in parameters.items()}
+
+    ##############################################
+
+    @staticmethod
+    def child_to_python(child: AstNode) -> str | int:
+        match child:
+            case Ast.Id():
+                return str(child)
+            case Ast.Integer():
+                return int(child)
+            case Ast.Number():
+                return str(child)
+            case _:
+                # Fixme:
+                return str(child)
+
+    @classmethod
+    def childs_to_python(cls, childs: list[AstNode]) -> list:
+        return [cls.child_to_python(_) for _ in childs]
+
 ####################################################################################################
 
 class Element(Command):
@@ -212,12 +299,66 @@ class Element(Command):
 
     def __init__(self, line: SpiceLine, ast: AstNode) -> None:
         super().__init__(line, ast)
+
         self._letter = ast.first_letter
         if not getattr(ElementLetters, self._letter):
-            raise ParserError(f"Invalid element letter in element command @{line.str_location} {command}")
+            raise ParseError(f"Invalid element letter in element command @{line.str_location} {self._ast.name}")
         self._name = ast.after_first_letter
 
+        first_set_position = ast.childs.find_first_set()
+
+        # Read nodes
+        self._nodes = []
+        number_of_pins = 0
+        data = ElementData.elements[self._letter]
+        if not data.has_variable_number_of_pins:
+            number_of_pins = data.number_of_pins
+        else:   # Q or X
+            if first_set_position == -1:
+                number_of_pins = len(ast)
+            else:
+                number_of_pins = first_set_position
+            number_of_pins -= 1   # last is model / subcircuit name
+            if self._letter == 'Q':
+                last_node = ast[number_of_pins -1]
+                if isinstance(last_node, Ast.Id) and str(last_node) == 'off':
+                    number_of_pins -= 1
+                if not (3 <= number_of_pins <= 5):
+                    raise ValueError("Invalid number of nodes for {ast}")
+            self._model_name = str(ast[number_of_pins])
+        if number_of_pins:
+            self._nodes = self.childs_to_python(ast[:number_of_pins])
+
+        self._parameters = []
+        self._dict_parameters = {}
+        for child in ast[number_of_pins:]:
+            match child:
+                case Ast.Id():
+                    self._parameters.append(str(child))
+                case Ast.Integer():
+                    self._parameters.append(int(child))
+                # case Ast.Number():
+                #     self._parameters.append(child)
+                case Ast.Set():
+                    self._dict_parameters[child.left_id] = child
+                case _:
+                    self._parameters.append(child)
+                    # raise ValueError(f"Invalid item {child} in {ast}")
+
+        # Fixme: ok ???
+        if data.multi_devices:
+            for element_class in data:
+                if len(self._parameters) == element_class.number_of_positional_parameters:
+                    break
+        else:
+            element_class = data.single
+        self._factory = element_class
+
     ##############################################
+
+    @property
+    def factory(self):
+        return self._factory
 
     @property
     def letter(self) -> str:
@@ -227,14 +368,58 @@ class Element(Command):
     def name(self) -> str:
         return self._name
 
+    @property
+    def model_name(self) -> str:
+        if hasattr(self, 'model_name'):
+            return self._model_name
+        else:
+            return None
+
+    subcircuit_name = model_name
+
+    @property
+    def parameters(self):
+        return self._parameters
+
+    @property
+    def dict_parameters(self):
+        return self._dict_parameters
+
     ##############################################
 
     def __repr__(self) -> str:
-        return f"Element {self._letter}[{self._name}]"
+        parameters = [str(_) for _ in self._parameters]
+        dict_parameters = self.format_parameters(self._dict_parameters)
+        return f'Element {self._letter}[{self._name}] {self._nodes} {parameters} {dict_parameters}'
+
+    ##############################################
+
+    def translate_ground_node(self, ground: int) -> list[str|int]:
+        nodes = []
+        for node in self._nodes:
+            if str(node) == str(ground):
+                node = Node.SPICE_GROUND_NUMBER
+            nodes.append(node)
+        return nodes
 
 ####################################################################################################
 
-class Csparam(Command):
+class DotCommand(Command):
+    pass
+
+####################################################################################################
+
+class Ac(DotCommand):
+    DOT_COMMAND = '.ac'
+
+####################################################################################################
+
+class Control(DotCommand):
+    DOT_COMMAND = '.control'
+
+####################################################################################################
+
+class Csparam(DotCommand):
 
     """This class implements a csparam statement.
 
@@ -264,11 +449,44 @@ class Csparam(Command):
     ##############################################
 
     def __repr__(self) -> str:
-        return f"Csparam"
+        return f'Csparam'
 
 ####################################################################################################
 
-class Func(Command):
+class Dc(DotCommand):
+    DOT_COMMAND = '.dc'
+
+class Distorsion(DotCommand):
+    DOT_COMMAND = '.disto'
+
+class Else(DotCommand):
+    DOT_COMMAND = '.else'
+
+class ElseIf(DotCommand):
+    DOT_COMMAND = '.elseif'
+
+####################################################################################################
+
+class End(DotCommand):
+    DOT_COMMAND = '.end'
+
+class EndControl(DotCommand):
+    DOT_COMMAND = '.endc'
+
+class EndIf(DotCommand):
+    DOT_COMMAND = '.endif'
+
+class EndSubcircuit(DotCommand):
+    DOT_COMMAND = '.ends'
+
+####################################################################################################
+
+class Fourier(DotCommand):
+    DOT_COMMAND = '.fourier'
+
+####################################################################################################
+
+class Function(DotCommand):
 
     """This class implements a func statement.
 
@@ -314,11 +532,11 @@ class Func(Command):
     ##############################################
 
     def __repr__(self) -> str:
-        return f"Func {self._name} {self._variables} {self._expression}"
+        return f'Func {self._name} {self._variables} {self._expression}'
 
 ####################################################################################################
 
-class Global(Command):
+class Global(DotCommand):
 
     """This class implements a global command.
 
@@ -354,7 +572,17 @@ class Global(Command):
 
 ####################################################################################################
 
-class Include(Command):
+class InitialCondition(DotCommand):
+    DOT_COMMAND = '.ic'
+
+####################################################################################################
+
+class If(DotCommand):
+    DOT_COMMAND = '.if'
+
+####################################################################################################
+
+class Include(DotCommand):
 
     """This class implements a include command.
 
@@ -388,7 +616,7 @@ class Include(Command):
 
 ####################################################################################################
 
-class Lib(Command):
+class Library(DotCommand):
 
     """This class implements a library command.
 
@@ -427,7 +655,12 @@ class Lib(Command):
 
 ####################################################################################################
 
-class Model(Command):
+class Measure(DotCommand):
+    DOT_COMMAND = '.meas'
+
+####################################################################################################
+
+class Model(DotCommand):
 
     """This class implements a model command.
 
@@ -446,14 +679,21 @@ class Model(Command):
 
     def __init__(self, line: SpiceLine, ast: AstNode) -> None:
         super().__init__(line, ast)
-        self._name = str(ast.child)
-        child1 = ast[1]
-        if isinstance(child1, Ast.Function):
-            self._type = child1.name
+        self._name = str(ast.first_child)
+        child2 = ast[1]
+        if isinstance(child2, Ast.Function):
+            self._type = child2.name
+            parameters = child2   # .childs
         else:
-            self._type = str(child1)
-        # Fixme:
-        self._parameters = {}
+            self._type = str(child2)
+            parameters = ast[2:]
+        self._dict_parameters = {}
+        # Fixme: duplicated code
+        for child in parameters:
+            if isinstance(child, Ast.Set):
+                self._dict_parameters[child.left_id] = child.right
+            else:
+                raise ParseError(f"Invalid item '{child}' in {ast}")
 
     ##############################################
 
@@ -467,16 +707,31 @@ class Model(Command):
 
     @property
     def parameters(self) -> dict:
-        return self._parameters
+        return self._dict_parameters
 
     ##############################################
 
     def __repr__(self) -> str:
-        return f"Model {self._name} type={self._type} {self._parameters}"
+        parameters = self.format_parameters(self._dict_parameters)
+        return f'Model {self._name} type={self._type} {parameters}'
 
 ####################################################################################################
 
-class Param(Command):
+class NodeSet(DotCommand):
+    DOT_COMMAND = '.nodeset'
+
+class Noise(DotCommand):
+    DOT_COMMAND = '.noise'
+
+class Op(DotCommand):
+    DOT_COMMAND = '.op'
+
+class Options(DotCommand):
+    DOT_COMMAND = '.options'
+
+####################################################################################################
+
+class Param(DotCommand):
 
     """This class implements a param command.
 
@@ -499,6 +754,7 @@ class Param(Command):
 
     def __init__(self, line: SpiceLine, ast: AstNode) -> None:
         super().__init__(line, ast)
+        # Fixme:
         self._parameters = {}
 
     ##############################################
@@ -510,11 +766,61 @@ class Param(Command):
     ##############################################
 
     def __repr__(self) -> str:
-        return f"Param {self._parameters}"
+        return f'Param {self._parameters}'
 
 ####################################################################################################
 
-class Subcircuit(Command):
+class Plot(DotCommand):
+    DOT_COMMAND = '.plot'
+
+class Print(DotCommand):
+    DOT_COMMAND = '.print'
+
+class Probe(DotCommand):
+    DOT_COMMAND = '.probe'
+
+class PeriodicSteadyState(DotCommand):
+    DOT_COMMAND = '.pss'
+
+class PoleZero(DotCommand):
+    DOT_COMMAND = '.pz'
+
+class Save(DotCommand):
+    DOT_COMMAND = '.save'
+
+class Sensitivity(DotCommand):
+    DOT_COMMAND = '.sens'
+
+####################################################################################################
+
+class Netlist:
+
+    ##############################################
+
+    def __init__(self) -> None:
+        self._items = []
+
+    ##############################################
+
+    def add(self, item: Command) -> None:
+        self._items.append(item)
+
+    append = add
+
+    ##############################################
+
+    def __len__(self) -> int:
+        return len(self._items)
+
+    def __bool__(self) -> bool:
+        return bool(self._items)
+
+    def __iter__(self) -> Iterator[Command]:
+        return iter(self._items)
+
+####################################################################################################
+
+class Subcircuit(Netlist, DotCommand):
 
     """This class implements a subcircuit command.
 
@@ -540,18 +846,16 @@ class Subcircuit(Command):
     ##############################################
 
     def __init__(self, line: SpiceLine, ast: AstNode) -> None:
-        super().__init__(line, ast)
-        self._name = str(ast.child)
-        self._nodes = []
-        position = 0
-        for child in ast[1:]:
-            if child.is_leaf:
-               self._nodes.append(str(child))
+        DotCommand.__init__(self, line, ast)
+        Netlist.__init__(self)
+        # self._name = str(ast.first_child)
+        self._name, *self._nodes = self.childs_to_python(ast.childs.iter_on_leaf())
+        self._dict_parameters = {}
+        for child in ast[len(self._nodes)+1:]:
+            if isinstance(child, Ast.Set):
+                self._dict_parameters[child.left_id] = child.right
             else:
-                break
-            position += 1
-        # Fixme:
-        self._parameters = {}
+                raise ParseError(f"Invalid item {child} in {ast}")
 
     ##############################################
 
@@ -565,16 +869,17 @@ class Subcircuit(Command):
 
     @property
     def parameters(self) -> dict:
-        return self._parameters
+        return self._dict_parameters
 
     ##############################################
 
     def __repr__(self) -> str:
-        return f"Subckt {self._name} {self._nodes} {self._parameters}"
+        parameters = self.format_parameters(self._dict_parameters)
+        return f'Subckt {self._name} {self._nodes} {parameters}'
 
 ####################################################################################################
 
-class Temp(Command):
+class Temperature(DotCommand):
 
     """This class implements a temp command.
 
@@ -595,13 +900,14 @@ class Temp(Command):
 
     def __init__(self, line: SpiceLine, ast: AstNode) -> None:
         super().__init__(line, ast)
-        self._temperature = float(ast.child)
+        self._temperature = ast.child
 
     ##############################################
 
     @property
-    def temperature(self) -> float:
-        return self._temperature
+    def float_temperature(self) -> float:
+        # Fixme: could fail
+        return float(self._temperature)
 
     ##############################################
 
@@ -610,7 +916,7 @@ class Temp(Command):
 
 ####################################################################################################
 
-class Title(Command):
+class Title(DotCommand):
 
     """This class implements a title command."""
 
@@ -634,16 +940,48 @@ class Title(Command):
 
 ####################################################################################################
 
-class SpiceCode:
+class Transient(DotCommand):
+    DOT_COMMAND = '.tran'
 
-    _logger = _module_logger.getChild('SpiceCode')
+class Width(DotCommand):
+    DOT_COMMAND = '.width'
+
+####################################################################################################
+
+class SpiceStates(IntEnum):
+    DESK = 0         # -> .end
+    SUBCIRCUIT = 1   # -> .subcircuit -> .ends
+    IF = 2           # -> .if -> .endif
+    CONTROL = 3      # -> .control -> .endc / or .end
+
+####################################################################################################
+
+class SpiceSource:
+
+    _logger = _module_logger.getChild('SpiceSource')
 
     ##############################################
 
-    def __init__(self) -> None:
+    def __init__(self, source: Optional[str]=None, title_line: bool=True) -> None:
         self._parser = SpiceParser()
+        self.reset()
+        if source is not None:
+            self.parse_string(source, title_line)
+
+    ##############################################
+
+    def reset(self) -> None:
         self._lines = []
         self._title_line = None
+        self._ast_lines = []
+        self._obj_lines = []
+        self._titles = []
+        self._includes = []
+        self._libs = []
+        self._models = []
+        self._subcircuits = []
+        self._circuit = Netlist()
+        self._control = []
 
     ##############################################
 
@@ -662,16 +1000,20 @@ class SpiceCode:
 
     ##############################################
 
-    def parse(self, generator: Generator[tuple[int, str], None, None], title_line: bool=True) -> None:
-        self._lines = []
-        self._title_line = None
+    def read(self, generator: Generator[tuple[int, str], None, None], title_line: bool=True) -> None:
+        """Preprocess lines. This method merges continuation lines and split command and comment.
+
+        """
+        self.reset()
         last_line = None
         last_command = None
         for line_number, line in generator:
             # print(f'>>>{line_number}///{line.rstrip()}')
+            ### line = line.strip()
             # handle first line
-            if line_number == 0 and title_line:
-                self._title_line = SpiceLine(line_number, line_number, None, line)
+            line_is_comment = line.startswith('*')
+            if line_number == 0 and not line_is_comment and title_line:
+                self._title_line = SpiceLine(line_number, line_number, None, line.strip())
                 self._lines.append(self._title_line)
                 continue
             # Skip empty line
@@ -687,9 +1029,9 @@ class SpiceCode:
                     last_command.append(line_number, command, comment)
                     continue
                 else:
-                    raise ParserError(f"Continuation line at {line_number} doesn't follow a command line")
+                    raise ParseError(f"Continuation line at {line_number} doesn't follow a command line")
             # Handle comment line
-            elif line.startswith('*'):
+            elif line_is_comment:
                 comment = line[1:].strip()
             else:
                 command, comment = self._split_command_comment(line)
@@ -703,62 +1045,220 @@ class SpiceCode:
                 if command:
                     last_command = last_line
 
-        # print(self.header)
-        # Fixme: first line should be the title line
+    ##############################################
+
+    def parse(self) -> None:
         for line in self._lines:
-            line.cleanup()
-            if line.is_element or line.is_dot_command:
+            if line.is_comment:
+                self._ast_lines.append(None)
+            else:
+                line.cleanup()
                 self._logger.debug(os.linesep + str(line))
-                # print()
-                # print('='*100)
-                # print('>>>', line)
-                # print()
                 try:
                     ast = self._parser.parse(line.command)
-                    # print(ast.pretty_print())
+                    self._ast_lines.append(ast)
                     self._logger.debug(os.linesep + str(ast.pretty_print()))
                 except NameError as e:
-                    raise ParserError(str(e))
-            if line.is_element:
-                element = Element(line, ast)
-                # print(element)
-                self._logger.debug(os.linesep + repr(element))
-            elif line.is_dot_command:
-                try:
-                    cls = Command.get_cls(line.dot_command)
-                    dot_command = cls(line, ast)
-                    # print(dot_command)
-                    self._logger.debug(os.linesep + repr(dot_command))
-                except KeyError:
-                    # raise
-                    pass
+                    raise ParseError(str(e))
 
     ##############################################
 
-    def parse_string(self, code: str, title_line: bool=True) -> None:
-        generator = enumerate(code.splitlines())
-        self.parse(generator, title_line)
+    def analyse(self) -> None:
+        state_stack = [SpiceStates.DESK]
+        circuit = []
+        subcircuit = None
+        control = []
+
+        def get_state() -> int:
+            return state_stack[-1]
+
+        def not_state(state: int) -> bool:
+            return get_state() != state
+
+        def append(obj: Command) -> None:
+            match get_state():
+                case SpiceStates.SUBCIRCUIT:
+                    _ = subcircuit
+                case SpiceStates.CONTROL:
+                    _ = control
+                case _:
+                    _ = circuit
+            _.append(obj)
+
+        for line, ast in zip(self._lines, self._ast_lines):
+            if line.is_comment:
+                continue
+            cls = Command.get_cls(line, get_state() == SpiceStates.CONTROL)
+            obj = cls(line, ast)
+            self._obj_lines.append(obj)
+            self._logger.debug(os.linesep + repr(obj))
+            match obj:
+                case If():
+                    state_stack.append(SpiceStates.IF)
+                    append(obj)
+                    raise NotImplementedError
+                case Include():
+                    self._includes.append(obj)
+                case Control():
+                    state_stack.append(SpiceStates.CONTROL)
+                    control.append(obj)
+                case End():
+                    # ignore line after
+                    break
+                case EndControl():
+                    if not_state(SpiceStates.CONTROL):
+                        raise ParseError(".endc without .control")
+                    state_stack.pop()
+                case EndIf():
+                    if not not_state(SpiceStates.IF):
+                        raise ParseError(".endif without .if")
+                    state_stack.pop()
+                case EndSubcircuit():
+                    if not_state(SpiceStates.SUBCIRCUIT):
+                        raise ParseError(".ends without .subckt")
+                    state_stack.pop()
+                    subcircuit = None
+                case Library():
+                    self._includes.append(obj)
+                case Model():
+                    self._models.append(obj)
+                    append(obj)
+                case Subcircuit():
+                    state_stack.append(SpiceStates.SUBCIRCUIT)
+                    subcircuit = obj
+                    self._subcircuits.append(obj)
+                    # append(obj)
+                case Title():
+                    self._titles.append(obj)
+                case _:
+                    append(obj)
+        self._circuit = circuit
+        self._control = control
+
+    ##############################################
+
+    def _parse(self) -> None:
+        self.parse()
+        self.analyse()
+
+    ##############################################
+
+    def parse_string(self, source: str, title_line: bool=True) -> None:
+        generator = enumerate(source.splitlines())
+        self.read(generator, title_line)
+        self._parse()
 
     ##############################################
 
     def parse_file(self, path: str | Path) -> None:
         with open(path, 'r', encoding='utf-8') as fh:
             generator = enumerate(fh.readlines())
-            self.parse(generator, title_line=True)
+            self.read(generator, title_line=True)
+            self._parse()
+
+    ##############################################
+
+    def to_spice(self, comment: bool=False, line_length_max: int=None) -> str:
+        """Retranslate for each line the AST in Spice syntax."""
+
+        def split_line(line: str, prefix: str) -> str:
+            if line_length_max is not None and len(line) > line_length_max:
+                position = line.rfind(' ', 0, line_length_max)
+                # if position == -1:
+                #     position = line_length_max
+                # avoid infinite loop
+                if position > 0:
+                    line = line[:position] + os.linesep + prefix + split_line(line[position:].strip(), prefix)
+            return line
+
+        text = ''
+        for line, ast in zip(self._lines, self._ast_lines):
+            if ast is not None:
+                ast_str = str(ast)
+                if line.comment:
+                    ast_str += f' ; {line.comment}'
+                if not (isinstance(ast, Ast.DotCommand) and ast.name in ('.title', '.include', '.lib')):
+                    ast_str = split_line(ast_str, '+')
+            elif line.comment:
+                # comment = line.comment.replace(os.linesep, ' ')
+                # ast_str = f'* {comment}'
+                # ast_str = split_line(ast_str, '* ')
+                comment = line.comment.replace(os.linesep, os.linesep + '* ')
+                if line.start == 0:
+                    ast_str = comment
+                else:
+                    ast_str = f'* {comment}'
+            text += ast_str + os.linesep
+        return text
 
     ##############################################
 
     @property
-    def title(self) -> str:
-        return self._title_line
+    def title(self) -> SpiceLine | None:
+        if self._title_line is not None:
+            return self._title_line.comment
+        else:
+            return None
 
-####################################################################################################
+    @property
+    def lines(self) -> Iterator[str]:
+        return iter(self._lines)
 
-class SpiceFile(SpiceCode):
+    @property
+    def ast_lines(self) -> Iterator[AstNode]:
+        return iter(self._ast_lines)
+
+    @property
+    def obj_lines(self) -> Iterator[Command]:
+        return iter(self._obj_lines)
+
+    @property
+    def titles(self) -> Iterator[Title]:
+        return iter(self._titles)
+
+    @property
+    def includes(self) -> Iterator[Include]:
+        return iter(self._includes)
+
+    @property
+    def libraries(self) -> Iterator[Library]:
+        return iter(self._libs)
+
+    @property
+    def models(self) -> Iterator[Model]:
+        return iter(self._models)
+
+    @property
+    def subcircuits(self) -> Iterator[Subcircuit]:
+        return iter(self._subcircuits)
+
+    @property
+    def circuit(self) -> Netlist:
+        return iter(self._circuit)
+
+    @property
+    def control(self) -> Iterator[Command]:
+        return iter(self._control)
 
     ##############################################
 
-    def __init__(self, path: str | Path):
+    @property
+    def is_only_subcircuit(self) -> bool:
+        return not self._circuit and self._subcircuits
+
+    ##############################################
+
+    @property
+    def is_only_model(self) -> bool:
+        return not self._circuit and not self._subcircuits and self._models
+
+####################################################################################################
+
+class SpiceFile(SpiceSource):
+
+    ##############################################
+
+    def __init__(self, path: str | Path) -> None:
         super().__init__()
         self._path = Path(path)
         self.parse_file(path)

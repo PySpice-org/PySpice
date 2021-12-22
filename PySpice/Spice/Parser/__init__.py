@@ -18,6 +18,18 @@
 #
 ####################################################################################################
 
-__all__ = ["SpiceCode", "SpiceFile"]
+__all__ = [
+    'SpiceSource',
+    'SpiceFile',
+    'ParseError',
+    'Subcircuit',
+    'Model',
+]
 
-from .HighLevelParser import SpiceCode, SpiceFile
+from .HighLevelParser import (
+    SpiceSource,
+    SpiceFile,
+    ParseError,
+    Subcircuit,
+    Model,
+)
