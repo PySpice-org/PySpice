@@ -50,6 +50,10 @@ def main():
                         default=0,
                         help='Ground node')
 
+    parser.add_argument('--show',
+                        default=False, action='store_true',
+                        help='Show circuit')
+
     parser.add_argument('--format',
                         default=False, action='store_true',
                         help='Format circuit')
@@ -58,11 +62,24 @@ def main():
                         default=False, action='store_true',
                         help='Build circuit')
 
+    parser.add_argument('--translate',
+                        default=False, action='store_true',
+                        help='translate circuit')
+
     args = parser.parse_args()
 
     ##############################################
 
     spice_file = SpiceFile(path=args.circuit_file)
+
+    if args.show:
+        print('Title header:', spice_file.title)
+        print('Subcircuits:')
+        for subcircuit in spice_file.subcircuits:
+            print(f'  {subcircuit.name}')
+        print('Models:')
+        for model in spice_file.models:
+            print(f'  {model.name}')
 
     if args.format:
         print(spice_file.to_spice(comment=True, line_length_max=100))
@@ -70,9 +87,10 @@ def main():
     if args.build:
         Builder().translate(spice_file)
 
-    circuit = ToPython().translate(spice_file, ground=args.ground)
-    if args.output is not None:
-        with open(args.output, 'w') as f:
-            f.write(circuit)
-    else:
-        print(circuit)
+    if args.translate:
+        circuit = ToPython().translate(spice_file, ground=args.ground)
+        if args.output is not None:
+            with open(args.output, 'w') as f:
+                f.write(circuit)
+        else:
+            print(circuit)
