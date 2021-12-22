@@ -171,16 +171,20 @@ class Number(AstLeaf):
     ##############################################
 
     @property
-    def value(self):
+    def value(self) -> int | float:
         return self._value
 
     @property
-    def unit(self):
+    def unit(self) -> str:
         return self._unit
 
     @property
-    def extra_unit(self):
+    def extra_unit(self) -> str:
         return self._extra_unit
+
+    @property
+    def has_str(self) -> bool:
+        return self._unit or self._extra_unit
 
     ##############################################
 

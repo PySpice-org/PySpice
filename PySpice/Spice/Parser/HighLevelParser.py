@@ -274,7 +274,10 @@ class Command:
             case Ast.Integer():
                 return int(child)
             case Ast.Number():
-                return str(child)
+                if child.has_str:
+                    return str(child)
+                else:
+                    return float(child)
             case _:
                 # Fixme:
                 return str(child)
@@ -708,6 +711,10 @@ class Model(DotCommand):
     @property
     def parameters(self) -> dict:
         return self._dict_parameters
+
+    @property
+    def py_parameters(self) -> dict:
+        return {name:self.child_to_python(ast) for name, ast in self._dict_parameters.items()}
 
     ##############################################
 
