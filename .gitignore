@@ -115,6 +115,7 @@ Spice64_dll/
 __TRASH__/
 no-git/
 resources
+KiCadRW
 
 ####################################################################################################
 
@@ -160,3 +161,11 @@ spice-libraries/
 
 # devel-notes/
 # examples/operational-amplifier/doc/
+
+ngspice-manual-35-pretty.html
+ngspice-manual-35.pdf
+out.txt
+parsing.txt
+pickled-simulation.data
+simulation-cache/
+simulation.hdf5
