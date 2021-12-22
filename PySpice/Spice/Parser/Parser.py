@@ -135,6 +135,9 @@ class SpiceParser:
 
     # t_END_OF_LINE_COMMENT = r';|\$'
 
+    # Fixme: could use
+    # literals = "+-*/"
+
     t_MINUS = r'-'
     t_NOT = r'!'
     t_POWER = r'(\*\*)|\^'
@@ -176,20 +179,11 @@ class SpiceParser:
 
     t_DOT_COMMAND = r'\.(?i:[a-z]+)'
 
-    # Note: ID and NUMBER must be defined in a function in order to be sorted the right order
-    #       Else 2N2222A will be split in two tokens
+    # Note:
+    #      If ID > NUMBER, then it breaks float and yield A - B
+    #      If NUMBER < ID, then 2N2222A is split in two NUMBER tokens: Number 2 n, Number 2222 None a
+    #   Solution: use [a-z0-9]* for EXTRA_UNIT
 
-    def t_ID(self, t):
-        # Fixme:
-        r'''
-        (?i:
-            [a-z_0-9]+
-            (\.[a-z_0-9.]+) ?
-        )'''
-        # t.value = Id(t.value)
-        return t
-
-    # @TOKEN(identifier)
     def t_NUMBER(self, t):
         # Fixme: CONTEXTUAL SYNTAX !!! in_offset=[0.1 -0.2]
         r'''
@@ -207,7 +201,7 @@ class SpiceParser:
                 (meg) | (mil) | [tgkmunpf]
             ) ?
             (?P<EXTRA_UNIT>
-                [a-z]*
+                [a-z0-9]*
             )
         )
         '''
@@ -215,6 +209,13 @@ class SpiceParser:
         value = match['NUMBER_PART']
         unit = match['UNIT_PART']
         extra_unit = match['EXTRA_UNIT']
+        # Check case: 2 n 2222a
+        if unit:
+            for _ in extra_unit:
+                if _.isdigit():
+                    t.type = 'ID'
+                    t.value = t.lexer.lexmatch[0]
+                    return t
         try:
             value = int(value)
         except ValueError:
@@ -223,6 +224,16 @@ class SpiceParser:
             t.value = Integer(value)
         else:
             t.value = Number(value, unit, extra_unit)
+        return t
+
+    def t_ID(self, t):
+        # Fixme:
+        r'''
+        (?i:
+            [a-z_0-9]+
+            (\.[a-z_0-9.]+) ?
+        )'''
+        # t.value = Id(t.value)
         return t
 
     ##############################################
