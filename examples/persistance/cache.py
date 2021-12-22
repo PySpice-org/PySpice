@@ -1,7 +1,8 @@
 ####################################################################################################
 
-#r# Simulation Cache
-#r# ----------------
+#r# ==================
+#r#  Simulation Cache
+#r# ==================
 
 # It can be useful to cache the simulations, for example to avoid to rerun a simulation that
 # required a long computing time.
@@ -13,6 +14,26 @@
 
 ####################################################################################################
 
+from pathlib import Path
+
+####################################################################################################
+
+import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
+
+####################################################################################################
+
+from PySpice.Cache import SimulationCache
+
+from SimulateCircuit import simulate_circuit
+
+####################################################################################################
+
+cache = SimulationCache()
+print(cache.directory)
+
+analysis = simulate_circuit()
+print(cache.simulation_key(analysis.simulation))
 
 # data
 # data
