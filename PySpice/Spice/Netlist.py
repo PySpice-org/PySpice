@@ -618,6 +618,12 @@ class Circuit(Netlist):
 
     ##############################################
 
+    @property
+    def includes(self):
+        return iter(self._includes)
+
+    ##############################################
+
     def include(self, path):
         """Include a file."""
         if path not in self._includes:
