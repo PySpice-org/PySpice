@@ -658,7 +658,7 @@ class Circuit(Netlist):
         netlist += self._str_globals()
         netlist += self._str_parameters()
         netlist += super().__str__()
-        return str(netlist)
+        return str(netlist) + os.linesep    # Fixme: linesep here ???
 
     ##############################################
 
