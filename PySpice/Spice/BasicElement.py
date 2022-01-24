@@ -1511,9 +1511,9 @@ class LosslessTransmissionLine(TwoPortElement):
 
         super().__init__(name, *args, **kwargs)
 
-        if not (self.has_visible_parameter('time_delay') or
-                (self.has_visible_parameter('frequency') and \
-                 self.has_visible_parameter('normalized_length'))):
+        if not (hasattr(self, 'time_delay') or \
+               (hasattr(self, 'frequency') and \
+                hasattr(self, 'normalized_length'))):
             raise NameError('Either TD or F, NL must be specified')
 
 ####################################################################################################
