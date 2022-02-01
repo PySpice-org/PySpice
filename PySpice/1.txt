@@ -1,0 +1,15 @@
+total 52
+-rw-rw-r-- 1 nataraj nataraj    0 Feb  1 19:13 1.txt
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 Config
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 DeviceLibrary
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 Doc
+-rw-rw-r-- 1 nataraj nataraj 1132 Feb  1 19:11 __init__.py
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 Logging
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 Math
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 Physics
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 Plot
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 Probe
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 Scripts
+drwxrwxr-x 5 nataraj nataraj 4096 Feb  1 19:11 Spice
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 Tools
+drwxrwxr-x 2 nataraj nataraj 4096 Feb  1 19:11 Unit

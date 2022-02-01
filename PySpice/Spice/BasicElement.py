@@ -127,10 +127,15 @@ _module_logger = logging.getLogger(__name__)
 class DipoleElement(FixedPinElement):
     """This class implements a base class for dipole element."""
     PINS = ('plus', 'minus')
+    
+class ThreeTermElement(FixedPinElement):
+    """This class implements a base class for 3 terminal element."""
+    PINS = ('plus', 'minus', 'bulk')
 
 class TwoPortElement(FixedPinElement):
     """This class implements a base class for two-port element."""
     PINS = ('output_plus', 'output_minus', 'input_plus', 'input_minus')
+ 
 
 ####################################################################################################
 
@@ -366,6 +371,83 @@ class BehavioralResistor(DipoleElement):
     resistance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc1 = FloatKeyParameter('tc1')
     tc2 = FloatKeyParameter('tc2')
+
+####################################################################################################
+
+
+class ThreeTermResistor(ThreeTermElement):
+
+    """This class implements a Semiconductor resistor.
+
+    Spice syntax:
+
+    .. code-block:: none
+
+        RXXXXXXX n+ n- bulk <value> <mname> <l=length> <w=width> <temp=val> <dtemp=val> m=<val> mult=<val> <ac=val> <scale=val> <noisy=0|1>
+
+    Keyword Parameters:
+
+      :attr:`model`
+
+      :attr:`length`
+         alias `l`
+
+      :attr:`width`
+         alias `w`
+
+      :attr:`temperature`
+         alias `temp`
+
+      :attr:`device_temperature`
+         alias `dtemp`
+
+      :attr:`multiplier`
+         alias `m`
+
+      :attr:`ac`
+
+      :attr:`scale`
+
+      :attr:`noisy`
+
+    Attributes:
+
+      :attr:`resistance`
+
+      :attr:`model`
+
+      :attr:`length`
+
+      :attr:`width`
+
+      :attr:`temperature`
+
+      :attr:`device_temperature`
+
+      :attr:`multiplier`
+
+      :attr:`ac`
+
+      :attr:`scale`
+
+      :attr:`noisy`
+
+    """
+
+    ALIAS = 'X'
+    PREFIX = 'X'
+
+    resistance = FloatPositionalParameter(position=0, key_parameter=False, unit=U_Ω)
+    model = ModelPositionalParameter(position=1, key_parameter=True)
+    length = FloatKeyParameter('l', unit=U_m)
+    width = FloatKeyParameter('w', unit=U_m)
+    temperature = FloatKeyParameter('temp', unit=U_Degree)
+    device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    multiplier = IntKeyParameter('m')
+    mult = IntKeyParameter('mult')
+    ac = FloatKeyParameter('ac', unit=U_Ω)
+    scale = FloatKeyParameter('scale')
+    noisy = BoolKeyParameter('noisy')
 
 ####################################################################################################
 
