@@ -625,7 +625,10 @@ class NgSpiceShared:
             self._stderr.append(content)
             if content.startswith('Warning:'):
                 func = self._logger.warning
-            # elif content.startswith('Warning:'):
+            elif content.startswith('Note:'):
+                func = self._logger.note
+            elif content.startswith('Trying'):
+                func = self._logger.note
             else:
                 self._error_in_stderr = True
                 func = self._logger.error
