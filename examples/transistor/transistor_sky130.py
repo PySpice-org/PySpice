@@ -27,7 +27,8 @@ from PySpice.Unit import *
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Example python3.8 ./examples/transistor/nmos-transistor_sky130.py"
+                                                 " --fet_types sky130_fd_pr__nfet_01v8  sky130_fd_pr__pfet_01v8")
     parser.add_argument("--fet_types", required=True, help="Provide the FET Name list",nargs='+', default=[])
     parser.add_argument("--libpath", required=False, help="path to library",
                         default="/usr/bin/miniconda3/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice")
