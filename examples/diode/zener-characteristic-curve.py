@@ -61,7 +61,7 @@ ax2.grid()
 # U = RI   R = U/I
 dynamic_resistance = np.diff(-analysis.out) / np.diff(analysis.Vinput)
 # ax2.plot(analysis.out[:-1], dynamic_resistance/1000)
-ax2.semilogy(analysis.out[10:-1], dynamic_resistance[10:], basey=10)
+ax2.semilogy(analysis.out[10:-1], dynamic_resistance[10:], base=10)
 ax2.axvline(x=0, color='black')
 ax2.axvline(x=-5.6, color='red')
 ax2.legend(('Dynamic Resistance',), loc=(.1,.8))
