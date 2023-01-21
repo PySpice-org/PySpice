@@ -629,6 +629,8 @@ class NgSpiceShared:
                 func = self._logger.info
             elif content.startswith('Trying'):
                 func = self._logger.info
+            elif content.startswith('Supplies reduced'):
+                func = self._logger.info
             else:
                 self._error_in_stderr = True
                 func = self._logger.error
