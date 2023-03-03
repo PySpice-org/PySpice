@@ -232,6 +232,8 @@ class RawFileAbc:
         """
 
         line = self._read_line(header_line_iterator)
+        while not line.startswith(expected_label):
+            line = self._read_line(header_line_iterator)
         self._logger.debug(line)
         if has_value:
             # a title can have ': ' after 'title: '

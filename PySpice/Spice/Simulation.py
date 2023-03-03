@@ -633,7 +633,7 @@ class CircuitSimulation:
 
     def __str__(self):
 
-        netlist = self._circuit.str(simulator=self.SIMULATOR)
+        netlist = self._circuit.str(spice_sim=self.SIMULATOR)
         netlist += self.str_options()
         if self.initial_condition and len(self._initial_condition) > 0:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep

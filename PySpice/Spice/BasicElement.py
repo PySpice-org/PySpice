@@ -94,6 +94,7 @@ See Ngspice documentation for details.
 +--------------+------------------------------------------------------+
 
 """
+import warnings
 
 ####################################################################################################
 
@@ -262,7 +263,7 @@ class Resistor(DipoleElement):
     noisy = BoolKeyParameter('noisy')
     tc = FloatPairKeyParameter('tc')
     tc1 = FloatPairKeyParameter('tc1')
-    tc2 = FloatKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc2')
 
 ####################################################################################################
 
@@ -438,7 +439,7 @@ class Capacitor(DipoleElement):
     initial_condition = FloatKeyParameter('ic')
     tc = FloatPairKeyParameter('tc')
     tc1 = FloatPairKeyParameter('tc1')
-    tc2 = FloatKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc2')
 
 ####################################################################################################
 
@@ -611,7 +612,7 @@ class Inductor(DipoleElement):
     initial_condition = FloatKeyParameter('ic')
     tc = FloatPairKeyParameter('tc')
     tc1 = FloatPairKeyParameter('tc1')
-    tc2 = FloatKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc2')
 
 ####################################################################################################
 
@@ -648,7 +649,7 @@ class BehavioralInductor(DipoleElement):
     inductance_expression = ExpressionPositionalParameter(position=0, key_parameter=False)
     tc = FloatPairKeyParameter('tc')
     tc1 = FloatPairKeyParameter('tc1')
-    tc2 = FloatKeyParameter('tc1')
+    tc2 = FloatKeyParameter('tc2')
 
 ####################################################################################################
 
@@ -1016,35 +1017,64 @@ class BehavioralSource(DipoleElement):
     ##############################################
 
     def __str__(self):
-
+        from .Expressions import Symbol
         spice_element = self.format_node_names()
         # Fixme: expression
+        temp_expression = None
+        if self.netlist.spice_sim == 'xyce':
+            temp = 'temp'
+            if self.temperature is not None:
+                temp = self.temperature
+            elif self.device_temperature is not None:
+                temp = self.device_temperature
+            if self.tc is not None:
+                temp_expression = (1+Symbol(self.tc[0]) * (Symbol(temp) - Symbol('tnom')) +
+                                   Symbol(self.tc[1]) * (Symbol(temp) - Symbol('tnom'))**2)
+            else:
+                if self.tc1 is not None:
+                    temp_expression = (1 + Symbol(self.tc1) * (Symbol(temp) - Symbol('tnom')))
+                if self.tc2 is not None:
+                    temp_expression = (1 + Symbol(self.tc2) * (Symbol(temp) - Symbol('tnom'))**2)
         if self.current_expression is not None:
-            if isinstance(self.current_expression, Expression):
-                expression = ' i={%s}' % self.current_expression
+            if temp_expression is not None:
+                if isinstance(self.current_expression, Expression):
+                    expression = ' i={%s}' % (self.current_expression * temp_expression)
+                else:
+                    warnings.WarningMessage('Unable to include associated temperature behaviour')
             else:
-                expression = ' i=%s' % self.current_expression
+                if isinstance(self.current_expression, Expression):
+                    expression = ' i={%s}' % self.current_expression
+                else:
+                    expression = ' i=%s' % self.current_expression
         elif self.voltage_expression is not None:
-            if isinstance(self.voltage_expression, Expression):
-                expression = ' v={%s}' % self.voltage_expression
+            if temp_expression is not None:
+                if isinstance(self.voltage_expression, Expression):
+                    expression = ' v={%s}' % (self.voltage_expression * temp_expression)
+                else:
+                    warnings.WarningMessage('Unable to include associated temperature behaviour')
             else:
-                expression = ' v=%s' % self.voltage_expression
+                if isinstance(self.voltage_expression, Expression):
+                    expression = ' v={%s}' % self.voltage_expression
+                else:
+                    expression = ' v=%s' % self.voltage_expression
         else:
             expression = ''
         spice_element += expression
-        if self.tc is not None:
-            spice_element += ' tc1=%f,%f' % self.tc
+        if self.netlist.spice_sim != 'xyce':
+            if self.tc is not None:
+                spice_element += ' tc1=%f,%f' % self.tc
+            else:
+                if self.tc1 is not None:
+                    spice_element += ' tc1=%f' % self.tc1
+                if self.tc2 is not None:
+                    spice_element += ' tc2=%f' % self.tc2
+            if self.temperature is not None:
+                spice_element += ' temp=%f' % self.temperature
+            if self.device_temperature is not None:
+                spice_element += ' dtemp=%f' % self.device_temperature
         else:
-            if self.tc1 is not None:
-                spice_element += ' tc1=%f' % self.tc1
-            if self.tc2 is not None:
-                spice_element += ' tc2=%f' % self.tc2
-        if self.temperature is not None:
-            spice_element += ' temp=%f' % self.temperature
-        if self.device_temperature is not None:
-            spice_element += ' dtemp=%f' % self.device_temperature
-        if self.smoothbsrc is not None:
-            spice_element += ' smoothbsrc=%s' % self.smoothbsrc
+            if self.smoothbsrc is not None:
+                spice_element += ' smoothbsrc=%s' % self.smoothbsrc
         return spice_element
 
 ####################################################################################################

@@ -87,8 +87,12 @@ Q1 col base eb QPWR .1
 
 .MODEL QPWR NPN
 
+.MODEL Q2N2222 NPN
+
 *Another note
 Q2 10 2 9 PNP1
+
+Q2N2222 Nc Nb Ne Q2N2222
 
 Q8 Coll Base Emit VBIC13MODEL3 temp=0
 Q9 Coll Base Emit Subst DT VBIC13MODEL4
@@ -560,6 +564,7 @@ bexor yint 0 v={if(((v(A) > 0.5) ^ (v(B) > 0.5)), 1, 0)}
     def test_subcircuit(self):
         print(os.getcwd())
         circuit = Circuit('MOS Driver')
+        circuit.spice_sim = 'xyce'
         circuit.include(os.path.join(os.getcwd(), 'mosdriver.lib'))
         circuit.X('test', 'mosdriver', '0', '1', '2', '3', '4', '5')
         circuit.BehavioralSource('test', '1', '0', voltage_expression='if(0, 0, 1)', smoothbsrc=1)

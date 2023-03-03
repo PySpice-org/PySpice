@@ -9,5 +9,5 @@ regex~=2021.4.4
 ply~=3.11
 networkx~=2.5.1
 TatSu~=5.6.1
-scipy~=1.6.3
+scipy~=1.10.0
 setuptools~=56.2.0
