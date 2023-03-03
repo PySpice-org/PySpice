@@ -1,15 +1,22 @@
 # Automate tasks
 # http://www.pyinvoke.org
+requests
+beautifulsoup4
 invoke
+PyGithub
 
 # Build documentation
 sphinx
 sphinxcontrib-getthecode
+pyterate
+pelican
 
 # Check code style, errors, etc
 pylint
+flake8
 
 # Test runners
+pytest
 tox
 
 # Check that MANIFEST.in matches Git repo contents before making a release

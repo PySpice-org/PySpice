@@ -24,8 +24,8 @@ from PySpice.Unit import *
 #r# Let define a parallel resistor subcircuit using the :class:`PySpice.Spice.Netlist.SubCircuitFactory`
 
 class ParallelResistor(SubCircuitFactory):
-    __name__ = 'parallel_resistor'
-    __nodes__ = ('n1', 'n2')
+    NAME = 'parallel_resistor'
+    NODES = ('n1', 'n2')
     def __init__(self, R1=1@u_Ω, R2=2@u_Ω):
         super().__init__()
         self.R(1, 'n1', 'n2', R1)
@@ -46,9 +46,9 @@ print(circuit)
 #r# If the above way is not suited for your purpose we can use this second approach
 
 class ParallelResistor2(SubCircuit):
-    __nodes__ = ('n1', 'n2')
+    NODES = ('n1', 'n2')
     def __init__(self, name, R1=1@u_Ω, R2=2@u_Ω):
-        SubCircuit.__init__(self, name, *self.__nodes__)
+        SubCircuit.__init__(self, name, *self.NODES)
         self.R(1, 'n1', 'n2', R1)
         self.R(2, 'n1', 'n2', R2)
 

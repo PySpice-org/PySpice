@@ -133,6 +133,8 @@ class NgSpiceSharedCircuitSimulator(NgSpiceCircuitSimulator):
         super()._run(analysis_method, *args, **kwargs)
 
         self._ngspice_shared.destroy()
+        # load circuit and simulation
+        # Fixme: Error: circuit not parsed.
         self._ngspice_shared.load_circuit(str(self))
         self._ngspice_shared.run()
         self._logger.debug(str(self._ngspice_shared.plot_names))
@@ -140,6 +142,6 @@ class NgSpiceSharedCircuitSimulator(NgSpiceCircuitSimulator):
 
         plot_name = self._ngspice_shared.last_plot
         if plot_name == 'const':
-            raise NameError('Invalid plot name')
+            raise NameError('Simulation failed')
 
         return self._ngspice_shared.plot(self, plot_name).to_analysis()

@@ -1,41 +1,55 @@
+{# -*- engine: jinja2 -*- #}
+
 {%- extends "sphinx_rtd_theme/layout.html" %}
 
-{% set script_files = script_files + ['_static/getthecode.js'] %}
-
 {%- block extrahead %}
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
-<script>
-window.addEventListener("load", function(){
-window.cookieconsent.initialise({
-  "palette": {
-    "popup": {
-      "background": "#000"
-    },
-    "button": {
-      "background": "#f1d600"
-    }
-  },
-  "theme": "classic",
-  "position": "bottom-right"
-})});
-</script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+    <script>
+     window.addEventListener("load", function(){
+	 window.cookieconsent.initialise({
+	     "palette": {
+		 "popup": {
+		     "background": "#000"
+		 },
+		 "button": {
+		     "background": "#f1d600"
+		 }
+	     },
+	     "theme": "classic",
+	     "position": "bottom-right"
+     })});
+    </script>
 {% endblock %}
 
 {%- block footer %}
-<script type="text/javascript">
-  var _paq = _paq || [];
-  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="https://stats.fabrice-salvaire.fr/";
-    _paq.push(['setTrackerUrl', u+'kiwi']);
-    _paq.push(['setSiteId', 6]);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'kiwi.js';
-  s.parentNode.insertBefore(g,s);
-  })();
-</script>
-<noscript><p><img src="https://stats.fabrice-salvaire.fr/kiwi?idsite=6&rec=1" style="border:0;" alt="" /></p></noscript>
+    <script type="text/javascript">
+     var _paq = _paq || [];
+     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+     _paq.push(['trackPageView']);
+     _paq.push(['enableLinkTracking']);
+     (function() {
+	 var u="https://stats.fabrice-salvaire.fr/";
+	 _paq.push(['setTrackerUrl', u+'kiwi']);
+	 _paq.push(['setSiteId', 6]);
+	 var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+	 g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'kiwi.js';
+	 s.parentNode.insertBefore(g,s);
+     })();
+    </script>
+    <noscript><p><img src="https://stats.fabrice-salvaire.fr/kiwi?idsite=6&rec=1" style="border:0;" alt="" /></p></noscript>
+{% endblock %}
+
+{% block sidebartitle %}
+    <a href="https://pyspice.fabrice-salvaire.fr/" class="icon icon-home">
+	{{ project }}
+        <img src="{{ pathto('_static/' + 'logo.png', 1) }}" class="logo" alt="Logo"/>
+    </a>
+
+    {# <div class="version"> #}
+    <a href="{{ pathto(master_doc) }}" class="icon icon-home">
+	PySpice {{ version }}
+    </a>
+
+    {% include "searchbox.html" %}
 {% endblock %}

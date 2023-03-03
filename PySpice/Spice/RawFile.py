@@ -189,7 +189,7 @@ class RawFileAbc:
 
     ##############################################
 
-    __name_to_unit__ = {
+    _name_to_unit = {
         'time': u_s,
         'voltage': u_V,
         'current': u_A,
@@ -279,8 +279,8 @@ class RawFileAbc:
             # 0 frequency frequency grid=3
             index, name, unit = items[:3]
             #  unit = time, voltage, current
-            unit = self.__name_to_unit__[unit] # convert to Unit
-            self.variables[name] = self.__variable_cls__(index, name, unit)
+            unit = self._name_to_unit[unit] # convert to Unit
+            self.variables[name] = self._variable_cls(index, name, unit)
         # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
 
     ##############################################
@@ -302,7 +302,7 @@ class RawFileAbc:
         # np.savetxt('raw.txt', input_data)
         if self.flags == 'complex':
             raw_data = input_data
-            input_data = np.array(raw_data[0::2], dtype='complex64')
+            input_data = np.array(raw_data[0::2], dtype='complex128')
             input_data.imag = raw_data[1::2]
         for variable in self.variables.values():
             variable.data = input_data[variable.index]

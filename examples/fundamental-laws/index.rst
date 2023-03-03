@@ -1,4 +1,4 @@
-This section discusses the fundamental laws of electronic.
+This section discusses the fundamental laws of electronics.
 
 Kirchhoff's circuit laws
 ------------------------
@@ -33,24 +33,24 @@ Ohm's Law
 ---------
 
 The Ohm's law is a simple model of a resistor which say that the current I flowing through a
-resistor is proportional to the voltage U applied accross it, this constant is called the resistance
+resistor is proportional to the voltage U applied across it, this constant is called the resistance
 (R).
 
 .. math::
 
    U = R I
 
-You will observe the same phenomenum with a pipe filled with water, the water's flow is proportional
+You will observe the same phenomenon with a pipe filled with water, the water's flow is proportional
 to the declination of the pipe, more you incline the pipe, more you pressure the water within the
 pipe.  Electron act as water and voltage as pressure.
 
-In reallity the resistance depends of the temperature of the material, like many device parameters.
+In reality, the resistance depends of the temperature of the material, like many device parameters.
 It is why we always simulate a circuit at a given temperature.
 
 This law is important in circuit analysis, because it is a first approximation of any dipole for a
 particular current and voltage.  Indeed we can approximate any curve locally by a linear relation.
 If we know the current and voltage of a dipole under some conditions then we can approximate the
-rate of change under a small variation of the current or voltage.  Spice use this principle to
+rate of change under a small variation of the current or voltage.  Spice uses this principle to
 evalute a circuit at different times.
 
 .. http://en.wikipedia.org/wiki/Ohm%27s_law

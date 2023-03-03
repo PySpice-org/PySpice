@@ -47,24 +47,23 @@ analysis = simulator.transient(step_time=source.period/200, end_time=source.peri
 
 ####################################################################################################
 
-figure = plt.figure(1, (20, 10))
+figure, ax = plt.subplots(figsize=(20, 10))
 
-axe = plt.subplot(111)
-axe.set_title('Voltage Multiplier')
-axe.set_xlabel('Time [s]')
-axe.set_ylabel('Voltage [V]')
-axe.grid()
+ax.set_title('Voltage Multiplier')
+ax.set_xlabel('Time [s]')
+ax.set_ylabel('Voltage [V]')
+ax.grid()
 # Fixme: axis vs axe ...
-plot(analysis['in'], axis=axe)
+ax.plot(analysis['in'])
 for i in range(1, multiplier+1):
     y = analysis[str(i)]
     if i & 1: # for odd multiplier the ground is permuted
         y -= analysis['in']
-    plot(y, axis=axe)
-# axe.axhline(-multiplier*source.amplitude)
-axe.set_ylim(float(-multiplier*1.1*source.amplitude), float(1.1*source.amplitude))
-axe.legend(['input'] + ['*' + str(i) for i in range(1, multiplier+1)] ,
-           loc=(.2,.8))
+    ax.plot(y)
+# ax.axhline(-multiplier*source.amplitude)
+ax.set_ylim(float(-multiplier*1.1*source.amplitude), float(1.1*source.amplitude))
+ax.legend(['input'] + ['*' + str(i) for i in range(1, multiplier+1)] ,
+          loc=(.2,.8))
 
 plt.tight_layout()
 plt.show()

@@ -1,0 +1,66 @@
+  ADDER - 4 BIT ALL-NAND-GATE BINARY ADDER
+
+*** SUBCIRCUIT DEFINITIONS
+.SUBCKT NAND in1 in2 out VDD
+*   NODES:  INPUT(2), OUTPUT, VCC
+M1 out in2 Vdd Vdd p1 W=7.5u L=0.35u pd=13.5u ad=22.5p ps=13.5u as=22.5p
+M2 net.1 in2 0 0 n1   W=3u   L=0.35u pd=9u    ad=9p    ps=9u    as=9p
+M3 out in1 Vdd Vdd p1 W=7.5u L=0.35u pd=13.5u ad=22.5p ps=13.5u as=22.5p
+M4 out in1 net.1 0 n1 W=3u   L=0.35u pd=9u    ad=9p    ps=9u    as=9p
+.ENDS NAND
+
+.SUBCKT ONEBIT 1 2 3 4 5 6
+*   NODES:  INPUT(2), CARRY-IN, OUTPUT, CARRY-OUT, VCC
+X1   1  2  7  6   NAND
+X2   1  7  8  6   NAND
+X3   2  7  9  6   NAND
+X4   8  9 10  6   NAND
+X5   3 10 11  6   NAND
+X6   3 11 12  6   NAND
+X7  10 11 13  6   NAND
+X8  12 13  4  6   NAND
+X9  11  7  5  6   NAND
+.ENDS ONEBIT
+
+.SUBCKT TWOBIT 1 2 3 4 5 6 7 8 9
+*   NODES:  INPUT - BIT0(2) / BIT1(2), OUTPUT - BIT0 / BIT1,
+*           CARRY-IN, CARRY-OUT, VCC
+X1   1  2  7  5 10  9   ONEBIT
+X2   3  4 10  6  8  9   ONEBIT
+.ENDS TWOBIT
+
+.SUBCKT FOURBIT 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+*   NODES:  INPUT - BIT0(2) / BIT1(2) / BIT2(2) / BIT3(2),
+*           OUTPUT - BIT0 / BIT1 / BIT2 / BIT3, CARRY-IN, CARRY-OUT, VCC
+X1   1  2  3  4  9 10 13 16 15   TWOBIT
+X2   5  6  7  8 11 12 16 14 15   TWOBIT
+.ENDS FOURBIT
+
+*** POWER
+VCC   99  0   DC 3.3V
+
+*** ALL INPUTS
+VIN1A  1  0   DC 0 PULSE(0 3 0 5NS 5NS   20NS   50NS)
+VIN1B  2  0   DC 0 PULSE(0 3 0 5NS 5NS   30NS  100NS)
+VIN2A  3  0   DC 0 PULSE(0 3 0 5NS 5NS   50NS  200NS)
+VIN2B  4  0   DC 0 PULSE(0 3 0 5NS 5NS   90NS  400NS)
+VIN3A  5  0   DC 0 PULSE(0 3 0 5NS 5NS  170NS  800NS)
+VIN3B  6  0   DC 0 PULSE(0 3 0 5NS 5NS  330NS 1600NS)
+VIN4A  7  0   DC 0 PULSE(0 3 0 5NS 5NS  650NS 3200NS)
+VIN4B  8  0   DC 0 PULSE(0 3 0 5NS 5NS 1290NS 6400NS)
+
+*** DEFINE NOMINAL CIRCUIT
+X1     1  2  3  4  5  6  7  8  9 10 11 12  0 13 99 FOURBIT
+
+.option noinit acct
+.TRAN 500p 6400NS
+* save inputs
+.save V(1) V(2) V(3) V(4) V(5) V(6) V(7) V(8) 
+
+* use BSIM3 model with default parameters
+.model n1 nmos level=49 version=3.3.0
+.model p1 pmos level=49 version=3.3.0
+*.include ./Modelcards/modelcard32.nmos
+*.include ./Modelcards/modelcard32.pmos
+
+.END

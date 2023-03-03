@@ -98,23 +98,21 @@ analysis = simulator.ac(start_frequency=10@u_kHz, stop_frequency=1@u_GHz, number
 
 #r# Let plot the voltage across the diode and the dynamic resistance as a function of the frequency.
 
-figure = plt.figure(1, (20, 10))
+figure, (ax1, ax2, ax3)  = plt.subplots(ncols=3, figsize=(20, 10))
 
-axe = plt.subplot(311)
 # Fixme: handle unit in plot (scale and legend)
-axe.semilogx(analysis.frequency, np.absolute(analysis.out)*1e3)
-axe.grid(True)
-axe.grid(True, which='minor')
-axe.set_xlabel("Frequency [Hz]")
-axe.set_ylabel("Vd [mV]")
+ax1.semilogx(analysis.frequency, np.absolute(analysis.out)*1e3)
+ax1.grid(True)
+ax1.grid(True, which='minor')
+ax1.set_xlabel("Frequency [Hz]")
+ax1.set_ylabel("Vd [mV]")
 
-axe = plt.subplot(312)
 current = (analysis['in'] - analysis.out) / float(R.resistance)
-axe.semilogx(analysis.frequency, np.absolute(analysis.out/current))
-axe.grid(True)
-axe.grid(True, which='minor')
-axe.set_xlabel("Frequency [Hz]")
-axe.set_ylabel('Rd [Ω]')
+ax2.semilogx(analysis.frequency, np.absolute(analysis.out/current))
+ax2.grid(True)
+ax2.grid(True, which='minor')
+ax2.set_xlabel("Frequency [Hz]")
+ax2.set_ylabel('Rd [Ω]')
 
 ####################################################################################################
 
@@ -139,16 +137,15 @@ circuit.D('1', 'out', circuit.gnd, model='BAV21')
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/1e3, end_time=source.period*4)
 
-axe = plt.subplot(313)
 # Fixme: axis, x scale
-# plot(analysis['in'] - dc_offset + quiescent_points[0]['quiescent_voltage'], axis=axe)
-# plot(analysis.out, axis=axe)
-axe.plot(analysis.out.abscissa*1e6, analysis.out)
-axe.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
-axe.grid()
-axe.set_xlabel('t [μs]')
-axe.set_ylabel('[V]')
-# axe.set_ylim(.5, 1 + ac_amplitude + .1)
+# plot(analysis['in'] - dc_offset + quiescent_points[0]['quiescent_voltage'])
+# plot(analysis.out)
+ax3.plot(analysis.out.abscissa*1e6, analysis.out)
+ax3.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
+ax3.grid()
+ax3.set_xlabel('t [μs]')
+ax3.set_ylabel('[V]')
+# ax3.set_ylim(.5, 1 + ac_amplitude + .1)
 
 plt.tight_layout()
 plt.show()

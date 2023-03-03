@@ -54,15 +54,15 @@ circuit.R(2, 'output', 'scope_ground', 900@u_Ω)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=ac_line.period/100, end_time=ac_line.period*3)
 
-figure = plt.figure(None, (20, 6))
+figure, ax = plt.subplots(figsize=(20, 6))
 
-plot(analysis.input)
-plot(analysis.Vinput)
-plot(analysis.output - analysis.scope_ground)
-plt.legend(('Vin [V]', 'I [A]'), loc=(.8,.8))
-plt.grid()
-plt.xlabel('t [s]')
-plt.ylabel('[V]')
+ax.plot(analysis.input)
+ax.plot(analysis.Vinput)
+ax.plot(analysis.output - analysis.scope_ground)
+ax.legend(('Vin [V]', 'I [A]'), loc=(.8,.8))
+ax.grid()
+ax.set_xlabel('t [s]')
+ax.set_ylabel('[V]')
 
 plt.show()
 

@@ -1,0 +1,9 @@
+.title Pulse
+Bsource in 0 v=time^4*exp(-1000*time)
+R1 in out 9kOhm
+R2 out 0 1kOhm
+.options TEMP = 27°C
+.options TNOM = 27°C
+.ic
+.tran 0.001ms 20ms 0s
+.end

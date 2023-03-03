@@ -1,0 +1,49 @@
+
+{# -*- engine: jinja2 -*- #}
+{% extends "base.html" %}
+
+{% block html_lang %}en{% endblock %}
+
+{% block title %}{{ SITENAME }} — Documentation{%endblock%}
+
+{% block content %}
+
+    <h1 class="mb-4"><i class="fas fa-book"></i> PySpice User / API Documentation</h1>
+
+    <p class="lead my-4">
+	<strong>Note:</strong> <small>if something looks wrong in the lastest documentation, it is advisable to check the older documentations.</small>
+    </p>
+
+    <div class="row">
+	<div class="col-sm">
+	    <div class="jumbotron py-4">
+		<h5>Last Release Documentation</h5>
+		<a href="{{ RELEASES_URL }}/{{ LAST_RELEASE }}" class="btn btn-primary">Release {{ LAST_RELEASE }}</a>
+	    </div>
+	</div>
+	<div class="col-sm">
+	    <div class="jumbotron py-4">
+		<h5 class="text-danger">Dev Release Documentation</h5>
+		<a href="{{ RELEASES_URL }}/{{ DEV_RELEASE }}" class="btn btn-primary">Release {{ DEV_RELEASE }}</a>
+	    </div>
+	</div>
+	<!-- <div class="col-sm">
+	     <div class="jumbotron py-4">
+	     <h5>Previous Release Documentation</h5>
+	     <a href="{{ RELEASES_URL }}/{{ OLD_RELEASES[0] }}" class="btn btn-primary">Release {{ OLD_RELEASES[0] }}</a>
+	     </div>
+	     </div> -->
+    </div>
+
+    <div class="container">
+	<h3>Older Releases</h3>
+	{# {% for release in OLD_RELEASES[1:] %} #}
+	{% for release in OLD_RELEASES %}
+	{# flexbox ??? #}
+	    <ul class="list-unstyled">
+		<li><a href="{{ RELEASES_URL }}/{{ release }}" class="btn btn-primary">Release {{ release }}</a></li>
+	    </ul>
+	{% endfor %}
+    </div>
+
+{% endblock %}

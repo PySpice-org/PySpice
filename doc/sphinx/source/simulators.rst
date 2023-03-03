@@ -8,7 +8,7 @@
 
 This page presents the main open source circuit simulators which are actually available.
 
-You can get an overview of what is going on FOSS circuit simulation in the `FOSDEM'17 Electronic
+You can get an overview of what is going on in FOSS circuit simulation in the `FOSDEM'17 Electronic
 Design Automation Track
 <https://archive.fosdem.org/2017/schedule/track/electronic_design_automation_eda>`_
 
@@ -42,10 +42,10 @@ Xyce
 solving extremely large circuit problems developed at `Sandia National Laboratories
 <http://www.sandia.gov>`_.
 
-Sandia is an US laboratory involved in the national nuclear weapons program. Its French counterpart
+Sandia is a US laboratory involved in the national nuclear weapons program. Its French counterpart
 is the Alternative Energies and Atomic Energy Commission or CEA.
 
-Sandia has released several open source porgrams, you can find a list on its `Wikipedia page
+Sandia has released several open source programs, you can find a list on its `Wikipedia page
 <https://en.wikipedia.org/wiki/Sandia_National_Laboratories>`_.
 
 Xyce was developed from scratch at Sandia in order to meet special needs like the simulation of
@@ -68,7 +68,7 @@ Qucs
 ----
 
 `QUCS <http://qucs.sourceforge.net>`_ (Quite Universal Circuit Simulator) was an attempt to develop
-a circuit simulator featuring an IDE similar to LtSpice by Michael Margraf, Stefan Jahn et al.
+a circuit simulator featuring an IDE similar to LTspice by Michael Margraf, Stefan Jahn et al.
 
 QUCS is actually slowly maintained, a Qt4 port from Qt3 is on going since several years. 
 

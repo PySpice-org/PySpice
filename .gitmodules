@@ -1,0 +1,6 @@
+[submodule "pyspice-feedstock"]
+	path = pyspice-feedstock
+	url = https://github.com/conda-forge/pyspice-feedstock
+[submodule "ngspice-feedstock"]
+	path = ngspice-feedstock
+	url = https://github.com/conda-forge/ngspice-feedstock.git

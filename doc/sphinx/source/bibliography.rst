@@ -4,12 +4,6 @@
  Bibliography
 ==============
 
-Related articles
-----------------
-
-This `blog page <https://www.fabrice-salvaire.fr/en/blog/first-steps-with-spice>`_ was the genesis
-of PySpice and gives an introduction to SPICE and explain how to plug *ngspice* to Python.
-
 SPICE References
 ----------------
 
@@ -37,5 +31,3 @@ The relevant references on Spice are by date of publication:
 
  * `official spice3f5 source code <http://embedded.eecs.berkeley.edu/pubs/downloads/spice/index.htm>`_
    on eecs.berkeley.edu server, the page contains some links on Spice (historical notes).
-
-.. End

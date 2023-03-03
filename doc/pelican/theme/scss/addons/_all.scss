@@ -1,0 +1,18 @@
+// #############################################################################
+//
+// If a component is plug-and-playable, it probably belongs in here. Good
+// examples are jQuery plugins or Aldryn addons. Sometimes larger
+// application such as a shop might also be pluggable. If this is not the
+// case, they belong in the /sass/sites directory.
+//
+// Warning
+// You will always encounter the question whether to place a component
+// within /sass/addons or /sass/sites. In case of doubts, use the sites
+// folder.
+//
+// this folder is for reusable addons / apps from a cms or alike
+// update this file accordingly to include new addons globally
+//
+// #############################################################################
+
+@import "browser";

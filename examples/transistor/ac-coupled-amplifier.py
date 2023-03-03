@@ -46,21 +46,20 @@ circuit.R('Load', 'out', 0, 1@u_MΩ)
 
 ####################################################################################################
 
-figure = plt.figure(1, (20, 10))
+figure, ax = plt.subplots(figsize=(20, 10))
 
 # .ac dec 5 10m 1G
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=source.period/200, end_time=source.period*2)
 
-axe = plt.subplot(111)
-plt.title('')
-plt.xlabel('Time [s]')
-plt.ylabel('Voltage [V]')
-plt.grid()
-plot(analysis['in'], axis=axe)
-plot(analysis.out, axis=axe)
-plt.legend(('input', 'output'), loc=(.05,.1))
+ax.set_title('')
+ax.set_xlabel('Time [s]')
+ax.set_ylabel('Voltage [V]')
+ax.grid()
+ax.plot(analysis['in'])
+ax.plot(analysis.out)
+ax.legend(('input', 'output'), loc=(.05,.1))
 
 plt.tight_layout()
 plt.show()

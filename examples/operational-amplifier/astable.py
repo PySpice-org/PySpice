@@ -1,3 +1,5 @@
+#skip#
+
 ####################################################################################################
 
 import matplotlib.pyplot as plt
@@ -9,7 +11,6 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Probe.Plot import plot
 from PySpice.Spice.Netlist import Circuit
 from PySpice.Unit import *
 
@@ -38,14 +39,17 @@ circuit.NonLinearVoltageSource(1, 'output', circuit.gnd,
                                )
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-simulator.initial_condition(comparator=0) # Fixme: simulator.nodes.comparator == 0
+# simulator.initial_condition(comparator=0)  # Fixme: simulator.nodes.comparator == 0
+simulator.node_set(comparator=0)  # Fixme: simulator.nodes.comparator == 0
 analysis = simulator.transient(step_time=1@u_us, end_time=500@u_us)
 # Fixme: Xyce fails with Time step too small
 
-figure = plt.figure(1, (20, 10))
-plot(analysis.reference)
-plot(analysis.comparator)
-plot(analysis.output)
+figure, ax = plt.subplots(figsize=(20, 10))
+ax.grid()
+ax.plot(analysis.reference)
+ax.plot(analysis.comparator)
+ax.plot(analysis.output)
+
 plt.tight_layout()
 plt.show()
 

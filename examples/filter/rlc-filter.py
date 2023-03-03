@@ -78,9 +78,8 @@ print("Factor of quality = {:.1f}".format(quality_factor))
 
 #r# We plot the Bode diagram of the four filters.
 
-figure = plt.figure(1, (20, 10))
+figure, axes = plt.subplots(2, figsize=(20, 10))
 plt.title("Bode Diagrams of RLC Filters")
-axes = (plt.subplot(211), plt.subplot(212))
 for out in ('out5', 'out1', 'out2', 'out4'):
     bode_diagram(axes=axes,
                  frequency=analysis1.frequency,

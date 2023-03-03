@@ -20,15 +20,15 @@ from PySpice.Unit import *
 ####################################################################################################
 
 class Level2(SubCircuitFactory):
-    __name__ = 'level2'
-    __nodes__ = ('d4', 'g4', 'v4')
+    NAME = 'level2'
+    NODES = ('d4', 'g4', 'v4')
     def __init__(self):
         super().__init__()
-        self.M(1, 'd4', 'g4', 'v4', 'v4', model='nmos', w=1e-5, l=3.5e-7)
+        self.M(1, 'd4', 'g4', 'v4', 'v4', model='NMOS', w=1e-5, l=3.5e-7)
 
 class Level1(SubCircuitFactory):
-    __name__ = 'level1'
-    __nodes__ = ('d3', 'g3', 'v3')
+    NAME = 'level1'
+    NODES = ('d3', 'g3', 'v3')
     def __init__(self):
         super().__init__()
         self.X('mos2', 'level2', 'd3', 'g3', 'v3')
@@ -44,7 +44,7 @@ if True:
     circuit.subcircuit(Level1())
 else:
     subcircuit_level2 = SubCircuit('level2', 'd4', 'g4', 'v4')
-    subcircuit_level2.M(1, 'd4', 'g4', 'v4', 'v4', model='nmos', w=1e-5, l=3.5e-7)
+    subcircuit_level2.M(1, 'd4', 'g4', 'v4', 'v4', model='NMOS', w=1e-5, l=3.5e-7)
 
     subcircuit_level1 = SubCircuit('level1', 'd3', 'g3', 'v3')
     subcircuit_level1.X('mos2', 'level2', 'd3', 'g3', 'v3')
@@ -52,12 +52,18 @@ else:
 
     circuit.subcircuit(subcircuit_level1)
 
+circuit.model('NMOS', 'NMOS', LEVEL=8)
+
 print(str(circuit))
 
 ####################################################################################################
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.dc(Vdd=slice(0, 5, .1)) # Fixme: ,Vsig=slice(1, 5, 1)
+# Fixme: python return code is not 0 on Windows if the following line is executed
+#        but any error is reported
+## analysis = simulator.dc(Vdd=slice(0, 5, .1)) # Fixme: ,Vsig=slice(1, 5, 1)
+
+#r# To be completed ...
 
 ####################################################################################################
 

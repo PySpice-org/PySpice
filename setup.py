@@ -22,14 +22,13 @@
 
 ####################################################################################################
 
-import glob
 import sys
 
-from setuptools import setup, find_packages
-setuptools_available = True
+from setuptools import setup
 
 ####################################################################################################
 
+# Check for python3 setup.py install
 required_python_version = (3, 6)
 if sys.version_info < required_python_version:
     sys.stderr.write('ERROR: PySpice requires Python {}.{}\n'.format(*required_python_version))
@@ -47,45 +46,5 @@ if sys.version_info < required_python_version:
 
 ####################################################################################################
 
-#exec(compile(open('setup_data.py').read(), 'setup_data.py', 'exec'))
 from setup_data import setup_dict
-####################################################################################################
-
-setup_dict.update(dict(
-    # include_package_data=True, # Look in MANIFEST.in
-    packages=find_packages(exclude=['unit-test']),
-    scripts=glob.glob('bin/*'),
-    # [
-    #     'bin/...',
-    # ],
-    package_data={
-        'PySpice.Config': ['logging.yml'],
-        'PySpice.Spice.NgSpice': ['api.h'],
-    },
-
-    platforms='any',
-    zip_safe=False, # due to data files
-
-    classifiers=[
-        'Topic :: Scientific/Engineering',
-        'Intended Audience :: Education',
-        'Development Status :: 5 - Production/Stable',
-        'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.5',
-        ],
-
-    install_requires=[
-        'PyYAML',
-        'cffi',
-        'matplotlib',
-        'numpy',
-        'ply',
-        'scipy',
-        'networkx',
-    ],
-))
-
-####################################################################################################
-
 setup(**setup_dict)

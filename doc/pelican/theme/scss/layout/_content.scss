@@ -1,0 +1,49 @@
+// #################################################################################################
+// Content
+
+// Sticky Footer
+// https://css-tricks.com/couple-takes-sticky-footer/
+
+// html, body {
+//   height: 100%;
+// }
+// body {
+//   display: flex;
+//   flex-direction: column;
+// }
+// .content {
+//   flex: 1 0 auto;
+// }
+// footer #page-footer {
+//     flex-shrink: 0;
+// }
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+      "header"
+      "content"
+      "footer";
+}
+
+header#page-header {
+    grid-area: header;
+    // grid-row-start: 1;
+    // grid-row-end: 2;
+}
+
+div#page-content {
+    grid-area: content;
+}
+
+footer#page-footer {
+    grid-area: footer;
+    // grid-row-start: 3;
+    // grid-row-end: 4;
+}

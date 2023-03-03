@@ -1,0 +1,22 @@
+// #############################################################################
+//
+// This folder is used to store additional functions or mixins which are
+// not part of the default bootstrap eco-system.
+//
+// We provide already some helper functions such as em(12px, 16px)
+// that calculates the pixel values from a given size in relation to
+// the parent size.
+//
+// Additionally we have mixins for managing z-index layers and
+// hide-content.
+//
+// this folder is for additional mixins
+// each mixin should be its own maintained file
+//
+// #############################################################################
+
+@import "functions";
+@import "zindex";
+@import "other";
+@import "material_design";
+@import "colours";

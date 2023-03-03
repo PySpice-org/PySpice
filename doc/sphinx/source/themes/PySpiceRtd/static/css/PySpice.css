@@ -107,10 +107,6 @@ div.getthecode-header a {
     display: inline;
 }
 
-div.getthecode-header li.getthecode-filename-link span {
-    display: none;
-}
-
 .rst-content div.getthecode-header li.show-code-button {
     cursor: pointer;
     float: right;

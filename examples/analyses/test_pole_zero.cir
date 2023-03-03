@@ -1,0 +1,11 @@
+.title Pole Zero Test
+R1 1 2 10000
+C1 1 2 1e-6
+R2 2 0 1000
+C2 2 0 1e-6
+L1 2 0 1e-3
+*
+*.options noacct
+.control
+pz  1 0 2 0 vol pz
+print all

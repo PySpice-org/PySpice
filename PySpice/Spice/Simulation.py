@@ -42,13 +42,13 @@ class AnalysisParameters:
 
     """Base class for analysis parameters"""
 
-    __analysis_name__ = None
+    ANALYSIS_NAME = None
 
     ##############################################
 
     @property
     def analysis_name(self):
-        return self.__analysis_name__
+        return self.ANALYSIS_NAME
 
     ##############################################
 
@@ -58,7 +58,6 @@ class AnalysisParameters:
     ##############################################
 
     def __str__(self):
-
         return '.{0.analysis_name} {1}'.format(self, join_list(self.to_list()))
 
 ####################################################################################################
@@ -67,7 +66,7 @@ class OperatingPointAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for operating point analysis."""
 
-    __analysis_name__ = 'op'
+    ANALYSIS_NAME = 'op'
 
 ####################################################################################################
 
@@ -75,12 +74,11 @@ class DcSensitivityAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for DC sensitivity analysis."""
 
-    __analysis_name__ = 'sens'
+    ANALYSIS_NAME = 'sens'
 
     ##############################################
 
     def __init__(self, output_variable):
-
         self._output_variable = output_variable
 
     ##############################################
@@ -92,10 +90,7 @@ class DcSensitivityAnalysisParameters(AnalysisParameters):
     ##############################################
 
     def to_list(self):
-
-        return (
-            self._output_variable,
-        )
+        return (self._output_variable,)
 
 ####################################################################################################
 
@@ -103,12 +98,11 @@ class AcSensitivityAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for AC sensitivity analysis."""
 
-    __analysis_name__ = 'sens'
+    ANALYSIS_NAME = 'sens'
 
     ##############################################
 
-    def __init__(self, output_variable,
-                 variation, number_of_points, start_frequency, stop_frequency):
+    def __init__(self, output_variable, variation, number_of_points, start_frequency, stop_frequency):
 
         if variation not in ('dec', 'oct', 'lin'):
             raise ValueError("Incorrect variation type")
@@ -138,13 +132,12 @@ class AcSensitivityAnalysisParameters(AnalysisParameters):
         return self._start_frequency
 
     @property
-    def stop_frequencyr(self):
+    def stop_frequency(self):
         return self._stop_frequency
 
     ##############################################
 
     def to_list(self):
-
         return (
             self._output_variable,
             self._variation,
@@ -159,7 +152,7 @@ class DCAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for DC analysis."""
 
-    __analysis_name__ = 'dc'
+    ANALYSIS_NAME = 'dc'
 
     ##############################################
 
@@ -183,7 +176,6 @@ class DCAnalysisParameters(AnalysisParameters):
     ##############################################
 
     def to_list(self):
-
         return self._parameters
 
 ####################################################################################################
@@ -192,7 +184,7 @@ class ACAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for AC analysis."""
 
-    __analysis_name__ = 'ac'
+    ANALYSIS_NAME = 'ac'
 
     ##############################################
 
@@ -223,13 +215,12 @@ class ACAnalysisParameters(AnalysisParameters):
         return self._start_frequency
 
     @property
-    def stop_frequencyr(self):
+    def stop_frequency(self):
         return self._stop_frequency
 
     ##############################################
 
     def to_list(self):
-
         return (
             self._variation,
             self._number_of_points,
@@ -243,23 +234,17 @@ class TransientAnalysisParameters(AnalysisParameters):
 
     """This class defines analysis parameters for transient analysis."""
 
-    __analysis_name__ = 'tran'
+    ANALYSIS_NAME = 'tran'
 
     ##############################################
 
-    def __init__(self, step_time, end_time, start_time=0, max_time=None,
-                 use_initial_condition=False):
-
-        if use_initial_condition:
-            uic = 'uic'
-        else:
-            uic = None
+    def __init__(self, step_time, end_time, start_time=0, max_time=None, use_initial_condition=False):
 
         self._step_time = as_s(step_time)
         self._end_time = as_s(end_time)
         self._start_time = as_s(start_time)
         self._max_time = as_s(max_time, none=True)
-        self._use_initial_condition = uic
+        self._use_initial_condition = use_initial_condition
 
     ##############################################
 
@@ -286,14 +271,244 @@ class TransientAnalysisParameters(AnalysisParameters):
     ##############################################
 
     def to_list(self):
-
         return (
             self._step_time,
             self._end_time,
             self._start_time,
             self._max_time,
-            self._use_initial_condition,
+            'uic' if self._use_initial_condition else None,
         )
+
+####################################################################################################
+
+class MeasureParameters(AnalysisParameters):
+
+    """This class defines measurements on analysis.
+
+    """
+
+    ANALYSIS_NAME = 'meas'
+
+    ##############################################
+
+    def __init__(self, analysis_type, name, *args):
+
+        _analysis_type = str(analysis_type).upper()
+        if _analysis_type not in ('AC', 'DC', 'OP', 'TRAN', 'TF', 'NOISE'):
+            raise ValueError('Incorrect analysis type {}'.format(analysis_type))
+
+        self._parameters = [_analysis_type, name, *args]
+
+    ##############################################
+
+    @property
+    def parameters(self):
+        return self._parameters
+
+    ##############################################
+
+    def to_list(self):
+        return self._parameters
+
+####################################################################################################
+
+class PoleZeroAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for pole-zero analysis."""
+
+    ANALYSIS_NAME = 'pz'
+
+    ##############################################
+
+    def __init__(self, node1, node2, node3, node4, tf_type, pz_type):
+
+        self._nodes = (node1, node2, node3, node4)
+        self._tf_type = tf_type   # transfert_function
+        self._pz_type = pz_type   # pole_zero
+
+    ##############################################
+
+    @property
+    def node1(self):
+        return self._nodes[0]
+
+    @property
+    def node2(self):
+        return self._nodes[1]
+
+    def node3(self):
+        return self._nodes[2]
+
+    @property
+    def node4(self):
+        return self._nodes[3]
+
+    @property
+    def tf_type(self):
+        return self._tf_type
+
+    @property
+    def pz_type(self):
+        return self._pz_type
+
+    ##############################################
+
+    def to_list(self):
+        return list(self._nodes) + [self._tf_type, self._pz_type]
+
+####################################################################################################
+
+class NoiseAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for noise analysis."""
+
+    ANALYSIS_NAME = 'noise'
+
+    ##############################################
+
+    def __init__(self, output, src, variation, points, start_frequency, stop_frequency, points_per_summary):
+
+        self._output = output
+        self._src = src
+        self._variation = variation
+        self._points = points
+        self._start_frequency = start_frequency
+        self._stop_frequency = stop_frequency
+        self._points_per_summary = points_per_summary
+
+    ##############################################
+
+    @property
+    def output(self):
+        return self._output
+
+    @property
+    def src(self):
+        return self._src
+
+    @property
+    def variation(self):
+        return self._variation
+
+    @property
+    def points(self):
+        return self._points
+
+    # Fixme: mixin
+    @property
+    def start_frequency(self):
+        return self._start_frequency
+
+    @property
+    def stop_frequency(self):
+        return self._stop_frequency
+
+    @property
+    def points_per_summary(self):
+        return self._points_per_summary
+
+    ##############################################
+
+    def to_list(self):
+
+        parameters = [
+            self._output,
+            self._src,
+            self._variation,
+            self._points,
+            self._start_frequency,
+            self._stop_frequency,
+        ]
+
+        if self._points_per_summary:
+            parameters.append(self._points_per_summary)
+
+        return parameters
+
+####################################################################################################
+
+class DistortionAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for distortion analysis."""
+
+    ANALYSIS_NAME = 'disto'
+
+    ##############################################
+
+    def __init__(self, variation, points, start_frequency, stop_frequency, f2overf1):
+
+        self._variation = variation
+        self._points = points
+        self._start_frequency = start_frequency
+        self._stop_frequency = stop_frequency
+        self._f2overf1 = f2overf1
+
+    ##############################################
+
+    @property
+    def variation(self):
+        return self._variation
+
+    @property
+    def points(self):
+        return self._points
+
+    @property
+    def start_frequency(self):
+        return self._start_frequency
+
+    @property
+    def stop_frequency(self):
+        return self._stop_frequency
+
+    @property
+    def f2overf1(self):
+        return self._f2overf1
+
+    ##############################################
+
+    def to_list(self):
+
+        parameters = [
+            self._variation,
+            self._points,
+            self._start_frequency,
+            self._stop_frequency,
+        ]
+
+        if self._f2overf1:
+            parameters.append(self._f2overf1)
+
+        return parameters
+
+####################################################################################################
+
+class TransferFunctionAnalysisParameters(AnalysisParameters):
+
+    """This class defines analysis parameters for transfer function (.tf) analysis."""
+
+    ANALYSIS_NAME = 'tf'
+
+    ##############################################
+
+    def __init__(self, outvar, insrc):
+        self._outvar = outvar
+        self._insrc = insrc
+
+    ##############################################
+
+    @property
+    def outvar(self):
+        return self._outvar
+
+    @property
+    def insrc(self):
+        return self._insrc
+
+    ##############################################
+
+    def to_list(self):
+        return (self._outvar, self._insrc)
 
 ####################################################################################################
 
@@ -314,8 +529,10 @@ class CircuitSimulation:
 
         self._circuit = circuit
 
-        self._options = {} # .options
-        self._initial_condition = {} # .ic
+        self._options = {}   # .options
+        self._measures = []   # .measure
+        self._initial_condition = {}   # .ic
+        self._node_set = {}   # .nodeset
         self._saved_nodes = set()
         self._analyses = {}
 
@@ -331,7 +548,6 @@ class CircuitSimulation:
     ##############################################
 
     def options(self, *args, **kwargs):
-
         for item in args:
             self._options[str(item)] = None
         for key, value in kwargs.items():
@@ -359,20 +575,73 @@ class CircuitSimulation:
 
     ##############################################
 
-    def initial_condition(self, **kwargs):
+    @staticmethod
+    def _make_initial_condition_dict(kwargs):
+        return {f"V({key})": str_spice(value) for key, value in kwargs.items()}
 
-        """ Set initial condition for voltage nodes.
+    ##############################################
+
+    def initial_condition(self, **kwargs):
+        """Set initial condition for voltage nodes.
 
         Usage::
 
-            simulator.initial_condition(node_name1=value, ...)
+            simulator.initial_condition(node_name=value, ...)
+
+        General form::
+
+            .ic v(node_name)=value ...
+
+        The `.ic` line is for setting transient initial conditions.  It has two different
+        interpretations, depending on whether the uic parameter is specified on the `.tran` control
+        line, or not.  One should not confuse this line with the `.nodeset` line.  The `.nodeset`
+        line is only to help DC convergence, and does not affect the final bias solution (except for
+        multi-stable circuits).  The two indicated interpretations of this line are as follows:
+
+        1. When the uic parameter is specified on the `.tran` line, the node voltages specified on
+           the `.ic` control line are used to compute the capacitor, diode, BJT, JFET, and MOSFET
+           initial conditions.  This is equivalent to specifying the `ic=...` parameter on each
+           device line, but is much more convenient.  The `ic=...` parameter can still be specified
+           and takes precedence over the `.ic` values.  Since no dc bias (initial transient)
+           solution is computed before the transient analysis, one should take care to specify all
+           dc source voltages on the `.ic` control line if they are to be used to compute device
+           initial conditions.
+
+        2. When the uic parameter is not specified on the `.tran` control line, the DC bias (initial
+           transient) solution is computed before the transient analysis. In this case, the node
+           voltages specified on the `.ic` control lines are forced to the desired initial values
+           during the bias solution.  During transient analysis, the constraint on these node
+           voltages is removed.  This is the preferred method since it allows Ngspice to compute a
+           consistent dc solution.
 
         """
+        d = self._make_initial_condition_dict(kwargs)
+        self._initial_condition.update(d)
 
-        for key, value in kwargs.items():
-            self._initial_condition['V({})'.format(str(key))] = str_spice(value)
+    ##############################################
 
-        # Fixme: .nodeset
+    def node_set(self, **kwargs):
+        """Specify initial node voltage guesses.
+
+        Usage::
+
+            simulator.node_set(node_name=value, ...)
+
+        General form::
+
+            .nodeset v(node_name)=value ...
+            .nodeset all=val
+
+        The `.nodeset` line helps the program find the DC or initial transient solution by making a
+        preliminary pass with the specified nodes held to the given voltages.  The restrictions are
+        then released and the iteration continues to the true solution.  The `.nodeset` line may be
+        necessary for convergence on bistable or astable circuits. `.nodeset all=val` sets all
+        starting node voltages (except for the ground node) to the same value.  In general, the
+        `.nodeset` line should not be necessary.
+
+        """
+        d = self._make_initial_condition_dict(kwargs)
+        self._node_set.update(d)
 
     ##############################################
 
@@ -395,15 +664,12 @@ class CircuitSimulation:
 
         """
 
-        self._saved_nodes.update(args)
+        self._saved_nodes |= set(*args)
 
     ##############################################
 
     def save_internal_parameters(self, *args):
-
-        """This method is similar to`save` but assume *all*.
-        """
-
+        """This method is similar to`save` but assume *all*."""
         # Fixme: ok ???
         self.save(list(args) + ['all'])
 
@@ -424,35 +690,35 @@ class CircuitSimulation:
     ##############################################
 
     def reset_analysis(self):
-
         self._analyses.clear()
 
     ##############################################
 
     def analysis_iter(self):
-
         return self._analyses.values()
 
     ##############################################
 
     def _add_analysis(self, analysis_parameters):
-
         self._analyses[analysis_parameters.analysis_name] = analysis_parameters
 
     ##############################################
 
+    def _add_measure(self, measure_parameters):
+        self._measures.append(measure_parameters)
+
+    ##############################################
+
     def operating_point(self):
-
         """Compute the operating point of the circuit with capacitors open and inductors shorted."""
-
         self._add_analysis(OperatingPointAnalysisParameters())
 
     ##############################################
 
     def dc_sensitivity(self, output_variable):
 
-        """Compute the sensitivity of the DC operating point of a node voltage or voltage-source branch
-        current to all non-zero device parameters.
+        """Compute the sensitivity of the DC operating point of a node voltage or voltage-source
+        branch current to all non-zero device parameters.
 
         Examples of usage::
 
@@ -477,8 +743,7 @@ class CircuitSimulation:
 
     ##############################################
 
-    def ac_sensitivity(self, output_variable,
-                       variation, number_of_points, start_frequency, stop_frequency):
+    def ac_sensitivity(self, output_variable, variation, number_of_points, start_frequency, stop_frequency):
 
         """Compute the sensitivity of the AC values of a node voltage or voltage-source branch
         current to all non-zero device parameters.
@@ -586,8 +851,30 @@ class CircuitSimulation:
 
     ##############################################
 
-    def transient(self, step_time, end_time, start_time=0, max_time=None,
-                  use_initial_condition=False):
+    def measure(self, analysis_type, name, *args):
+
+        """Add a measure in the circuit.
+
+        Examples of usage::
+
+            simulator.measure('TRAN', 'tdiff', 'TRIG AT=10m', 'TARG v(n1) VAL=75.0 CROSS=1')
+            simulator.measure('tran', 'tdiff', 'TRIG AT=0m', f"TARG par('v(n1)-v(derate)') VAL=0 CROSS=1")
+
+        Note: can be used with the .options AUTOSTOP to stop the simulation at Trigger.
+
+        Spice syntax:
+
+        .. code:: spice
+
+            .meas tran tdiff TRIG AT=0m TARG v(n1) VAL=75.0 CROSS=1
+
+        """
+
+        self._add_measure(MeasureParameters(analysis_type, name, *args))
+
+    ##############################################
+
+    def transient(self, step_time, end_time, start_time=0, max_time=None, use_initial_condition=False):
 
         """Perform a transient analysis of the circuit.
 
@@ -612,6 +899,173 @@ class CircuitSimulation:
 
     ##############################################
 
+    def polezero(self, node1, node2, node3, node4, tf_type, pz_type):
+
+        """Perform a Pole-Zero analysis of the circuit.
+
+        node1, node2 - Input node pair.
+        node3, node4 - Output node pair
+        tf_type - should be `cur` for current or `vol` for voltage
+        pz_type - should be `pol` for pole, `zer` for zero, or `pz` for combined pole zero analysis.
+
+        See section 15.3.6 of ngspice manual.
+
+        Spice syntax:
+
+        .. code:: spice
+
+            .tran tstep tstop <tstart <tmax>> <uic>
+            .pz node1 node2 node3 node4 cur pol
+            .pz node1 node2 node3 node4 cur zer
+            .pz node1 node2 node3 node4 cur pz
+            .pz node1 node2 node3 node4 vol pol
+            .pz node1 node2 NODE3 node4 vol zer
+            .pz node1 node2 node3 node4 vol pz
+
+        Examples:
+
+        .. code:: spice
+
+            .pz 1 0 3 0 cur pol
+            .pz 2 3 5 0 vol zer
+            .pz 4 1 4 1 cur pz
+
+        """
+
+        # do some rudimentary parameter checking.
+        if tf_type not in ('cur', 'vol'):
+            raise NameError("polezero type must be 'cur' or 'vol'")
+        if pz_type not in ('pol', 'zer', 'pz'):
+            raise NameError("pz_type must be 'pol' or 'zer' or 'pz'")
+
+        self._add_analysis(
+            PoleZeroAnalysisParameters(node1, node2, node3, node4, tf_type, pz_type)
+        )
+
+    ##############################################
+
+    def noise(self, output_node, ref_node, src, variation, points, start_frequency, stop_frequency, points_per_summary=None):
+
+        """Perform a Pole-Zero analysis of the circuit.
+
+        output_node, ref_node - output node pair.
+        src - signal source, typically an ac voltage input.
+        variation - must be 'dec' or 'lin' or 'oct' for decade, linear, or octave.
+        points, start_frequency, stop_frequency - number of points, start and stop frequencies.
+        points_per_summary - if specified, the noise contributions of each noise generator is produced every points_per_summary frequency points.
+
+        See section 15.3.4 of ngspice manual.
+
+        Spice syntax:
+
+        General form:
+
+        .. code:: spice
+
+            .noise v(output <,ref >) src ( dec | lin | oct ) pts fstart fstop <pts_per_summary >
+
+        Examples:
+
+        .. code:: spice
+
+            .noise v(5) VIN dec 10 1kHz 100 MEG
+            .noise v(5 ,3) V1 oct 8 1.0 1.0 e6 1
+
+        """
+
+        # do some rudimentary parameter checking.
+        # Fixme: mixin
+        if variation not in ('dec', 'lin', 'oct'):
+            raise NameError("variation must be 'dec' or 'lin' or 'oct'")
+
+        output = 'V({},{})'.format(output_node, ref_node)
+
+        self._add_analysis(
+            NoiseAnalysisParameters(output, src, variation, points, start_frequency, stop_frequency, points_per_summary)
+        )
+
+    ##############################################
+
+    def transfer_function(self, outvar, insrc):
+
+        """The python arguments to this function should be two strings, outvar and insrc.
+
+        ngspice documentation as follows:
+
+        General form:
+
+        .. code:: spice
+
+            .tf outvar insrc
+
+        Examples:
+
+        .. code:: spice
+
+           .tf v(5, 3) VIN
+           .tf i(VLOAD) VIN
+
+        The .tf line defines the small-signal output and input for the dc small-signal
+        analysis. outvar is the small signal output variable and insrc is the small-signal input
+        source. If this line is included, ngspice computes the dc small-signal value of the transfer
+        function (output/input), input resistance, and output resistance. For the first example,
+        ngspice would compute the ratio of V(5, 3) to VIN, the small-signal input resistance at VIN,
+        and the small signal output resistance measured across nodes 5 and 3
+
+        """
+
+        self._add_analysis(
+            TransferFunctionAnalysisParameters(outvar, insrc)
+        )
+
+    ##############################################
+
+    def distortion(self, variation, points, start_frequency, stop_frequency, f2overf1=None):
+
+        """Perform a distortion analysis of the circuit.
+
+        variation, points, start_frequency, stop_frequency - typical ac range parameters.
+        if f2overf1 is specified, perform a spectral analysis, else perform a harmonic analysis.
+
+        See section 15.3.3 of ngspice manual.
+
+        - harmonic analysis,
+          The distof1 parameter of the AC input to the circuit must be specified.
+          Second harmonic magnitude and phase are calculated at each circuit node.
+
+        - Spectral analysis,
+           The distof2 parameter of the AC input to the circuit must be specified as well as distof1.
+           See the ngspice manual.
+
+        Spice syntax:
+
+        General form:
+
+        .. code:: spice
+
+              .disto dec nd fstart fstop <f2overf1 >
+              .disto oct no fstart fstop <f2overf1 >
+              .disto lin np fstart fstop <f2overf1 >
+
+        Examples:
+
+        .. code:: spice
+
+              .disto dec 10 1kHz 100 MEG
+              .disto dec 10 1kHz 100 MEG 0.9
+
+        """
+
+        # do some rudimentary parameter checking.
+        if variation not in ('dec', 'lin', 'oct'):
+            raise NameError("variation must be 'dec' or 'lin' or 'oct'")
+
+        self._add_analysis(
+            DistortionAnalysisParameters(variation, points, start_frequency, stop_frequency, f2overf1)
+        )
+
+    ##############################################
+
     def str_options(self, unit=True):
 
         # Fixme: use cls settings ???
@@ -633,11 +1087,24 @@ class CircuitSimulation:
 
     def __str__(self):
 
-        netlist = self._circuit.str(spice_sim=self.SIMULATOR)
+        netlist = self._circuit.str(simulator=self.SIMULATOR)
         netlist += self.str_options()
-        if self.initial_condition and len(self._initial_condition) > 0:
+        if self._initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
-        netlist += self.save_str()
+        if self._node_set:
+            netlist += '.nodeset ' + join_dict(self._node_set) + os.linesep
+
+        if self._saved_nodes:
+            # Place 'all' first
+            saved_nodes = self._saved_nodes
+            if 'all' in saved_nodes:
+                all_str = 'all '
+                saved_nodes.remove('all')
+            else:
+                all_str = ''
+            netlist += '.save ' + all_str + join_list(saved_nodes) + os.linesep
+        for measure_parameters in self._measures:
+            netlist += str(measure_parameters) + os.linesep
         for analysis_parameters in self._analyses.values():
             netlist += str(analysis_parameters) + os.linesep
         netlist += '.end' + os.linesep
@@ -709,37 +1176,61 @@ class CircuitSimulator(CircuitSimulation):
         if 'probes' in kwargs:
             self.save(* kwargs.pop('probes'))
 
-        method = getattr(CircuitSimulation, analysis_method)
-        method(self, *args, **kwargs)
+        _kwargs = dict(kwargs)
+        _kwargs.pop('log_desk', None)
 
-        self._logger.debug('desk' + os.linesep + str(self))
+        method = getattr(CircuitSimulation, analysis_method)
+        method(self, *args, **_kwargs)
+
+        message = 'desk' + os.linesep + str(self)
+        if kwargs.get('log_desk', False):
+            self._logger.info(message)
+        else:
+            self._logger.debug(message)
 
     ##############################################
 
     def operating_point(self, *args, **kwargs):
-
         return self._run('operating_point', *args, **kwargs)
 
     ##############################################
 
     def dc(self, *args, **kwargs):
-
         return self._run('dc', *args, **kwargs)
 
     ##############################################
 
     def dc_sensitivity(self, *args, **kwargs):
-
         return self._run('dc_sensitivity', *args, **kwargs)
 
     ##############################################
 
     def ac(self, *args, **kwargs):
-
         return self._run('ac', *args, **kwargs)
 
     ##############################################
 
     def transient(self, *args, **kwargs):
-
         return self._run('transient', *args, **kwargs)
+
+    ##############################################
+
+    def polezero(self, *args, **kwargs):
+        return self._run('polezero', *args, **kwargs)
+
+    ##############################################
+
+    def noise(self, *args, **kwargs):
+        return self._run('noise', *args, **kwargs)
+
+    ##############################################
+
+    def distortion(self, *args, **kwargs):
+        return self._run('distortion', *args, **kwargs)
+
+    ##############################################
+
+    def transfer_function(self, *args, **kwargs):
+        return self._run('transfer_function', *args, **kwargs)
+
+    tf = transfer_function   # shorcut

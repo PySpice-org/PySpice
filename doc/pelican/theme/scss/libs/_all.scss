@@ -1,0 +1,22 @@
+// #############################################################################
+//
+// All independent files are placed within this folder. This implies that
+// the order of inclusion does not matter within /sass/libs/_all.scss.
+//
+// Hint
+// Libraries are, in their very core, plug-and-playable. The main
+// difference between libraries and other plug-and-play components is,
+// that if a library is removed, things will break.
+//
+// this folder is for additional independent libraries such as 960gs or
+// twitter bootstrap these libraries do not depend on other elements
+//
+// #############################################################################
+
+@import "bootstrap/bootstrap";
+
+@import "fontawesome/fontawesome";
+@import "fontawesome/brands";
+@import "fontawesome/solid";
+
+// @import "iconfont"; uncomment to enable custom icons

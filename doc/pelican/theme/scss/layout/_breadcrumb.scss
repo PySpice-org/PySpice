@@ -1,0 +1,124 @@
+// #############################################################################
+// Breadcrumb
+
+/*
+$breadcrumb-li-bg-colour: #eee;
+$breadcrumb-li-bg-colour-right: #ddd;
+$breadcrumb-li-bg-colour-left: #f5f5f5;
+$breadcrumb-li-border-colour: #ccc;
+$breadcrumb-li-colour: #444;
+*/
+
+$breadcrumb-li-bg-colour: $gray-200;
+$breadcrumb-li-bg-colour-right: darken($breadcrumb-li-bg-colour, 5%);
+$breadcrumb-li-bg-colour-left: lighten($breadcrumb-li-bg-colour-right, 15%);
+$breadcrumb-li-border-colour: darken($breadcrumb-li-bg-colour-right, 20%);
+$breadcrumb-li-colour: $gray-900; // darken($breadcrumb-li-bg-colour, 80%);
+
+$breadcrumb-triangle-size: 2em; // set the angle
+$breadcrumb-li-padding-horizontal: 1em;
+$breadcrumb-li-padding-vertical: .5em;
+$breadcrumb-wedge-width: .15em;
+
+/*
+$breadcrumb-li-bg-colour: $navbar-inverse-bg;
+$breadcrumb-li-bg-colour-right: lighten($breadcrumb-li-bg-colour, 20%);
+$breadcrumb-li-bg-colour-left: darken($breadcrumb-li-bg-colour-right, 25%);
+$breadcrumb-li-border-colour: lighten($breadcrumb-li-bg-colour-right, 10%);
+$breadcrumb-li-colour: lighten($breadcrumb-li-bg-colour, 70%);
+*/
+
+// For breadcrumb in header
+#page-breadcrumb {
+    // show for large device
+    @extend .d-none;
+    @extend .d-lg-block;
+
+    @extend .pt-0;
+    @extend .pb-3;
+
+    // @media (min-width: $screen-md-min) {
+    // Fixme: when the window is very small, > is above the current li
+    ol.breadcrumb {
+	margin: 0;
+	padding: 0;
+
+	// list-style: none;
+
+	background: $breadcrumb-li-bg-colour;
+	// border-width: 1px;
+	// border-style: solid;
+	// border-color: $breadcrumb-li-bg-colour-left #e5e5e5 $breadcrumb-li-border-colour;
+	// border-radius: 5px;
+	// box-shadow: 0 0 2px rgba(0,0,0,.2);
+	overflow: hidden;
+	// width: 100%;
+
+	> li + li::before {
+	    // Reset Boostrap settins
+	    content: normal;
+	    padding: 0;
+	}
+
+	li {
+	    float: left;
+
+	    &.active {
+		padding: $breadcrumb-li-padding-vertical $breadcrumb-li-padding-horizontal $breadcrumb-li-padding-vertical 2*$breadcrumb-li-padding-horizontal;
+		// font-weight: bold;
+		color: darken($breadcrumb-li-colour, 10%);
+	    }
+
+	    a {
+		padding: $breadcrumb-li-padding-vertical $breadcrumb-li-padding-horizontal $breadcrumb-li-padding-vertical 2*$breadcrumb-li-padding-horizontal;
+		float: left;
+		// text-decoration: none;
+		color: $breadcrumb-li-colour;
+		position: relative;
+		// text-shadow: 0 1px 0 rgba(255,255,255,.5);
+		// background-color: $breadcrumb-li-bg-colour-right;
+		background-image: linear-gradient(to right, $breadcrumb-li-bg-colour-left, $breadcrumb-li-bg-colour-right);
+
+		color: $breadcrumb-li-colour;
+
+		&::after,
+		&::before {
+		    // Draw a triangle using border (note: border angle is 45°)
+		    content: "";
+		    position: absolute;
+		    top: 50%;
+		    margin-top: -$breadcrumb-triangle-size;
+		    border-top: $breadcrumb-triangle-size solid transparent;
+		    border-bottom: $breadcrumb-triangle-size solid transparent;
+		    border-left: $breadcrumb-li-padding-horizontal solid;
+		    right: -$breadcrumb-li-padding-horizontal;
+		}
+
+		&::after {
+		    z-index: 2;
+		    border-left-color: $breadcrumb-li-bg-colour-right;
+		}
+
+		&::before{
+		    border-left-color: $breadcrumb-li-border-colour;
+		    right: - $breadcrumb-li-padding-horizontal - $breadcrumb-wedge-width;
+		    z-index: 1;
+		}
+
+		&:hover {
+		    text-decoration: none;
+		    background: white;
+
+		    &::after {
+			border-left-color: white;
+		    }
+		}
+	    }
+
+	    &:first-child a {
+		padding-left: 1em;
+		// border-radius: 5px 0 0 5px;
+	    }
+	}
+    }
+}

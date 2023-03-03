@@ -10,6 +10,19 @@
 
 ####################################################################################################
 
+# Fixme: Travis CI macOS
+#
+# Error on line 2 :
+#   vinput input 0 dc 0 external
+#   parameter value out of range or the wrong type
+#
+# Traceback (most recent call last):
+#     analysis = simulator.transient(step_time=period/200, end_time=period*2)
+#   File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Shared.py", line 1145, in load_circuit
+#     raise NgSpiceCircuitError('')
+
+####################################################################################################
+
 import math
 
 import matplotlib.pyplot as plt
@@ -71,15 +84,15 @@ analysis = simulator.transient(step_time=period/200, end_time=period*2)
 
 ####################################################################################################
 
-figure1 = plt.figure(1, (20, 10))
-plt.title('Voltage Divider')
-plt.xlabel('Time [s]')
-plt.ylabel('Voltage [V]')
-plt.grid()
-plot(analysis.input)
-plot(analysis.output)
-plt.legend(('input', 'output'), loc=(.05,.1))
-plt.ylim(float(-amplitude*1.1), float(amplitude*1.1))
+figure1, ax = plt.subplots(figsize=(20, 10))
+ax.set_title('Voltage Divider')
+ax.set_xlabel('Time [s]')
+ax.set_ylabel('Voltage [V]')
+ax.grid()
+ax.plot(analysis.input)
+ax.plot(analysis.output)
+ax.legend(('input', 'output'), loc=(.05,.1))
+ax.set_ylim(float(-amplitude*1.1), float(amplitude*1.1))
 
 plt.tight_layout()
 plt.show()

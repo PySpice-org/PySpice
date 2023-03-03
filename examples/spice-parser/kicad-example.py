@@ -1,5 +1,3 @@
-####################################################################################################
-
 #r#
 #r# ==============================
 #r#  Kicad Netlist Parser Example
@@ -52,8 +50,8 @@ spice_library = SpiceLibrary(libraries_path)
 
 class PowerIn(SubCircuitFactory):
 
-    __name__ = 'PowerIn'
-    __nodes__ = ('output_plus', 'ground', 'output_minus')
+    NAME = 'PowerIn'
+    NODES = ('output_plus', 'ground', 'output_minus')
 
     ##############################################
 
@@ -68,8 +66,8 @@ class PowerIn(SubCircuitFactory):
 
 class Opamp(SubCircuitFactory):
 
-    __name__ = 'Opamp'
-    __nodes__ = ('output',
+    NAME = 'Opamp'
+    NODES = ('output',
                  'input_negative', 'input_positive',
                  'power_positive', 'power_negative')
 
@@ -89,8 +87,8 @@ class Opamp(SubCircuitFactory):
 
 class JackIn(SubCircuitFactory):
 
-    __name__ = 'JackIn'
-    __nodes__ = ('input', 'x', 'ground')
+    NAME = 'JackIn'
+    NODES = ('input', 'x', 'ground')
 
     ##############################################
 
@@ -98,14 +96,15 @@ class JackIn(SubCircuitFactory):
 
         super().__init__()
 
-        self.V('micro', 'ground', 'input', 'AC SIN(0 0.02 440)')
+        # could use SinusoidalVoltageSource as well
+        self.V('micro', 'ground', 'input', 'DC 0V AC 1V SIN(0 0.02 440)')
 
 ####################################################################################################
 
 class JackOut(SubCircuitFactory):
 
-    __name__ = 'JackOut'
-    __nodes__ = ('output', 'x', 'ground')
+    NAME = 'JackOut'
+    NODES = ('output', 'x', 'ground')
 
     ##############################################
 
@@ -138,13 +137,13 @@ for subcircuit in (PowerIn(), Opamp(), JackIn(), JackOut()):
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=100@u_us, end_time=3@u_ms)
 
-figure = plt.figure(1, (20, 10))
-plot(analysis['2']) # JackIn input
-plot(analysis['7']) # Opamp output
-plt.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
-plt.grid()
-plt.xlabel('t [s]')
-plt.ylabel('[V]')
+figure, ax = plt.subplots(figsize=(20, 10))
+ax.plot(analysis['2']) # JackIn input
+ax.plot(analysis['7']) # Opamp output
+ax.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
+ax.grid()
+ax.set_xlabel('t [s]')
+ax.set_ylabel('[V]')
 
 plt.tight_layout()
 plt.show()

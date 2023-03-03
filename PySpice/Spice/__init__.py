@@ -36,7 +36,7 @@ def _get_elements(module):
     element_classes = []
     for item  in module.__dict__.values():
         if (type(item) is ElementParameterMetaClass
-            and item._prefix_ is not None
+            and item.PREFIX is not None
            ):
             element_classes.append(item)
     return element_classes
@@ -54,6 +54,8 @@ for element_class in spice_elements + high_level_elements:
     def _make_function(element_class):
         def function(self, *args, **kwargs):
             return element_class(self, *args, **kwargs)
+        # Preserve docstrings for element shortcuts
+        function.__doc__ = element_class.__doc__
         return function
 
     func = _make_function(element_class)
@@ -65,9 +67,9 @@ for element_class in spice_elements + high_level_elements:
     _set(element_class.__name__)
 
     if element_class in spice_elements:
-        if hasattr(element_class, '__alias__'):
-            _set(element_class.__alias__)
-        if hasattr(element_class, '__long_alias__'):
-            _set(element_class.__long_alias__)
+        if hasattr(element_class, 'ALIAS'):
+            _set(element_class.ALIAS)
+        if hasattr(element_class, 'LONG_ALIAS'):
+            _set(element_class.LONG_ALIAS)
 
 

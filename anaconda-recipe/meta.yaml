@@ -1,0 +1,80 @@
+# https://jakevdp.github.io/blog/2016/08/25/conda-myths-and-misconceptions
+
+# https://docs.anaconda.com/anaconda-cloud/user-guide/tasks/work-with-packages/#working-with-packages
+# https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html
+# https://github.com/AnacondaRecipes/conda-feedstock
+
+{% set name = "PySpice" %}
+{% set version = "1.4.2" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  # path: ../..
+  #
+  # url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  # sha256: 18f39249072958de6ead18ab54a14442e9e9e32b5579185b907ad7a794908be9
+  #
+  git_url: https://github.com/FabriceSalvaire/PySpice
+  git_rev: "v{{ version }}"
+  git_depth: 1 # (Defaults to -1/not shallow)
+
+build:
+  noarch: python
+  number: 0
+  # script: python -m pip install --no-deps --ignore-installed .
+  # script: "{{ PYTHON }} -m pip install . -vv"
+  # entry_points:
+  # - foo = foo.bar:main_foo
+  has_prefix_files:
+  always_include_files:
+  # - bin/cir2py
+  # - bin/ngspice-check-installation
+  # - bin/ngspice-post-installation
+  # - PySpice/Spice/NgSpice/api.h
+  # - PySpice/Config/logging.yml
+
+requirements:
+  host:
+    - pip
+    - python
+    - invoke >=1.3
+    - numpy >=1.18
+  run:
+    - python
+    - PyYAML >=5.3
+    - cffi >=1.14
+    - matplotlib >=3.1
+    - numpy >=1.18
+    - ply >=3.11
+    - scipy >=1.4
+    - requests >=2.23
+# build:
+#   - wheel
+
+# test:
+#   imports:
+
+# outputs:
+#   - type: wheel
+
+about:
+  home: https://github.com/FabriceSalvaire/PySpice
+  license: "GNU General Public License v3.0"
+  license_family: GPL
+  license_file: LICENSE.txt
+  # https://www.gnu.org/licenses/gpl-3.0.en.html
+  summary: "Simulate electronic circuit using Python and the Ngspice / Xyce simulators"
+  # description: >
+  #   ...
+  dev_url: https://github.com/FabriceSalvaire/PySpice
+  doc_url: https://pyspice.fabrice-salvaire.fr
+  # doc_source_url:
+
+extra:
+   maintainers:
+     - FabriceSalvaire
+   recipe-maintainers:
+     - FabriceSalvaire

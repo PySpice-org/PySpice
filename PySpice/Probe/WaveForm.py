@@ -24,12 +24,14 @@
 
 """
 
+# https://numpy.org/doc/stable/user/basics.subclassing.html#basics-subclassing
+
 ####################################################################################################
 
 import logging
 import os
 
-import numpy as np
+# import numpy as np
 
 ####################################################################################################
 
@@ -37,7 +39,7 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-from PySpice.Unit.Unit import UnitValues, UnitValue
+from PySpice.Unit.Unit import UnitValues
 
 ####################################################################################################
 
@@ -62,11 +64,9 @@ class WaveForm(UnitValues):
 
     ##############################################
 
-    @staticmethod
-    def from_unit_values(name, array, title=None, abscissa=None):
-
-        shape = array.shape
-        obj = WaveForm(
+    @classmethod
+    def from_unit_values(cls, name, array, title=None, abscissa=None):
+        obj = cls(
             name,
             array.prefixed_unit,
             array.shape,
@@ -75,85 +75,77 @@ class WaveForm(UnitValues):
             abscissa=abscissa,
         )
         obj[...] = array[...]
-
         return obj
 
     ##############################################
 
-    @staticmethod
-    def from_array(name, array, title=None, abscissa=None):
-
+    @classmethod
+    def from_array(cls, name, array, title=None, abscissa=None):
         # Fixme: ok ???
-
-        obj = WaveForm(name, None, array.shape, title=title, abscissa=abscissa)
+        obj = cls(name, None, array.shape, title=title, abscissa=abscissa)
         obj[...] = array[...]
-
         return obj
 
     ##############################################
 
-    def __new__(cls, name, prefixed_unit,
-                shape, dtype=float, buffer=None, offset=0, strides=None, order=None,
-                title=None, abscissa=None):
-
+    def __new__(cls, name, prefixed_unit, shape,
+                dtype=float, buffer=None, offset=0, strides=None, order=None,
+                title=None, abscissa=None,
+                ):
+        # Called first
         # cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
 
+        # call UnitValues.__new__(...)
         obj = super(WaveForm, cls).__new__(cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)
         # obj = np.asarray(data).view(cls)
 
+        # extra attributes
+        obj._name = str(name)
+        obj._title = title   # str(title)
+        obj._abscissa = abscissa    # Numpy array
+
         return obj
-
-    ##############################################
-
-    def __init__(self, name, prefixed_unit,
-                shape, dtype=float, buffer=None, offset=0, strides=None, order=None,
-                title=None, abscissa=None):
-        self._name = str(name)
-        self._title = title # str(title)
-        self._abscissa = abscissa
 
     ##############################################
 
     def __array_finalize__(self, obj):
-
-        # self._logger.info('\n  {}'.format(obj))
+        # Called after __new__
+        # self._logger.info('')
 
         # Fixme: ??? else _prefixed_unit is not set
         super().__array_finalize__(obj)
 
-        if obj is None:
-            return
+        # if obj is None:
+        #     return
 
+        # extra attributes
         self._name = getattr(obj, 'name', None)
         self._title = getattr(obj, 'title', None)
         self._abscissa = getattr(obj, 'abscissa', None)
 
     ##############################################
 
+    # def __init__(self, name, prefixed_unit, shape,
+    #              dtype=float, buffer=None, offset=0, strides=None, order=None,
+    #              title=None, abscissa=None):
+    #     # Called last
+    #     self._logger.info('')
+
+    ##############################################
+
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
-
-        # Fixme: check abscissa
-
         result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
-
         # self._logger.info("result\n{}".format(result))
-
         if isinstance(result, UnitValues):
-            if len(result.shape) == 0:
-                return UnitValue(result.prefixed_unit, result)
-            else:
-                return self.__class__.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
+            return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
         else:
-            return result # e.g. foo <= 0
+            return result  # e.g. foo <= 0
 
     ##############################################
 
     @property
     def name(self):
-        if hasattr(self, '_name'):
-            return self._name
-        else:
-            return ''
+        return self._name
 
     @property
     def abscissa(self):
@@ -165,29 +157,28 @@ class WaveForm(UnitValues):
 
     @title.setter
     def title(self, value):
-        self._title = value
+        if value is not None:
+            self._title = str(value)
+        else:
+            self._title = None
 
     ##############################################
 
     def __repr__(self):
-
-        return '{0.__class__.__name__} {0.name} {1}'.format(self, super().__str__())
+        return '{0.__class__.__name__} {0._name} {1}'.format(self, super().__str__())
 
     ##############################################
 
     def __str__(self):
-
-        if hasattr(self, '_title') and self._title is not None:
+        if self._title is not None:
             return self._title
         else:
-            return self.name
+            return self._name
 
     ##############################################
 
     def str_data(self):
-
         # Fixme: ok ???
-
         return repr(self.as_ndarray())
 
 ####################################################################################################
@@ -306,19 +297,31 @@ class Analysis:
     ##############################################
 
     def __getitem__(self, name):
-
         try:
             return self._get_item(name)
         except IndexError:
-            return self._get_item(str(name).lower())
+            return self._get_item(name.lower())
 
     ##############################################
 
     @staticmethod
     def _format_dict(d):
-
         return os.linesep.join([' '*2 + str(x) for x in d])
 
+    ##############################################
+
+    def __getattr__(self, name):
+
+        try:
+            return self.__getitem__(name)
+        except IndexError:
+            raise AttributeError(
+                name + os.linesep +
+                'Nodes :' + os.linesep + self._format_dict(self._nodes) + os.linesep +
+                'Branches :' + os.linesep + self._format_dict(self._branches) + os.linesep +
+                'Elements :' + os.linesep + self._format_dict(self._elements) + os.linesep +
+                'Internal Parameters :' + os.linesep + self._format_dict(self._internal_parameters)
+            )
 
 ####################################################################################################
 
@@ -335,7 +338,6 @@ class SensitivityAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, elements, internal_parameters):
-
         super().__init__(simulation=simulation, elements=elements,
                          internal_parameters=internal_parameters)
 
@@ -414,3 +416,62 @@ class TransientAnalysis(Analysis):
     def time(self):
         """Return an Numpy array for the time abscissa"""
         return self._time
+
+####################################################################################################
+
+class PoleZeroAnalysis(Analysis):
+
+    """This class implements a Pole-Zero analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, nodes, branches, internal_parameters):
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
+
+####################################################################################################
+
+class NoiseAnalysis(Analysis):
+
+    """This class implements Noise analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, nodes, branches, internal_parameters):
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
+
+####################################################################################################
+
+class DistortionAnalysis(Analysis):
+
+    """This class implements Distortion analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, frequency, nodes, branches, internal_parameters):
+
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)
+
+        self._frequency = frequency
+
+    ##############################################
+
+    @property
+    def frequency(self):
+        """Return an Numpy array for the frequency abscissa"""
+        return self._frequency
+
+####################################################################################################
+
+class TransferFunctionAnalysis(Analysis):
+
+    """This class implements Transfer Function (TF) analysis."""
+
+    ##############################################
+
+    def __init__(self, simulation, nodes, branches, internal_parameters):
+
+        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
+                         internal_parameters=internal_parameters)

@@ -1,0 +1,30 @@
+// #############################################################################
+// Images
+
+// cf. addons/_rst.scss
+.container {
+    img.left {
+	clear: left;
+	float: left;
+	@extend .mr-3;
+	// text-align: left;
+    }
+
+    img.right {
+	clear: right;
+	float: right;
+	// @extend .ml-3;
+	// text-align: right;
+    }
+    img.centered {
+	margin-left: auto;
+	margin-right: auto
+    }
+}
+
+img {
+    &.rotated-5-acw {
+	@extend .p-3;
+	transform: rotate(-5deg);
+    }
+}

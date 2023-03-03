@@ -44,14 +44,14 @@ def setup_logging(application_name='PySpice',
     """
 
     logging_config_file_name = ConfigInstall.Logging.find(config_file)
-    logging_config = yaml.safe_load(open(logging_config_file_name, 'r'))
+    logging_config = yaml.load(open(logging_config_file_name, 'r'), Loader=yaml.SafeLoader)
 
     if ConfigInstall.OS.on_linux:
         # Fixme: \033 is not interpreted in YAML
         formatter_config = logging_config['formatters']['ansi']['format']
         logging_config['formatters']['ansi']['format'] = formatter_config.replace('<ESC>', '\033')
 
-    if ConfigInstall.OS.on_windows:
+    if ConfigInstall.OS.on_windows or ConfigInstall.OS.on_osx:
         formatter = 'simple'
     else:
         formatter = 'ansi'
@@ -62,8 +62,8 @@ def setup_logging(application_name='PySpice',
     logger = logging.getLogger(application_name)
     if logging_level:
         logger.setLevel(logging_level)
-    elif 'PySpiceLogLevel' in os.environ: # used by tools/make-examples
-        level = getattr(logging, os.environ['PySpiceLogLevel'], None)
+    if 'PySpiceLogLevel' in os.environ: # used by tools/make-examples
+        level = getattr(logging, os.environ['PySpiceLogLevel'].upper(), None)
         logger.setLevel(level) # level can be int or string
 
     return logger

@@ -1,3 +1,7 @@
+# -*- mode: Conf -*-
+
+####################################################################################################
+
 *.stderr
 *.stdout
 */tex/auto
@@ -9,44 +13,80 @@ parsetab.py
 
 ####################################################################################################
 #
-MANIFEST
+# Secrets
 #
+
+doc/pelican/SECRET_CONFIG.py
+tasks/anaconda-login.txt
+tasks/SECRET_CONFIG.py
+
+####################################################################################################
+
+MANIFEST
+
 ####################################################################################################
 
 .cache/
 .pytest_cache/
 .tox/
 PySpice.egg-info/
-PySpice/__init__.py
 build/
 dist/
+
+doc/logo/logo-v1.jpg
+doc/logo/logo-v1.png
+doc/logo/logo-v2.jpg
+doc/logo/logo-v2.png
+doc/logo/logo.png
+
+doc/pelican/output
+doc/pelican/pelican-plugins
+doc/pelican/pelican-themes
+doc/pelican/theme/.yarnclean
+doc/pelican/theme/node_modules
+doc/pelican/theme/static/css/base.css
+doc/pelican/theme/static/css/libs/bootstrap/bootstrap-grid.css
+doc/pelican/theme/static/css/libs/bootstrap/bootstrap-reboot.css
+doc/pelican/theme/static/css/libs/bootstrap/bootstrap.css
+doc/pelican/theme/static/css/libs/fontawesome/brands.css
+doc/pelican/theme/static/css/libs/fontawesome/fontawesome.css
+doc/pelican/theme/static/css/libs/fontawesome/regular.css
+doc/pelican/theme/static/css/libs/fontawesome/solid.css
+doc/pelican/theme/static/css/libs/fontawesome/v4-shims.css
+doc/pelican/theme/yarn-error.log
+doc/pelican/theme/yarn.lock
+
 doc/sphinx/build/
 doc/sphinx/source/api/
 doc/sphinx/source/examples/
 
 ####################################################################################################
 
+examples/spice-examples/eg6.dat
+examples/spice-examples/gnucap.cir
+examples/spice-examples/mosfet-characterization.cir
+examples/spice-examples/ring-modulator.cir
+examples/spice-examples/xyce-error.cir
+examples/spice-examples/xyce-error.cir.FD.prn
+examples/spice-examples/xyce-raw.data
+examples/spice-examples/xyce-test.cir
+examples/spice-examples/xyce-test2.cir
+examples/spice-examples/xyce-test2.csv
+
+####################################################################################################
+
+no-git
+
 PySpice/Spice/notes.txt
 PySpice/Spice/rf.diff
 PySpice/Unit/numpy-notes.txt
 
-TRASH/
-
-devel-test/
-devel/
+__TRASH__/
 
 doc/extern/
+doc/logo/logo-square.png
 doc/sphinx/source/-to-be-removed.txt
-doc/sphinx/source/_static/logo-square.png
-doc/sphinx/source/_static/logo-v1.jpg
-doc/sphinx/source/_static/logo-v1.png
-doc/sphinx/source/_static/logo-v2.jpg
-doc/sphinx/source/_static/logo-v2.png
-doc/sphinx/source/_static/logo.png
 doc/sphinx/source/_static/stargazer.png
-doc/sphinx/source/project-links.txt-
-
-example-test/
 
 examples/diode/tex/auto/
 examples/libraries/2N2907A.SP3.TXT
@@ -67,15 +107,8 @@ issues/multi-shared.py
 issues/nazir/
 issues/warning-example/
 
-make-examples-log.txt
-
-ngspice-build
-ngspice-shared/log
-ngspice-shared/sharedspice.h
-
-notes/
-
-open-doc.sh
+examples/c-examples/ngspice-shared/log
+examples/c-examples/ngspice-shared/sharedspice.h
 
 resources
 
@@ -97,3 +130,20 @@ tools/upload-www
 
 trash/
 .idea/
+
+unit-test/test.py
+
+anaconda-recipe/conda-bld
+doc/pelican/BUGS.md
+
+examples/c-examples/ngspice_cb/ng_shared_test/ng_shared_test.cbp
+examples/c-examples/ngspice_cb/ng_shared_test/ng_shared_test.depend
+examples/c-examples/ngspice_cb/ng_shared_test/ng_shared_test.layout
+examples/c-examples/ngspice_cb/ng_shared_test_sl/libngspice.dll.a
+examples/c-examples/ngspice_cb/ng_shared_test_sl/ng_shared_test_sl.cbp
+examples/c-examples/ngspice_cb/ng_shared_test_sl/ng_shared_test_sl.depend
+examples/c-examples/ngspice_cb/ng_shared_test_sl/ng_shared_test_sl.layout
+examples/c-examples/ngspice_cb/ng_shared_test_sl_v/
+examples/c-examples/ngspice_cb/ng_shared_test_v/
+
+Spice64_dll/

@@ -39,9 +39,8 @@ analysis = simulator.ac(start_frequency=1@u_Hz, stop_frequency=1@u_MHz, number_o
 
 #r# We plot the Bode diagram.
 
-figure = plt.figure(1, (20, 10))
+figure, axes = plt.subplots(2, figsize=(20, 10))
 plt.title("Bode Diagram of a Low-Pass RC Filter")
-axes = (plt.subplot(211), plt.subplot(212))
 bode_diagram(axes=axes,
              frequency=analysis.frequency,
              gain=20*np.log10(np.absolute(analysis.out)),
@@ -49,9 +48,9 @@ bode_diagram(axes=axes,
              marker='.',
              color='blue',
              linestyle='-',
-         )
-for axe in axes:
-    axe.axvline(x=break_frequency, color='red')
+)
+for ax in axes:
+    ax.axvline(x=break_frequency, color='red')
 
 plt.tight_layout()
 plt.show()

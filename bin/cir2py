@@ -3,7 +3,7 @@
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
-# Copyright (C) 2014 Fabrice Salvaire
+# Copyright (C) 2020 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,51 +20,5 @@
 #
 ####################################################################################################
 
-####################################################################################################
-
-import argparse
-
-####################################################################################################
-
-import PySpice.Logging.Logging as Logging
-logger = Logging.setup_logging()
-
-####################################################################################################
-
-from PySpice.Spice.Parser import SpiceParser
-
-####################################################################################################
-
-parser = argparse.ArgumentParser(description='Convert a circuit file to PySpice')
-
-parser.add_argument('circuit_file', # metavar='circuit_file',
-                    help='.cir file')
-
-parser.add_argument('-o', '--output',
-                    default=None,
-                    help='Output file')
-
-parser.add_argument('--ground',
-                    type=int,
-                    default=0,
-                    help='Ground node')
-
-parser.add_argument('--build',
-                    default=False, action='store_true',
-                    help='Build circuit')
-
-args = parser.parse_args()
-
-####################################################################################################
-
-parser = SpiceParser(path=args.circuit_file)
-
-if args.build:
-    parser.build_circuit()
-
-circuit = parser.to_python_code(ground=args.ground)
-if args.output is not None:
-    with open(args.output, 'w') as f:
-        f.write(circuit)
-else:
-    print(circuit)
+from PySpice.Scripts.cir2py import main
+main()

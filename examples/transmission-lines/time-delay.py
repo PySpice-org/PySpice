@@ -30,13 +30,13 @@ analysis = simulator.transient(step_time=1e-11, end_time=100e-9)
 
 ####################################################################################################
 
-figure = plt.figure(None, (20, 6))
-plot(analysis['input'])
-plot(analysis['output'])
-plt.xlabel('Time [s]')
-plt.ylabel('Voltage (V)')
-plt.grid()
-plt.legend(['input', 'output'], loc='upper right')
+figure, ax = plt.subplots(figsize=(20, 6))
+ax.plot(analysis['input'])
+ax.plot(analysis['output'])
+ax.set_xlabel('Time [s]')
+ax.set_ylabel('Voltage (V)')
+ax.grid()
+ax.legend(['input', 'output'], loc='upper right')
 
 plt.show()
 

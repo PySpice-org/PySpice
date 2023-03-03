@@ -211,7 +211,7 @@ class InitialStatePositionalParameter(PositionalElementParameter):
 
     ##############################################
 
-    def to__str_(self, instance):
+    def to_str(self, instance):
 
         if self.__get__(instance):
             return 'on'

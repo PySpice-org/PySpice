@@ -47,7 +47,7 @@ D1 1 2 1N4148
 + TT = 3.48E-9
 .ENDS
 
-Vinput in 0 DC 0V AC SIN(0V 10V 50Hz 0s 0Hz)
+Vinput in 0 DC 0V AC 1V SIN(0V 10V 50Hz 0s 0Hz)
 C0 in 1 1mF
 X0 1 0 1N4148
 C1 0 2 1mF
@@ -69,6 +69,8 @@ R1 5 6 1MegOhm
 '''
 
 ngspice.load_circuit(circuit)
+print('Loaded circuit:')
+print(ngspice.listing())
 
 print(ngspice.show('c3'))
 print(ngspice.showmod('c3'))

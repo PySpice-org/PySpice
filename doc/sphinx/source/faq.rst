@@ -7,54 +7,47 @@
  User FAQ
 ==========
 
+PySpice FAQ
+===========
+
 How to get help or report an issue ?
 ------------------------------------
 
-.. There is no mailing list or forum actually, so you can either contact me or fill an issue on Github.
+PySpice has a **Forum** hosted at https://pyspice.discourse.group
 
-If you want to **discuss or ask questions on PySpice**, you can subscribe and post messages on the
-**PySpice User** mailing list.
+**If you encounter an issue, please file an issue** on the `Issue Tracker <https://github.com/FabriceSalvaire/PySpice/issues>`_.
 
-There is actually three lists running on Google Groups (*):
-
-`User List <https://groups.google.com/forum/#!forum/pyspice-user>`_
-  List for PySpice users
-`Announce List <https://groups.google.com/forum/#!forum/pyspice-announce>`_
-  List for announcements regarding PySpice releases and development
-`Devel List <https://groups.google.com/forum/#!forum/pyspice-devel>`_
-  List for developers of PySpice
-
-**If you encounter an issue, please fill an issue** on the `Issue Tracker <https://github.com/FabriceSalvaire/PySpice/issues>`_.
-
-(*) Despite Google Groups has many drawbacks, I don't have actually enough resources to run GNU Mailman or
-Discourse on my own IT infrastructure.
 
 How to typeset :code:`u_kΩ` or :code:`u_μV` in Python code ?
 ------------------------------------------------------------
 
-There is three solutions if you don't have these Unicode characters available on your keyboard. The
-first one, is to use the ASCII alternative: :code:`u_kOhm` or :code:`u_uV.`.  The second one, is to
-define macros on your favourite editor.  The last one, is to customise your keyboard settings (on Linux look at https://www.x.org/wiki/XKB/).
+There are three solutions if you don't have these Unicode characters available on your keyboard. The
+first one is to use the ASCII alternative: :code:`u_kOhm` or :code:`u_uV.`.  The second one is to
+define macros on your favourite editor.  The last one is to customise your keyboard settings (on Linux look at https://www.x.org/wiki/XKB/).
+
 
 How to perform division with units ?
 ------------------------------------
 
 According to the Python `operator precedence
 <https://docs.python.org/3/reference/expressions.html#operator-precedence>`_, division operators
-have a higher priority than the matrix multiplication operator.  In consequence you must had
+have a higher priority than the matrix multiplication operator.  In consequence you must have
 parenthesis to perform something like :code:`(10@u_s) / (2@_us)`.
 
 **It is currently an issue ...**
+
 
 Is unit API well tested ?
 -------------------------
 
 **Unit API is an ongoing work.  You must use it with caution since it can be buggy or incomplete.**
 
+
 Is ground node required ?
 -------------------------
 
 **Yes**, according to Ngspice manual, each circuit has to have a ground node (gnd or 0)!
+
 
 How to deal with SPICE parameters that clash with Python keywords ?
 -------------------------------------------------------------------
@@ -69,10 +62,11 @@ For such cases, PySpice accepts keyword arguments with a trailing underscore, fo
 
 We can also use uppercase letters since SPICE is case insensitive.
 
+
 How to pass raw SPICE command ?
 -------------------------------
 
-If the API don't yet implement a SPICE command, then you can pass raw SPICE commands using:
+If the API doesn't yet implement a SPICE command, then you can pass raw SPICE commands using:
 
 .. code-block:: py3
 
@@ -89,32 +83,6 @@ and raw parameters using:
 
 .. warning:: However the API must be aware of the nodes in order to retrieve data from the simulation output.
 
-How to set the Ngspice library path ?
--------------------------------------
-
-If the default setting doesn't match your environment, then you have to fix globally the attribute
-:attr:`PySpice.Spice.NgSpice.Shared.NgSpiceShared.LIBRARY_PATH`. Note you have to place a brace pair
-just before the extension, for example :file:`C:\\...\\ngspice{}.dll`.
-
-You can also fix the value of :attr:`PySpice.Spice.NgSpice.Shared.NgSpiceShared.NGSPICE_PATH`.
-
-How to set the Ngspice executable path ?
-----------------------------------------
-
-If the default setting doesn't match your environment, then you can fix globally the Ngspice executable
-path using the attribute :attr:`PySpice.Spice.NgSpice.Server.SpiceServer.SPICE_COMMAND`, you can also
-pass the executable path to the simulator using::
-
-   simulator = circuit.simulator(spice_command='...')
-
-How to set the Xyce path ?
---------------------------
-
-If the default setting doesn't match your environment, then you can fix globally the Xyce executable
-path using the attribute :attr:`PySpice.Spice.Xyce.Server.XyceServer.XYCE_COMMAND`, you can also
-pass the executable path to the simulator using::
-
-   simulator = circuit.simulator(xyce_command='...')
 
 How to set the simulator ?
 --------------------------
@@ -133,6 +101,53 @@ Actually, theses simulators are available:
  * `ngspice-shared`
  * `xyce-serial`
  * `xyce-parallel`
+
+
+Ngspice FAQ
+===========
+
+How to get the Ngspice manual ?
+-------------------------------
+
+Either download it from http://ngspice.sourceforge.net or use the command:
+
+.. code-block:: sh
+
+    pyspice-post-installation --download-ngspice-manual
+
+
+How to set the Ngspice library path ?
+-------------------------------------
+
+If the default setting doesn't match your environment, then you have to fix globally the attribute
+:attr:`PySpice.Spice.NgSpice.Shared.NgSpiceShared.LIBRARY_PATH`. Note you have to place a brace pair
+just before the extension, for example :file:`C:\\...\\ngspice{}.dll`.
+
+You can also fix the value of :attr:`PySpice.Spice.NgSpice.Shared.NgSpiceShared.NGSPICE_PATH`.
+
+
+How to set the Ngspice executable path ?
+----------------------------------------
+
+If the default setting doesn't match your environment, then you can fix globally the Ngspice executable
+path using the attribute :attr:`PySpice.Spice.NgSpice.Server.SpiceServer.SPICE_COMMAND`, you can also
+pass the executable path to the simulator using::
+
+   simulator = circuit.simulator(spice_command='...')
+
+
+Xyce FAQ
+========
+
+How to set the Xyce path ?
+--------------------------
+
+If the default setting doesn't match your environment, then you can fix globally the Xyce executable
+path using the attribute :attr:`PySpice.Spice.Xyce.Server.XyceServer.XYCE_COMMAND`, you can also
+pass the executable path to the simulator using::
+
+   simulator = circuit.simulator(xyce_command='...')
+
 
 Is Xyce 100% compatible with SPICE ?
 ------------------------------------

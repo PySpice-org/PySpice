@@ -1,0 +1,131 @@
+{# -*- engine: jinja2 -*- #}
+<!doctype html>
+<html lang="{% block html_lang %}{{ DEFAULT_LANG }}{% endblock html_lang %}" prefix="og: http://ogp.me/ns#">
+    <head>
+	{% block head %}
+	    <meta charset="utf-8">
+	    {# Doc: for old IE ... <meta http-equiv="X-UA-Compatible" content="IE=edge"> #}
+	    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+	    <title>
+		{% block title %}{{ SITENAME }}{% endblock title %}
+	    </title>
+
+	    {% block meta_tags %}
+		{# Doc: https://support.google.com/webmasters/answer/79812?hl=fr #}
+		<meta name="description" content="">
+		<meta name="author" content="{{ AUTHOR }}">
+		{# <meta name="robots" content="..., ..." /> #}
+		{# <meta name="googlebot" content="..., ..." /> #}
+	    {% endblock meta_tags %}
+
+	    {% block opengraph %}
+		<meta property="og:locale" content="{{ DEFAULT_LANG }}" />
+		{# <meta property="og:locale:alternate" content="fr_FR" /> #}
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content="{% if page %}{{ page.title }}{% else %}{{ SITENAME }}{% endif %}" />
+		<meta property="og:description" content="{{ META_DESCRIPTION }}" />
+		<meta property="og:url" content="{{ SITEURL }}" />
+		<meta property="og:site_name" content="{{ SITENAME }}" />
+		<meta property="og:image" content="{{ LOGO_URL }}" />
+		{# <meta property="og:image:width" content="272" /> #}
+		{# <meta property="og:image:height" content="30" /> #}
+	    {% endblock opengraph %}
+
+	    {% block twitter_card %}
+		{# Doc: https://dev.twitter.com/cards/types/summary-large-image #}
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:description" content="{{ META_DESCRIPTION }}" />
+		<meta name="twitter:title" content="{% if page %}{{ page.title }}{% else %}{{ SITENAME }}{% endif %}" />
+		<meta name="twitter:site" content="{{ TWITTER_USERNAME }}" />
+		<meta name="twitter:image" content="{{ LOGO_URL }}" />
+		<meta name="twitter:creator" content="{{ TWITTER_USERNAME }}" />
+	    {% endblock twitter_card %}
+
+	    <link rel="apple-touch-icon" href="{{ SITEURL }}/images/favicon.png">
+	    <link rel="icon" type="image/png" href="{{ SITEURL }}/images/favicon.png">
+	    <!--[if IE]><link rel="shortcut icon" href="{{ SITEURL }}/images/favicon.ico"><![endif]-->
+
+	    <link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/base.css">
+
+            {% if FEED_ALL_ATOM %}
+		<link
+		    href="{{ FEED_DOMAIN }}/{% if FEED_ALL_ATOM_URL %}{{ FEED_ALL_ATOM_URL }}{% else %}{{ FEED_ALL_ATOM }}{% endif %}"
+		    type="application/atom+xml" rel="alternate" title="{{ SITENAME }} Full Atom Feed"
+		/>
+            {% endif %}
+            {% if FEED_ALL_RSS %}
+		<link
+		    href="{{ FEED_DOMAIN }}/{% if FEED_ALL_RSS_URL %}{{ FEED_ALL_RSS_URL }}{% else %}{{ FEED_ALL_RSS }}{% endif %}"
+		    type="application/rss+xml" rel="alternate" title="{{ SITENAME }} Full RSS Feed" />
+            {% endif %}
+            {% if FEED_ATOM %}
+		<link
+		    href="{{ FEED_DOMAIN }}/{%if FEED_ATOM_URL %}{{ FEED_ATOM_URL }}{% else %}{{ FEED_ATOM }}{% endif %}"
+		    type="application/atom+xml" rel="alternate" title="{{ SITENAME }} Atom Feed" />
+            {% endif %}
+            {% if FEED_RSS %}
+		<link
+		    href="{{ FEED_DOMAIN }}/{% if FEED_RSS_URL %}{{ FEED_RSS_URL }}{% else %}{{ FEED_RSS }}{% endif %}"
+		    type="application/rss+xml" rel="alternate" title="{{ SITENAME }} RSS Feed" />
+            {% endif %}
+            {% if CATEGORY_FEED_ATOM and category %}
+		<link
+		    href="{{ FEED_DOMAIN }}/{% if CATEGORY_FEED_ATOM_URL %}{{ CATEGORY_FEED_ATOM_URL.format(slug=category.slug) }}{% else %}{{ CATEGORY_FEED_ATOM.format(slug=category.slug) }}{% endif %}"
+		    type="application/atom+xml" rel="alternate" title="{{ SITENAME }} Categories Atom Feed" />
+            {% endif %}
+            {% if CATEGORY_FEED_RSS and category %}
+		<link
+		    href="{{ FEED_DOMAIN }}/{% if CATEGORY_FEED_RSS_URL %}{{ CATEGORY_FEED_RSS_URL.format(slug=category.slug) }}{% else %}{{ CATEGORY_FEED_RSS.format(slug=category.slug) }}{% endif %}"
+		    type="application/rss+xml" rel="alternate" title="{{ SITENAME }} Categories RSS Feed" />
+            {% endif %}
+            {% if TAG_FEED_ATOM and tag %}
+		<link
+		    href="{{ FEED_DOMAIN }}/{% if TAG_FEED_ATOM_URL %}{{ TAG_FEED_ATOM_URL.format(slug=tag.slug) }}{% else %}{{ TAG_FEED_ATOM.format(slug=tag.slug) }}{% endif %}"
+		    type="application/atom+xml" rel="alternate" title="{{ SITENAME }} Tags Atom Feed" />
+            {% endif %}
+            {% if TAG_FEED_RSS and tag %}
+		<link href="{{ FEED_DOMAIN }}/{% if TAG_FEED_RSS_URL %}{{ TAG_FEED_RSS_URL.format(slug=tag.slug) }}{% else %}{{ TAG_FEED_RSS.format(slug=tag.slug) }}{% endif %}"
+		      type="application/rss+xml" rel="alternate" title="{{ SITENAME }} Tags RSS Feed" />
+            {% endif %}
+
+	    {# -> Extra head customisation #}{% block extrahead %}{% endblock %}
+
+	    {# FIXME #}
+	    {#% include "includes/third-parties/cookieconsent.html" %#}
+        {% endblock head %}
+    </head>
+
+    <body id="index" class="home" role="document">
+	{# {% include "includes/third-parties/analytics.html" %} #}
+	{# FIXME #}
+	{# {% include "includes/third-parties/piwik.html" %} #}
+
+	{# -> Body Content #}{% block extend_root %}{% endblock %}
+
+	<script src="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/js/libs/jquery.min.js"></script>
+	<script src="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/js/libs/bootstrap.min.js"></script>
+	<script src="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/js/libs/outdatedbrowser.min.js"></script>
+	{# <script src="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/js/base.js"></script> #}
+
+	{# -> Extra Foot #}{% block extrafoot %}{% endblock %}
+
+	{% block outdated_browser %}
+	    <!--googleoff: all-->
+	    <div class="browser-outdated" id="outdated" hidden="hidden">
+		<noscript><h3>{% trans %}Please enable JavaScript{% endtrans %}</h3></noscript>
+		<h3>{% trans %}Your browser is out-of-date!{% endtrans %}</h3>
+		<p>{% trans %}Update your browser to view this website correctly.{% endtrans %}</p>
+		<p>
+		    <a href="http://outdatedbrowser.com/" class="btn btn-lg btn-outline" id="btnUpdateBrowser">
+		    {% trans %}Update my browser now{% endtrans %}
+		</a>
+	    </p>
+	    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+	</div>
+	<!--googleon: all-->
+	{% endblock %}
+
+    </body>
+</html>

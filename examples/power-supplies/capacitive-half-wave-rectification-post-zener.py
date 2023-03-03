@@ -39,13 +39,15 @@ circuit.include(spice_library['1N4148'])
 # 1N5919B: 5.6 V, 3.0 W Zener Diode Voltage Regulator
 circuit.include(spice_library['d1n5919brl'])
 
-ac_line = circuit.AcLine('input', circuit.gnd, 'L', rms_voltage=230@u_V, frequency=50@u_Hz)
+ac_line = circuit.AcLine('input', 'L', circuit.gnd, rms_voltage=230@u_V, frequency=50@u_Hz)
 circuit.R('in', 'L', 1, 470@u_Ω)
 circuit.C('in', 1, 2, 470@u_nF)
+# d1n5919brl pinning is anode cathode ->|-
 circuit.X('Dz', 'd1n5919brl', circuit.gnd, 2)
+# 1N4148 pinning is anode cathode ->|-
 circuit.X('D', '1N4148', 2, 'out')
-circuit.C('', circuit.gnd, 'out', 220@u_uF)
-circuit.R('load', circuit.gnd, 'out', 1@u_kΩ)
+circuit.C('', 'out', circuit.gnd, 220@u_uF)
+circuit.R('load', 'out', circuit.gnd, 1@u_kΩ)
 
 #?# Fixme: circuit.nodes[2].v, circuit.branch.current
 # print circuit.nodes
@@ -54,20 +56,19 @@ circuit.R('load', circuit.gnd, 'out', 1@u_kΩ)
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*10)
 
-figure = plt.figure(1, (20, 10))
-axe = plt.subplot(111)
+figure, ax = plt.subplots(figsize=(20, 10))
 
-plot(analysis['L'] / 100, axis=axe)
-plot(analysis.out, axis=axe)
-###plot((analysis.out - analysis['L']) / 100, axis=axe)
-###plot(analysis.out - analysis['2'], axis=axe)
-###plot((analysis['2'] - analysis['1']) / 100, axis=axe)
+ax.plot(analysis['L'] / 100)
+ax.plot(analysis.out)
+###ax.plot((analysis.out - analysis['L']) / 100)
+###ax.plot(analysis.out - analysis['2'])
+###ax.plot((analysis['2'] - analysis['1']) / 100)
 # or:
-#   plt.plot(analysis.out.abscissa, analysis.out)
-plt.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
-plt.grid()
-plt.xlabel('t [s]')
-plt.ylabel('[V]')
+#   plt.ax.plot(analysis.out.abscissa, analysis.out)
+ax.legend(('Vin [V]', 'Vout [V]'), loc=(.8,.8))
+ax.grid()
+ax.set_xlabel('t [s]')
+ax.set_ylabel('[V]')
 
 plt.tight_layout()
 plt.show()

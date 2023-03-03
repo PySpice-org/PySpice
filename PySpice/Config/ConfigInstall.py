@@ -62,5 +62,4 @@ class Logging:
 
     @staticmethod
     def find(config_file):
-
         return PathTools.find(config_file, Logging.directories)

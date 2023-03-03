@@ -1,0 +1,37 @@
+// #############################################################################
+//
+// Every folder within /private/sass has a file called _all.scss. This
+// file ultimately gets imported by /private/sass/base.scss which gets
+// compiled into /static/css/base.css. Update the _all.scss file to
+// include additional modules. To keep the file simple, do not include
+// files directly within base.scss.
+//
+// Copyright Fabrice Salvaire 2019
+// Copyright (c) 2013, Divio AG
+// Licensed under BSD
+// http://github.com/aldryn/aldryn-boilerplate-bootstrap3
+//
+// #############################################################################
+
+@charset "utf-8";
+
+// #############################################################################
+
+@import "settings/all";
+
+// importin mixins
+@import "mixins/all";
+
+// importing frameworks
+@import "libs/all";
+
+// @import "libs_tier2/all";
+
+// importing modules
+@import "layout/all";
+
+// importing addons
+@import "addons/all";
+
+// importing sites
+@import "sites/all";

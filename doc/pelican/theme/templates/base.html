@@ -1,0 +1,109 @@
+{# -*- engine: jinja2 -*- #}
+{% extends "base_root.html" %}
+
+{% block extend_root %}
+
+    <!--
+	 <header id="banner" class="body">
+         <h1><a href="{{ SITEURL }}/">{{ SITENAME }} <strong>{{ SITESUBTITLE }}</strong></a></h1>
+	 </header>
+    -->
+
+    {# -> Page Header #}
+    {% block header %}
+	{# Doc: http://getbootstrap.com/components/#navbar #}
+	{# -> Skip link for screen reader #}
+	<a class="skippy sr-only sr-only-focusable" href="#page-content">
+	    <span class="skippy-text">{% trans %}Skip to main content{% endtrans %}</span>
+	</a>
+
+	<header id="page-header">
+	    {# -> Top Navigation Bar #}
+	    <nav id="top-navbar" class="navbar">{# navbar is required by js code #}
+		<div class="container">{# to center the navbar on page #}
+		    {# Info: the logo should be placed first for seo reasons #}
+		    <a class="navbar-brand"  href="{{ SITEURl }}/">
+			<img class="brand-logo" src="{{ SITEURl }}/{{ LOGO_URL }}" alt="{{ SITENAME }} logo" height="50" />
+		    </a>
+
+		    {# Info: ensure the anchor names are callable #}
+		    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#page-navigation" aria-controls="page-navigation" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		    </button>
+
+		    <div class="collapse navbar-collapse" id="page-navigation">
+			{% block navbar %}
+			    <ul class="navbar-nav ml-auto" role="menubar">
+				{% for title, link in MENUITEMS %}
+				    <li class="nav-item">
+					<a class= "nav-link" href="{{ link }}">{{ title }}</a>
+				    </li>
+				{% endfor %}
+				{% if DISPLAY_PAGES_ON_MENU %}
+				    {% for p in pages %}
+					<li class="nav-item {% if p == page %}active{% endif %}">
+					    <a class= "nav-link" href="{{ SITEURL }}/{{ p.url }}">{{ p.title }}</a>
+					</li>
+				    {% endfor %}
+				{% endif %}
+				{% if DISPLAY_CATEGORIES_ON_MENU %}
+				    {% for cat, null in categories %}
+					<li class="nav-item {% if cat == category %}active{% endif %}">
+					    <a class= "nav-link" href="{{ SITEURL }}/{{ cat.url }}">{{ cat }}</a>
+					</li>
+				    {% endfor %}
+				{% endif %}
+			    </ul>
+			{% endblock navbar %}
+		    </div>
+		</div>
+	    </nav>
+
+	    {# -> Breadcrumb #}
+	    {# doc: https://getbootstrap.com/docs/4.4/components/breadcrumb #}
+	    {% block breadcrumb %}
+		<nav id="page-breadcrumb" aria-label="breadcrumb">
+		    <div class="container">{# to center navbar on page #}
+			<h3 class="sr-only">{% trans %}You are here{% endtrans %}</h3>
+			<ol class="breadcrumb">
+			</ol>
+		    </div>
+		</nav>
+	    {% endblock breadcrumb %}
+	</header>
+    {% endblock header %}
+
+    {# -> Page Content #}
+    {# <hr class="sr-only" id="page-content" /> #}
+    <div id="page-content" class="container">
+	{% block content %}
+	{% endblock %}
+    </div>
+
+    {# -> Page Footer #}
+    {% block footer %}
+	<footer id="page-footer" class="footer" role="contentinfo">
+            <h1 class="sr-only">{% trans %}Page Footer{% endtrans %}</h1>{# id="page-footer" #}
+
+	    <!--
+		 <address id="about" class="vcard body">
+		 Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+		 which takes great advantage of <a href="http://python.org">Python</a>.
+		 </address>
+	    -->
+
+	    <div class="footer-container">
+		<div id="copyright-notice">
+                    <p>Copyright © {{ COPYRIGHT_YEAR }} {{ COPYRIGHT_NAME }} /
+		        <a href="{{ PAGE_LINKS['legal_notice'].dst_url }}">legal notice</a>
+		    </p>
+		</div>
+
+		<div id="page-top-link">
+		    <a href="#page-top" data-spy="scroll"><i class="fas fa-arrow-up"></i> {% trans %}Back to top{% endtrans %}</a>
+		</div>
+            </div>
+	</footer>
+    {% endblock footer %}
+
+{% endblock %}

@@ -1,0 +1,23 @@
+source code and project files (code::blocks nad MS Visual Studio 2008)
+for two console master programs to call ngspice.dll
+
+include
+contains common header sharedspice.h
+
+ng_shared_test
+contains source file main.c, compiles to console app which links to
+ngspice.dll  dynamically during runtime
+
+ng_shared_test_v
+project files for MS Studio 2008
+
+ng_shared_test_sl
+contains source file main.c, compiles to console app which links
+ngspice.dll  during the compile/link step
+You will need either ngspice.dll.a or ngspice.dll for linking.
+
+
+ng_shared_test_sl_v
+project files for MS Studio 2008
+You will need ngspice.lib for linking
+

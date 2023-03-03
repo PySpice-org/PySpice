@@ -81,6 +81,7 @@ def find_package(ctx, name):
 
 @task()
 def update_git_sha(ctx):
+    # Fixme: wrong workflow, must tag the last commit
     result = ctx.run('git describe --tags --abbrev=0 --always', hide='out')
     tag = result.stdout.strip()
     if tag.startswith('v'):
@@ -95,21 +96,23 @@ def update_git_sha(ctx):
     print(tag)
     print(version)
     filename = Path(ctx.Package, '__init__.py')
-    with open(str(filename) + '.in', 'r') as fh:
+    with open(str(filename), 'r') as fh:
         lines = fh.readlines()
     with open(filename, 'w') as fh:
         for line in lines:
-            if '@' in line:
-                line = line.replace('@VERSION@', version)
-                line = line.replace('@GIT_TAG@', tag)
-                line = line.replace('@GIT_SHA@', sha)
+            if line.startswith('__version__'):
+                line = "__version__ = '{}'\n".format(version)
+            if line.startswith('__git_tag__'):
+                line = "__git_tag__ = '{}'\n".format(tag)
+            if line.startswith('__git_sha__'):
+                line = "__git_sha__ = '{}'\n".format(sha)
             fh.write(line)
 
 ####################################################################################################
 
 @task()
 def clean(ctx):
-    for directory in ('build', 'dist'):
+    for directory in ('build', 'dist', 'PySpice.egg-info'):
         shutil.rmtree(directory, ignore_errors=True)
 
 @task()
@@ -124,12 +127,69 @@ def build(ctx):
 def install(ctx):
     ctx.run('python3 setup.py install')
 
+# @task(clean, build)
+# def sdist(ctx):
+#     ctx.run('python3 setup.py sdist')
+
+# @task(clean, build)
+# def bdist(ctx):
+#     ctx.run('python3 setup.py bdist')
+
 @task(clean, build)
 def wheel(ctx):
+    ctx.run('python3 setup.py sdist')
     ctx.run('python3 setup.py bdist_wheel')
 
 @task(wheel)
 def upload(ctx):
+    # Twine documentation: https://pypi.org/project/twine/
     # ctx.run('twine register dist/*whl')
-    ctx.run('gpg --detach-sign -a dist/*whl')
+    # Sign using
+    #   BA24CE0F65CB8C67 Fabrice SALVAIRE <gpg AT fabrice-salvaire.fr>
+    #   registered on key servers: hkps://hkps.pool.sks-keyservers.net hkp://pgp.mit.edu
+    ctx.run('gpg --detach-sign --armor dist/*tar.gz')
+    ctx.run('gpg --detach-sign --armor dist/*whl')
     ctx.run('twine upload dist/*')
+
+def _get_pipy_json():
+    import requests
+    response = requests.get('https://pypi.org/pypi/PySpice/json')
+    assert(response.status_code == requests.codes.ok)
+    return response.json()
+
+@task()
+def get_pypi_json(ctx):
+    import json
+    print(json.dumps(_get_pipy_json(), sort_keys=True, indent=4))
+
+@task()
+def get_wheel(ctx):
+    # https://dzone.com/articles/package-signing-in-pip-it-works-in-a-roundabout-so
+    data = _get_pipy_json()
+    version = data['info']['version']
+    filename = data['urls'][0]['filename']
+    wheel_url = data['urls'][0]['url']
+    print('Get version {}'.format(version))
+    ctx.run('curl --output {} {}'.format(filename, wheel_url))
+    asc_suffix = '.asc'
+    filename_asc = filename + asc_suffix
+    ctx.run('curl --output {} {}'.format(filename_asc, wheel_url + asc_suffix))
+    # ctx.run('gpg --keyserver pgp.mit.edu --search-keys {}'.format(key_id))
+    ctx.run('gpg --verify {} {}'.format(filename_asc, filename))
+
+####################################################################################################
+
+@task()
+def get_github_tar_sha(ctx):
+    # Fixme: check git sha
+    result = ctx.run('git describe --tags --abbrev=0 --always', hide='out')
+    tag = result.stdout.strip()
+    url = 'https://github.com/FabriceSalvaire/PySpice/archive/{}.tar.gz'.format(tag)
+    print('Get', url)
+    import hashlib
+    import requests
+    response = requests.get(url, allow_redirects=True)
+    assert(response.status_code == requests.codes.ok)
+    sha = hashlib.sha256(response.content)
+    print(sha.hexdigest())
+

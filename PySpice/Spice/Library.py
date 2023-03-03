@@ -21,11 +21,12 @@
 ####################################################################################################
 
 import logging
+import re
 
 ####################################################################################################
 
 from ..Tools.File import Directory
-from .EBNFParser import SpiceParser
+from .Parser import SpiceParser
 
 ####################################################################################################
 
@@ -54,6 +55,7 @@ class SpiceLibrary:
     _logger = _module_logger.getChild('Library')
 
     EXTENSIONS = (
+        '.spice',
         '.lib',
         '.mod',
         '.lib@xyce',
@@ -62,7 +64,7 @@ class SpiceLibrary:
 
     ##############################################
 
-    def __init__(self, root_path):
+    def __init__(self, root_path, recurse=False, section=None):
 
         self._directory = Directory(root_path).expand_vars_and_user()
 
@@ -73,13 +75,23 @@ class SpiceLibrary:
             extension = path.extension.lower()
             if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
-                spice_parser = SpiceParser.parse(path=path, library=True)
-                for model in spice_parser.models:
-                    name = self._suffix_name(model.name, extension)
-                    self._models[name.lower()] = path
-                for subcircuit in spice_parser.subcircuits:
-                    name = self._suffix_name(subcircuit.name, extension)
-                    self._subcircuits[name.lower()] = path
+                try:
+                    spice_parser = SpiceParser(path=path, recurse=recurse, section=section)
+                    for lib in spice_parser.incl_libs:
+                        self._subcircuits.update(lib._subcircuits)
+                        self._models.update(lib._models)
+                except Exception as e:
+                    # Parse problem with this file, so skip it and keep going.
+                    self._logger.warn("Problem parsing {path} - {e}".format(**locals()))
+                    continue
+                if spice_parser.is_only_subcircuit():
+                    for subcircuit in spice_parser.subcircuits:
+                        name = self._suffix_name(subcircuit.name, extension)
+                        self._subcircuits[name] = path
+                elif spice_parser.is_only_model():
+                    for model in spice_parser.models:
+                        name = self._suffix_name(model.name, extension)
+                        self._models[name] = path
 
     ##############################################
 
@@ -94,7 +106,7 @@ class SpiceLibrary:
     ##############################################
 
     def __getitem__(self, name):
-        name = name.lower()
+
         if name in self._subcircuits:
             return self._subcircuits[name]
         elif name in self._models:
@@ -125,3 +137,14 @@ class SpiceLibrary:
 
     # def iter_on_models(self):
     #     return self._models.itervalues()
+
+    # ##############################################
+
+    def search(self, s):
+        """ Return dict of all models/subcircuits with names matching regex s. """
+        matches = {}
+        models_subcircuits = {**self._models, **self._subcircuits}
+        for name, mdl_subckt in models_subcircuits.items():
+            if re.search(s, name):
+                matches[name] = mdl_subckt
+        return matches

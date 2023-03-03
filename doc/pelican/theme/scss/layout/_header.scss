@@ -1,0 +1,78 @@
+//###################################################################################################
+// HEADER
+
+// all styles related to the global header should be declared within
+// this file apply the "sites/" nesting described within the
+// documentation if the file is getting to large
+
+header.page_header {
+    // Add vertical space to the header
+    @extend .mb-3;
+    @include rised-component();
+}
+
+#top-navbar {
+    @extend .navbar-expand-lg;
+    @extend .py-0;
+
+    text-transform: uppercase;
+}
+
+// Show from small ≥576px device
+@media(min-width: $grid-float-breakpoint) {
+    // Implement an horizontal line below menu item
+    // Fixme: better ?
+    #top-navbar {
+	.nav-item:not(.dropdown) { // doesn't work with dropdown
+	    > a::after {
+		// position: absolute;
+		// left: 0;
+		content: "";
+		display: block;
+		height: 2px;
+		bottom: 3px;
+		background-color: #a1c42c;
+		width: 0;
+		transition: all .2s ease-out;
+	    }
+	    &.active > a::after,
+	    > a:hover::after { // :active::after, :focus::after
+		width: 100%;
+	    }
+	}
+    }
+}
+
+//###################################################################################################
+
+header.page_header {
+    @extend .bg-dark;
+}
+
+$logo-angle: 20deg;
+$logo-padding: 30px;
+
+#top-navbar {
+    // @extend .navbar-light;
+    // @extend .bg-light;
+
+    @extend .navbar-dark;
+    @extend .bg-dark;
+
+    @include white_on_dark();
+
+    a.navbar-brand {
+	transform: skew(-$logo-angle);
+	background: white;
+	padding-right: $logo-padding;
+	padding-left: $logo-padding;
+	img {
+	    transform: skew($logo-angle);
+	}
+    }
+
+    // Fix dropdown menu text colour
+    a.dropdown-item {
+	@extend .text-dark;
+    }
+}

@@ -1,0 +1,11 @@
+// #############################################################################
+// Codes
+
+pre {
+    @extend .p-2;
+    // background-color: $gray-100;
+    background-color: #f5f5f5;
+    // border: 1px solid $gray-400;
+    border: 1px solid #ccc;
+    border-radius: $border-radius;
+}

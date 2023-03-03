@@ -36,7 +36,7 @@ from scipy.optimize import curve_fit
 #r# We will fit from the simulation output the time constant of each circuit and compare it to the
 #r# theoretical value.
 
-figure = plt.figure(1, (20, 10))
+figure, (ax1, ax2) = plt.subplots(2, figsize=(20, 10))
 
 element_types = ('capacitor', 'inductor')
 
@@ -88,23 +88,23 @@ for element_type in ('capacitor', 'inductor'):
     print('tau measured {0} = {1:.1f} ms'.format(element_type, tau_measured * 1000))
 
     if element_type == 'capacitor':
-        axe = plt.subplot(121)
+        ax = ax1
         title = "Capacitor: voltage is constant"
     else:
-        axe = plt.subplot(122)
+        ax = ax2
         title = "Inductor: current is constant"
-    axe.set_title(title)
-    axe.grid()
+    ax.set_title(title)
+    ax.grid()
     current_scale = 1000
-    plot(analysis['in'])
-    plot(analysis['out'])
+    ax.plot(analysis['in'])
+    ax.plot(analysis['out'])
     # Fixme: resistor current, scale
-    plot(((analysis['in'] - analysis.out)/circuit['R1'].resistance) * current_scale)
-    axe.axvline(x=float(tau), color='red')
-    axe.set_ylim(-11, 11)
-    axe.set_xlabel('t [s]')
-    axe.set_ylabel('[V]')
-    axe.legend(('Vin [V]', 'Vout [V]', 'I'), loc=(.8,.8))
+    ax.plot(((analysis['in'] - analysis.out)/circuit['R1'].resistance) * current_scale)
+    ax.axvline(x=float(tau), color='red')
+    ax.set_ylim(-11, 11)
+    ax.set_xlabel('t [s]')
+    ax.set_ylabel('[V]')
+    ax.legend(('Vin [V]', 'Vout [V]', 'I'), loc=(.8,.8))
 #o#
 
 plt.tight_layout()
