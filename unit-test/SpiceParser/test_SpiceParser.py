@@ -265,9 +265,9 @@ XFOLLOW IN OUT VCC VEE OUT OPAMP
 .ENDS
 
 IPWL1 1 0 PWL 0S 0A 2S 3A 3S 2A 4S 2A 4.01S 5A r=2s td=1
-IPWL2 2 0 PWL FILE "ipwl.txt"
-VPWL3 3 0 PWL file "vpwl.csv"
-VPWL4 4 0 PWL FILE vpwl.csv
+IPWL2 2 0 PWL FILE "unit-test/SpiceParser/ipwl.txt"
+VPWL3 3 0 PWL file "unit-test/SpiceParser/vpwl.csv"
+VPWL4 4 0 PWL FILE unit-test/SpiceParser/vpwl.csv
 
 ISLOW 1 22 SIN(0.5 1.0ma 1KHz 1ms)
 IPULSE 1 3 PULSE(-1 1 2ns 2ns 2ns 50ns 100ns)
@@ -451,7 +451,7 @@ class TestSpiceParser(unittest.TestCase):
     def test_library(self):
         from PySpice.Spice.Library import SpiceLibrary
         import os
-        libraries_path = os.path.abspath('.')
+        libraries_path = os.path.abspath('unit-test/SpiceParser')
         spice_library = SpiceLibrary(libraries_path)
         circuit = Circuit('MOS Driver')
         circuit.include(spice_library['mosdriver'])
@@ -616,7 +616,7 @@ bexor yint 0 v={if(((v(A) > 0.5) ^ (v(B) > 0.5)), 1, 0)}
         print(os.getcwd())
         circuit = Circuit('MOS Driver')
         circuit.spice_sim = 'xyce'
-        circuit.include(os.path.join(os.getcwd(), 'mosdriver.lib'))
+        circuit.include(os.path.join(os.getcwd(), 'unit-test/SpiceParser/mosdriver.lib'))
         circuit.X('test', 'mosdriver', '0', '1', '2', '3', '4', '5', '6', '7')
         circuit.BehavioralSource('test', '1', '0', voltage_expression='{if(True, 0, 1)}', smoothbsrc=1)
         expected = """.title MOS Driver

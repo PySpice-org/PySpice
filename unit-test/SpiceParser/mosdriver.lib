@@ -1,12 +1,14 @@
 * Ideal mos driver
+
+.include diode.lib
+.include source.lib
+
 .subckt mosdriver hb hi ho hs li lo vdd vss
 
-.model diode D (is=1.038e-15 n=1 tt=20e-9 cjo=5e-12 rs=0.50 bv=130)
-
-bhigh hoi hs v={if(v(hi, vss) > 0.5, 5, 0)} smoothbsrc=1
+xhigh hoi hs hi vss source
 rhoi hoi ho 1
 choi ho hs 1e-9
-blow loi vss v={if(v(li, vss) > 0.5, 5, 0)} smoothbsrc=1
+xlow loi vss li vss source
 rloi loi lo 1
 cloi lo vss 1e-9
 dhb vdd hb diode
