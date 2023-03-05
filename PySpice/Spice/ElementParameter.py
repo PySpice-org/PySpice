@@ -24,8 +24,10 @@
 
 ####################################################################################################
 
-from ..Unit import Unit
+from ..Unit.Unit import UnitValue, PrefixedUnit
 from ..Tools.StringTools import str_spice
+from .Expressions import Expression
+from .EBNFExpressionParser import ExpressionParser
 
 ####################################################################################################
 
@@ -49,6 +51,7 @@ class ParameterDescriptor:
 
         self._default_value = default
         self._attribute_name = None
+        self._unit = None
 
     ##############################################
 
@@ -76,7 +79,7 @@ class ParameterDescriptor:
     ##############################################
 
     def __set__(self, instance, value):
-        setattr(instance, '_' + self._attribute_name, value)
+        setattr(instance, '_' + self._attribute_name, self.validate(value))
 
     ##############################################
 
@@ -108,6 +111,21 @@ class ParameterDescriptor:
 
     def __lt__(self, other):
         return self._attribute_name < other.attribute_name
+
+    def _validate_float(self, value):
+        if (self._unit is None):
+            return float(value)
+        if isinstance(value, type(self._unit)):
+            return value
+        elif isinstance(value, UnitValue):
+            if value.prefixed_unit.is_unit_less:
+                unit = PrefixedUnit(self._unit.unit, value.prefixed_unit.power)
+                return unit.new_value(value.value)
+            elif value.prefixed_unit.unit == self._unit.unit:
+                return value
+        elif type(value) is str:
+            value = ExpressionParser.parse(value)
+        return self._unit.new_value(value)
 
 ####################################################################################################
 
@@ -174,7 +192,9 @@ class ExpressionPositionalParameter(PositionalElementParameter):
     ##############################################
 
     def validate(self, value):
-        return str(value)
+        if isinstance(value, Expression):
+            return value
+        return ExpressionParser.parse(value)
 
 ####################################################################################################
 
@@ -192,11 +212,7 @@ class FloatPositionalParameter(PositionalElementParameter):
     ##############################################
 
     def validate(self, value):
-
-        if isinstance(value, type(self._unit)):
-            return value
-        else:
-            return self._unit.new_value(value)
+        return self._validate_float(value)
 
 ####################################################################################################
 
@@ -328,7 +344,9 @@ class ExpressionKeyParameter(KeyValueParameter):
     ##############################################
 
     def validate(self, value):
-        return str(value)
+        if isinstance(value, Expression):
+            return value
+        return ExpressionParser.parse(value)
 
 ####################################################################################################
 
@@ -346,7 +364,7 @@ class FloatKeyParameter(KeyValueParameter):
     ##############################################
 
     def validate(self, value):
-        return float(value)
+        return self._validate_float(value)
 
 ####################################################################################################
 
@@ -359,7 +377,7 @@ class FloatPairKeyParameter(KeyValueParameter):
     def validate(self, pair):
 
         if len(pair) == 2:
-            return (float(pair[0]), float(pair[1]))
+            return (self._validate_float(pair[0]), self._validate_float(pair[1]))
         else:
             raise ValueError()
 
@@ -379,7 +397,7 @@ class FloatTripletKeyParameter(FloatPairKeyParameter):
     def validate(self, uplet):
 
         if len(uplet) == 3:
-            return (float(uplet[0]), float(uplet[1]), float(uplet[2]))
+            return (self._validate_float(uplet[0]), self._validate_float(uplet[1]), self._validate_float(uplet[2]))
         else:
             raise ValueError()
 

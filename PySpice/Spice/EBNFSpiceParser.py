@@ -7,12 +7,8 @@ from PySpice.Unit.Unit import UnitValue, ZeroPower, PrefixedUnit
 from PySpice.Unit.SiUnits import Tera, Giga, Mega, Kilo, Milli, Micro, Nano, Pico, Femto
 from PySpice.Tools.StringTools import join_lines
 from .Expressions import *
-from .ElementParameter import FlagParameter
 from .Netlist import (Circuit,
-                      DeviceModel,
-                      Library,
-                      SubCircuit,
-                      Comment)
+                      SubCircuit)
 from .BasicElement import (BehavioralSource,
                            BipolarJunctionTransistor,
                            Capacitor,
@@ -822,8 +818,6 @@ class SpiceModelWalker(NodeWalker):
 
     def walk_BJT(self, node, data):
         device = self.walk(node.dev, data)
-        args = self.walk(node.args, data)
-        l_args = len(args)
         kwargs = {}
         collector = self.walk(node.collector, data)
         base = self.walk(node.base, data)
@@ -833,56 +827,23 @@ class SpiceModelWalker(NodeWalker):
             base,
             emitter
         ]
-        substrate = None
         if node.substrate is not None:
-            substrate = node.substrate
+            substrate = self.walk(node.substrate, data)
             nodes.append(substrate)
-        area = None
+        if node.thermal is not None:
+            thermal = node.thermal
+            nodes.append(thermal)
         if node.area is not None:
             area = self.walk(node.area, data)
-        if l_args == 0:
-            raise ValueError("The device {} has no model".format(node.dev))
-        elif l_args == 1:
-            model_name = args[0]
-        elif l_args == 2:
-            if area is None:
-                try:
-                    area = SpiceModelWalker._to_number(args[1])
-                    kwargs["area"] = area
-                    model_name = args[0]
-                except ValueError:
-                    pass
-            if area is None:
-                thermal = args[0]
-                nodes.append(thermal)
-                model_name = args[1]
-        elif l_args == 3:
-            if area is None:
-                try:
-                    area = SpiceModelWalker._to_number(args[2])
-                    kwargs["area"] = area
-                    model_name = args[1]
-                    thermal = args[0]
-                    nodes.append(thermal)
-                except ValueError:
-                    pass
-            if area is None and substrate is None:
-                substrate = args[0]
-                nodes.append(substrate)
-                thermal = args[1]
-                nodes.append(thermal)
-                model_name = args[2]
-            else:
-                raise ValueError("Present device not compatible with BJT definition: {}".format(node.dev))
-        else:
-            raise ValueError("Present device not compatible with BJT definition: {}".format(node.dev))
+            kwargs["area"] = SpiceModelWalker._to_number(area)
+
+        model_name = self.walk(node.model, data)
+        kwargs["model"] = model_name
+        data._present._required_models.add(model_name.lower())
 
         if node.parameters is not None:
             parameters = self.walk(node.parameters, data)
             kwargs.update(parameters)
-
-        kwargs["model"] = model_name
-        data._present._required_models.add(model_name.lower())
 
         data._present.append(
             ElementStatement(
@@ -894,7 +855,7 @@ class SpiceModelWalker(NodeWalker):
         )
 
     def walk_SubstrateNode(self, node, data):
-        return node.substrate
+        return node.text[1:-1]
 
     def walk_Capacitor(self, node, data):
         device = self.walk(node.dev, data)
@@ -1321,16 +1282,18 @@ class SpiceModelWalker(NodeWalker):
 
     def walk_VoltageControlledCurrentSource(self, node, data):
         device = self.walk(node.dev, data)
-        if (node.controller is None and node.control_positive is None and
-                node.control_negative is None and node.transconductance is None):
+        if node.controller is None and node.nodes is None:
             raise ValueError("Device {} not properly defined".format(node.dev))
         if node.controller is not None:
             controller = self.walk(node.controller, data)
             kwargs = {"I": controller}
         else:
             value = self.walk(node.transconductance, data)
-            ctrl_p = self.walk(node.control_positive, data)
-            ctrl_n = self.walk(node.control_negative, data)
+            nodes = self.walk(node.nodes, data)
+            if len(nodes) != 2:
+                raise ValueError("Device {} not properly defined".format(node.dev))
+            ctrl_p = nodes[0]
+            ctrl_n = nodes[1]
             kwargs = {"I": V(ctrl_p, ctrl_n) * value}
 
         positive = self.walk(node.positive, data)
@@ -1350,16 +1313,16 @@ class SpiceModelWalker(NodeWalker):
 
     def walk_VoltageControlledVoltageSource(self, node, data):
         device = self.walk(node.dev, data)
-        if (node.controller is None and node.control_positive is None and
-                node.control_negative is None and node.gain is None):
-            raise ValueError("Device {} not properly defined".format(node.dev))
         if node.controller is not None:
             controller = self.walk(node.controller, data)
             kwargs = {"V": controller}
         else:
-            value = self.walk(node.gain, data)
-            ctrl_p = self.walk(node.control_positive, data)
-            ctrl_n = self.walk(node.control_negative, data)
+            value = self.walk(node.transconductance, data)
+            nodes = self.walk(node.nodes, data)
+            if len(nodes) != 2:
+                raise ValueError("Device {} not properly defined".format(node.dev))
+            ctrl_p = nodes[0]
+            ctrl_n = nodes[1]
             kwargs = {"V": V(ctrl_p, ctrl_n) * value}
 
         positive = self.walk(node.positive, data)
@@ -1812,6 +1775,12 @@ class SpiceModelWalker(NodeWalker):
         else:
             return self.walk(node.value, data)
 
+    def walk_ParenthesisNodes(self, node, data):
+        return self.walk(node.ast, data)
+
+    def walk_CircuitNodes(self, node, data):
+        return self.walk_list(node.ast, data)
+
     def walk_BracedExpression(self, node, data):
         return self.walk(node.ast, data)
 
@@ -1867,7 +1836,7 @@ class SpiceModelWalker(NodeWalker):
         if node.boolean is None:
             return self.walk(node.expr, data)
         else:
-            return node.boolean.lower == "true"
+            return node.boolean.lower() == "true"
 
     def walk_Expression(self, node, data):
         if node.term is None:
@@ -2155,7 +2124,7 @@ class SpiceParser:
             os.path.join(os.getcwd(), os.path.dirname(spice_file)))
         grammar_file = os.path.join(location, "spicegrammar.ebnf")
         with open(grammar_file, "r") as grammar_ifile:
-            grammar = grammar_ifile.read();
+            grammar = grammar_ifile.read()
         with open(grammar_file, "w") as grammar_ofile:
             model = compile(str(grammar))
             grammar_ofile.write(str(model))

@@ -1,0 +1,649 @@
+@@grammar :: Expression
+@@whitespace :: //
+@@ignorecase :: True
+@@parseinfo :: True
+@@left_recursion :: True
+
+start::SpiceExpression
+    =
+    gen_expr
+    ;
+
+
+gen_expr::GenericExpression
+    =
+    braced:braced_expression | value:value
+    ;
+
+
+braced_expression::BracedExpression
+    =
+    lc [sep:sep] @:expression [sep:sep] rc | @:expression
+    ;
+
+
+expression::Expression
+    =
+    ternary:ternary | term:term
+    ;
+
+
+ternary::Ternary
+    =
+    t:conditional_expression
+    [sep:sep]
+    op:'?'
+    ~
+    [sep:sep]
+    x:expression
+    [sep:sep]
+    ':'
+    ~
+    [sep:sep]
+    y:expression
+    ;
+
+
+conditional_expression::Conditional
+    =
+    expr:boolean_or
+    ;
+
+
+boolean_or::Or
+    =
+    left:boolean_xor [[sep:sep] op:'|' [sep:sep] right:boolean_or]
+    ;
+
+
+boolean_xor::Xor
+    =
+    left:boolean_and [[sep:sep] op:'^' [sep:sep] right:boolean_xor]
+    ;
+
+
+boolean_and::And
+    =
+    left:boolean_not [[sep:sep] op:'&' [sep:sep] right:boolean_and]
+    ;
+
+
+boolean_not::Not
+    =
+    [op:'~'] operator:relational
+    ;
+
+
+relational::Relational
+    =
+        left:expression
+        [sep:sep]
+        op:('==' | '!=' | '>=' | '<=' | '>' | '<')
+        [sep:sep]
+        right:expression
+    |
+        factor:conditional_factor
+    ;
+
+
+conditional_factor::ConditionalFactor
+    =
+    lp [sep:sep] expr:conditional_expression [sep:sep] rp | boolean:boolean
+    ;
+
+
+term::Term
+    =
+    @:add_sub
+    ;
+
+
+add_sub::AddSub
+    =
+    left:prod [[sep:sep] op:('+' | '-') [sep:sep] right:add_sub]
+    ;
+
+
+prod::ProdDivMod
+    =
+    left:unary [[sep:sep] op:('*' | '/' | '%') [sep:sep] right:prod]
+    ;
+
+
+unary::Sign
+    =
+    [op:('+' | '-')] operator:exp
+    ;
+
+
+exp::Exponential
+    =
+    left:functional [[sep:sep] op:'**' [sep:sep] right:exp]
+    ;
+
+
+functional::Functional
+    =
+    @:functions | @:variable
+    ;
+
+
+variable::Variable
+    =
+    | lc [sep:sep] variable:var_id [sep:sep] rc
+    | variable:var_id
+    | factor:factor
+    ;
+
+
+factor::Factor
+    =
+    lp [sep:sep] @:expression [sep:sep] rp | @:value
+    ;
+
+
+functions::Functions
+    =
+    | functions_1
+    | atan2
+    | ddx
+    | gauss
+    | if_func
+    | limit
+    | functions_2
+    | rand
+    | unif
+    | i_func
+    | v_func
+    ;
+
+
+functions_1
+    =
+    func:(
+        | 'abs'
+        | 'ceil'
+        | 'ddt'
+        | 'floor'
+        | 'int'
+        | 'm'
+        | 'nint'
+        | 'sdt'
+        | 'sgn'
+        | 'stp'
+        | 'sqrt'
+        | 'uramp'
+        | 'Ph'
+        | 'Re'
+        | 'R'
+        | 'Img'
+        | 'acosh'
+        | 'acos'
+        | 'asinh'
+        | 'asin'
+        | 'arctan'
+        | 'atanh'
+        | 'atan'
+        | 'cosh'
+        | 'cos'
+        | 'exp'
+        | 'ln'
+        | 'log'
+        | 'log10'
+        | 'sinh'
+        | 'sin'
+        | 'tanh'
+        | 'tan'
+    )
+    [sep:sep]
+    lp
+    ~
+    [sep:sep]
+    x:expression
+    [sep:sep]
+    rp
+    ;
+
+
+atan2
+    =
+    func:'atan2'
+    [sep:sep]
+    lp
+    ~
+    [sep:sep]
+    y:expression
+    [sep:sep]
+    comma
+    [sep:sep]
+    x:expression
+    [sep:sep]
+    rp
+    ;
+
+
+ddx
+    =
+    func:'ddx'
+    [sep:sep]
+    lp
+    ~
+    [sep:sep]
+    f:id
+    [sep:sep]
+    comma
+    [sep:sep]
+    x:expression
+    [sep:sep]
+    rp
+    ;
+
+
+gauss
+    =
+    func:('agauss' | 'gauss')
+    [sep:sep]
+    lp
+    ~
+    [sep:sep]
+    mu:expression
+    [sep:sep]
+    comma
+    [sep:sep]
+    alpha:expression
+    [sep:sep]
+    comma
+    [sep:sep]
+    n:expression
+    [sep:sep]
+    rp
+    ;
+
+
+i_func
+    =
+    func:'i' [sep:sep] lp ~ [sep:sep] &'V' device:dev [sep:sep] rp
+    ;
+
+
+if_func
+    =
+    func:'if'
+    [sep:sep]
+    lp
+    ~
+    [sep:sep]
+    t:conditional_expression
+    [sep:sep]
+    comma
+    [sep:sep]
+    x:expression
+    [sep:sep]
+    comma
+    [sep:sep]
+    y:expression
+    [sep:sep]
+    rp
+    ;
+
+
+limit
+    =
+    func:'limit'
+    [sep:sep]
+    lp
+    ~
+    [sep:sep]
+    x:expression
+    [sep:sep]
+    comma
+    [sep:sep]
+    y:expression
+    [sep:sep]
+    comma
+    [sep:sep]
+    z:expression
+    [sep:sep]
+    rp
+    ;
+
+
+functions_2
+    =
+    func:('min' | 'max' | 'pwrs' | 'pow' | 'pwr' | 'sign')
+    [sep:sep]
+    lp
+    ~
+    [sep:sep]
+    x:expression
+    [sep:sep]
+    comma
+    [sep:sep]
+    y:expression
+    [sep:sep]
+    rp
+    ;
+
+
+rand
+    =
+    func:'rand' [sep:sep] lp ~ [sep:sep] rp
+    ;
+
+
+unif
+    =
+    func:('aunif' | 'unif')
+    [sep:sep]
+    lp
+    ~
+    [sep:sep]
+    mu:expression
+    [sep:sep]
+    comma
+    [sep:sep]
+    alpha:expression
+    [sep:sep]
+    rp
+    ;
+
+
+v_func
+    =
+    func:'v'
+    [sep:sep]
+    lp
+    ~
+    [sep:sep]
+    node:node
+    [sep:sep]
+    [comma [sep:sep] node:node [sep:sep]]
+    rp
+    ;
+
+
+special_variables
+    =
+    'time' | 'temper' | 'temp' | 'freq' | 'vt' | 'pi'
+    ;
+
+
+value::Value
+    =
+    (
+        | (real:real_value '+' imag:imag_value)
+        | imag:imag_value
+        | real:real_value
+    )
+    unit:[
+    hz | unit
+    ]
+    ;
+
+
+imag_value::ImagValue
+    =
+    value:number_scale 'J'
+    ;
+
+
+real_value::RealValue
+    =
+    value:number_scale
+    ;
+
+
+freq_value
+    =
+    value:number_scale unit:[hz]
+    ;
+
+
+number_scale::NumberScale
+    =
+    | value:floating_point scale:(meg | [suffix])
+    | value:integer scale:(meg | [suffix])
+    ;
+
+
+suffix
+    =
+    /[tTgGkKmMxXuUnNpPfFµ]/
+    ;
+
+
+meg
+    =
+    /[mM][eE][gG]/
+    ;
+
+
+unit::Unit
+    =
+    /[a-zA-Z%]+/
+    ;
+
+
+hz::Hz
+    =
+    /[Hh][Zz]/
+    ;
+
+
+lead_name
+    =
+    /I[SDGBEC1-9]/
+    ;
+
+
+floating_point::Float
+    =
+    /[\+\-]?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))([eE][\-\+]?[0-9]{1,3})?/
+    ;
+
+
+integer::Int
+    =
+    /[\+\-]?[0-9]+/
+    ;
+
+
+digit
+    =
+    /[0-9]/
+    ;
+
+
+boolean
+    =
+    'TRUE' | 'FALSE'
+    ;
+
+
+binary_pattern::BinaryPattern
+    =
+    /[Bb]/ pattern:{binary}+
+    ;
+
+
+binary
+    =
+    /[01]/
+    ;
+
+
+dev::Device
+    =
+    /[a-zA-Z\$][a-zA-Z0-9_:!`@#\.\+\-\$]*/
+    ;
+
+
+node::NetNode
+    =
+    node:(
+        | ?"[a-zA-Z0-9_\[\$\/\+\-][a-zA-Z0-9_:\$\-`~!@#%&_\+|<>\?\.\\|\^\*\/]*[a-zA-Z0-9_\$\-`~!@#%&_\+|<>\?\.\\|\^\*\]\/]"
+        | /[a-zA-Z0-9_]/
+    )
+    !([sep:sep] '=')
+    ;
+
+
+id
+    =
+    | ?"[a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$\/]*[a-zA-Z0-9_`@#\.\$]"
+    | /[a-zA-Z_`@#\$]/
+    ;
+
+
+var_id
+    =
+    /[a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$]*[a-zA-Z0-9_`@#\.\$]/ | /[a-zA-Z]/
+    ;
+
+
+end_sep
+    =
+    @:cmd_net_sep {st} | {st}+
+    ;
+
+
+sep
+    =
+    {@:cmd_net_sep {st} '+' {st}}+ | {st}+
+    ;
+
+
+cmd_net_sep::Separator
+    =
+    {st}
+    comment:[@:inline_comment]
+    newline
+    {
+        {st}
+        comment:[
+        @:line_comment | @:inline_comment
+        ]
+
+        newline
+    }
+    ;
+
+
+inline_comment
+    =
+    semicolon {st} @:text
+    ;
+
+
+line_comment
+    =
+    asterisk {st} @:text
+    ;
+
+
+text::Comment
+    =
+    /[^\r\n]*/
+    ;
+
+
+asterisk
+    =
+    '*'
+    ;
+
+
+question_mark
+    =
+    '?'
+    ;
+
+
+colon
+    =
+    ':'
+    ;
+
+
+semicolon
+    =
+    ';'
+    ;
+
+
+comma
+    =
+    ','
+    ;
+
+
+dot
+    =
+    '.'
+    ;
+
+
+dollar
+    =
+    '\\$'
+    ;
+
+
+double_bar
+    =
+    '//'
+    ;
+
+
+single_quote
+    =
+    "'"
+    ;
+
+
+double_quote
+    =
+    '"'
+    ;
+
+
+lc
+    =
+    '{'
+    ;
+
+
+rc
+    =
+    '}'
+    ;
+
+
+lp
+    =
+    '('
+    ;
+
+
+rp
+    =
+    ')'
+    ;
+
+
+newline
+    =
+    /[\r\n]/
+    ;
+
+
+st
+    =
+    /[ \t]/
+    ;
+
+
+ws
+    =
+    /[^\S\r\n]*/
+    ;

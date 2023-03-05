@@ -80,14 +80,13 @@ class Diode(ModelBase):
 
 
 class VoltageControlledVoltageSource(ModelBase):
-    control_negative = None
-    control_positive = None
     controller = None
     dev = None
-    gain = None
     negative = None
+    nodes = None
     positive = None
     sep = None
+    transconductance = None
 
 
 class CurrentControlledCurrentSource(ModelBase):
@@ -101,11 +100,10 @@ class CurrentControlledCurrentSource(ModelBase):
 
 
 class VoltageControlledCurrentSource(ModelBase):
-    control_negative = None
-    control_positive = None
     controller = None
     dev = None
     negative = None
+    nodes = None
     positive = None
     sep = None
     transconductance = None
@@ -206,14 +204,15 @@ class MOSFET(ModelBase):
 
 class BJT(ModelBase):
     area = None
-    args = None
     base = None
     collector = None
     dev = None
     emitter = None
+    model = None
     parameters = None
     sep = None
     substrate = None
+    thermal = None
 
 
 class SubstrateNode(ModelBase):
@@ -482,6 +481,14 @@ class TableFile(ModelBase):
 
 
 class BracedExpression(ModelBase):
+    sep = None
+
+
+class ParenthesisNodes(ModelBase):
+    sep = None
+
+
+class CircuitNodes(ModelBase):
     sep = None
 
 

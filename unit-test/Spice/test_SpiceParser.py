@@ -1,11 +1,13 @@
 import unittest
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Spice.EBNFParser import SpiceParser
-from multiprocessing import Pool, cpu_count
+from PySpice.Spice.EBNFSpiceParser import SpiceParser
 import os
 
 data = """* Data test
 *More notes
+
+.MODEL 2N2222 NPN
+Q2N2222 Nc Nb Ne 2N2222
 
 BG1 IOUTp IOUTm I={TABLE {V(VCp,VCm)} =
 +(0, 12.09e-6)
@@ -18,6 +20,10 @@ BG1 IOUTp IOUTm I={TABLE {V(VCp,VCm)} =
 +(77.3333, 0.00032982)
 +(79.1111, 0.00033272)
 +(80, 0.00275)}
+
+G1 21 98 (6,15) 26E-6
+
+E23 21 98 (6,15) 26E-6
 
 BG1 IOUT- IOUT+ I={IF( (V(VC+,VC-)<=0),0,GAIN*V(VC+,VC-) )}
 
@@ -83,20 +89,16 @@ G1 21 3 POLY(1) 1 3 0 1.57E-6 -0.97e-7
 .PARAM d = {limit(3, 2, a)}
 E_ABM12         N145529 0 VALUE={ if((V(CTRL_LIMIT)<0.3) ,1,0)    }
 
-Q1 col base eb QPWR .1
+Q1 col base eb QPWR 0.1
 
 .MODEL QPWR NPN
-
-.MODEL Q2N2222 NPN
 
 *Another note
 Q2 10 2 9 PNP1
 
-Q2N2222 Nc Nb Ne Q2N2222
-
 Q8 Coll Base Emit VBIC13MODEL3 temp=0
-Q9 Coll Base Emit Subst DT VBIC13MODEL4
-Q10 Coll Base Emit Subst DT HICUMMMODEL1
+Q9 Coll Base Emit [Subst] DT VBIC13MODEL4
+Q10 Coll Base Emit [Subst] DT HICUMMMODEL1
 
 .MODEL NPN2 NPN
 .MODEL VBIC13MODEL2 NPN
@@ -247,7 +249,7 @@ IPAT2 2 4 PAT(5 0 0 1n 2n 5n b0101)
 
 M5 4 12 3 0 PNOM L=20u W=10u
 M3 5 13 10 0 PSTRONG
-M6 7 13 10 0 PSTRONG M=2 IC=1, 3 , 2,4
+M6 7 13 10 0 PSTRONG M=2 IC=1, 3 , 2
 M8 10 12 100 100 NWEAK L=30u W=20u
 + AD=288p AS=288p PD=60u PS=60u NRD=14 NRS=24
 
@@ -420,8 +422,14 @@ class TestSpiceParser(unittest.TestCase):
                           'lo',
                           'vdd',
                           'vss')
-        circuit.R('test_temp', 1, 2, tc=(4, 5))
-        circuit.B('test_tc', 1, 2, v={5}, tc=(7, 8))
+        circuit.R('hb', 'hb', 0, 1e12)
+        circuit.R('hi', 'hi', 0, 1e12)
+        circuit.R('ho', 'ho', 0, 1e12)
+        circuit.R('hs', 'hs', 0, 1e12)
+        circuit.R('li', 'li', 0, 1e12)
+        circuit.R('lo', 'lo', 0, 1e12)
+        circuit.R('test_temp', 'vss', 0, 10, tc=(4, 5))
+        circuit.B('test_tc', 'vdd', 0, v=5, tc=(7, 8))
         simulator = circuit.simulator(simulator='xyce-serial',
                                       temperature=25,
                                       nominal_temperature=25,
@@ -465,7 +473,7 @@ IPULSE 2 3 PULSE(1 4)
 IPWL1 1 0 PWL( 0S 0A 2S 3A 3S 2A 4S 2A 4.01S 5A r=2s td=1)
 IPWL1 1 0 PWL(0S 0A 2S 3A 3S 2A 4S 2A 4.01S 5A r=2s td=1 )
 VSFFM 1 0 SFFM (0 1 2)
-ISIN 4 3 SIN 0 5 3 1
+ISIN 4 3 AC 1 SIN 0 5 3 1
 """)
         circuit = transient.build()
 
@@ -476,7 +484,7 @@ vpat 3 4 pat(3v 0v 2s 1s 2s 3s b0101 1)
 ipulse 2 3 pulse(1a 4a 0s 0s 0s)
 ipwl1 1 0 pwl(0s 0a 2s 3a 3s 2a 4s 2a 4.01s 5a r=2s td=1s)
 vsffm 1 0 sffm(0v 1v 2hz)
-isin 4 3 dc 0a ac sin(0a 5a 3hz 1s 0hz)
+isin 4 3 dc 0a ac 1a sin(0a 5a 3hz 1s 0hz)
 """
         result = str(circuit)
         self.assertEqual(expected, result)
@@ -566,8 +574,8 @@ bexor yint 0 v={if(((v(A) > 0.5) ^ (v(B) > 0.5)), 1, 0)}
         circuit = Circuit('MOS Driver')
         circuit.spice_sim = 'xyce'
         circuit.include(os.path.join(os.getcwd(), 'mosdriver.lib'))
-        circuit.X('test', 'mosdriver', '0', '1', '2', '3', '4', '5')
-        circuit.BehavioralSource('test', '1', '0', voltage_expression='if(0, 0, 1)', smoothbsrc=1)
+        circuit.X('test', 'mosdriver', '0', '1', '2', '3', '4', '5', '6', '7')
+        circuit.BehavioralSource('test', '1', '0', voltage_expression='{if(True, 0, 1)}', smoothbsrc=1)
         expected = """.title MOS Driver
 
 .model diode D (is=1.038e-15 n=1 tt=2e-08 cjo=5e-12 rs=0.5 bv=130)
@@ -577,16 +585,16 @@ bhigh vh vl v={if((v(hi, lo) > 0.5), 5, 0)} smoothbsrc=1
 
 .subckt mosdriver hb hi ho hs li lo vdd vss
 xhigh hoi hs hi vss source
-rhoi hoi ho 1
+rhoi hoi ho 1ohm
 choi ho hs 1e-09
 xlow loi vss li vss source
-rloi loi lo 1
+rloi loi lo 1ohm
 cloi lo vss 1e-09
 dhb vdd hb diode
 .ends mosdriver
 
-xtest 0 1 2 3 4 5 mosdriver
-btest 1 0 v=if(0, 0, 1) smoothbsrc=1
+xtest 0 1 2 3 4 5 6 7 mosdriver
+btest 1 0 v={if(True, 0, 1)} smoothbsrc=1
 """
         result = str(circuit)
         self.assertEqual(expected, result)

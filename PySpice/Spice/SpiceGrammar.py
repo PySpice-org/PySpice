@@ -476,6 +476,23 @@ class SpiceParser(Parser):
                         with self._group():
                             with self._choice():
                                 with self._option():
+                                    self._parenthesis_nodes_()
+                                with self._option():
+                                    self._circuit_nodes_()
+                                self._error(
+                                    'expecting one of: '
+                                    '<parenthesis_nodes> <circuit_nodes>'
+                                )
+                        self.name_last_node('nodes')
+                        self._sep_()
+                        self.name_last_node('sep')
+                        self._gen_expr_()
+                        self.name_last_node('transconductance')
+                with self._option():
+                    with self._group():
+                        with self._group():
+                            with self._choice():
+                                with self._option():
                                     self._control_value_()
                                 with self._option():
                                     self._control_table_()
@@ -487,25 +504,14 @@ class SpiceParser(Parser):
                                     '<control_voltage_poly>'
                                 )
                         self.name_last_node('controller')
-                with self._option():
-                    with self._group():
-                        self._node_()
-                        self.name_last_node('control_positive')
-                        self._sep_()
-                        self.name_last_node('sep')
-                        self._node_()
-                        self.name_last_node('control_negative')
-                        self._sep_()
-                        self.name_last_node('sep')
-                        self._gen_expr_()
-                        self.name_last_node('gain')
                 self._error(
                     'expecting one of: '
+                    '<parenthesis_nodes> <circuit_nodes>'
                     '<control_value> <control_table>'
-                    '<control_voltage_poly> <node>'
+                    '<control_voltage_poly>'
                 )
         self._define(
-            ['control_negative', 'control_positive', 'controller', 'dev', 'gain', 'negative', 'positive', 'sep'],
+            ['controller', 'dev', 'negative', 'nodes', 'positive', 'sep', 'transconductance'],
             []
         )
 
@@ -575,6 +581,23 @@ class SpiceParser(Parser):
                         with self._group():
                             with self._choice():
                                 with self._option():
+                                    self._parenthesis_nodes_()
+                                with self._option():
+                                    self._circuit_nodes_()
+                                self._error(
+                                    'expecting one of: '
+                                    '<parenthesis_nodes> <circuit_nodes>'
+                                )
+                        self.name_last_node('nodes')
+                        self._sep_()
+                        self.name_last_node('sep')
+                        self._gen_expr_()
+                        self.name_last_node('transconductance')
+                with self._option():
+                    with self._group():
+                        with self._group():
+                            with self._choice():
+                                with self._option():
                                     self._control_value_()
                                 with self._option():
                                     self._control_table_()
@@ -586,25 +609,14 @@ class SpiceParser(Parser):
                                     '<control_voltage_poly>'
                                 )
                         self.name_last_node('controller')
-                with self._option():
-                    with self._group():
-                        self._node_()
-                        self.name_last_node('control_positive')
-                        self._sep_()
-                        self.name_last_node('sep')
-                        self._node_()
-                        self.name_last_node('control_negative')
-                        self._sep_()
-                        self.name_last_node('sep')
-                        self._gen_expr_()
-                        self.name_last_node('transconductance')
                 self._error(
                     'expecting one of: '
+                    '<parenthesis_nodes> <circuit_nodes>'
                     '<control_value> <control_table>'
-                    '<control_voltage_poly> <node>'
+                    '<control_voltage_poly>'
                 )
         self._define(
-            ['control_negative', 'control_positive', 'controller', 'dev', 'negative', 'positive', 'sep', 'transconductance'],
+            ['controller', 'dev', 'negative', 'nodes', 'positive', 'sep', 'transconductance'],
             []
         )
 
@@ -1159,18 +1171,21 @@ class SpiceParser(Parser):
         self.name_last_node('sep')
         self._node_()
         self.name_last_node('emitter')
+        self._cut()
+        self._sep_()
+        self.name_last_node('sep')
         with self._optional():
-            self._sep_()
-            self.name_last_node('sep')
             self._substrate_node_()
             self.name_last_node('substrate')
-
-        def block9():
             self._sep_()
             self.name_last_node('sep')
-            self._node_()
-            self.add_last_node_to_name('args')
-        self._positive_closure(block9)
+        with self._optional():
+            self._token('DT')
+            self.name_last_node('thermal')
+            self._sep_()
+            self.name_last_node('sep')
+        self._model_name_()
+        self.name_last_node('model')
         with self._optional():
             self._sep_()
             self.name_last_node('sep')
@@ -1182,8 +1197,8 @@ class SpiceParser(Parser):
             self._parameters_()
             self.name_last_node('parameters')
         self._define(
-            ['area', 'base', 'collector', 'dev', 'emitter', 'parameters', 'sep', 'substrate'],
-            ['args']
+            ['area', 'base', 'collector', 'dev', 'emitter', 'model', 'parameters', 'sep', 'substrate', 'thermal'],
+            []
         )
 
     @tatsumasu('SubstrateNode')
@@ -2845,6 +2860,52 @@ class SpiceParser(Parser):
             []
         )
 
+    @tatsumasu('ParenthesisNodes')
+    def _parenthesis_nodes_(self):  # noqa
+        self._lp_()
+        with self._optional():
+            self._sep_()
+            self.name_last_node('sep')
+        self._circuit_nodes_()
+        self.name_last_node('@')
+        with self._optional():
+            self._sep_()
+            self.name_last_node('sep')
+        self._rp_()
+        self._define(
+            ['sep'],
+            []
+        )
+
+    @tatsumasu('CircuitNodes')
+    def _circuit_nodes_(self):  # noqa
+        self._node_()
+        self.add_last_node_to_name('@')
+        with self._group():
+            with self._choice():
+                with self._option():
+                    self._sep_()
+                    self.name_last_node('sep')
+                with self._option():
+                    with self._group():
+                        with self._optional():
+                            self._sep_()
+                            self.name_last_node('sep')
+                        self._comma_()
+                        with self._optional():
+                            self._sep_()
+                            self.name_last_node('sep')
+                self._error(
+                    'expecting one of: '
+                    '<sep> <comma>'
+                )
+        self._node_()
+        self.add_last_node_to_name('@')
+        self._define(
+            ['sep'],
+            []
+        )
+
     @tatsumasu('Expression')
     @leftrec
     def _expression_(self):  # noqa
@@ -3202,8 +3263,8 @@ class SpiceParser(Parser):
                 self.name_last_node('factor')
             self._error(
                 'expecting one of: '
-                "'{' <lc> [a-zA-Z_`@#\\$][a-zA-Z0-9_:`@#\\."
-                '\\$]*[a-zA-Z0-9_`@#\\.\\$] [a-zA-Z]'
+                "'{' <lc> [a-zA-Z_`@#\\$][a-zA-Z0-"
+                '9_:`@#\\.\\$]*[a-zA-Z0-9_`@#\\.\\$] [a-zA-Z]'
                 '<var_id> <lp> <value> <factor>'
             )
         self._define(
@@ -3861,9 +3922,9 @@ class SpiceParser(Parser):
                 self.name_last_node('scale')
             self._error(
                 'expecting one of: '
-                '[\\+\\-]?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))('
-                '[eE][\\-\\+]?[0-9]{1,3})? <floating_point>'
-                '[\\+\\-]?[0-9]+ <integer>'
+                '[\\+\\-]?(([0-9]+(\\.[0-9]*)?)|(\\.[0-'
+                '9]+))([eE][\\-\\+]?[0-9]{1,3})?'
+                '<floating_point> [\\+\\-]?[0-9]+ <integer>'
             )
         self._define(
             ['scale', 'value'],
@@ -3964,9 +4025,9 @@ class SpiceParser(Parser):
                     self._pattern('[a-zA-Z0-9_]')
                 self._error(
                     'expecting one of: '
-                    '[a-zA-Z0-9_\\[\\$\\/\\+\\-][a-zA-Z0-9_:\\$\\-`~'
-                    '!@#%&_\\+|<>\\?\\.\\|\\^\\*\\/]*[a-zA-Z0-9_\\$\\-'
-                    '`~!@#%&_\\+|<>\\?\\.\\|\\^\\*\\]\\/]'
+                    '[a-zA-Z0-9_\\[\\$\\/\\+\\-][a-zA-Z0-9_:\\$\\-'
+                    '`~!@#%&_\\+|<>\\?\\.\\|\\^\\*\\/]*[a-zA-Z0-'
+                    '9_\\$\\-`~!@#%&_\\+|<>\\?\\.\\|\\^\\*\\]\\/]'
                     '[a-zA-Z0-9_]'
                 )
         self.name_last_node('node')
@@ -4003,8 +4064,8 @@ class SpiceParser(Parser):
                 self._pattern('[a-zA-Z]')
             self._error(
                 'expecting one of: '
-                '[a-zA-Z_`@#\\$][a-zA-Z0-9_:`@#\\.\\$]*[a-zA'
-                '-Z0-9_`@#\\.\\$] [a-zA-Z]'
+                '[a-zA-Z_`@#\\$][a-zA-Z0-9_:`@#\\.\\$]*[a-'
+                'zA-Z0-9_`@#\\.\\$] [a-zA-Z]'
             )
 
     @tatsumasu()
@@ -4402,6 +4463,12 @@ class SpiceSemantics(object):
         return ast
 
     def braced_expression(self, ast):  # noqa
+        return ast
+
+    def parenthesis_nodes(self, ast):  # noqa
+        return ast
+
+    def circuit_nodes(self, ast):  # noqa
         return ast
 
     def expression(self, ast):  # noqa

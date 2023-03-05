@@ -32,11 +32,11 @@ import os
 
 ####################################################################################################
 
-from PySpice.Unit.Unit import UnitValue
-from PySpice.Spice.Expressions import Expression
+from ..Spice.Expressions import Expression
 ####################################################################################################
 
 def str_spice(obj, unit=True):
+    from ..Unit.Unit import UnitValue
 
     # Fixme: right place ???
 

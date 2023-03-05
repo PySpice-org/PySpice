@@ -162,15 +162,13 @@ voltage_controlled_voltage_source::VoltageControlledVoltageSource
     ~
     sep:sep
     (
-            (controller:(control_value | control_table | control_voltage_poly))
-        |
             (
-                control_positive:node
+                nodes:(parenthesis_nodes | circuit_nodes)
                 sep:sep
-                control_negative:node
-                sep:sep
-                gain:gen_expr
+                transconductance:gen_expr
             )
+        |
+            (controller:(control_value | control_table | control_voltage_poly))
     )
     ;
 
@@ -202,15 +200,13 @@ voltage_controlled_current_source::VoltageControlledCurrentSource
     ~
     sep:sep
     (
-            (controller:(control_value | control_table | control_voltage_poly))
-        |
             (
-                control_positive:node
-                sep:sep
-                control_negative:node
+                nodes:(parenthesis_nodes | circuit_nodes)
                 sep:sep
                 transconductance:gen_expr
             )
+        |
+            (controller:(control_value | control_table | control_voltage_poly))
     )
     ;
 
@@ -438,8 +434,11 @@ bjt::BJT
     base:node
     sep:sep
     emitter:node
-    [sep:sep substrate:substrate_node]
-    {sep:sep args+:node}+
+    ~
+    sep:sep
+    [substrate:substrate_node sep:sep]
+    [thermal:'DT' sep:sep]
+    model:model_name
     [sep:sep area:gen_expr]
     [sep:sep parameters:parameters]
     ;
@@ -1020,6 +1019,18 @@ tablefile::TableFile
 braced_expression::BracedExpression
     =
     lc [sep:sep] @:expression [sep:sep] rc
+    ;
+
+
+parenthesis_nodes::ParenthesisNodes
+    =
+    lp [sep:sep] @:circuit_nodes [sep:sep] rp
+    ;
+
+
+circuit_nodes::CircuitNodes
+    =
+    @+:node (sep:sep | ([sep:sep] comma [sep:sep])) @+:node
     ;
 
 

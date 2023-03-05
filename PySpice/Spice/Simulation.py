@@ -238,13 +238,19 @@ class TransientAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, step_time, end_time, start_time=0, max_time=None, use_initial_condition=False):
+    def __init__(self, step_time, end_time, start_time=0, max_time=None,
+                 use_initial_condition=False):
+
+        if use_initial_condition:
+            uic = 'uic'
+        else:
+            uic = None
 
         self._step_time = as_s(step_time)
         self._end_time = as_s(end_time)
         self._start_time = as_s(start_time)
         self._max_time = as_s(max_time, none=True)
-        self._use_initial_condition = use_initial_condition
+        self._use_initial_condition = uic
 
     ##############################################
 
@@ -276,7 +282,7 @@ class TransientAnalysisParameters(AnalysisParameters):
             self._end_time,
             self._start_time,
             self._max_time,
-            'uic' if self._use_initial_condition else None,
+            self._use_initial_condition,
         )
 
 ####################################################################################################
@@ -664,7 +670,7 @@ class CircuitSimulation:
 
         """
 
-        self._saved_nodes |= set(*args)
+        self._saved_nodes.update(args)
 
     ##############################################
 
@@ -1085,24 +1091,35 @@ class CircuitSimulation:
 
     ##############################################
 
+    def save_str(self):
+        result = ""
+        if self._saved_nodes:
+            # Place 'all' first
+            saved_nodes = set(self._saved_nodes)
+            if 'all' in saved_nodes:
+                all_str = ' all'
+                saved_nodes.remove('all')
+            else:
+                all_str = ''
+            result += '.save' + all_str
+            if saved_nodes:
+                result += ' ' + join_list(saved_nodes)
+            result += os.linesep
+        return result
+
+    ##############################################
+
     def __str__(self):
 
-        netlist = self._circuit.str(simulator=self.SIMULATOR)
+        netlist = self._circuit.str(spice_sim=self.SIMULATOR)
         netlist += self.str_options()
         if self._initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
         if self._node_set:
             netlist += '.nodeset ' + join_dict(self._node_set) + os.linesep
 
-        if self._saved_nodes:
-            # Place 'all' first
-            saved_nodes = self._saved_nodes
-            if 'all' in saved_nodes:
-                all_str = 'all '
-                saved_nodes.remove('all')
-            else:
-                all_str = ''
-            netlist += '.save ' + all_str + join_list(saved_nodes) + os.linesep
+        netlist += self.save_str()
+
         for measure_parameters in self._measures:
             netlist += str(measure_parameters) + os.linesep
         for analysis_parameters in self._analyses.values():

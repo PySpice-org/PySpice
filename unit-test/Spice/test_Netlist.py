@@ -78,10 +78,10 @@ class TestSubCircuit(TestNetlist):
     def test(self):
 
         spice_declaration = """
-.subckt VoltageDivider input output_plus output_minus
-R1 input output_plus 9kOhm
-R2 output_plus output_minus 1kOhm
-.ends VoltageDivider
+.subckt voltagedivider input output_plus output_minus
+r1 input output_plus 9kohm
+r2 output_plus output_minus 1kohm
+.ends voltagedivider
 """
         self._test_spice_declaration(VoltageDivider(), spice_declaration)
 
@@ -95,16 +95,16 @@ class TestCircuit(TestNetlist):
 
         spice_declaration = """
 .title Voltage Divider
-Vinput in 0 10V
-R1 in out 9kOhm
-R2 out 0 1kOhm
+vinput in 0 10v
+r1 in out 9kohm
+r2 out 0 1kohm
 """
 # .end
 
         circuit = Circuit('Voltage Divider')
         circuit.V('input', 'in', circuit.gnd, '10V')
         circuit.R(1, 'in', 'out', 9@u_kΩ)
-        circuit.R(2, circuit.out, circuit.gnd, 1@u_kΩ) # out node is defined
+        circuit.R(2, 'out', circuit.gnd, 1@u_kΩ) # out node is defined
         self._test_spice_declaration(circuit, spice_declaration)
 
         circuit = VoltageDividerCircuit()
@@ -159,8 +159,8 @@ R2 out 0 1kOhm
         spice_declaration = """
 .title Voltage Divider
 R2 out 0 1kOhm
-Vinput in 0 10V
-R1 in out 9kOhm
+vinput in 0 10v
+r1 in out 9kohm
 """
 # .end
 
@@ -178,7 +178,7 @@ R1 in out 9kOhm
         model = circuit.model('Diode', 'D', is_=1, rs=2)
         self.assertEqual(model.is_, 1)
         self.assertEqual(model['is'], 1)
-        self.assertEqual(str(model), '.model Diode D (is=1 rs=2)')
+        self.assertEqual(str(model), '.model diode D (is=1 rs=2)')
 
     ##############################################
 
@@ -189,7 +189,7 @@ R1 in out 9kOhm
 .param pippo=5
 .param po=6
 .param pp=7.8
-.param pap={AGAUSS(pippo, 1 , 1.67)}
+.param pap={agauss(pippo, 1 , 1.67)}
 .param pippp={pippo + pp}
 .param p={pp}
 """

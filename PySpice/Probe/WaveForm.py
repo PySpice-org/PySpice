@@ -31,7 +31,7 @@
 import logging
 import os
 
-# import numpy as np
+import numpy as np
 
 ####################################################################################################
 
@@ -39,7 +39,7 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
-from PySpice.Unit.Unit import UnitValues
+from ..Unit.Unit import UnitValues, UnitValue
 
 ####################################################################################################
 
@@ -64,9 +64,11 @@ class WaveForm(UnitValues):
 
     ##############################################
 
-    @classmethod
-    def from_unit_values(cls, name, array, title=None, abscissa=None):
-        obj = cls(
+    @staticmethod
+    def from_unit_values(name, array, title=None, abscissa=None):
+
+        shape = array.shape
+        obj = WaveForm(
             name,
             array.prefixed_unit,
             array.shape,
@@ -82,7 +84,7 @@ class WaveForm(UnitValues):
     @classmethod
     def from_array(cls, name, array, title=None, abscissa=None):
         # Fixme: ok ???
-        obj = cls(name, None, array.shape, title=title, abscissa=abscissa)
+        obj = WaveForm(name, None, array.shape, title=title, abscissa=abscissa)
         obj[...] = array[...]
         return obj
 
@@ -137,7 +139,10 @@ class WaveForm(UnitValues):
         result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
         # self._logger.info("result\n{}".format(result))
         if isinstance(result, UnitValues):
-            return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
+            if len(result.shape) == 0:
+                return UnitValue(result.prefixed_unit, result)
+            else:
+                return self.from_unit_values(name='', array=result, title='', abscissa=self._abscissa)
         else:
             return result  # e.g. foo <= 0
 

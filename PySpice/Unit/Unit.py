@@ -826,7 +826,7 @@ class PrefixedUnit:
                 string = ''
             else:
                 # Ngspice don't support utf-8
-                # degree symbole can be encoded str(176) in Extended ASCII
+                # degree symbol can be encoded str(176) in Extended ASCII
                 string = string.replace('°', '')  # U+00B0
                 string = string.replace('℃', '')  # U+2103
                 # U+2109 ℉
@@ -861,7 +861,7 @@ class UnitValue: # numbers.Real
 
     """This class implements a value with a unit and a power (prefix).
 
-    The value is not converted to float if the value is an int.
+    The value is not converted to float if the value is an int or expression.
     """
 
     _logger = _module_logger.getChild('UnitValue')
@@ -875,6 +875,7 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def __init__(self, prefixed_unit, value):
+        from ..Spice.Expressions import Expression
 
         self._prefixed_unit = prefixed_unit
 
@@ -886,7 +887,7 @@ class UnitValue: # numbers.Real
                 self._value = value.value
             else:
                 self._value = self._convert_scalar_value(value)
-        elif isinstance(value, int):
+        elif isinstance(value, int) or isinstance(value, Expression):
             self._value = value # to keep as int
         else:
             self._value = float(value)
@@ -1373,6 +1374,13 @@ class UnitValue: # numbers.Real
         except Exception as e: # Fixme: fallback
             self._logger.warning(e)
             return self
+
+    def as_ndarray(self, scale=False):
+        array = np.array(self._value)
+        if scale:
+            return array * self.scale
+        else:
+            return array
 
 ####################################################################################################
 

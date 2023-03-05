@@ -4,7 +4,28 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1804d78b-c9b9-4d25-9b12-131150c47c29" name="Default Changelist" comment="" />
+    <list default="true" id="1804d78b-c9b9-4d25-9b12-131150c47c29" name="Default Changelist" comment="Modified RawFile reader to access directly with numpy to the file to read the raw data, and also accept unfinished simulations.">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Probe/WaveForm.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Probe/WaveForm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Spice/BasicElement.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Spice/BasicElement.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Spice/EBNFParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Spice/EBNFSpiceParser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Spice/ElementParameter.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Spice/ElementParameter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Spice/HighLevelElement.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Spice/HighLevelElement.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Spice/Netlist.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Spice/Netlist.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Spice/Simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Spice/Simulation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Spice/SpiceGrammar.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Spice/SpiceGrammar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Spice/SpiceModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Spice/SpiceModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Spice/spicegrammar.ebnf" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Spice/spicegrammar.ebnf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Tools/StringTools.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Tools/StringTools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PySpice/Unit/Unit.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySpice/Unit/Unit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit-test/Spice/test_BasicElement.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit-test/Spice/test_BasicElement.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit-test/Spice/test_HighLevelElement.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit-test/Spice/test_HighLevelElement.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit-test/Spice/test_Netlist.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit-test/Spice/test_Netlist.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit-test/Spice/test_SpiceParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit-test/Spice/test_SpiceParser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit-test/SpiceParser/mosdriver.lib" beforeDir="false" afterPath="$PROJECT_DIR$/unit-test/SpiceParser/mosdriver.lib" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit-test/SpiceParser/test_SpiceParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit-test/SpiceParser/test_SpiceParser.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -40,17 +61,22 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/Users/chema/Workspace/PySpice",
+    "last_opened_file_path": "/Users/chema/Workspace/PySpice/unit-test/Spice",
     "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
     "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "Errors",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/unit-test/Spice" />
+      <recent name="$PROJECT_DIR$/PySpice/Spice" />
       <recent name="$PROJECT_DIR$/unit-test/Unit" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -58,7 +84,7 @@
       <recent name="$PROJECT_DIR$/PySpice/Spice" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Unittests in Spice">
+  <component name="RunManager" selected="Python tests.Unittests in SpiceParser">
     <configuration name="Nosetests Math" type="tests" factoryName="Nosetests">
       <module name="PySpice" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -235,6 +261,38 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
+    <configuration name="Unittests in Math" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Math&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in Probe" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Probe&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
     <configuration name="Unittests in Spice" type="tests" factoryName="Unittests">
       <module name="PySpice" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -251,13 +309,83 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
+    <configuration name="Unittests in SpiceParser" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/SpiceParser&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in Unit" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Unit&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in test_SpiceParser" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Spice/test_SpiceParser.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in todo" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test-todo&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Python tests.Nosetests Math" />
       <item itemvalue="Python tests.Nosetests Probe" />
       <item itemvalue="Python tests.Nosetests Unit" />
       <item itemvalue="Python tests.Nosetests Spice" />
       <item itemvalue="Python tests.Nosetests todo" />
+      <item itemvalue="Python tests.Unittests in Math" />
+      <item itemvalue="Python tests.Unittests in Probe" />
       <item itemvalue="Python tests.Unittests in Spice" />
+      <item itemvalue="Python tests.Unittests in test_SpiceParser" />
+      <item itemvalue="Python tests.Unittests in SpiceParser" />
+      <item itemvalue="Python tests.Unittests in Unit" />
+      <item itemvalue="Python tests.Unittests in todo" />
       <item itemvalue="Python tests.Nosetests in test_Expression.py" />
       <item itemvalue="Python tests.Nosetests for test_SpiceParser.TestSpiceParser.test_parser" />
       <item itemvalue="Python tests.Nosetests for test_SpiceParser.TestSpiceParser" />
@@ -333,6 +461,8 @@
       <workItem from="1647256572977" duration="8000" />
       <workItem from="1677827356207" duration="239000" />
       <workItem from="1677827604458" duration="12568000" />
+      <workItem from="1677859881403" duration="4374000" />
+      <workItem from="1677866209061" duration="54314000" />
     </task>
     <task id="LOCAL-00001" summary="EBNF Spice Grammar definition for tatsu. Still being improved.">
       <created>1621316590920</created>
@@ -597,28 +727,18 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/PySpice/Unit/Unit.py</url>
-          <line>1532</line>
+          <line>1335</line>
           <option name="timeStamp" value="26" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/PySpice/Probe/WaveForm.py</url>
-          <line>148</line>
-          <option name="timeStamp" value="39" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/PySpice/Spice/Netlist.py</url>
-          <line>510</line>
+          <line>451</line>
           <option name="timeStamp" value="198" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/PySpice/Spice/BasicElement.py</url>
-          <line>1026</line>
+          <line>923</line>
           <option name="timeStamp" value="199" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/PySpice/Unit/Unit.py</url>
-          <line>98</line>
-          <option name="timeStamp" value="218" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/unit-test/Unit/test_Units.py</url>
@@ -626,18 +746,8 @@
           <option name="timeStamp" value="221" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/PySpice/Spice/Netlist.py</url>
-          <line>671</line>
-          <option name="timeStamp" value="323" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/PySpice/Spice/BasicElement.py</url>
-          <line>175</line>
-          <option name="timeStamp" value="506" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/PySpice/Spice/Library.py</url>
-          <line>116</line>
+          <line>106</line>
           <option name="timeStamp" value="568" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -662,8 +772,48 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/PySpice/Spice/BasicElement.py</url>
-          <line>990</line>
+          <line>892</line>
           <option name="timeStamp" value="660" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/ElementParameter.py</url>
+          <line>401</line>
+          <option name="timeStamp" value="673" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/BasicElement.py</url>
+          <line>178</line>
+          <option name="timeStamp" value="736" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/Simulation.py</url>
+          <line>672</line>
+          <option name="timeStamp" value="739" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/EBNFSpiceParser.py</url>
+          <line>1322</line>
+          <option name="timeStamp" value="743" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/EBNFSpiceParser.py</url>
+          <line>2036</line>
+          <option name="timeStamp" value="746" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/EBNFSpiceParser.py</url>
+          <line>1781</line>
+          <option name="timeStamp" value="747" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit-test-todo/test_netlist.py</url>
+          <line>5</line>
+          <option name="timeStamp" value="748" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit-test/Spice/test_BasicElement.py</url>
+          <line>59</line>
+          <option name="timeStamp" value="750" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -672,26 +822,32 @@
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_Netlist_py.coverage" NAME="Nosetests in test_Netlist.py Coverage Results" MODIFIED="1618900615650" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_file_py.coverage" NAME="Nosetests in test_file.py Coverage Results" MODIFIED="1622559173386" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test-todo" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_WaveForm_py.coverage" NAME="Nosetests in test_WaveForm.py Coverage Results" MODIFIED="1618900635821" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Probe" />
-    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_Spice.coverage" NAME="Unittests in Spice Coverage Results" MODIFIED="1677858874085" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_Spice.coverage" NAME="Unittests in Spice Coverage Results" MODIFIED="1678022315164" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_transient.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_transient Coverage Results" MODIFIED="1622542613614" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_todo.coverage" NAME="Unittests in todo Coverage Results" MODIFIED="1678022330715" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser Coverage Results" MODIFIED="1622566068695" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_SpiceParser_py.coverage" NAME="Nosetests in test_SpiceParser.py Coverage Results" MODIFIED="1622557387402" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_Units_py.coverage" NAME="Nosetests in test_Units.py Coverage Results" MODIFIED="1618900630813" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Unit" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_unit_test.coverage" NAME="Nosetests in unit-test Coverage Results" MODIFIED="1622557738644" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_Unit.coverage" NAME="Unittests in Unit Coverage Results" MODIFIED="1678021623967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_test_SpiceParser.coverage" NAME="Unittests in test_SpiceParser Coverage Results" MODIFIED="1678021582397" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_Pickle_py.coverage" NAME="Nosetests in test_Pickle.py Coverage Results" MODIFIED="1614701241355" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_Netlist_TestCircuit_test_raw_spice.coverage" NAME="Nosetests for test_Netlist.TestCircuit.test_raw_spice Coverage Results" MODIFIED="1622642178562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests.coverage" NAME="Unittests in Math Coverage Results" MODIFIED="1678000624731" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_complete.coverage" NAME="Nosetests Math Coverage Results" MODIFIED="1618900975114" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_subcircuits.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_subcircuits Coverage Results" MODIFIED="1622545128735" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_SpiceParser.coverage" NAME="Unittests in SpiceParser Coverage Results" MODIFIED="1678022468009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/PySpice$run_examples.coverage" NAME="run-examples Coverage Results" MODIFIED="1622557519472" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
-    <SUITE FILE_PATH="coverage/PySpice$Nosetests_Spice.coverage" NAME="Nosetests Spice Coverage Results" MODIFIED="1642937344298" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_Spice.coverage" NAME="Nosetests Spice Coverage Results" MODIFIED="1678022022164" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_parser.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_parser Coverage Results" MODIFIED="1622568852814" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_Unit.coverage" NAME="Nosetests Unit Coverage Results" MODIFIED="1622566138229" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Unit" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_Probe.coverage" NAME="Unittests in Probe Coverage Results" MODIFIED="1678000878760" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_working_dir.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_working_dir Coverage Results" MODIFIED="1623048438652" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_Probe.coverage" NAME="Nosetests Probe Coverage Results" MODIFIED="1622566873439" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_library.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_library Coverage Results" MODIFIED="1622980962940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_boolean.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_boolean Coverage Results" MODIFIED="1622529456336" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_todo.coverage" NAME="Nosetests todo Coverage Results" MODIFIED="1619026382892" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test-todo" />
-    <SUITE FILE_PATH="coverage/PySpice$Nosetests_Math.coverage" NAME="Nosetests Math Coverage Results" MODIFIED="1622557750423" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_Math.coverage" NAME="Nosetests Math Coverage Results" MODIFIED="1677999515768" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_netlist_py.coverage" NAME="Nosetests in test_netlist.py Coverage Results" MODIFIED="1622560573262" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test-todo" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_subcircuit.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_subcircuit Coverage Results" MODIFIED="1622542803052" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
     <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_Expression_py.coverage" NAME="Nosetests in test_Expression.py Coverage Results" MODIFIED="1622482692429" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />

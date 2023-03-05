@@ -47,7 +47,7 @@ class TestHighLevelElement(unittest.TestCase):
                 'pwl1', '1', '0',
                 values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
             ),
-            'Vpwl1 1 0 PWL(0s 0V 10ms 0V 11ms 5V 20ms 5V)',
+            'vpwl1 1 0 pwl(0s 0v 10ms 0v 11ms 5v 20ms 5v r=0s td=0.0s)',
         )
 
         self._test_spice_declaration(
@@ -55,9 +55,9 @@ class TestHighLevelElement(unittest.TestCase):
                 Circuit(''),
                 'pwl1', '1', '0',
                 values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
-                repeat_time=12@u_ms, delay_time=34@u_ms,
+                repeat_time=12@u_ms, time_delay=34@u_ms,
             ),
-            'Vpwl1 1 0 PWL(0s 0V 10ms 0V 11ms 5V 20ms 5V r=12ms td=34ms)',
+            'vpwl1 1 0 pwl(0s 0v 10ms 0v 11ms 5v 20ms 5v r=12ms td=34ms)',
         )
 
         self._test_spice_declaration(
@@ -65,10 +65,10 @@ class TestHighLevelElement(unittest.TestCase):
                 Circuit(''),
                 'pwl1', '1', '0',
                 values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
-                repeat_time=12@u_ms, delay_time=34@u_ms,
+                repeat_time=12@u_ms, time_delay=34@u_ms,
                 dc=50@u_V,
             ),
-            'Vpwl1 1 0 DC 50V PWL(0s 0V 10ms 0V 11ms 5V 20ms 5V r=12ms td=34ms)',
+            'vpwl1 1 0 dc 50v pwl(0s 0v 10ms 0v 11ms 5v 20ms 5v r=12ms td=34ms)',
         )
 
 ####################################################################################################
