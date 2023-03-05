@@ -2038,6 +2038,8 @@ class SpiceModelWalker(NodeWalker):
 
     @staticmethod
     def _to_number(value):
+        if type(value) is tuple:
+            value = value[0] + value[-1]
         try:
             int_value = int(value)
             float_value = float(value)
