@@ -150,3 +150,6 @@ Spice64_dll/
 unit-test/Spice/input.cir
 unit-test/Spice/input.cir.ic
 unit-test/Spice/output.raw
+input.cir
+input.cir.ic
+output.raw
