@@ -802,7 +802,9 @@ class SpiceModelWalker(NodeWalker):
 
     def walk_Circuit(self, node, data):
         if data._root is None:
-            title = join_lines(self.walk(node.title, data))
+            title = self.walk(node.title, data)
+            if type(title) is list:
+                title = join_lines(title)
             data._root = CircuitStatement(
                 title,
                 data._path
