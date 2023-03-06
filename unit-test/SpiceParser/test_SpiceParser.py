@@ -619,12 +619,13 @@ bexor yint 0 v={if(((v(A) > 0.5) ^ (v(B) > 0.5)), 1, 0)}
 
     def test_subcircuit(self):
         print(os.getcwd())
-        circuit = Circuit('MOS Driver')
+        circuit = Circuit('MOS Driver\nSimple check')
         circuit.spice_sim = 'xyce'
         circuit.include(os.path.join(os.getcwd(), 'unit-test/SpiceParser/mosdriver.lib'))
         circuit.X('test', 'mosdriver', '0', '1', '2', '3', '4', '5', '6', '7')
         circuit.BehavioralSource('test', '1', '0', voltage_expression='{if(True, 0, 1)}', smoothbsrc=1)
         expected = """.title MOS Driver
+* Simple check
 
 .model diode D (is=1.038e-15 n=1 tt=2e-08 cjo=5e-12 rs=0.5 bv=130)
 .subckt source vh vl hi lo
