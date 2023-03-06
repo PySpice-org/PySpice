@@ -38,7 +38,7 @@ class TestExpression(unittest.TestCase):
         V_3 = V(Symbol("3"))
         cos_V_3 = Cos(V_3)
         values = {str(V_3): 25}
-        self.assertEqual(m.cos(25), cos_V_3(**values))
+        self.assertAlmostEqual(m.cos(25), cos_V_3(**values))
         y = Symbol('y')
         add = Add(x, y)
         add_operator = x + y

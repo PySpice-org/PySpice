@@ -21,7 +21,7 @@
 ####################################################################################################
 
 from pathlib import Path
-import os
+import shutil
 import unittest
 
 ####################################################################################################
@@ -478,7 +478,8 @@ class TestSpiceParser(unittest.TestCase):
                                       nominal_temperature=25,
                                       working_directory='.')
         simulator.options('device smoothbsrc=1')
-        simulator.transient(1e-9, 1e-3)
+        if shutil.which('xyce'):
+            simulator.transient(1e-9, 1e-3)
 
     def test_working_dir(self):
         from PySpice.Spice.Xyce.RawFile import RawFile
@@ -497,16 +498,20 @@ class TestSpiceParser(unittest.TestCase):
         simulator = circuit.simulator(simulator='xyce-serial',
                                       temperature=25,
                                       nominal_temperature=25)
-        result = simulator.transient(1e-2, 10)
+        simulator.options('device smoothbsrc=1')
+        if shutil.which('xyce'):
+            result = simulator.transient(1e-2, 10)
         simulator = circuit.simulator(simulator='xyce-serial',
                                       temperature=25,
                                       nominal_temperature=25,
                                       working_directory='.')
-        result = simulator.transient(1e-2, 10)
-        self.assertTrue(os.path.exists('input.cir') and os.path.isfile('input.cir'))
-        self.assertTrue(os.path.exists('output.raw') and os.path.isfile('output.raw'))
-        data = RawFile(filename="output.raw")
-        print(data.nodes())
+        simulator.options('device smoothbsrc=1')
+        if shutil.which('xyce'):
+            result = simulator.transient(1e-2, 10)
+            self.assertTrue(os.path.exists('input.cir') and os.path.isfile('input.cir'))
+            self.assertTrue(os.path.exists('output.raw') and os.path.isfile('output.raw'))
+            data = RawFile(filename="output.raw")
+            print(data.nodes())
 
     def test_transient(self):
         transient = SpiceParser.parse(source="""
