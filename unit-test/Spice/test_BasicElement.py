@@ -59,6 +59,9 @@ class TestBasicElement(unittest.TestCase):
 
         self._test_spice_declaration(Diode(Circuit(''), '1', 1, 2, '1N4148'), 'd1 1 2 1n4148')
 
+        self._test_spice_declaration(BipolarJunctionTransistor(Circuit(''), '1', 1, 2, 3, 'bulk', 'DT', 'NPN'),
+                                     'q1 1 2 3 [bulk] dt npn')
+
         self._test_spice_declaration(XSpiceElement(Circuit(''), '1', 1, 0, model='cap'),
                                      'A1 1 0 cap'.lower())
 

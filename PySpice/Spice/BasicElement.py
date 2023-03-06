@@ -1318,12 +1318,12 @@ class BipolarJunctionTransistor(FixedPinElement):
 
     def format_node_names(self):
         fixed_pins = len(self.PINS) - self._number_of_optional_pins_
-        nodes = self._pins[:fixed_pins]
-        for node in self._pins[fixed_pins:]:
-            if str(node).lower() != 'dt':
-                nodes.append('[{}]'.format(node))
+        nodes = [pin.node for pin in self._pins[:fixed_pins]]
+        for pin in self._pins[fixed_pins:]:
+            if str(pin.node).lower() != 'dt':
+                nodes.append('[{}]'.format(pin.node))
             else:
-                nodes.append(node)
+                nodes.append(pin.node)
 
         """ Return the formatted list of nodes. """
         return join_list((self.name, join_list(nodes)))
