@@ -693,5 +693,20 @@ d2 1 2 dx
         result = str(circuit)
         self.assertEqual(expected, result)
 
+    def test_model(self):
+        source = """
+HN  81 98 VN1 6
+"""
+
+        expected = """.title
+
+bhn 81 98 v={(i(vn1) * 6)}
+"""
+
+        model = SpiceParser.parse(source=source)
+        circuit = model.build()
+        result = str(circuit)
+        self.assertEqual(expected, result)
+
 if __name__ == '__main__':
     unittest.main()

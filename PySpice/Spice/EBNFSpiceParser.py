@@ -906,7 +906,7 @@ class SpiceModelWalker(NodeWalker):
             kwargs = {"I": controller}
         else:
             value = self.walk(node.gain, data)
-            kwargs = {"I": I(device)*value}
+            kwargs = {"I": I(self.walk(node.device, data).lower())*value}
 
         positive = self.walk(node.positive, data)
         negative = self.walk(node.negative, data)
@@ -933,7 +933,7 @@ class SpiceModelWalker(NodeWalker):
             kwargs = {"V": controller}
         else:
             value = self.walk(node.transresistance, data)
-            kwargs = {"V": I(device)*value}
+            kwargs = {"V": I(self.walk(node.device, data).lower())*value}
 
         positive = self.walk(node.positive, data)
         negative = self.walk(node.negative, data)
