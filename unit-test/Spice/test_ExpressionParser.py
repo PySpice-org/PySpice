@@ -3,6 +3,23 @@ from PySpice.Spice.EBNFExpressionParser import ExpressionParser
 import os
 
 data = [
+    "1.",
+    "+1.",
+    "-1.",
+    ".1",
+    "-.1",
+    "+.1",
+    ".1E0",
+    "-.1E1",
+    "+.1E1",
+    "1.E0",
+    "-1.E-1",
+    "+1.E-1",
+    "1.23",
+    "-1.23",
+    "+1.23",
+    "1.23E1",
+    "1.23E-1",
     "{True?1:0}",
     "{False?1:0}",
     "{a + b}",
