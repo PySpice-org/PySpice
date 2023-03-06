@@ -693,14 +693,18 @@ d2 1 2 dx
         result = str(circuit)
         self.assertEqual(expected, result)
 
-    def test_model(self):
+    def test_source(self):
         source = """
 HN  81 98 VN1 6
+Vp5 Np5 0 5
+Vm5 Nm5 0 -5
 """
 
         expected = """.title
 
 bhn 81 98 v={(i(vn1) * 6)}
+vp5 np5 0 dc 5v
+vm5 nm5 0 dc -5v
 """
 
         model = SpiceParser.parse(source=source)

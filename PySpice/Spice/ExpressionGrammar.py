@@ -17,6 +17,7 @@ from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
 from tatsu.parsing import tatsumasu
 from tatsu.parsing import leftrec, nomemo, isname # noqa
+from tatsu.infos import ParserConfig
 from tatsu.util import re, generic_main  # noqa
 
 
@@ -24,59 +25,39 @@ KEYWORDS = {}  # type: ignore
 
 
 class ExpressionBuffer(Buffer):
-    def __init__(
-        self,
-        text,
-        whitespace=None,
-        nameguard=None,
-        comments_re=None,
-        eol_comments_re=None,
-        ignorecase=True,
-        namechars='',
-        **kwargs
-    ):
-        super().__init__(
-            text,
-            whitespace=whitespace,
-            nameguard=nameguard,
-            comments_re=comments_re,
-            eol_comments_re=eol_comments_re,
-            ignorecase=ignorecase,
-            namechars=namechars,
-            **kwargs
+    def __init__(self, text, /, config: ParserConfig = None, **settings):
+        config = ParserConfig.new(
+            config,
+            owner=self,
+            whitespace=None,
+            nameguard=None,
+            comments_re=None,
+            eol_comments_re=None,
+            ignorecase=True,
+            namechars='',
+            parseinfo=True,
         )
+        config = config.replace(**settings)
+        super().__init__(text, config=config)
 
 
 class ExpressionParser(Parser):
-    def __init__(
-        self,
-        whitespace=None,
-        nameguard=None,
-        comments_re=None,
-        eol_comments_re=None,
-        ignorecase=True,
-        left_recursion=True,
-        parseinfo=True,
-        keywords=None,
-        namechars='',
-        tokenizercls=ExpressionBuffer,
-        **kwargs
-    ):
-        if keywords is None:
-            keywords = KEYWORDS
-        super().__init__(
-            whitespace=whitespace,
-            nameguard=nameguard,
-            comments_re=comments_re,
-            eol_comments_re=eol_comments_re,
-            ignorecase=ignorecase,
-            left_recursion=left_recursion,
-            parseinfo=parseinfo,
-            keywords=keywords,
-            namechars=namechars,
-            tokenizercls=tokenizercls,
-            **kwargs
+    def __init__(self, /, config: ParserConfig = None, **settings):
+        config = ParserConfig.new(
+            config,
+            owner=self,
+            whitespace=None,
+            nameguard=None,
+            comments_re=None,
+            eol_comments_re=None,
+            ignorecase=True,
+            namechars='',
+            parseinfo=True,
+            keywords=KEYWORDS,
+            start='start',
         )
+        config = config.replace(**settings)
+        super().__init__(config=config)
 
     @tatsumasu('SpiceExpression')
     @nomemo
@@ -95,13 +76,9 @@ class ExpressionParser(Parser):
                 self.name_last_node('value')
             self._error(
                 'expecting one of: '
-                '<lc> <expression> <braced_expression>'
-                '<real_value> <imag_value> <value>'
+                '<braced_expression> <expression>'
+                '<imag_value> <lc> <real_value> <value>'
             )
-        self._define(
-            ['braced', 'value'],
-            []
-        )
 
     @tatsumasu('BracedExpression')
     @nomemo
@@ -118,17 +95,18 @@ class ExpressionParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._rc_()
+
+                self._define(
+                    ['sep'],
+                    []
+                )
             with self._option():
                 self._expression_()
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                "'{' <lc> <ternary> <term> <expression>"
+                "'{' <expression> <lc> <term> <ternary>"
             )
-        self._define(
-            ['sep'],
-            []
-        )
 
     @tatsumasu('Expression')
     @leftrec
@@ -142,13 +120,9 @@ class ExpressionParser(Parser):
                 self.name_last_node('term')
             self._error(
                 'expecting one of: '
-                '<conditional_expression> <ternary>'
-                '<add_sub> <term>'
+                '<add_sub> <conditional_expression>'
+                '<term> <ternary>'
             )
-        self._define(
-            ['term', 'ternary'],
-            []
-        )
 
     @tatsumasu('Ternary')
     @nomemo
@@ -176,6 +150,7 @@ class ExpressionParser(Parser):
             self.name_last_node('sep')
         self._expression_()
         self.name_last_node('y')
+
         self._define(
             ['op', 'sep', 't', 'x', 'y'],
             []
@@ -186,10 +161,6 @@ class ExpressionParser(Parser):
     def _conditional_expression_(self):  # noqa
         self._boolean_or_()
         self.name_last_node('expr')
-        self._define(
-            ['expr'],
-            []
-        )
 
     @tatsumasu('Or')
     @nomemo
@@ -207,6 +178,12 @@ class ExpressionParser(Parser):
                 self.name_last_node('sep')
             self._boolean_or_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -228,6 +205,12 @@ class ExpressionParser(Parser):
                 self.name_last_node('sep')
             self._boolean_xor_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -249,6 +232,12 @@ class ExpressionParser(Parser):
                 self.name_last_node('sep')
             self._boolean_and_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -262,6 +251,7 @@ class ExpressionParser(Parser):
             self.name_last_node('op')
         self._relational_()
         self.name_last_node('operator')
+
         self._define(
             ['op', 'operator'],
             []
@@ -293,7 +283,7 @@ class ExpressionParser(Parser):
                             self._token('<')
                         self._error(
                             'expecting one of: '
-                            "'==' '!=' '>=' '<=' '>' '<'"
+                            "'!=' '<' '<=' '==' '>' '>='"
                         )
                 self.name_last_node('op')
                 with self._optional():
@@ -301,20 +291,21 @@ class ExpressionParser(Parser):
                     self.name_last_node('sep')
                 self._expression_()
                 self.name_last_node('right')
+
+                self._define(
+                    ['left', 'op', 'right', 'sep'],
+                    []
+                )
             with self._option():
                 self._conditional_factor_()
                 self.name_last_node('factor')
             self._error(
                 'expecting one of: '
-                '<ternary> <term>'
-                '<conditional_expression> <add_sub>'
-                '<expression> <lp> <boolean>'
-                '<conditional_factor>'
+                '<add_sub> <boolean>'
+                '<conditional_expression>'
+                '<conditional_factor> <expression> <lp>'
+                '<term> <ternary>'
             )
-        self._define(
-            ['factor', 'left', 'op', 'right', 'sep'],
-            []
-        )
 
     @tatsumasu('ConditionalFactor')
     def _conditional_factor_(self):  # noqa
@@ -330,17 +321,18 @@ class ExpressionParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._rp_()
+
+                self._define(
+                    ['expr', 'sep'],
+                    []
+                )
             with self._option():
                 self._boolean_()
                 self.name_last_node('boolean')
             self._error(
                 'expecting one of: '
-                "'(' <lp> 'TRUE' 'FALSE' <boolean>"
+                "'(' 'FALSE' 'TRUE' <boolean> <lp>"
             )
-        self._define(
-            ['boolean', 'expr', 'sep'],
-            []
-        )
 
     @tatsumasu('Term')
     def _term_(self):  # noqa
@@ -371,6 +363,12 @@ class ExpressionParser(Parser):
                 self.name_last_node('sep')
             self._add_sub_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -394,7 +392,7 @@ class ExpressionParser(Parser):
                         self._token('%')
                     self._error(
                         'expecting one of: '
-                        "'*' '/' '%'"
+                        "'%' '*' '/'"
                     )
             self.name_last_node('op')
             with self._optional():
@@ -402,6 +400,12 @@ class ExpressionParser(Parser):
                 self.name_last_node('sep')
             self._prod_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -423,6 +427,7 @@ class ExpressionParser(Parser):
             self.name_last_node('op')
         self._exp_()
         self.name_last_node('operator')
+
         self._define(
             ['op', 'operator'],
             []
@@ -443,6 +448,12 @@ class ExpressionParser(Parser):
                 self.name_last_node('sep')
             self._exp_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -459,10 +470,10 @@ class ExpressionParser(Parser):
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                '<functions_1> <atan2> <ddx> <gauss>'
-                '<if_func> <limit> <functions_2> <rand>'
-                '<unif> <i_func> <v_func> <functions>'
-                '<lc> <var_id> <factor> <variable>'
+                '<atan2> <ddx> <factor> <functions>'
+                '<functions_1> <functions_2> <gauss>'
+                '<i_func> <if_func> <lc> <limit> <rand>'
+                '<unif> <v_func> <var_id> <variable>'
             )
 
     @tatsumasu('Variable')
@@ -479,6 +490,11 @@ class ExpressionParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._rc_()
+
+                self._define(
+                    ['sep', 'variable'],
+                    []
+                )
             with self._option():
                 self._var_id_()
                 self.name_last_node('variable')
@@ -487,14 +503,10 @@ class ExpressionParser(Parser):
                 self.name_last_node('factor')
             self._error(
                 'expecting one of: '
-                "'{' <lc> [a-zA-Z_`@#\\$][a-zA-Z0-"
-                '9_:`@#\\.\\$]*[a-zA-Z0-9_`@#\\.\\$] [a-zA-Z]'
-                '<var_id> <lp> <value> <factor>'
+                "'{' <factor> <lc> <lp> <value> <var_id>"
+                '[a-zA-Z] [a-zA-Z_`@#\\$][a-zA-Z0-'
+                '9_:`@#\\.\\$]*[a-zA-Z0-9_`@#\\.\\$]'
             )
-        self._define(
-            ['factor', 'sep', 'variable'],
-            []
-        )
 
     @tatsumasu('Factor')
     def _factor_(self):  # noqa
@@ -510,18 +522,19 @@ class ExpressionParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._rp_()
+
+                self._define(
+                    ['sep'],
+                    []
+                )
             with self._option():
                 self._value_()
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                "'(' <lp> <real_value> <imag_value>"
+                "'(' <imag_value> <lp> <real_value>"
                 '<value>'
             )
-        self._define(
-            ['sep'],
-            []
-        )
 
     @tatsumasu('Functions')
     def _functions_(self):  # noqa
@@ -550,16 +563,17 @@ class ExpressionParser(Parser):
                 self._v_func_()
             self._error(
                 'expecting one of: '
-                "'abs' 'ceil' 'ddt' 'floor' 'int' 'm'"
-                "'nint' 'sdt' 'sgn' 'stp' 'sqrt' 'uramp'"
-                "'Ph' 'Re' 'R' 'Img' 'acosh' 'acos'"
-                "'asinh' 'asin' 'arctan' 'atanh' 'atan'"
-                "'cosh' 'cos' 'exp' 'ln' 'log' 'log10'"
-                "'sinh' 'sin' 'tanh' 'tan' <functions_1>"
-                "'atan2' 'ddx' 'agauss' 'gauss' 'if'"
-                "<if_func> 'limit' 'min' 'max' 'pwrs'"
-                "'pow' 'pwr' 'sign' <functions_2> 'rand'"
-                "'aunif' 'unif' 'i' <i_func> 'v' <v_func>"
+                "'Img' 'Ph' 'R' 'Re' 'abs' 'acos' 'acosh'"
+                "'agauss' 'arctan' 'asin' 'asinh' 'atan'"
+                "'atan2' 'atanh' 'aunif' 'ceil' 'cos'"
+                "'cosh' 'ddt' 'ddx' 'exp' 'floor' 'gauss'"
+                "'i' 'if' 'int' 'limit' 'ln' 'log'"
+                "'log10' 'm' 'max' 'min' 'nint' 'pow'"
+                "'pwr' 'pwrs' 'rand' 'sdt' 'sgn' 'sign'"
+                "'sin' 'sinh' 'sqrt' 'stp' 'tan' 'tanh'"
+                "'unif' 'uramp' 'v' <functions_1>"
+                '<functions_2> <i_func> <if_func>'
+                '<v_func>'
             )
 
     @tatsumasu()
@@ -634,12 +648,12 @@ class ExpressionParser(Parser):
                     self._token('tan')
                 self._error(
                     'expecting one of: '
-                    "'abs' 'ceil' 'ddt' 'floor' 'int' 'm'"
-                    "'nint' 'sdt' 'sgn' 'stp' 'sqrt' 'uramp'"
-                    "'Ph' 'Re' 'R' 'Img' 'acosh' 'acos'"
-                    "'asinh' 'asin' 'arctan' 'atanh' 'atan'"
-                    "'cosh' 'cos' 'exp' 'ln' 'log' 'log10'"
-                    "'sinh' 'sin' 'tanh' 'tan'"
+                    "'Img' 'Ph' 'R' 'Re' 'abs' 'acos' 'acosh'"
+                    "'arctan' 'asin' 'asinh' 'atan' 'atanh'"
+                    "'ceil' 'cos' 'cosh' 'ddt' 'exp' 'floor'"
+                    "'int' 'ln' 'log' 'log10' 'm' 'nint'"
+                    "'sdt' 'sgn' 'sin' 'sinh' 'sqrt' 'stp'"
+                    "'tan' 'tanh' 'uramp'"
                 )
         self.name_last_node('func')
         with self._optional():
@@ -656,6 +670,7 @@ class ExpressionParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep', 'x'],
             []
@@ -688,6 +703,7 @@ class ExpressionParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep', 'x', 'y'],
             []
@@ -720,6 +736,7 @@ class ExpressionParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['f', 'func', 'sep', 'x'],
             []
@@ -770,6 +787,7 @@ class ExpressionParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['alpha', 'func', 'mu', 'n', 'sep'],
             []
@@ -795,6 +813,7 @@ class ExpressionParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['device', 'func', 'sep'],
             []
@@ -836,6 +855,7 @@ class ExpressionParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep', 't', 'x', 'y'],
             []
@@ -877,6 +897,7 @@ class ExpressionParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep', 'x', 'y', 'z'],
             []
@@ -900,7 +921,7 @@ class ExpressionParser(Parser):
                     self._token('sign')
                 self._error(
                     'expecting one of: '
-                    "'min' 'max' 'pwrs' 'pow' 'pwr' 'sign'"
+                    "'max' 'min' 'pow' 'pwr' 'pwrs' 'sign'"
                 )
         self.name_last_node('func')
         with self._optional():
@@ -926,6 +947,7 @@ class ExpressionParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep', 'x', 'y'],
             []
@@ -944,6 +966,7 @@ class ExpressionParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep'],
             []
@@ -985,6 +1008,7 @@ class ExpressionParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['alpha', 'func', 'mu', 'sep'],
             []
@@ -1017,7 +1041,13 @@ class ExpressionParser(Parser):
             with self._optional():
                 self._sep_()
                 self.name_last_node('sep')
+
+            self._define(
+                ['node', 'sep'],
+                []
+            )
         self._rp_()
+
         self._define(
             ['func', 'node', 'sep'],
             []
@@ -1040,7 +1070,7 @@ class ExpressionParser(Parser):
                 self._token('pi')
             self._error(
                 'expecting one of: '
-                "'time' 'temper' 'temp' 'freq' 'vt' 'pi'"
+                "'freq' 'pi' 'temp' 'temper' 'time' 'vt'"
             )
 
     @tatsumasu('Value')
@@ -1054,6 +1084,11 @@ class ExpressionParser(Parser):
                         self._token('+')
                         self._imag_value_()
                         self.name_last_node('imag')
+
+                        self._define(
+                            ['imag', 'real'],
+                            []
+                        )
                 with self._option():
                     self._imag_value_()
                     self.name_last_node('imag')
@@ -1062,7 +1097,7 @@ class ExpressionParser(Parser):
                     self.name_last_node('real')
                 self._error(
                     'expecting one of: '
-                    '<real_value> <imag_value>'
+                    '<imag_value> <real_value>'
                 )
         with self._optional():
             with self._choice():
@@ -1075,6 +1110,7 @@ class ExpressionParser(Parser):
                     '<hz> <unit>'
                 )
         self.name_last_node('unit')
+
         self._define(
             ['imag', 'real', 'unit'],
             []
@@ -1085,6 +1121,7 @@ class ExpressionParser(Parser):
         self._number_scale_()
         self.name_last_node('value')
         self._token('J')
+
         self._define(
             ['value'],
             []
@@ -1094,10 +1131,6 @@ class ExpressionParser(Parser):
     def _real_value_(self):  # noqa
         self._number_scale_()
         self.name_last_node('value')
-        self._define(
-            ['value'],
-            []
-        )
 
     @tatsumasu()
     def _freq_value_(self):  # noqa
@@ -1106,6 +1139,7 @@ class ExpressionParser(Parser):
         with self._optional():
             self._hz_()
         self.name_last_node('unit')
+
         self._define(
             ['unit', 'value'],
             []
@@ -1129,6 +1163,11 @@ class ExpressionParser(Parser):
                             '<meg> <suffix>'
                         )
                 self.name_last_node('scale')
+
+                self._define(
+                    ['scale', 'value'],
+                    []
+                )
             with self._option():
                 self._integer_()
                 self.name_last_node('value')
@@ -1144,16 +1183,18 @@ class ExpressionParser(Parser):
                             '<meg> <suffix>'
                         )
                 self.name_last_node('scale')
+
+                self._define(
+                    ['scale', 'value'],
+                    []
+                )
             self._error(
                 'expecting one of: '
-                '[\\+\\-]?(([0-9]+(\\.[0-9]*)?)|(\\.[0-'
-                '9]+))([eE][\\-\\+]?[0-9]{1,3})?'
-                '<floating_point> [\\+\\-]?[0-9]+ <integer>'
+                '([\\+\\-]?(([0-9]+(\\.[0-9]*)?)|(\\.[0-'
+                '9]+))([eE][\\-\\+]?[0-9]{1,3})?)'
+                '([\\+\\-]?[0-9]+) <floating_point>'
+                '<integer>'
             )
-        self._define(
-            ['scale', 'value'],
-            []
-        )
 
     @tatsumasu()
     def _suffix_(self):  # noqa
@@ -1177,11 +1218,11 @@ class ExpressionParser(Parser):
 
     @tatsumasu('Float')
     def _floating_point_(self):  # noqa
-        self._pattern('[\\+\\-]?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))([eE][\\-\\+]?[0-9]{1,3})?')
+        self._pattern('([\\+\\-]?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))([eE][\\-\\+]?[0-9]{1,3})?)')
 
     @tatsumasu('Int')
     def _integer_(self):  # noqa
-        self._pattern('[\\+\\-]?[0-9]+')
+        self._pattern('([\\+\\-]?[0-9]+)')
 
     @tatsumasu()
     def _digit_(self):  # noqa
@@ -1196,7 +1237,7 @@ class ExpressionParser(Parser):
                 self._token('FALSE')
             self._error(
                 'expecting one of: '
-                "'TRUE' 'FALSE'"
+                "'FALSE' 'TRUE'"
             )
 
     @tatsumasu('BinaryPattern')
@@ -1207,6 +1248,7 @@ class ExpressionParser(Parser):
             self._binary_()
         self._positive_closure(block1)
         self.name_last_node('pattern')
+
         self._define(
             ['pattern'],
             []
@@ -1242,6 +1284,12 @@ class ExpressionParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._token('=')
+
+                self._define(
+                    ['sep'],
+                    []
+                )
+
         self._define(
             ['node', 'sep'],
             []
@@ -1256,8 +1304,8 @@ class ExpressionParser(Parser):
                 self._pattern('[a-zA-Z_`@#\\$]')
             self._error(
                 'expecting one of: '
-                '[a-zA-Z_`@#\\$][a-zA-Z0-9_:`@#\\.\\$\\/]*[a-'
-                'zA-Z0-9_`@#\\.\\$] [a-zA-Z_`@#\\$]'
+                '[a-zA-Z_`@#\\$] [a-zA-Z_`@#\\$][a-zA-Z0-'
+                '9_:`@#\\.\\$\\/]*[a-zA-Z0-9_`@#\\.\\$]'
             )
 
     @tatsumasu()
@@ -1269,8 +1317,8 @@ class ExpressionParser(Parser):
                 self._pattern('[a-zA-Z]')
             self._error(
                 'expecting one of: '
-                '[a-zA-Z_`@#\\$][a-zA-Z0-9_:`@#\\.\\$]*[a-'
-                'zA-Z0-9_`@#\\.\\$] [a-zA-Z]'
+                '[a-zA-Z] [a-zA-Z_`@#\\$][a-zA-Z0-'
+                '9_:`@#\\.\\$]*[a-zA-Z0-9_`@#\\.\\$]'
             )
 
     @tatsumasu()
@@ -1280,18 +1328,18 @@ class ExpressionParser(Parser):
                 self._cmd_net_sep_()
                 self.name_last_node('@')
 
-                def block1():
-                    self._st_()
-                self._closure(block1)
-            with self._option():
-
                 def block2():
                     self._st_()
-                self._positive_closure(block2)
+                self._closure(block2)
+            with self._option():
+
+                def block3():
+                    self._st_()
+                self._positive_closure(block3)
             self._error(
                 'expecting one of: '
-                '<newline> <inline_comment> <st>'
-                '<cmd_net_sep> [ \\t]'
+                '<cmd_net_sep> <inline_comment> <newline>'
+                '<st> [ \\t]'
             )
 
     @tatsumasu()
@@ -1299,28 +1347,28 @@ class ExpressionParser(Parser):
         with self._choice():
             with self._option():
 
-                def block0():
+                def block1():
                     self._cmd_net_sep_()
                     self.name_last_node('@')
-
-                    def block2():
-                        self._st_()
-                    self._closure(block2)
-                    self._token('+')
 
                     def block3():
                         self._st_()
                     self._closure(block3)
-                self._positive_closure(block0)
+                    self._token('+')
+
+                    def block4():
+                        self._st_()
+                    self._closure(block4)
+                self._positive_closure(block1)
             with self._option():
 
-                def block4():
+                def block5():
                     self._st_()
-                self._positive_closure(block4)
+                self._positive_closure(block5)
             self._error(
                 'expecting one of: '
-                '<newline> <inline_comment> <st>'
-                '<cmd_net_sep> [ \\t]'
+                '<cmd_net_sep> <inline_comment> <newline>'
+                '<st> [ \\t]'
             )
 
     @tatsumasu('Separator')
@@ -1350,11 +1398,17 @@ class ExpressionParser(Parser):
                         self.name_last_node('@')
                     self._error(
                         'expecting one of: '
-                        '<line_comment> <inline_comment>'
+                        '<inline_comment> <line_comment>'
                     )
             self.name_last_node('comment')
             self._newline_()
+
+            self._define(
+                ['comment'],
+                []
+            )
         self._closure(block3)
+
         self._define(
             ['comment'],
             []
@@ -1453,7 +1507,7 @@ class ExpressionParser(Parser):
         self._pattern('[^\\S\\r\\n]*')
 
 
-class ExpressionSemantics(object):
+class ExpressionSemantics:
     def start(self, ast):  # noqa
         return ast
 
@@ -1683,9 +1737,7 @@ class ExpressionSemantics(object):
         return ast
 
 
-def main(filename, start=None, **kwargs):
-    if start is None:
-        start = 'start'
+def main(filename, **kwargs):
     if not filename or filename == '-':
         text = sys.stdin.read()
     else:
@@ -1694,7 +1746,6 @@ def main(filename, start=None, **kwargs):
     parser = ExpressionParser()
     return parser.parse(
         text,
-        rule_name=start,
         filename=filename,
         **kwargs
     )

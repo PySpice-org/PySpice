@@ -3,6 +3,9 @@ from PySpice.Spice.EBNFExpressionParser import ExpressionParser
 import os
 
 data = [
+    "1",
+    "+1",
+    "-1",
     "1.",
     "+1.",
     "-1.",
@@ -64,7 +67,7 @@ data = [
 
 class TestExpressionParser(unittest.TestCase):
     def test_parser(self):
-        #ExpressionParser._regenerate()
+        # ExpressionParser._regenerate()
         for case in data:
             expr_i = ExpressionParser.parse(source=case)
             case_i = "{%s}" % expr_i

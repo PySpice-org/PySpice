@@ -11,10 +11,14 @@
 
 from __future__ import annotations
 
+from typing import Any
+from dataclasses import dataclass
+
 from tatsu.objectmodel import Node
 from tatsu.semantics import ModelBuilderSemantics
 
 
+@dataclass(eq=False)
 class ModelBase(Node):
     pass
 
@@ -25,178 +29,212 @@ class ExpressionModelBuilderSemantics(ModelBuilderSemantics):
             t for t in globals().values()
             if type(t) is type and issubclass(t, ModelBase)
         ] + (types or [])
-        super(ExpressionModelBuilderSemantics, self).__init__(context=context, types=types)
+        super().__init__(context=context, types=types)
 
 
+@dataclass(eq=False)
 class SpiceExpression(ModelBase):
     pass
 
 
+@dataclass(eq=False)
 class GenericExpression(ModelBase):
-    braced = None
-    value = None
+    braced: Any = None
+    value: Any = None
 
 
+@dataclass(eq=False)
 class BracedExpression(ModelBase):
-    sep = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class Expression(ModelBase):
-    term = None
-    ternary = None
+    term: Any = None
+    ternary: Any = None
 
 
+@dataclass(eq=False)
 class Ternary(ModelBase):
-    op = None
-    sep = None
-    t = None
-    x = None
-    y = None
+    op: Any = None
+    sep: Any = None
+    t: Any = None
+    x: Any = None
+    y: Any = None
 
 
+@dataclass(eq=False)
 class Conditional(ModelBase):
-    expr = None
+    expr: Any = None
 
 
+@dataclass(eq=False)
 class Or(ModelBase):
-    left = None
-    op = None
-    right = None
-    sep = None
+    left: Any = None
+    op: Any = None
+    right: Any = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class Xor(ModelBase):
-    left = None
-    op = None
-    right = None
-    sep = None
+    left: Any = None
+    op: Any = None
+    right: Any = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class And(ModelBase):
-    left = None
-    op = None
-    right = None
-    sep = None
+    left: Any = None
+    op: Any = None
+    right: Any = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class Not(ModelBase):
-    op = None
-    operator = None
+    op: Any = None
+    operator: Any = None
 
 
+@dataclass(eq=False)
 class Relational(ModelBase):
-    factor = None
-    left = None
-    op = None
-    right = None
-    sep = None
+    factor: Any = None
+    left: Any = None
+    op: Any = None
+    right: Any = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class ConditionalFactor(ModelBase):
-    boolean = None
-    expr = None
-    sep = None
+    boolean: Any = None
+    expr: Any = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class Term(ModelBase):
     pass
 
 
+@dataclass(eq=False)
 class AddSub(ModelBase):
-    left = None
-    op = None
-    right = None
-    sep = None
+    left: Any = None
+    op: Any = None
+    right: Any = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class ProdDivMod(ModelBase):
-    left = None
-    op = None
-    right = None
-    sep = None
+    left: Any = None
+    op: Any = None
+    right: Any = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class Sign(ModelBase):
-    op = None
-    operator = None
+    op: Any = None
+    operator: Any = None
 
 
+@dataclass(eq=False)
 class Exponential(ModelBase):
-    left = None
-    op = None
-    right = None
-    sep = None
+    left: Any = None
+    op: Any = None
+    right: Any = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class Functional(ModelBase):
     pass
 
 
+@dataclass(eq=False)
 class Variable(ModelBase):
-    factor = None
-    sep = None
-    variable = None
+    factor: Any = None
+    sep: Any = None
+    variable: Any = None
 
 
+@dataclass(eq=False)
 class Factor(ModelBase):
-    sep = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class Functions(ModelBase):
     pass
 
 
+@dataclass(eq=False)
 class Value(ModelBase):
-    imag = None
-    real = None
-    unit = None
+    imag: Any = None
+    real: Any = None
+    unit: Any = None
 
 
+@dataclass(eq=False)
 class ImagValue(ModelBase):
-    value = None
+    value: Any = None
 
 
+@dataclass(eq=False)
 class RealValue(ModelBase):
-    value = None
+    value: Any = None
 
 
+@dataclass(eq=False)
 class NumberScale(ModelBase):
-    scale = None
-    value = None
+    scale: Any = None
+    value: Any = None
 
 
+@dataclass(eq=False)
 class Unit(ModelBase):
     pass
 
 
+@dataclass(eq=False)
 class Hz(ModelBase):
     pass
 
 
+@dataclass(eq=False)
 class Float(ModelBase):
     pass
 
 
+@dataclass(eq=False)
 class Int(ModelBase):
     pass
 
 
+@dataclass(eq=False)
 class BinaryPattern(ModelBase):
-    pattern = None
+    pattern: Any = None
 
 
+@dataclass(eq=False)
 class Device(ModelBase):
     pass
 
 
+@dataclass(eq=False)
 class NetNode(ModelBase):
-    node = None
-    sep = None
+    node: Any = None
+    sep: Any = None
 
 
+@dataclass(eq=False)
 class Separator(ModelBase):
-    comment = None
+    comment: Any = None
 
 
+@dataclass(eq=False)
 class Comment(ModelBase):
     pass

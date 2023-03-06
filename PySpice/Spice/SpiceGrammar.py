@@ -4529,9 +4529,10 @@ class SpiceParser(Parser):
                 )
             self._error(
                 'expecting one of: '
-                '<floating_point> <integer> [\\+\\-]?(([0-'
-                '9]+(\\.[0-9]*)?)|(\\.[0-9]+))([eE][\\-'
-                '\\+]?[0-9]{1,3})? [\\+\\-]?[0-9]+'
+                '([\\+\\-]?(([0-9]+(\\.[0-9]*)?)|(\\.[0-'
+                '9]+))([eE][\\-\\+]?[0-9]{1,3})?)'
+                '([\\+\\-]?[0-9]+) <floating_point>'
+                '<integer>'
             )
 
     @tatsumasu()
@@ -4556,11 +4557,11 @@ class SpiceParser(Parser):
 
     @tatsumasu('Float')
     def _floating_point_(self):  # noqa
-        self._pattern('[\\+\\-]?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))([eE][\\-\\+]?[0-9]{1,3})?')
+        self._pattern('([\\+\\-]?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))([eE][\\-\\+]?[0-9]{1,3})?)')
 
     @tatsumasu('Int')
     def _integer_(self):  # noqa
-        self._pattern('[\\+\\-]?[0-9]+')
+        self._pattern('([\\+\\-]?[0-9]+)')
 
     @tatsumasu()
     def _digit_(self):  # noqa
