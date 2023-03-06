@@ -803,8 +803,7 @@ class SpiceModelWalker(NodeWalker):
     def walk_Circuit(self, node, data):
         if data._root is None:
             title = self.walk(node.title, data)
-            if type(title) is list:
-                title = join_lines(title)
+            title = join_lines(title)
             data._root = CircuitStatement(
                 title,
                 data._path
@@ -1758,18 +1757,15 @@ class SpiceModelWalker(NodeWalker):
         return self.walk(node.ast, data)
 
     def walk_Parameters(self, node, data):
-        if isinstance(node.ast, list):
-            result = {}
-            # The separators are not taken into account
-            for parameter in self.walk(node.ast[::2], data):
-                result.update(parameter)
-        else:
-            result = self.walk(node.ast, data)
+        result = {}
+        # The separators are not taken into account
+        for parameter in self.walk(node.ast, data):
+            result.update(parameter)
         return result
 
     def walk_Parameter(self, node, data):
         value = self.walk(node.value, data)
-        return {node.name: value}
+        return {node.name.lower(): value}
 
     def walk_GenericExpression(self, node, data):
         if node.value is None:

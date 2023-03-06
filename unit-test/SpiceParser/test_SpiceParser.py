@@ -672,5 +672,26 @@ btest 1 0 v={if(True, 0, 1)} smoothbsrc=1
         result = str(circuit)
         self.assertEqual(title + os.linesep + os.linesep, result)
 
+    def test_model(self):
+        models = """
+.MODEL NOUT NPN (BF=200,VAF=50,BR=22,IS=1E-15,RC=29.2)
+.MODEL DX D(IS=1E-16, RS=5, KF=1E-15)
+Q1 1 2 3 NOUT
+D2 1 2 DX
+"""
+
+        expected = """.title
+
+.model nout NPN (bf=200 vaf=50 br=22 is=1e-15 rc=29.2)
+.model dx D (is=1e-16 rs=5 kf=1e-15)
+q1 1 2 3 nout
+d2 1 2 dx
+"""
+
+        model = SpiceParser.parse(source=models)
+        circuit = model.build()
+        result = str(circuit)
+        self.assertEqual(expected, result)
+
 if __name__ == '__main__':
     unittest.main()

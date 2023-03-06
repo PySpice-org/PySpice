@@ -10,8 +10,8 @@ start::Circuit
     {st}
     [asterisk]
     {st}
-    title:text
-    {newline asterisk {st} title:text}
+    title+:text
+    {newline asterisk {st} title+:text}
     {
         {st}
         [
@@ -981,7 +981,7 @@ title_cmd::TitleCmd
 
 parameters::Parameters
     =
-    @:parameter {(([@:sep] comma [@:sep]) | @:sep) @:parameter}
+    @+:parameter {(([sep] comma [sep]) | sep) @+:parameter}
     ;
 
 

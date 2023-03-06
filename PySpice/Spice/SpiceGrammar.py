@@ -17,6 +17,7 @@ from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
 from tatsu.parsing import tatsumasu
 from tatsu.parsing import leftrec, nomemo, isname # noqa
+from tatsu.infos import ParserConfig
 from tatsu.util import re, generic_main  # noqa
 
 
@@ -24,59 +25,39 @@ KEYWORDS = {}  # type: ignore
 
 
 class SpiceBuffer(Buffer):
-    def __init__(
-        self,
-        text,
-        whitespace=None,
-        nameguard=None,
-        comments_re=None,
-        eol_comments_re=None,
-        ignorecase=True,
-        namechars='',
-        **kwargs
-    ):
-        super().__init__(
-            text,
-            whitespace=whitespace,
-            nameguard=nameguard,
-            comments_re=comments_re,
-            eol_comments_re=eol_comments_re,
-            ignorecase=ignorecase,
-            namechars=namechars,
-            **kwargs
+    def __init__(self, text, /, config: ParserConfig = None, **settings):
+        config = ParserConfig.new(
+            config,
+            owner=self,
+            whitespace=None,
+            nameguard=None,
+            comments_re=None,
+            eol_comments_re=None,
+            ignorecase=True,
+            namechars='',
+            parseinfo=True,
         )
+        config = config.replace(**settings)
+        super().__init__(text, config=config)
 
 
 class SpiceParser(Parser):
-    def __init__(
-        self,
-        whitespace=None,
-        nameguard=None,
-        comments_re=None,
-        eol_comments_re=None,
-        ignorecase=True,
-        left_recursion=True,
-        parseinfo=True,
-        keywords=None,
-        namechars='',
-        tokenizercls=SpiceBuffer,
-        **kwargs
-    ):
-        if keywords is None:
-            keywords = KEYWORDS
-        super().__init__(
-            whitespace=whitespace,
-            nameguard=nameguard,
-            comments_re=comments_re,
-            eol_comments_re=eol_comments_re,
-            ignorecase=ignorecase,
-            left_recursion=left_recursion,
-            parseinfo=parseinfo,
-            keywords=keywords,
-            namechars=namechars,
-            tokenizercls=tokenizercls,
-            **kwargs
+    def __init__(self, /, config: ParserConfig = None, **settings):
+        config = ParserConfig.new(
+            config,
+            owner=self,
+            whitespace=None,
+            nameguard=None,
+            comments_re=None,
+            eol_comments_re=None,
+            ignorecase=True,
+            namechars='',
+            parseinfo=True,
+            keywords=KEYWORDS,
+            start='start',
         )
+        config = config.replace(**settings)
+        super().__init__(config=config)
 
     @tatsumasu('Circuit')
     def _start_(self):  # noqa
@@ -93,7 +74,7 @@ class SpiceParser(Parser):
             self._st_()
         self._closure(block1)
         self._text_()
-        self.name_last_node('title')
+        self.add_last_node_to_name('title')
 
         def block3():
             self._newline_()
@@ -103,7 +84,12 @@ class SpiceParser(Parser):
                 self._st_()
             self._closure(block4)
             self._text_()
-            self.name_last_node('title')
+            self.add_last_node_to_name('title')
+
+            self._define(
+                [],
+                ['title']
+            )
         self._closure(block3)
 
         def block6():
@@ -119,7 +105,7 @@ class SpiceParser(Parser):
                         self._inline_comment_()
                     self._error(
                         'expecting one of: '
-                        '<line_comment> <inline_comment>'
+                        '<inline_comment> <line_comment>'
                     )
             self._newline_()
         self._closure(block6)
@@ -134,9 +120,10 @@ class SpiceParser(Parser):
             self._token('.END')
             self._end_sep_()
         self._check_eof()
+
         self._define(
-            ['lines', 'title'],
-            []
+            ['lines'],
+            ['title']
         )
 
     @tatsumasu('Lines')
@@ -161,7 +148,7 @@ class SpiceParser(Parser):
                     self._encrypted_()
                 self._error(
                     'expecting one of: '
-                    '<device> <command> <encrypted>'
+                    '<command> <device> <encrypted>'
                 )
         self._end_sep_()
         self.name_last_node('@')
@@ -188,7 +175,7 @@ class SpiceParser(Parser):
                     self._encrypted_()
                 self._error(
                     'expecting one of: '
-                    '<device> <netlist_cmds> <encrypted>'
+                    '<device> <encrypted> <netlist_cmds>'
                 )
         self._end_sep_()
         self.name_last_node('@')
@@ -275,15 +262,17 @@ class SpiceParser(Parser):
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                "'~' <nonlinear_dependent_source>"
-                '<capacitor> <diode>'
-                '<voltage_controlled_voltage_source>'
+                "'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'J' 'K'"
+                "'L' 'M' 'Q' 'R' 'S' 'V' 'X' <bjt>"
+                '<capacitor>'
                 '<current_controlled_current_source>'
-                '<voltage_controlled_current_source>'
                 '<current_controlled_voltage_source>'
-                '<current_source> <jfet>'
-                '<mutual_inductor> <inductor> <mosfet>'
-                '<bjt> <resistor> <subcircuit> <switch>'
+                '<current_source> <diode> <inductor>'
+                '<jfet> <mosfet> <mutual_inductor>'
+                '<nonlinear_dependent_source> <resistor>'
+                '<subcircuit> <switch>'
+                '<voltage_controlled_current_source>'
+                '<voltage_controlled_voltage_source>'
                 '<voltage_source>'
             )
 
@@ -313,7 +302,7 @@ class SpiceParser(Parser):
                     self._token('I')
                 self._error(
                     'expecting one of: '
-                    "'V' 'I'"
+                    "'I' 'V'"
                 )
         self.name_last_node('magnitude')
         with self._optional():
@@ -330,6 +319,12 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'sep'],
+                []
+            )
+
         self._define(
             ['dev', 'expr', 'magnitude', 'negative', 'parameters', 'positive', 'sep'],
             []
@@ -349,6 +344,11 @@ class SpiceParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._rc_()
+
+                self._define(
+                    ['sep'],
+                    []
+                )
             with self._option():
                 self._braced_expression_()
                 self.name_last_node('@')
@@ -357,12 +357,8 @@ class SpiceParser(Parser):
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                "'{' <lc> <braced_expression> 'tablefile'"
+                "'tablefile' '{' <braced_expression> <lc>"
             )
-        self._define(
-            ['sep'],
-            []
-        )
 
     @tatsumasu('Capacitor')
     def _capacitor_(self):  # noqa
@@ -392,6 +388,16 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._model_name_()
                         self.name_last_node('model')
+
+                        self._define(
+                            ['model', 'sep'],
+                            []
+                        )
+
+                    self._define(
+                        ['model', 'sep', 'value'],
+                        []
+                    )
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
@@ -402,6 +408,16 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._gen_expr_()
                         self.name_last_node('value')
+
+                        self._define(
+                            ['sep', 'value'],
+                            []
+                        )
+
+                    self._define(
+                        ['model', 'sep', 'value'],
+                        []
+                    )
                 self._error(
                     'expecting one of: '
                     '<sep>'
@@ -411,6 +427,12 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'sep'],
+                []
+            )
+
         self._define(
             ['dev', 'model', 'negative', 'parameters', 'positive', 'sep', 'value'],
             []
@@ -441,11 +463,22 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._gen_expr_()
             self.name_last_node('area')
+
+            self._define(
+                ['area', 'sep'],
+                []
+            )
         with self._optional():
             self._sep_()
             self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'sep'],
+                []
+            )
+
         self._define(
             ['area', 'dev', 'model', 'negative', 'parameters', 'positive', 'sep'],
             []
@@ -481,13 +514,18 @@ class SpiceParser(Parser):
                                     self._circuit_nodes_()
                                 self._error(
                                     'expecting one of: '
-                                    '<parenthesis_nodes> <circuit_nodes>'
+                                    '<circuit_nodes> <parenthesis_nodes>'
                                 )
                         self.name_last_node('nodes')
                         self._sep_()
                         self.name_last_node('sep')
                         self._gen_expr_()
                         self.name_last_node('transconductance')
+
+                        self._define(
+                            ['nodes', 'sep', 'transconductance'],
+                            []
+                        )
                 with self._option():
                     with self._group():
                         with self._group():
@@ -500,16 +538,17 @@ class SpiceParser(Parser):
                                     self._control_voltage_poly_()
                                 self._error(
                                     'expecting one of: '
-                                    '<control_value> <control_table>'
+                                    '<control_table> <control_value>'
                                     '<control_voltage_poly>'
                                 )
                         self.name_last_node('controller')
                 self._error(
                     'expecting one of: '
-                    '<parenthesis_nodes> <circuit_nodes>'
-                    '<control_value> <control_table>'
-                    '<control_voltage_poly>'
+                    '<circuit_nodes> <control_table>'
+                    '<control_value> <control_voltage_poly>'
+                    '<parenthesis_nodes>'
                 )
+
         self._define(
             ['controller', 'dev', 'negative', 'nodes', 'positive', 'sep', 'transconductance'],
             []
@@ -547,10 +586,16 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._gen_expr_()
                         self.name_last_node('gain')
+
+                        self._define(
+                            ['device', 'gain', 'sep'],
+                            []
+                        )
                 self._error(
                     'expecting one of: '
                     '<control_current_poly> <dev>'
                 )
+
         self._define(
             ['controller', 'dev', 'device', 'gain', 'negative', 'positive', 'sep'],
             []
@@ -586,13 +631,18 @@ class SpiceParser(Parser):
                                     self._circuit_nodes_()
                                 self._error(
                                     'expecting one of: '
-                                    '<parenthesis_nodes> <circuit_nodes>'
+                                    '<circuit_nodes> <parenthesis_nodes>'
                                 )
                         self.name_last_node('nodes')
                         self._sep_()
                         self.name_last_node('sep')
                         self._gen_expr_()
                         self.name_last_node('transconductance')
+
+                        self._define(
+                            ['nodes', 'sep', 'transconductance'],
+                            []
+                        )
                 with self._option():
                     with self._group():
                         with self._group():
@@ -605,16 +655,17 @@ class SpiceParser(Parser):
                                     self._control_voltage_poly_()
                                 self._error(
                                     'expecting one of: '
-                                    '<control_value> <control_table>'
+                                    '<control_table> <control_value>'
                                     '<control_voltage_poly>'
                                 )
                         self.name_last_node('controller')
                 self._error(
                     'expecting one of: '
-                    '<parenthesis_nodes> <circuit_nodes>'
-                    '<control_value> <control_table>'
-                    '<control_voltage_poly>'
+                    '<circuit_nodes> <control_table>'
+                    '<control_value> <control_voltage_poly>'
+                    '<parenthesis_nodes>'
                 )
+
         self._define(
             ['controller', 'dev', 'negative', 'nodes', 'positive', 'sep', 'transconductance'],
             []
@@ -652,10 +703,16 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._gen_expr_()
                         self.name_last_node('transresistance')
+
+                        self._define(
+                            ['device', 'sep', 'transresistance'],
+                            []
+                        )
                 self._error(
                     'expecting one of: '
                     '<control_current_poly> <dev>'
                 )
+
         self._define(
             ['controller', 'dev', 'device', 'negative', 'positive', 'sep', 'transresistance'],
             []
@@ -675,6 +732,7 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
         self._braced_expression_()
         self.name_last_node('expression')
+
         self._define(
             ['expression', 'sep', 'type'],
             []
@@ -721,12 +779,12 @@ class SpiceParser(Parser):
                             self.name_last_node('sep')
                         self._rp_()
 
-                        def block11():
+                        def block12():
 
-                            def block12():
+                            def block13():
                                 self._sep_()
                                 self.name_last_node('sep')
-                            self._positive_closure(block12)
+                            self._positive_closure(block13)
                             self._lp_()
                             with self._optional():
                                 self._sep_()
@@ -746,7 +804,17 @@ class SpiceParser(Parser):
                                 self._sep_()
                                 self.name_last_node('sep')
                             self._rp_()
-                        self._closure(block11)
+
+                            self._define(
+                                ['sep'],
+                                ['input', 'output']
+                            )
+                        self._closure(block12)
+
+                        self._define(
+                            ['sep'],
+                            ['input', 'output']
+                        )
                 with self._option():
                     with self._group():
                         self._value_()
@@ -761,12 +829,12 @@ class SpiceParser(Parser):
                         self._value_()
                         self.add_last_node_to_name('output')
 
-                        def block24():
+                        def block25():
 
-                            def block25():
+                            def block26():
                                 self._sep_()
                                 self.name_last_node('sep')
-                            self._positive_closure(block25)
+                            self._positive_closure(block26)
                             self._value_()
                             self.add_last_node_to_name('input')
                             with self._optional():
@@ -778,11 +846,22 @@ class SpiceParser(Parser):
                                 self.name_last_node('sep')
                             self._value_()
                             self.add_last_node_to_name('output')
-                        self._closure(block24)
+
+                            self._define(
+                                ['sep'],
+                                ['input', 'output']
+                            )
+                        self._closure(block25)
+
+                        self._define(
+                            ['sep'],
+                            ['input', 'output']
+                        )
                 self._error(
                     'expecting one of: '
                     '<lp> <value>'
                 )
+
         self._define(
             ['expr', 'sep', 'type'],
             ['input', 'output']
@@ -836,6 +915,11 @@ class SpiceParser(Parser):
                         self._sep_()
                         self.name_last_node('sep')
                     self._rp_()
+
+                    self._define(
+                        ['sep'],
+                        ['negative', 'positive']
+                    )
                 with self._option():
                     self._node_()
                     self.add_last_node_to_name('positive')
@@ -843,6 +927,11 @@ class SpiceParser(Parser):
                     self.name_last_node('sep')
                     self._node_()
                     self.add_last_node_to_name('negative')
+
+                    self._define(
+                        ['sep'],
+                        ['negative', 'positive']
+                    )
                 with self._option():
                     self._value_()
                     self.name_last_node('coefficient')
@@ -851,6 +940,7 @@ class SpiceParser(Parser):
                     '<lp> <node> <value>'
                 )
         self._join(block5, sep5)
+
         self._define(
             ['coefficient', 'sep', 'value'],
             ['negative', 'positive']
@@ -895,6 +985,7 @@ class SpiceParser(Parser):
                     '<dev> <value>'
                 )
         self._join(block5, sep5)
+
         self._define(
             ['sep', 'value'],
             ['coefficient', 'device']
@@ -924,8 +1015,18 @@ class SpiceParser(Parser):
                 self._cut()
                 self._sep_()
                 self.name_last_node('sep')
+
+                self._define(
+                    ['sep'],
+                    []
+                )
             self._gen_expr_()
             self.name_last_node('dc_value')
+
+            self._define(
+                ['dc_value', 'sep'],
+                []
+            )
         with self._optional():
             self._sep_()
             self.name_last_node('sep')
@@ -941,11 +1042,32 @@ class SpiceParser(Parser):
                     self.name_last_node('sep')
                     self._gen_expr_()
                     self.name_last_node('ac_phase')
+
+                    self._define(
+                        ['ac_phase', 'sep'],
+                        []
+                    )
+
+                self._define(
+                    ['ac_magnitude', 'ac_phase', 'sep'],
+                    []
+                )
+
+            self._define(
+                ['ac_magnitude', 'ac_phase', 'sep'],
+                []
+            )
         with self._optional():
             self._sep_()
             self.name_last_node('sep')
             self._transient_specification_()
             self.name_last_node('transient')
+
+            self._define(
+                ['sep', 'transient'],
+                []
+            )
+
         self._define(
             ['ac_magnitude', 'ac_phase', 'dc_value', 'dev', 'negative', 'positive', 'sep', 'transient'],
             []
@@ -980,11 +1102,22 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._gen_expr_()
             self.name_last_node('area')
+
+            self._define(
+                ['area', 'sep'],
+                []
+            )
         with self._optional():
             self._sep_()
             self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'sep'],
+                []
+            )
+
         self._define(
             ['area', 'dev', 'drain', 'gate', 'model', 'parameters', 'sep', 'source'],
             []
@@ -1005,6 +1138,11 @@ class SpiceParser(Parser):
                 self._token('L')
             self._dev_()
             self.add_last_node_to_name('inductor')
+
+            self._define(
+                ['sep'],
+                ['inductor']
+            )
         self._positive_closure(block1)
         self._sep_()
         self.name_last_node('sep')
@@ -1015,6 +1153,12 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._model_name_()
             self.name_last_node('model')
+
+            self._define(
+                ['model', 'sep'],
+                []
+            )
+
         self._define(
             ['dev', 'model', 'sep', 'value'],
             ['inductor']
@@ -1048,6 +1192,16 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._model_name_()
                         self.name_last_node('model')
+
+                        self._define(
+                            ['model', 'sep'],
+                            []
+                        )
+
+                    self._define(
+                        ['model', 'sep', 'value'],
+                        []
+                    )
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
@@ -1058,6 +1212,16 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._gen_expr_()
                         self.name_last_node('value')
+
+                        self._define(
+                            ['sep', 'value'],
+                            []
+                        )
+
+                    self._define(
+                        ['model', 'sep', 'value'],
+                        []
+                    )
                 self._error(
                     'expecting one of: '
                     '<sep>'
@@ -1067,6 +1231,12 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'sep'],
+                []
+            )
+
         self._define(
             ['dev', 'model', 'negative', 'parameters', 'positive', 'sep', 'value'],
             []
@@ -1124,7 +1294,7 @@ class SpiceParser(Parser):
                                 self._sep_()
                                 self.name_last_node('sep')
 
-                            def sep18():
+                            def sep19():
                                 with self._group():
                                     with self._optional():
                                         self._sep_()
@@ -1134,10 +1304,20 @@ class SpiceParser(Parser):
                                         self._sep_()
                                         self.name_last_node('sep')
 
-                            def block18():
+                                    self._define(
+                                        ['sep'],
+                                        []
+                                    )
+
+                            def block19():
                                 self._value_()
                                 self.name_last_node('value')
-                            self._join(block18, sep18)
+                            self._join(block19, sep19)
+
+                            self._define(
+                                ['name', 'sep', 'value'],
+                                []
+                            )
                         with self._option():
                             self._parameter_()
                             self.name_last_node('parameter')
@@ -1147,6 +1327,12 @@ class SpiceParser(Parser):
                         )
                 self.name_last_node('param')
             self._join(block12, sep12)
+
+            self._define(
+                ['name', 'param', 'parameter', 'sep', 'value'],
+                []
+            )
+
         self._define(
             ['bulk', 'dev', 'drain', 'gate', 'model', 'name', 'param', 'parameter', 'sep', 'source', 'value'],
             []
@@ -1179,11 +1365,21 @@ class SpiceParser(Parser):
             self.name_last_node('substrate')
             self._sep_()
             self.name_last_node('sep')
+
+            self._define(
+                ['sep', 'substrate'],
+                []
+            )
         with self._optional():
             self._token('DT')
             self.name_last_node('thermal')
             self._sep_()
             self.name_last_node('sep')
+
+            self._define(
+                ['sep', 'thermal'],
+                []
+            )
         self._model_name_()
         self.name_last_node('model')
         with self._optional():
@@ -1191,11 +1387,22 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._gen_expr_()
             self.name_last_node('area')
+
+            self._define(
+                ['area', 'sep'],
+                []
+            )
         with self._optional():
             self._sep_()
             self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'sep'],
+                []
+            )
+
         self._define(
             ['area', 'base', 'collector', 'dev', 'emitter', 'model', 'parameters', 'sep', 'substrate', 'thermal'],
             []
@@ -1214,13 +1421,9 @@ class SpiceParser(Parser):
                     self._node_()
                 self._error(
                     'expecting one of: '
-                    "[0-9]+ '~'"
+                    "'[' [0-9]+"
                 )
         self.name_last_node('substrate')
-        self._define(
-            ['substrate'],
-            []
-        )
 
     @tatsumasu('Resistor')
     def _resistor_(self):  # noqa
@@ -1250,6 +1453,16 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._model_name_()
                         self.name_last_node('model')
+
+                        self._define(
+                            ['model', 'sep'],
+                            []
+                        )
+
+                    self._define(
+                        ['model', 'sep', 'value'],
+                        []
+                    )
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
@@ -1260,6 +1473,16 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._gen_expr_()
                         self.name_last_node('value')
+
+                        self._define(
+                            ['sep', 'value'],
+                            []
+                        )
+
+                    self._define(
+                        ['model', 'sep', 'value'],
+                        []
+                    )
                 self._error(
                     'expecting one of: '
                     '<sep>'
@@ -1269,6 +1492,12 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'sep'],
+                []
+            )
+
         self._define(
             ['dev', 'model', 'negative', 'parameters', 'positive', 'sep', 'value'],
             []
@@ -1308,9 +1537,14 @@ class SpiceParser(Parser):
                                     self._token('OFF')
                                 self._error(
                                     'expecting one of: '
-                                    "'ON' 'OFF'"
+                                    "'OFF' 'ON'"
                                 )
                         self.name_last_node('initial_state')
+
+                        self._define(
+                            ['initial_state', 'sep'],
+                            []
+                        )
                     self._sep_()
                     self.name_last_node('sep')
                     self._token('control')
@@ -1323,6 +1557,11 @@ class SpiceParser(Parser):
                         self._sep_()
                         self.name_last_node('sep')
                     self._braced_expression_()
+
+                    self._define(
+                        ['initial_state', 'model', 'sep'],
+                        []
+                    )
                 with self._option():
                     self._node_()
                     self.name_last_node('control_p')
@@ -1345,13 +1584,24 @@ class SpiceParser(Parser):
                                     self._token('OFF')
                                 self._error(
                                     'expecting one of: '
-                                    "'ON' 'OFF'"
+                                    "'OFF' 'ON'"
                                 )
                         self.name_last_node('initial_state')
+
+                        self._define(
+                            ['initial_state', 'sep'],
+                            []
+                        )
+
+                    self._define(
+                        ['control_n', 'control_p', 'initial_state', 'model', 'sep'],
+                        []
+                    )
                 self._error(
                     'expecting one of: '
                     '<model_name> <node>'
                 )
+
         self._define(
             ['control_n', 'control_p', 'dev', 'initial_state', 'model', 'negative', 'positive', 'sep'],
             []
@@ -1370,6 +1620,11 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._node_()
             self.add_last_node_to_name('node')
+
+            self._define(
+                ['sep'],
+                ['node']
+            )
         self._closure(block1)
         with self._optional():
             self._token(':')
@@ -1380,6 +1635,12 @@ class SpiceParser(Parser):
                 self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'params', 'sep'],
+                []
+            )
+
         self._define(
             ['dev', 'parameters', 'params', 'sep'],
             ['node']
@@ -1409,8 +1670,18 @@ class SpiceParser(Parser):
                 self._cut()
                 self._sep_()
                 self.name_last_node('sep')
+
+                self._define(
+                    ['sep'],
+                    []
+                )
             self._gen_expr_()
             self.name_last_node('dc_value')
+
+            self._define(
+                ['dc_value', 'sep'],
+                []
+            )
         with self._optional():
             self._sep_()
             self.name_last_node('sep')
@@ -1426,11 +1697,32 @@ class SpiceParser(Parser):
                     self.name_last_node('sep')
                     self._gen_expr_()
                     self.name_last_node('ac_phase')
+
+                    self._define(
+                        ['ac_phase', 'sep'],
+                        []
+                    )
+
+                self._define(
+                    ['ac_magnitude', 'ac_phase', 'sep'],
+                    []
+                )
+
+            self._define(
+                ['ac_magnitude', 'ac_phase', 'sep'],
+                []
+            )
         with self._optional():
             self._sep_()
             self.name_last_node('sep')
             self._transient_specification_()
             self.name_last_node('transient')
+
+            self._define(
+                ['sep', 'transient'],
+                []
+            )
+
         self._define(
             ['ac_magnitude', 'ac_phase', 'dc_value', 'dev', 'negative', 'positive', 'sep', 'transient'],
             []
@@ -1467,10 +1759,10 @@ class SpiceParser(Parser):
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                "'PULSE' <transient_pulse> 'SIN'"
-                "<transient_sin> 'EXP' <transient_exp>"
-                "'PAT' <transient_pat> 'PWL'"
-                "<transient_pwl> 'SFFM' <transient_sffm>"
+                "'EXP' 'PAT' 'PULSE' 'PWL' 'SFFM' 'SIN'"
+                '<transient_exp> <transient_pat>'
+                '<transient_pulse> <transient_pwl>'
+                '<transient_sffm> <transient_sin>'
             )
 
     @tatsumasu('TransientPulse')
@@ -1494,15 +1786,26 @@ class SpiceParser(Parser):
                         self._sep_()
                         self.name_last_node('sep')
                     self._rp_()
+
+                    self._define(
+                        ['sep'],
+                        []
+                    )
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
                     self._pulse_arguments_()
                     self.name_last_node('@')
+
+                    self._define(
+                        ['sep'],
+                        []
+                    )
                 self._error(
                     'expecting one of: '
                     '<lp> <sep>'
                 )
+
         self._define(
             ['sep', 'type'],
             []
@@ -1524,6 +1827,7 @@ class SpiceParser(Parser):
             self._gen_expr_()
             self.name_last_node('value')
         self._join(block2, sep2)
+
         self._define(
             ['sep', 'v1', 'value'],
             []
@@ -1550,15 +1854,26 @@ class SpiceParser(Parser):
                         self._sep_()
                         self.name_last_node('sep')
                     self._rp_()
+
+                    self._define(
+                        ['sep'],
+                        []
+                    )
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
                     self._sin_arguments_()
                     self.name_last_node('@')
+
+                    self._define(
+                        ['sep'],
+                        []
+                    )
                 self._error(
                     'expecting one of: '
                     '<lp> <sep>'
                 )
+
         self._define(
             ['sep', 'type'],
             []
@@ -1588,6 +1903,7 @@ class SpiceParser(Parser):
             self._gen_expr_()
             self.name_last_node('value')
         self._join(block6, sep6)
+
         self._define(
             ['freq', 'sep', 'v0', 'va', 'value'],
             []
@@ -1614,15 +1930,26 @@ class SpiceParser(Parser):
                         self._sep_()
                         self.name_last_node('sep')
                     self._rp_()
+
+                    self._define(
+                        ['sep'],
+                        []
+                    )
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
                     self._exp_arguments_()
                     self.name_last_node('@')
+
+                    self._define(
+                        ['sep'],
+                        []
+                    )
                 self._error(
                     'expecting one of: '
                     '<lp> <sep>'
                 )
+
         self._define(
             ['sep', 'type'],
             []
@@ -1648,6 +1975,7 @@ class SpiceParser(Parser):
             self._gen_expr_()
             self.name_last_node('value')
         self._join(block4, sep4)
+
         self._define(
             ['sep', 'v1', 'v2', 'value'],
             []
@@ -1674,15 +2002,26 @@ class SpiceParser(Parser):
                         self._sep_()
                         self.name_last_node('sep')
                     self._rp_()
+
+                    self._define(
+                        ['sep'],
+                        []
+                    )
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
                     self._pat_arguments_()
                     self.name_last_node('@')
+
+                    self._define(
+                        ['sep'],
+                        []
+                    )
                 self._error(
                     'expecting one of: '
                     '<lp> <sep>'
                 )
+
         self._define(
             ['sep', 'type'],
             []
@@ -1721,6 +2060,12 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._binary_()
             self.name_last_node('repeat')
+
+            self._define(
+                ['repeat', 'sep'],
+                []
+            )
+
         self._define(
             ['data', 'repeat', 'sep', 'td', 'tf', 'tr', 'tsample', 'vhi', 'vlo'],
             []
@@ -1741,8 +2086,9 @@ class SpiceParser(Parser):
                     self.name_last_node('@')
                 self._error(
                     'expecting one of: '
-                    '<pwl_file_arguments> <pwl_arguments>'
+                    '<pwl_arguments> <pwl_file_arguments>'
                 )
+
         self._define(
             ['type'],
             []
@@ -1763,6 +2109,11 @@ class SpiceParser(Parser):
                     self._filename_()
                     self.name_last_node('filename')
                     self._double_quote_()
+
+                    self._define(
+                        ['filename'],
+                        []
+                    )
                 with self._option():
                     self._filename_()
                     self.name_last_node('filename')
@@ -1775,6 +2126,12 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'sep'],
+                []
+            )
+
         self._define(
             ['filename', 'parameters', 'sep'],
             []
@@ -1786,17 +2143,17 @@ class SpiceParser(Parser):
             with self._choice():
                 with self._option():
 
-                    def block0():
+                    def block1():
                         self._sep_()
                         self.name_last_node('sep')
-                    self._closure(block0)
+                    self._closure(block1)
                     self._lp_()
                     self._cut()
 
-                    def block2():
+                    def block3():
                         self._sep_()
                         self.name_last_node('sep')
-                    self._closure(block2)
+                    self._closure(block3)
                     self._value_()
                     self.name_last_node('t')
                     self._sep_()
@@ -1804,7 +2161,7 @@ class SpiceParser(Parser):
                     self._value_()
                     self.name_last_node('value')
 
-                    def block7():
+                    def block8():
                         self._sep_()
                         self.name_last_node('sep')
                         self._value_()
@@ -1813,21 +2170,36 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._value_()
                         self.name_last_node('value')
-                    self._closure(block7)
+
+                        self._define(
+                            ['sep', 't', 'value'],
+                            []
+                        )
+                    self._closure(block8)
                     with self._optional():
                         self._sep_()
                         self.name_last_node('sep')
                         self._parameters_()
                         self.name_last_node('parameters')
 
-                    def block14():
+                        self._define(
+                            ['parameters', 'sep'],
+                            []
+                        )
+
+                    def block15():
                         self._sep_()
                         self.name_last_node('sep')
-                    self._closure(block14)
+                    self._closure(block15)
                     self._rp_()
+
+                    self._define(
+                        ['parameters', 'sep', 't', 'value'],
+                        []
+                    )
                 with self._option():
 
-                    def block16():
+                    def block17():
                         self._sep_()
                         self.name_last_node('sep')
                         self._value_()
@@ -1836,7 +2208,12 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._value_()
                         self.name_last_node('value')
-                    self._positive_closure(block16)
+
+                        self._define(
+                            ['sep', 't', 'value'],
+                            []
+                        )
+                    self._positive_closure(block17)
                 self._error(
                     'expecting one of: '
                     '<lp> <sep>'
@@ -1846,6 +2223,12 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'sep'],
+                []
+            )
+
         self._define(
             ['parameters', 'sep', 't', 'value'],
             []
@@ -1872,15 +2255,26 @@ class SpiceParser(Parser):
                         self._sep_()
                         self.name_last_node('sep')
                     self._rp_()
+
+                    self._define(
+                        ['sep'],
+                        []
+                    )
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
                     self._sffm_arguments_()
                     self.name_last_node('@')
+
+                    self._define(
+                        ['sep'],
+                        []
+                    )
                 self._error(
                     'expecting one of: '
                     '<lp> <sep>'
                 )
+
         self._define(
             ['sep', 'type'],
             []
@@ -1906,6 +2300,7 @@ class SpiceParser(Parser):
             self._gen_expr_()
             self.name_last_node('value')
         self._join(block4, sep4)
+
         self._define(
             ['sep', 'v0', 'va', 'value'],
             []
@@ -1943,14 +2338,13 @@ class SpiceParser(Parser):
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                "'.EMBEDDEDSAMPLING'"
-                "<embedded_sampling_cmd> '.INCLUDE'"
-                "'.INCL' '.INC' <include_cmd> '.LIB'"
-                '<lib_cmd> <data_cmd> <ic_cmd>'
-                '<model_cmd> <param_cmd> <subckt_cmd>'
-                "<netlist_cmds> '.SUBCKT' '.SIMULATOR'"
-                "<simulator_cmd> '.TITLE' <title_cmd>"
-                "'.AC' <ac_cmd> '.DC' <dc_cmd>"
+                "'.AC' '.DC' '.EMBEDDEDSAMPLING' '.INC'"
+                "'.INCL' '.INCLUDE' '.LIB' '.SIMULATOR'"
+                "'.SUBCKT' '.TITLE' <ac_cmd> <data_cmd>"
+                '<dc_cmd> <embedded_sampling_cmd>'
+                '<ic_cmd> <include_cmd> <lib_cmd>'
+                '<model_cmd> <netlist_cmds> <param_cmd>'
+                '<simulator_cmd> <subckt_cmd> <title_cmd>'
             )
 
     @tatsumasu('NetlistCmds')
@@ -1973,9 +2367,9 @@ class SpiceParser(Parser):
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                "'.DATA' <data_cmd> '.IC' '.DCVOLT'"
-                "<ic_cmd> '.MODEL' <model_cmd> '.PARAM'"
-                "<param_cmd> '.SUBCKT' <subckt_cmd>"
+                "'.DATA' '.DCVOLT' '.IC' '.MODEL'"
+                "'.PARAM' '.SUBCKT' <data_cmd> <ic_cmd>"
+                '<model_cmd> <param_cmd> <subckt_cmd>'
             )
 
     @tatsumasu('ACCmd')
@@ -2003,25 +2397,36 @@ class SpiceParser(Parser):
                         self.name_last_node('sep')
                         self._value_()
                         self.name_last_node('end')
+
+                        self._define(
+                            ['end', 'points', 'sep', 'start', 'sweep'],
+                            []
+                        )
                 with self._option():
                     with self._group():
                         self._token('DATA')
                         self.name_last_node('sweep')
 
-                        def block10():
-                            self._st_()
-                        self._closure(block10)
-                        self._token('=')
-
                         def block11():
                             self._st_()
                         self._closure(block11)
+                        self._token('=')
+
+                        def block12():
+                            self._st_()
+                        self._closure(block12)
                         self._id_()
                         self.name_last_node('table')
+
+                        self._define(
+                            ['sweep', 'table'],
+                            []
+                        )
                 self._error(
                     'expecting one of: '
-                    "<ac_sweep_type> 'DATA'"
+                    "'DATA' <ac_sweep_type>"
                 )
+
         self._define(
             ['cmd', 'end', 'points', 'sep', 'start', 'sweep', 'table'],
             []
@@ -2038,7 +2443,7 @@ class SpiceParser(Parser):
                 self._token('DEC')
             self._error(
                 'expecting one of: '
-                "'LIN' 'OCT' 'DEC'"
+                "'DEC' 'LIN' 'OCT'"
             )
 
     @tatsumasu('DataCmd')
@@ -2056,6 +2461,11 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._id_()
             self.name_last_node('name')
+
+            self._define(
+                ['name', 'sep'],
+                []
+            )
         self._positive_closure(block3)
 
         def block6():
@@ -2063,10 +2473,16 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
             self._value_()
             self.name_last_node('value')
+
+            self._define(
+                ['sep', 'value'],
+                []
+            )
         self._positive_closure(block6)
         self._end_sep_()
         self.name_last_node('sep')
         self._token('.ENDDATA')
+
         self._define(
             ['cmd', 'name', 'sep', 'table', 'value'],
             []
@@ -2085,20 +2501,25 @@ class SpiceParser(Parser):
                         self._token('DATA')
                         self.name_last_node('sweep')
 
-                        def block3():
-                            self._st_()
-                        self._closure(block3)
-                        self._token('=')
-
                         def block4():
                             self._st_()
                         self._closure(block4)
+                        self._token('=')
+
+                        def block5():
+                            self._st_()
+                        self._closure(block5)
                         self._id_()
                         self.name_last_node('table')
+
+                        self._define(
+                            ['sep', 'sweep', 'table'],
+                            []
+                        )
                 with self._option():
                     with self._group():
 
-                        def block6():
+                        def block7():
                             with self._choice():
                                 with self._option():
                                     with self._group():
@@ -2107,6 +2528,11 @@ class SpiceParser(Parser):
                                             self.name_last_node('sep')
                                             self._token('LIN')
                                             self.name_last_node('sweep')
+
+                                            self._define(
+                                                ['sep', 'sweep'],
+                                                []
+                                            )
                                         self._sep_()
                                         self.name_last_node('sep')
                                         self._id_()
@@ -2123,6 +2549,11 @@ class SpiceParser(Parser):
                                         self.name_last_node('sep')
                                         self._value_()
                                         self.name_last_node('step')
+
+                                        self._define(
+                                            ['name', 'sep', 'start', 'step', 'stop', 'sweep'],
+                                            []
+                                        )
                                 with self._option():
                                     with self._group():
                                         self._sep_()
@@ -2154,6 +2585,11 @@ class SpiceParser(Parser):
                                         self.name_last_node('sep')
                                         self._integer_()
                                         self.name_last_node('points')
+
+                                        self._define(
+                                            ['name', 'points', 'sep', 'start', 'stop', 'sweep'],
+                                            []
+                                        )
                                 with self._option():
                                     with self._group():
                                         self._sep_()
@@ -2167,24 +2603,30 @@ class SpiceParser(Parser):
                                         self._sep_()
                                         self.name_last_node('sep')
 
-                                        def sep33():
+                                        def sep35():
                                             with self._group():
                                                 self._sep_()
                                                 self.name_last_node('sep')
 
-                                        def block33():
+                                        def block35():
                                             self._value_()
                                             self.name_last_node('point')
-                                        self._positive_join(block33, sep33)
+                                        self._positive_join(block35, sep35)
+
+                                        self._define(
+                                            ['name', 'point', 'sep', 'sweep'],
+                                            []
+                                        )
                                 self._error(
                                     'expecting one of: '
                                     '<sep>'
                                 )
-                        self._positive_closure(block6)
+                        self._positive_closure(block7)
                 self._error(
                     'expecting one of: '
                     '<sep>'
                 )
+
         self._define(
             ['cmd', 'name', 'point', 'points', 'sep', 'start', 'step', 'stop', 'sweep', 'table'],
             []
@@ -2204,70 +2646,80 @@ class SpiceParser(Parser):
                         self._token('param')
                         self.name_last_node('parameter')
 
-                        def block3():
-                            self._st_()
-                        self._closure(block3)
-                        self._token('=')
-
                         def block4():
                             self._st_()
                         self._closure(block4)
+                        self._token('=')
 
-                        def sep5():
+                        def block5():
+                            self._st_()
+                        self._closure(block5)
+
+                        def sep6():
                             with self._group():
                                 self._es_sep_()
 
-                        def block5():
+                        def block6():
                             self._id_()
                             self.name_last_node('name')
-                        self._positive_join(block5, sep5)
+                        self._positive_join(block6, sep6)
                         self._sep_()
                         self.name_last_node('sep')
                         self._token('type')
                         self.name_last_node('parameter')
 
-                        def block9():
-                            self._st_()
-                        self._closure(block9)
-                        self._token('=')
-
                         def block10():
                             self._st_()
                         self._closure(block10)
+                        self._token('=')
 
-                        def sep11():
+                        def block11():
+                            self._st_()
+                        self._closure(block11)
+
+                        def sep12():
                             with self._group():
                                 self._es_sep_()
 
-                        def block11():
+                        def block12():
                             self._es_parameter_type_()
                             self.name_last_node('type')
-                        self._positive_join(block11, sep11)
+                        self._positive_join(block12, sep12)
 
-                        def block13():
+                        def block14():
                             self._sep_()
                             self.name_last_node('sep')
                             self._es_parameter_name_()
                             self.name_last_node('parameter')
 
-                            def block16():
-                                self._st_()
-                            self._closure(block16)
-                            self._token('=')
-
                             def block17():
                                 self._st_()
                             self._closure(block17)
+                            self._token('=')
 
-                            def sep18():
+                            def block18():
+                                self._st_()
+                            self._closure(block18)
+
+                            def sep19():
                                 with self._group():
                                     self._es_sep_()
 
-                            def block18():
+                            def block19():
                                 self._gen_expr_()
                                 self.name_last_node('value')
-                            self._positive_join(block18, sep18)
-                        self._closure(block13)
+                            self._positive_join(block19, sep19)
+
+                            self._define(
+                                ['parameter', 'sep', 'value'],
+                                []
+                            )
+                        self._closure(block14)
+
+                        self._define(
+                            ['name', 'parameter', 'sep', 'type', 'value'],
+                            []
+                        )
                 with self._option():
                     with self._group():
                         self._sep_()
@@ -2275,21 +2727,27 @@ class SpiceParser(Parser):
                         self._token('useExpr')
                         self.name_last_node('parameter')
 
-                        def block22():
-                            self._st_()
-                        self._closure(block22)
-                        self._token('=')
-                        self._cut()
-
                         def block23():
                             self._st_()
                         self._closure(block23)
+                        self._token('=')
+                        self._cut()
+
+                        def block24():
+                            self._st_()
+                        self._closure(block24)
                         self._boolean_()
                         self.name_last_node('value')
+
+                        self._define(
+                            ['parameter', 'sep', 'value'],
+                            []
+                        )
                 self._error(
                     'expecting one of: '
                     '<sep>'
                 )
+
         self._define(
             ['cmd', 'name', 'parameter', 'sep', 'type', 'value'],
             []
@@ -2306,7 +2764,7 @@ class SpiceParser(Parser):
                 self._token('GAMMA')
             self._error(
                 'expecting one of: '
-                "'UNIFORM' 'NORMAL' 'GAMMA'"
+                "'GAMMA' 'NORMAL' 'UNIFORM'"
             )
 
     @tatsumasu()
@@ -2326,8 +2784,8 @@ class SpiceParser(Parser):
                 self._token('upper_bounds')
             self._error(
                 'expecting one of: '
-                "'alpha' 'beta' 'means' 'std_deviations'"
-                "'lower_bounds' 'upper_bounds'"
+                "'alpha' 'beta' 'lower_bounds' 'means'"
+                "'std_deviations' 'upper_bounds'"
             )
 
     @tatsumasu()
@@ -2349,7 +2807,7 @@ class SpiceParser(Parser):
                     self._token('.DCVOLT')
                 self._error(
                     'expecting one of: '
-                    "'.IC' '.DCVOLT'"
+                    "'.DCVOLT' '.IC'"
                 )
         self.name_last_node('cmd')
         self._cut()
@@ -2357,7 +2815,7 @@ class SpiceParser(Parser):
             with self._choice():
                 with self._option():
 
-                    def block2():
+                    def block3():
                         self._sep_()
                         self.name_last_node('sep')
                         self._token('V')
@@ -2367,35 +2825,46 @@ class SpiceParser(Parser):
                         self.name_last_node('node')
                         self._rp_()
 
-                        def block5():
-                            self._st_()
-                        self._closure(block5)
-                        self._token('=')
-
                         def block6():
                             self._st_()
                         self._closure(block6)
+                        self._token('=')
+
+                        def block7():
+                            self._st_()
+                        self._closure(block7)
                         self._gen_expr_()
                         self.name_last_node('value')
-                    self._positive_closure(block2)
+
+                        self._define(
+                            ['node', 'sep', 'value'],
+                            []
+                        )
+                    self._positive_closure(block3)
                 with self._option():
 
-                    def block8():
+                    def block9():
                         self._sep_()
                         self.name_last_node('sep')
                         self._node_()
                         self.name_last_node('node')
 
-                        def block11():
+                        def block12():
                             self._st_()
-                        self._positive_closure(block11)
+                        self._positive_closure(block12)
                         self._gen_expr_()
                         self.name_last_node('value')
-                    self._positive_closure(block8)
+
+                        self._define(
+                            ['node', 'sep', 'value'],
+                            []
+                        )
+                    self._positive_closure(block9)
                 self._error(
                     'expecting one of: '
                     '<sep>'
                 )
+
         self._define(
             ['cmd', 'node', 'sep', 'value'],
             []
@@ -2413,7 +2882,7 @@ class SpiceParser(Parser):
                     self._token('.INC')
                 self._error(
                     'expecting one of: '
-                    "'.INCLUDE' '.INCL' '.INC'"
+                    "'.INC' '.INCL' '.INCLUDE'"
                 )
         self.name_last_node('cmd')
         self._cut()
@@ -2427,19 +2896,30 @@ class SpiceParser(Parser):
                     self._filename_()
                     self.name_last_node('filename')
                     self._double_quote_()
+
+                    self._define(
+                        ['filename'],
+                        []
+                    )
                 with self._option():
                     self._single_quote_()
                     self._cut()
                     self._filename_()
                     self.name_last_node('filename')
                     self._single_quote_()
+
+                    self._define(
+                        ['filename'],
+                        []
+                    )
                 with self._option():
                     self._filename_()
                     self.name_last_node('filename')
                 self._error(
                     'expecting one of: '
-                    '<double_quote> <single_quote> <filename>'
+                    '<double_quote> <filename> <single_quote>'
                 )
+
         self._define(
             ['cmd', 'filename', 'sep'],
             []
@@ -2462,8 +2942,9 @@ class SpiceParser(Parser):
                     self.name_last_node('block')
                 self._error(
                     'expecting one of: '
-                    '<lib_call> <lib_block>'
+                    '<lib_block> <lib_call>'
                 )
+
         self._define(
             ['block', 'call', 'cmd', 'sep'],
             []
@@ -2479,23 +2960,34 @@ class SpiceParser(Parser):
                     self._filename_()
                     self.name_last_node('filename')
                     self._double_quote_()
+
+                    self._define(
+                        ['filename'],
+                        []
+                    )
                 with self._option():
                     self._single_quote_()
                     self._cut()
                     self._filename_()
                     self.name_last_node('filename')
                     self._single_quote_()
+
+                    self._define(
+                        ['filename'],
+                        []
+                    )
                 with self._option():
                     self._filename_()
                     self.name_last_node('filename')
                 self._error(
                     'expecting one of: '
-                    '<double_quote> <single_quote> <filename>'
+                    '<double_quote> <filename> <single_quote>'
                 )
         self._sep_()
         self.name_last_node('sep')
         self._id_()
         self.name_last_node('entry')
+
         self._define(
             ['entry', 'filename', 'sep'],
             []
@@ -2531,15 +3023,26 @@ class SpiceParser(Parser):
                         self._sep_()
                         self.name_last_node('sep')
                     self._rp_()
+
+                    self._define(
+                        ['parameters', 'sep'],
+                        []
+                    )
                 with self._option():
                     self._sep_()
                     self.name_last_node('sep')
                     self._parameters_()
                     self.name_last_node('parameters')
+
+                    self._define(
+                        ['parameters', 'sep'],
+                        []
+                    )
                 self._error(
                     'expecting one of: '
                     '<lp> <sep>'
                 )
+
         self._define(
             ['cmd', 'name', 'parameters', 'sep', 'type'],
             []
@@ -2600,11 +3103,11 @@ class SpiceParser(Parser):
                 self._token('ZOD')
             self._error(
                 'expecting one of: '
-                "'CAP' 'CORE' 'C' 'DIG' 'D' 'IND'"
-                "'ISWITCH' 'LIN' 'LTRA' 'L' 'NJF' 'NMF'"
-                "'NMOS' 'NPN' 'PJF' 'PMF' 'PMOS' 'PNP'"
-                "'RES' 'R' 'SWITCH' 'TRANSLINE' 'VSWITCH'"
-                "'MEMRISTOR' 'ZOD'"
+                "'C' 'CAP' 'CORE' 'D' 'DIG' 'IND'"
+                "'ISWITCH' 'L' 'LIN' 'LTRA' 'MEMRISTOR'"
+                "'NJF' 'NMF' 'NMOS' 'NPN' 'PJF' 'PMF'"
+                "'PMOS' 'PNP' 'R' 'RES' 'SWITCH'"
+                "'TRANSLINE' 'VSWITCH' 'ZOD'"
             )
 
     @tatsumasu('ParamCmd')
@@ -2616,6 +3119,7 @@ class SpiceParser(Parser):
         self.name_last_node('sep')
         self._parameters_()
         self.name_last_node('parameters')
+
         self._define(
             ['cmd', 'parameters', 'sep'],
             []
@@ -2630,6 +3134,7 @@ class SpiceParser(Parser):
         self.name_last_node('sep')
         self._id_()
         self.name_last_node('simulator')
+
         self._define(
             ['cmd', 'sep', 'simulator'],
             []
@@ -2653,6 +3158,11 @@ class SpiceParser(Parser):
                 with self._ifnot():
                     self._token(':')
             self.name_last_node('node')
+
+            self._define(
+                ['node', 'sep'],
+                []
+            )
         self._closure(block3)
         with self._optional():
             self._sep_()
@@ -2664,6 +3174,11 @@ class SpiceParser(Parser):
                 self.name_last_node('sep')
             self._parameters_()
             self.name_last_node('parameters')
+
+            self._define(
+                ['parameters', 'sep'],
+                []
+            )
         self._cmd_net_sep_()
         self.name_last_node('sep')
 
@@ -2685,6 +3200,12 @@ class SpiceParser(Parser):
             self._positive_closure(block13)
             self._model_name_()
             self.name_last_node('name')
+
+            self._define(
+                ['name'],
+                []
+            )
+
         self._define(
             ['cmd', 'lines', 'name', 'node', 'parameters', 'sep'],
             []
@@ -2712,6 +3233,12 @@ class SpiceParser(Parser):
             self._positive_closure(block4)
             self._id_()
             self.name_last_node('entry')
+
+            self._define(
+                ['entry'],
+                []
+            )
+
         self._define(
             ['entry', 'lines', 'sep'],
             []
@@ -2724,6 +3251,7 @@ class SpiceParser(Parser):
         self._cut()
         self._text_()
         self.name_last_node('title')
+
         self._define(
             ['cmd', 'title'],
             []
@@ -2732,7 +3260,7 @@ class SpiceParser(Parser):
     @tatsumasu('Parameters')
     def _parameters_(self):  # noqa
         self._parameter_()
-        self.name_last_node('@')
+        self.add_last_node_to_name('@')
 
         def block1():
             with self._group():
@@ -2741,20 +3269,17 @@ class SpiceParser(Parser):
                         with self._group():
                             with self._optional():
                                 self._sep_()
-                                self.name_last_node('@')
                             self._comma_()
                             with self._optional():
                                 self._sep_()
-                                self.name_last_node('@')
                     with self._option():
                         self._sep_()
-                        self.name_last_node('@')
                     self._error(
                         'expecting one of: '
                         '<comma> <sep>'
                     )
             self._parameter_()
-            self.name_last_node('@')
+            self.add_last_node_to_name('@')
         self._closure(block1)
 
     @tatsumasu('Parameter')
@@ -2782,7 +3307,13 @@ class SpiceParser(Parser):
                 self.name_last_node('sep')
             self._gen_expr_()
             self.name_last_node('value')
+
+            self._define(
+                ['sep', 'value'],
+                []
+            )
         self._closure(block4)
+
         self._define(
             ['name', 'sep', 'value'],
             []
@@ -2799,13 +3330,9 @@ class SpiceParser(Parser):
                 self.name_last_node('value')
             self._error(
                 'expecting one of: '
-                '<lc> <braced_expression> <real_value>'
-                '<imag_value> <value>'
+                '<braced_expression> <imag_value> <lc>'
+                '<real_value> <value>'
             )
-        self._define(
-            ['braced', 'value'],
-            []
-        )
 
     @tatsumasu('TableFile')
     def _tablefile_(self):  # noqa
@@ -2827,6 +3354,11 @@ class SpiceParser(Parser):
                     self._filename_()
                     self.name_last_node('filename')
                     self._double_quote_()
+
+                    self._define(
+                        ['filename'],
+                        []
+                    )
                 with self._option():
                     self._filename_()
                     self.name_last_node('filename')
@@ -2838,6 +3370,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['filename', 'func', 'sep'],
             []
@@ -2855,6 +3388,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rc_()
+
         self._define(
             ['sep'],
             []
@@ -2872,6 +3406,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['sep'],
             []
@@ -2895,12 +3430,18 @@ class SpiceParser(Parser):
                         with self._optional():
                             self._sep_()
                             self.name_last_node('sep')
+
+                        self._define(
+                            ['sep'],
+                            []
+                        )
                 self._error(
                     'expecting one of: '
-                    '<sep> <comma>'
+                    '<comma> <sep>'
                 )
         self._node_()
         self.add_last_node_to_name('@')
+
         self._define(
             ['sep'],
             []
@@ -2918,13 +3459,9 @@ class SpiceParser(Parser):
                 self.name_last_node('term')
             self._error(
                 'expecting one of: '
-                '<conditional_expression> <ternary>'
-                '<add_sub> <term>'
+                '<add_sub> <conditional_expression>'
+                '<term> <ternary>'
             )
-        self._define(
-            ['term', 'ternary'],
-            []
-        )
 
     @tatsumasu('Ternary')
     @nomemo
@@ -2952,6 +3489,7 @@ class SpiceParser(Parser):
             self.name_last_node('sep')
         self._expression_()
         self.name_last_node('y')
+
         self._define(
             ['op', 'sep', 't', 'x', 'y'],
             []
@@ -2962,10 +3500,6 @@ class SpiceParser(Parser):
     def _conditional_expression_(self):  # noqa
         self._boolean_or_()
         self.name_last_node('expr')
-        self._define(
-            ['expr'],
-            []
-        )
 
     @tatsumasu('Or')
     @nomemo
@@ -2983,6 +3517,12 @@ class SpiceParser(Parser):
                 self.name_last_node('sep')
             self._boolean_or_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -3004,6 +3544,12 @@ class SpiceParser(Parser):
                 self.name_last_node('sep')
             self._boolean_xor_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -3025,6 +3571,12 @@ class SpiceParser(Parser):
                 self.name_last_node('sep')
             self._boolean_and_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -3038,6 +3590,7 @@ class SpiceParser(Parser):
             self.name_last_node('op')
         self._relational_()
         self.name_last_node('operator')
+
         self._define(
             ['op', 'operator'],
             []
@@ -3069,7 +3622,7 @@ class SpiceParser(Parser):
                             self._token('<')
                         self._error(
                             'expecting one of: '
-                            "'==' '!=' '>=' '<=' '>' '<'"
+                            "'!=' '<' '<=' '==' '>' '>='"
                         )
                 self.name_last_node('op')
                 with self._optional():
@@ -3077,20 +3630,21 @@ class SpiceParser(Parser):
                     self.name_last_node('sep')
                 self._expression_()
                 self.name_last_node('right')
+
+                self._define(
+                    ['left', 'op', 'right', 'sep'],
+                    []
+                )
             with self._option():
                 self._conditional_factor_()
                 self.name_last_node('factor')
             self._error(
                 'expecting one of: '
-                '<ternary> <term>'
-                '<conditional_expression> <add_sub>'
-                '<expression> <lp> <boolean>'
-                '<conditional_factor>'
+                '<add_sub> <boolean>'
+                '<conditional_expression>'
+                '<conditional_factor> <expression> <lp>'
+                '<term> <ternary>'
             )
-        self._define(
-            ['factor', 'left', 'op', 'right', 'sep'],
-            []
-        )
 
     @tatsumasu('ConditionalFactor')
     def _conditional_factor_(self):  # noqa
@@ -3106,17 +3660,18 @@ class SpiceParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._rp_()
+
+                self._define(
+                    ['expr', 'sep'],
+                    []
+                )
             with self._option():
                 self._boolean_()
                 self.name_last_node('boolean')
             self._error(
                 'expecting one of: '
-                "'(' <lp> 'TRUE' 'FALSE' <boolean>"
+                "'(' 'FALSE' 'TRUE' <boolean> <lp>"
             )
-        self._define(
-            ['boolean', 'expr', 'sep'],
-            []
-        )
 
     @tatsumasu('Term')
     def _term_(self):  # noqa
@@ -3147,6 +3702,12 @@ class SpiceParser(Parser):
                 self.name_last_node('sep')
             self._add_sub_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -3170,7 +3731,7 @@ class SpiceParser(Parser):
                         self._token('%')
                     self._error(
                         'expecting one of: '
-                        "'*' '/' '%'"
+                        "'%' '*' '/'"
                     )
             self.name_last_node('op')
             with self._optional():
@@ -3178,6 +3739,12 @@ class SpiceParser(Parser):
                 self.name_last_node('sep')
             self._prod_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -3199,6 +3766,7 @@ class SpiceParser(Parser):
             self.name_last_node('op')
         self._exp_()
         self.name_last_node('operator')
+
         self._define(
             ['op', 'operator'],
             []
@@ -3219,6 +3787,12 @@ class SpiceParser(Parser):
                 self.name_last_node('sep')
             self._exp_()
             self.name_last_node('right')
+
+            self._define(
+                ['op', 'right', 'sep'],
+                []
+            )
+
         self._define(
             ['left', 'op', 'right', 'sep'],
             []
@@ -3235,10 +3809,10 @@ class SpiceParser(Parser):
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                '<functions_1> <atan2> <ddx> <gauss>'
-                '<if_func> <limit> <functions_2> <rand>'
-                '<unif> <i_func> <v_func> <functions>'
-                '<lc> <var_id> <factor> <variable>'
+                '<atan2> <ddx> <factor> <functions>'
+                '<functions_1> <functions_2> <gauss>'
+                '<i_func> <if_func> <lc> <limit> <rand>'
+                '<unif> <v_func> <var_id> <variable>'
             )
 
     @tatsumasu('Variable')
@@ -3255,6 +3829,11 @@ class SpiceParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._rc_()
+
+                self._define(
+                    ['sep', 'variable'],
+                    []
+                )
             with self._option():
                 self._var_id_()
                 self.name_last_node('variable')
@@ -3263,14 +3842,10 @@ class SpiceParser(Parser):
                 self.name_last_node('factor')
             self._error(
                 'expecting one of: '
-                "'{' <lc> [a-zA-Z_`@#\\$][a-zA-Z0-"
-                '9_:`@#\\.\\$]*[a-zA-Z0-9_`@#\\.\\$] [a-zA-Z]'
-                '<var_id> <lp> <value> <factor>'
+                "'{' <factor> <lc> <lp> <value> <var_id>"
+                '[a-zA-Z] [a-zA-Z_`@#\\$][a-zA-Z0-'
+                '9_:`@#\\.\\$]*[a-zA-Z0-9_`@#\\.\\$]'
             )
-        self._define(
-            ['factor', 'sep', 'variable'],
-            []
-        )
 
     @tatsumasu('Factor')
     def _factor_(self):  # noqa
@@ -3286,18 +3861,19 @@ class SpiceParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._rp_()
+
+                self._define(
+                    ['sep'],
+                    []
+                )
             with self._option():
                 self._value_()
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                "'(' <lp> <real_value> <imag_value>"
+                "'(' <imag_value> <lp> <real_value>"
                 '<value>'
             )
-        self._define(
-            ['sep'],
-            []
-        )
 
     @tatsumasu('Functions')
     def _functions_(self):  # noqa
@@ -3326,16 +3902,17 @@ class SpiceParser(Parser):
                 self._v_func_()
             self._error(
                 'expecting one of: '
-                "'abs' 'ceil' 'ddt' 'floor' 'int' 'm'"
-                "'nint' 'sdt' 'sgn' 'stp' 'sqrt' 'uramp'"
-                "'Ph' 'Re' 'R' 'Img' 'acosh' 'acos'"
-                "'asinh' 'asin' 'arctan' 'atanh' 'atan'"
-                "'cosh' 'cos' 'exp' 'ln' 'log' 'log10'"
-                "'sinh' 'sin' 'tanh' 'tan' <functions_1>"
-                "'atan2' 'ddx' 'agauss' 'gauss' 'if'"
-                "<if_func> 'limit' 'min' 'max' 'pwrs'"
-                "'pow' 'pwr' 'sign' <functions_2> 'rand'"
-                "'aunif' 'unif' 'i' <i_func> 'v' <v_func>"
+                "'Img' 'Ph' 'R' 'Re' 'abs' 'acos' 'acosh'"
+                "'agauss' 'arctan' 'asin' 'asinh' 'atan'"
+                "'atan2' 'atanh' 'aunif' 'ceil' 'cos'"
+                "'cosh' 'ddt' 'ddx' 'exp' 'floor' 'gauss'"
+                "'i' 'if' 'int' 'limit' 'ln' 'log'"
+                "'log10' 'm' 'max' 'min' 'nint' 'pow'"
+                "'pwr' 'pwrs' 'rand' 'sdt' 'sgn' 'sign'"
+                "'sin' 'sinh' 'sqrt' 'stp' 'tan' 'tanh'"
+                "'unif' 'uramp' 'v' <functions_1>"
+                '<functions_2> <i_func> <if_func>'
+                '<v_func>'
             )
 
     @tatsumasu()
@@ -3410,12 +3987,12 @@ class SpiceParser(Parser):
                     self._token('tan')
                 self._error(
                     'expecting one of: '
-                    "'abs' 'ceil' 'ddt' 'floor' 'int' 'm'"
-                    "'nint' 'sdt' 'sgn' 'stp' 'sqrt' 'uramp'"
-                    "'Ph' 'Re' 'R' 'Img' 'acosh' 'acos'"
-                    "'asinh' 'asin' 'arctan' 'atanh' 'atan'"
-                    "'cosh' 'cos' 'exp' 'ln' 'log' 'log10'"
-                    "'sinh' 'sin' 'tanh' 'tan'"
+                    "'Img' 'Ph' 'R' 'Re' 'abs' 'acos' 'acosh'"
+                    "'arctan' 'asin' 'asinh' 'atan' 'atanh'"
+                    "'ceil' 'cos' 'cosh' 'ddt' 'exp' 'floor'"
+                    "'int' 'ln' 'log' 'log10' 'm' 'nint'"
+                    "'sdt' 'sgn' 'sin' 'sinh' 'sqrt' 'stp'"
+                    "'tan' 'tanh' 'uramp'"
                 )
         self.name_last_node('func')
         with self._optional():
@@ -3432,6 +4009,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep', 'x'],
             []
@@ -3464,6 +4042,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep', 'x', 'y'],
             []
@@ -3496,6 +4075,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['f', 'func', 'sep', 'x'],
             []
@@ -3546,6 +4126,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['alpha', 'func', 'mu', 'n', 'sep'],
             []
@@ -3571,6 +4152,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['device', 'func', 'sep'],
             []
@@ -3612,6 +4194,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep', 't', 'x', 'y'],
             []
@@ -3653,6 +4236,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep', 'x', 'y', 'z'],
             []
@@ -3676,7 +4260,7 @@ class SpiceParser(Parser):
                     self._token('sign')
                 self._error(
                     'expecting one of: '
-                    "'min' 'max' 'pwrs' 'pow' 'pwr' 'sign'"
+                    "'max' 'min' 'pow' 'pwr' 'pwrs' 'sign'"
                 )
         self.name_last_node('func')
         with self._optional():
@@ -3702,6 +4286,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep', 'x', 'y'],
             []
@@ -3720,6 +4305,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['func', 'sep'],
             []
@@ -3761,6 +4347,7 @@ class SpiceParser(Parser):
             self._sep_()
             self.name_last_node('sep')
         self._rp_()
+
         self._define(
             ['alpha', 'func', 'mu', 'sep'],
             []
@@ -3793,7 +4380,13 @@ class SpiceParser(Parser):
             with self._optional():
                 self._sep_()
                 self.name_last_node('sep')
+
+            self._define(
+                ['node', 'sep'],
+                []
+            )
         self._rp_()
+
         self._define(
             ['func', 'node', 'sep'],
             []
@@ -3816,7 +4409,7 @@ class SpiceParser(Parser):
                 self._token('pi')
             self._error(
                 'expecting one of: '
-                "'time' 'temper' 'temp' 'freq' 'vt' 'pi'"
+                "'freq' 'pi' 'temp' 'temper' 'time' 'vt'"
             )
 
     @tatsumasu('Value')
@@ -3830,6 +4423,11 @@ class SpiceParser(Parser):
                         self._token('+')
                         self._imag_value_()
                         self.name_last_node('imag')
+
+                        self._define(
+                            ['imag', 'real'],
+                            []
+                        )
                 with self._option():
                     self._imag_value_()
                     self.name_last_node('imag')
@@ -3838,7 +4436,7 @@ class SpiceParser(Parser):
                     self.name_last_node('real')
                 self._error(
                     'expecting one of: '
-                    '<real_value> <imag_value>'
+                    '<imag_value> <real_value>'
                 )
         with self._optional():
             with self._choice():
@@ -3851,6 +4449,7 @@ class SpiceParser(Parser):
                     '<hz> <unit>'
                 )
         self.name_last_node('unit')
+
         self._define(
             ['imag', 'real', 'unit'],
             []
@@ -3861,6 +4460,7 @@ class SpiceParser(Parser):
         self._number_scale_()
         self.name_last_node('value')
         self._token('J')
+
         self._define(
             ['value'],
             []
@@ -3870,10 +4470,6 @@ class SpiceParser(Parser):
     def _real_value_(self):  # noqa
         self._number_scale_()
         self.name_last_node('value')
-        self._define(
-            ['value'],
-            []
-        )
 
     @tatsumasu()
     def _freq_value_(self):  # noqa
@@ -3882,6 +4478,7 @@ class SpiceParser(Parser):
         with self._optional():
             self._hz_()
         self.name_last_node('unit')
+
         self._define(
             ['unit', 'value'],
             []
@@ -3905,6 +4502,11 @@ class SpiceParser(Parser):
                             '<meg> <suffix>'
                         )
                 self.name_last_node('scale')
+
+                self._define(
+                    ['scale', 'value'],
+                    []
+                )
             with self._option():
                 self._integer_()
                 self.name_last_node('value')
@@ -3920,16 +4522,17 @@ class SpiceParser(Parser):
                             '<meg> <suffix>'
                         )
                 self.name_last_node('scale')
+
+                self._define(
+                    ['scale', 'value'],
+                    []
+                )
             self._error(
                 'expecting one of: '
-                '[\\+\\-]?(([0-9]+(\\.[0-9]*)?)|(\\.[0-'
-                '9]+))([eE][\\-\\+]?[0-9]{1,3})?'
-                '<floating_point> [\\+\\-]?[0-9]+ <integer>'
+                '<floating_point> <integer> [\\+\\-]?(([0-'
+                '9]+(\\.[0-9]*)?)|(\\.[0-9]+))([eE][\\-'
+                '\\+]?[0-9]{1,3})? [\\+\\-]?[0-9]+'
             )
-        self._define(
-            ['scale', 'value'],
-            []
-        )
 
     @tatsumasu()
     def _suffix_(self):  # noqa
@@ -3976,7 +4579,7 @@ class SpiceParser(Parser):
                 self._token('FALSE')
             self._error(
                 'expecting one of: '
-                "'TRUE' 'FALSE'"
+                "'FALSE' 'TRUE'"
             )
 
     @tatsumasu('ModelName')
@@ -3989,6 +4592,12 @@ class SpiceParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._token('=')
+
+                self._define(
+                    ['sep'],
+                    []
+                )
+
         self._define(
             ['name', 'sep'],
             []
@@ -4002,6 +4611,7 @@ class SpiceParser(Parser):
             self._binary_()
         self._positive_closure(block1)
         self.name_last_node('pattern')
+
         self._define(
             ['pattern'],
             []
@@ -4037,6 +4647,12 @@ class SpiceParser(Parser):
                     self._sep_()
                     self.name_last_node('sep')
                 self._token('=')
+
+                self._define(
+                    ['sep'],
+                    []
+                )
+
         self._define(
             ['node', 'sep'],
             []
@@ -4051,8 +4667,8 @@ class SpiceParser(Parser):
                 self._pattern('[a-zA-Z_`@#\\$]')
             self._error(
                 'expecting one of: '
-                '[a-zA-Z_`@#\\$][a-zA-Z0-9_:`@#\\.\\$\\/]*[a-'
-                'zA-Z0-9_`@#\\.\\$] [a-zA-Z_`@#\\$]'
+                '[a-zA-Z_`@#\\$] [a-zA-Z_`@#\\$][a-zA-Z0-'
+                '9_:`@#\\.\\$\\/]*[a-zA-Z0-9_`@#\\.\\$]'
             )
 
     @tatsumasu()
@@ -4064,8 +4680,8 @@ class SpiceParser(Parser):
                 self._pattern('[a-zA-Z]')
             self._error(
                 'expecting one of: '
-                '[a-zA-Z_`@#\\$][a-zA-Z0-9_:`@#\\.\\$]*[a-'
-                'zA-Z0-9_`@#\\.\\$] [a-zA-Z]'
+                '[a-zA-Z] [a-zA-Z_`@#\\$][a-zA-Z0-'
+                '9_:`@#\\.\\$]*[a-zA-Z0-9_`@#\\.\\$]'
             )
 
     @tatsumasu()
@@ -4075,18 +4691,18 @@ class SpiceParser(Parser):
                 self._cmd_net_sep_()
                 self.name_last_node('@')
 
-                def block1():
-                    self._st_()
-                self._closure(block1)
-            with self._option():
-
                 def block2():
                     self._st_()
-                self._positive_closure(block2)
+                self._closure(block2)
+            with self._option():
+
+                def block3():
+                    self._st_()
+                self._positive_closure(block3)
             self._error(
                 'expecting one of: '
-                '<newline> <inline_comment> <st>'
-                '<cmd_net_sep> [ \\t]'
+                '<cmd_net_sep> <inline_comment> <newline>'
+                '<st> [ \\t]'
             )
 
     @tatsumasu()
@@ -4094,28 +4710,28 @@ class SpiceParser(Parser):
         with self._choice():
             with self._option():
 
-                def block0():
+                def block1():
                     self._cmd_net_sep_()
                     self.name_last_node('@')
-
-                    def block2():
-                        self._st_()
-                    self._closure(block2)
-                    self._token('+')
 
                     def block3():
                         self._st_()
                     self._closure(block3)
-                self._positive_closure(block0)
+                    self._token('+')
+
+                    def block4():
+                        self._st_()
+                    self._closure(block4)
+                self._positive_closure(block1)
             with self._option():
 
-                def block4():
+                def block5():
                     self._st_()
-                self._positive_closure(block4)
+                self._positive_closure(block5)
             self._error(
                 'expecting one of: '
-                '<newline> <inline_comment> <st>'
-                '<cmd_net_sep> [ \\t]'
+                '<cmd_net_sep> <inline_comment> <newline>'
+                '<st> [ \\t]'
             )
 
     @tatsumasu('Separator')
@@ -4145,11 +4761,17 @@ class SpiceParser(Parser):
                         self.name_last_node('@')
                     self._error(
                         'expecting one of: '
-                        '<line_comment> <inline_comment>'
+                        '<inline_comment> <line_comment>'
                     )
             self.name_last_node('comment')
             self._newline_()
+
+            self._define(
+                ['comment'],
+                []
+            )
         self._closure(block3)
+
         self._define(
             ['comment'],
             []
@@ -4248,7 +4870,7 @@ class SpiceParser(Parser):
         self._pattern('[^\\S\\r\\n]*')
 
 
-class SpiceSemantics(object):
+class SpiceSemantics:
     def start(self, ast):  # noqa
         return ast
 
@@ -4697,9 +5319,7 @@ class SpiceSemantics(object):
         return ast
 
 
-def main(filename, start=None, **kwargs):
-    if start is None:
-        start = 'start'
+def main(filename, **kwargs):
     if not filename or filename == '-':
         text = sys.stdin.read()
     else:
@@ -4708,7 +5328,6 @@ def main(filename, start=None, **kwargs):
     parser = SpiceParser()
     return parser.parse(
         text,
-        rule_name=start,
         filename=filename,
         **kwargs
     )
