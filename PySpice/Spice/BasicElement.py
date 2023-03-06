@@ -806,14 +806,19 @@ class VoltageSource(DipoleElement):
     ac_phase = ExpressionPositionalParameter(position=2, key_parameter=False)
     transient = ExpressionPositionalParameter(position=3, key_parameter=False)
 
-    def __init__(self, netlist, name, *args, **kwargs):
-        number_of_pins = len(self.PINS)
-        arguments = args
-        if len(args) > number_of_pins:
-            arguments = list(args[:number_of_pins])
-            arguments.append(join_list(args[number_of_pins:]))
-
-        super().__init__(netlist, name, *arguments, **kwargs)
+    def format_spice_parameters(self):
+        parameters = []
+        if self.dc_value is not None:
+            parameters.append('dc {}'.format(str_spice(self.dc_value)))
+        if self.ac_magnitude is not None:
+            parameters.append('ac {}'.format(str_spice(self.ac_magnitude)))
+        if self.ac_phase is not None:
+            if self.ac_magnitude is None:
+                parameters.append('ac 0')
+            parameters.append(str_spice(self.ac_phase))
+        if self.transient is not None:
+            parameters.append(str_spice(self.transient))
+        return join_list(parameters)
 
 ####################################################################################################
 
@@ -843,6 +848,20 @@ class CurrentSource(DipoleElement):
     ac_magnitude = FloatPositionalParameter(position=1, key_parameter=False, unit=U_A)
     ac_phase = ExpressionPositionalParameter(position=2, key_parameter=False)
     transient = ExpressionPositionalParameter(position=3, key_parameter=False)
+
+    def format_spice_parameters(self):
+        parameters = []
+        if self.dc_value is not None:
+            parameters.append('dc {}'.format(str_spice(self.dc_value)))
+        if self.ac_magnitude is not None:
+            parameters.append('ac {}'.format(str_spice(self.ac_magnitude)))
+        if self.ac_phase is not None:
+            if self.ac_magnitude is None:
+                parameters.append('ac 0')
+            parameters.append(str_spice(self.ac_phase))
+        if self.transient is not None:
+            parameters.append(str_spice(self.transient))
+        return join_list(parameters)
 
 ####################################################################################################
 
