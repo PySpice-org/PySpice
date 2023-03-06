@@ -1423,7 +1423,12 @@ class Circuit(Netlist):
 
     def _str_title(self):
         if self.title:
-            return '.title {}'.format(self.title) + os.linesep
+            lines = self.title.splitlines()
+            title = '.title {}'.format(lines[0]) + os.linesep
+            if len(lines) > 1:
+                for line in lines[1:]:
+                    title += '* {}'.format(line) + os.linesep
+            return title
         else:
             return '.title' + os.linesep
 
