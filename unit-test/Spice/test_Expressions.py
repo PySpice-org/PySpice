@@ -51,7 +51,7 @@ class TestExpression(unittest.TestCase):
         V_5 = V("5")
         self.assertEqual("v(5)",V_5)
         self.assertEqual("cos(27)", Cos(27))
-        self.assertEqual(m.cos(27), Cos(27)())
+        self.assertAlmostEqual(m.cos(27), Cos(27)())
         self.assertTrue(Xor(True, False)())
         self.assertFalse(Xor(True, True)())
         self.assertTrue(Xor(False, True)())
