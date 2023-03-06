@@ -999,6 +999,9 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def str(self, spice=False, space=False, unit=True):
+        from ..Spice.Expressions import Expression
+        if isinstance(self._value, Expression):
+            return "{%s}" % self._value
         string = str(self._value)
         if space:
             string += ' '
