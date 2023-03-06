@@ -95,7 +95,7 @@ class TestCircuit(TestNetlist):
 
         spice_declaration = """
 .title Voltage Divider
-vinput in 0 10v
+vinput in 0 dc 10v
 r1 in out 9kohm
 r2 out 0 1kohm
 """
@@ -159,7 +159,7 @@ r2 out 0 1kohm
         spice_declaration = """
 .title Voltage Divider
 R2 out 0 1kOhm
-vinput in 0 10v
+vinput in 0 dc 10v
 r1 in out 9kohm
 """
 # .end

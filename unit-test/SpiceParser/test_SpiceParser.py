@@ -601,6 +601,22 @@ xtest42 12 10 test4 params: j=23
         result = str(circuit)
         self.assertEqual(expected, result)
 
+    def test_sources(self):
+        sources = SpiceParser.parse(source="""
+Iinj 0 probe 0 AC {0.5*prb*(prb+1)}
+Vinj probe Ninplp 0 AC {0.5*prb*(prb-1)}
+Vprobe probe Noutlp 0
+
+""")
+        circuit = sources.build()
+        expected = """.title
+
+iinj 0 probe dc 0a ac {(0.5 * (prb * (prb + 1)))}
+vinj probe ninplp dc 0v ac {(0.5 * (prb * (prb - 1)))}
+vprobe probe noutlp dc 0v
+"""
+        result = str(circuit)
+        self.assertEqual(expected, result)
     def test_boolean(self):
         and2 = SpiceParser.parse(source = """
 BEAND YINT 0 V = {IF(V(A) > 0.5 & V(B) > 0.5, 1, 0)}
@@ -648,6 +664,13 @@ btest 1 0 v={if(True, 0, 1)} smoothbsrc=1
         result = str(circuit)
         self.assertEqual(expected, result)
 
+    def test_title(self):
+        title = """.title Howland Current Source
+"""
+        sources = SpiceParser.parse(source=title)
+        circuit = sources.build()
+        result = str(circuit)
+        self.assertEqual(title + os.linesep + os.linesep, result)
 
 if __name__ == '__main__':
     unittest.main()
