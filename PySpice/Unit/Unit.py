@@ -41,7 +41,8 @@ import numpy as np
 
 ####################################################################################################
 
-from PySpice.Tools.EnumFactory import EnumFactory
+from ..Tools.EnumFactory import EnumFactory
+from ..Tools.StringTools import str_spice
 
 ####################################################################################################
 
@@ -70,7 +71,13 @@ class UnitPrefixMetaclass(type):
         power = cls.POWER
         if power is None:
             raise ValueError('Power is None for {}'.format(cls.__name__))
-        meta._prefixes[power] = cls()
+        value = cls()
+        meta._prefixes[power] = value
+        if value.spice_prefix:
+            meta._prefixes[value.spice_prefix.lower()] = value
+            if value.spice_prefix.lower() != value.prefix.lower():
+                meta._prefixes[value.prefix] = value
+
 
     ##############################################
 
@@ -123,6 +130,10 @@ class UnitPrefix(metaclass=UnitPrefixMetaclass):
         return self.POWER == 0
 
     @property
+    def is_unit_less(self):
+        return True
+
+    @property
     def scale(self):
         return 10**self.POWER
 
@@ -139,7 +150,10 @@ class UnitPrefix(metaclass=UnitPrefixMetaclass):
 
     @property
     def is_defined_in_spice(self):
-        return self.spice_prefix is not None
+        if hasattr(self, 'SPICE_PREFIX'):
+            return self.SPICE_PREFIX is not None
+        else:
+            return True
 
     ##############################################
 
@@ -410,6 +424,8 @@ class UnitMetaclass(type):
 
         obj = cls()
         meta._units[obj.unit_suffix] = obj
+        if obj.spice_suffix != obj.unit_suffix:
+            meta._units[obj.spice_suffix] = obj
 
         if obj.si_unit:
             hash_ = obj.si_unit.hash
@@ -428,7 +444,7 @@ class UnitMetaclass(type):
 
     @classmethod
     def from_prefix(meta, prefix):
-        return meta._units__.get(prefix, None)
+        return meta._units.get(prefix, None)
 
     ##############################################
 
@@ -477,7 +493,6 @@ class Unit(metaclass=UnitMetaclass):
     QUANTITY = ''
     SI_UNIT = SiDerivedUnit()
     DEFAULT_UNIT = False
-    # SPICE_SUFFIX = ''
 
     _logger = _module_logger.getChild('Unit')
 
@@ -485,14 +500,8 @@ class Unit(metaclass=UnitMetaclass):
 
     def __init__(self, si_unit=None):
 
-        self._unit_name = self.UNIT_NAME
-        self._unit_suffix = self.UNIT_SUFFIX
-        self._quantity = self.QUANTITY
-
-        if si_unit is None:
-            self._si_unit = self.SI_UNIT
-        else:
-            self._si_unit = si_unit
+        if si_unit is not None:
+            self.SI_UNIT = si_unit
 
     ##############################################
 
@@ -503,25 +512,32 @@ class Unit(metaclass=UnitMetaclass):
 
     @property
     def unit_name(self):
-        return self._unit_name
+        return self.UNIT_NAME
 
     @property
     def unit_suffix(self):
-        return self._unit_suffix
+        return self.UNIT_SUFFIX
+
+    @property
+    def spice_suffix(self):
+        if hasattr(self, 'SPICE_SUFFIX'):
+            return self.SPICE_SUFFIX
+        else:
+            return self.UNIT_SUFFIX
 
     @property
     def quantity(self):
-        return self._quantity
+        return self.QUANTITY
 
     @property
     def si_unit(self):
-        return self._si_unit
+        return self.SI_UNIT
 
     ##############################################
 
     @property
     def is_unit_less(self):
-        return self._si_unit.is_unit_less()
+        return self.SI_UNIT.is_unit_less()
 
     ##############################################
 
@@ -537,7 +553,7 @@ class Unit(metaclass=UnitMetaclass):
 
     def __eq__(self, other):
         """self == other"""
-        return self._si_unit == other.si_unit
+        return self.SI_UNIT == other.si_unit
 
     ##############################################
 
@@ -577,52 +593,52 @@ class Unit(metaclass=UnitMetaclass):
     ##############################################
 
     def multiply(self, other, prefixed_unit=False):
-        si_unit = self._si_unit * other.si_unit
+        si_unit = self.SI_UNIT * other.si_unit
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
     def divide(self, other, prefixed_unit=False):
-        si_unit = self._si_unit / other.si_unit
+        si_unit = self.SI_UNIT / other.si_unit
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
     def power(self, exponent, prefixed_unit=False):
-        si_unit = self._si_unit.power(exponent)
+        si_unit = self.SI_UNIT.power(exponent)
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
     def reciprocal(self, prefixed_unit=False):
-        si_unit = self._si_unit.reciprocal()
+        si_unit = self.SI_UNIT.reciprocal()
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
     def sqrt(self, prefixed_unit=False):
-        si_unit = self._si_unit.sqrt()
+        si_unit = self.SI_UNIT.sqrt()
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
     def square(self, prefixed_unit=False):
-        si_unit = self._si_unit.square()
+        si_unit = self.SI_UNIT.square()
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
     def cbrt(self, prefixed_unit=False):
-        si_unit = self._si_unit.cbrt()
+        si_unit = self.SI_UNIT.cbrt()
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
     def __str__(self):
-        if self._unit_suffix:
-            return self._unit_suffix
+        if self.UNIT_SUFFIX:
+            return self.UNIT_SUFFIX
         else:
-            return str(self._si_unit)
+            return str(self.SI_UNIT)
 
     ##############################################
 
@@ -636,13 +652,12 @@ class Unit(metaclass=UnitMetaclass):
         if none and value is None:
             return None
         if isinstance(value, UnitValue):
-            if  self.is_same_unit(value):
+            if self.is_same_unit(value):
                 return value
-            else:
+            elif not value.unit.is_unit_less:
                 raise UnitError
-        else:
-            prefixed_unit = PrefixedUnit.from_prefixed_unit(self)
-            return prefixed_unit.new_value(value)
+        prefixed_unit = PrefixedUnit.from_prefixed_unit(self)
+        return prefixed_unit.new_value(value)
 
 ####################################################################################################
 
@@ -705,7 +720,8 @@ class PrefixedUnit:
 
     @classmethod
     def from_prefixed_unit(cls, unit, power=0):
-
+        if isinstance(power, UnitPrefix):
+            power = power.power
         if unit.unit_suffix:
             unit_key = str(unit)
         else:
@@ -818,27 +834,17 @@ class PrefixedUnit:
         string = self._power.str(spice)
 
         if unit:
-            string += str(self._unit)
-
-        if spice:
-            # F is interpreted as f = femto
-            if string == 'F':
-                string = ''
+            if spice:
+                string += self._unit.spice_suffix
             else:
-                # Ngspice don't support utf-8
-                # degree symbol can be encoded str(176) in Extended ASCII
-                string = string.replace('°', '')  # U+00B0
-                string = string.replace('℃', '')  # U+2103
-                # U+2109 ℉
-                string = string.replace('Ω', 'Ohm')  # U+CEA0
-                string = string.replace('μ',   'u')  # U+CEBC
+                string += self._unit.unit_suffix
 
         return string
 
     ##############################################
 
-    def str_spice(self):
-        return self.str(spice=True, unit=True)
+    def str_spice(self, unit=True):
+        return self.str(spice=True, unit=unit)
 
     ##############################################
 
@@ -861,7 +867,7 @@ class UnitValue: # numbers.Real
 
     """This class implements a value with a unit and a power (prefix).
 
-    The value is not converted to float if the value is an int or expression.
+    The value is not converted to float if the value is an int.
     """
 
     _logger = _module_logger.getChild('UnitValue')
@@ -875,20 +881,23 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def __init__(self, prefixed_unit, value):
-        from ..Spice.Expressions import Expression
-
         self._prefixed_unit = prefixed_unit
 
         if isinstance(value, UnitValue):
             # Fixme: anonymous ???
-            if not self.is_same_unit(value):
+            if not value.prefixed_unit.is_unit_less and not self.prefixed_unit.is_unit_less and not self.is_same_unit(
+                    value):
                 raise UnitError
+            if not value.prefixed_unit.is_unit_less and self.prefixed_unit.is_unit_less:
+                self._prefixed_unit = value._prefixed_unit
             if self.is_same_power(value):
                 self._value = value.value
             else:
                 self._value = self._convert_scalar_value(value)
-        elif isinstance(value, int) or isinstance(value, Expression):
+        elif isinstance(value, int):
             self._value = value # to keep as int
+        elif isinstance(value, str):
+            ValueError(value)
         else:
             self._value = float(value)
 
@@ -999,13 +1008,11 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def str(self, spice=False, space=False, unit=True):
-        from ..Spice.Expressions import Expression
-        if isinstance(self._value, Expression):
-            return "{%s}" % self._value
-        string = str(self._value)
-        if space:
+        string = str_spice(self._value, unit=False)
+        if space and not self.unit.is_unit_less:
             string += ' '
-        string += self._prefixed_unit.str(spice, unit)
+        if self.prefixed_unit:
+            string += self.prefixed_unit.str(spice, unit)
         return string
 
     ##############################################
@@ -1015,8 +1022,8 @@ class UnitValue: # numbers.Real
 
     ##############################################
 
-    def str_spice(self):
-        return self.str(spice=True, space=False, unit=True)
+    def str_spice(self, unit=True):
+        return self.str(spice=True, space=False, unit=unit)
 
     ##############################################
 

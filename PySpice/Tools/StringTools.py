@@ -32,23 +32,16 @@ import os
 
 ####################################################################################################
 
-from ..Spice.Expressions import Expression
-####################################################################################################
-
 def str_spice(obj, unit=True):
     from ..Unit.Unit import UnitValue
+    from ..Spice.Expressions import Expression, Symbol
 
     # Fixme: right place ???
 
     """Convert an object to a Spice compatible string."""
 
-    if isinstance(obj, UnitValue):
-        if unit:
-            return obj.str_spice()
-        else: # Fixme: ok ???
-            return obj.str(spice=False, space=False, unit=False)
-    elif isinstance(obj, Expression):
-        return "{{{}}}".format(obj)
+    if hasattr(obj, 'str_spice'):
+        return obj.str_spice(unit)
     else:
         return str(obj).lower()
 

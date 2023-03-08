@@ -45,7 +45,7 @@ class TestHighLevelElement(unittest.TestCase):
             PieceWiseLinearVoltageSource(
                 Circuit(''),
                 'pwl1', '1', '0',
-                values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
+                values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_v), (20@u_ms, 5@u_v)],
             ),
             'vpwl1 1 0 pwl(0s 0v 10ms 0v 11ms 5v 20ms 5v r=0s td=0.0s)',
         )
@@ -54,7 +54,7 @@ class TestHighLevelElement(unittest.TestCase):
             PieceWiseLinearVoltageSource(
                 Circuit(''),
                 'pwl1', '1', '0',
-                values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
+                values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_v), (20@u_ms, 5@u_v)],
                 repeat_time=12@u_ms, time_delay=34@u_ms,
             ),
             'vpwl1 1 0 pwl(0s 0v 10ms 0v 11ms 5v 20ms 5v r=12ms td=34ms)',
@@ -64,9 +64,9 @@ class TestHighLevelElement(unittest.TestCase):
             PieceWiseLinearVoltageSource(
                 Circuit(''),
                 'pwl1', '1', '0',
-                values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_V), (20@u_ms, 5@u_V)],
+                values=[(0, 0), (10@u_ms, 0), (11@u_ms, 5@u_v), (20@u_ms, 5@u_v)],
                 repeat_time=12@u_ms, time_delay=34@u_ms,
-                dc=50@u_V,
+                dc=50@u_v,
             ),
             'vpwl1 1 0 dc 50v pwl(0s 0v 10ms 0v 11ms 5v 20ms 5v r=12ms td=34ms)',
         )

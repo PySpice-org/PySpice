@@ -29,7 +29,7 @@ import os
 
 ####################################################################################################
 
-from PySpice.Unit import u_Degree, u_V, u_A, u_s, u_Hz
+from PySpice.Unit import u_c, u_v, u_a, u_s, u_hz
 
 ####################################################################################################
 
@@ -191,9 +191,9 @@ class RawFileAbc:
 
     _name_to_unit = {
         'time': u_s,
-        'voltage': u_V,
-        'current': u_A,
-        'frequency': u_Hz,
+        'voltage': u_v,
+        'current': u_a,
+        'frequency': u_hz,
     }
 
     ##############################################
@@ -260,8 +260,8 @@ class RawFileAbc:
         if pos1 != -1 and pos2 != -1:
             part1 = line[pos1+len(pattern1):pos2]
             part2 = line[pos2+len(pattern2):].strip()
-            temperature = u_Degree(float(part1))
-            nominal_temperature = u_Degree(float(part2))
+            temperature = u_c(float(part1))
+            nominal_temperature = u_c(float(part2))
         else:
             temperature = None
             nominal_temperature = None

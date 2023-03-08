@@ -3,9 +3,9 @@ import os
 import csv
 
 from unicodedata import normalize
-from PySpice.Unit.Unit import UnitValue, ZeroPower, PrefixedUnit
-from PySpice.Unit.SiUnits import Tera, Giga, Mega, Kilo, Milli, Micro, Nano, Pico, Femto
-from PySpice.Tools.StringTools import join_lines
+from .EBNFExpressionParser import ExpressionModelWalker
+from ..Unit.Unit import UnitValue, ZeroPower, PrefixedUnit
+from ..Tools.StringTools import join_lines
 from .Expressions import *
 from .Netlist import (Circuit,
                       SubCircuit)
@@ -553,12 +553,12 @@ class SubCircuitStatement(Statement):
     ##############################################
 
     def build(self, ground=0, parent=None):
-        subcircuit = SubCircuit(self._name, *self._nodes, **self._params)
+        subcircuit = SubCircuit(str(self._name).lower(), *self._nodes, **self._params)
         subcircuit.parent = parent
         for statement in self._parameters:
             statement.build(subcircuit)
         for statement in self._models:
-            model = statement.build(subcircuit)
+            statement.build(subcircuit)
         for statement in self._subcircuits:
             subckt = statement.build(ground, parent=subcircuit)  # Fixme: ok ???
             subcircuit.subcircuit(subckt)
@@ -729,16 +729,9 @@ class CircuitStatement(Statement):
 
 ####################################################################################################
 
-class SpiceModelWalker(NodeWalker):
+class SpiceModelWalker(ExpressionModelWalker):
 
     def __init__(self):
-        self._scales = (Tera(), Giga(), Mega(), Kilo(), Milli(), Micro(), Nano(), Pico(), Femto())
-        self._suffix = dict([(normalize("NFKD", unit.prefix).lower(), PrefixedUnit(power=unit))
-                             for unit in self._scales] +
-                            [(normalize("NFKD", unit.spice_prefix).lower(), PrefixedUnit(power=unit))
-                             for unit in self._scales
-                             if unit.spice_prefix is not None]
-                            )
         self._functions = {"abs": Abs,
                            "agauss": AGauss,
                            "acos": ACos,
@@ -1659,7 +1652,7 @@ class SpiceModelWalker(NodeWalker):
         )
 
     def walk_ModelName(self, node, data):
-        return node.name
+        return node.name.lower()
 
     def walk_ParamCmd(self, node, data):
         if node.parameters is not None:
@@ -1767,230 +1760,11 @@ class SpiceModelWalker(NodeWalker):
         value = self.walk(node.value, data)
         return {node.name.lower(): value}
 
-    def walk_GenericExpression(self, node, data):
-        if node.value is None:
-            return self.walk(node.braced, data)
-        else:
-            return self.walk(node.value, data)
-
     def walk_ParenthesisNodes(self, node, data):
         return self.walk(node.ast, data)
 
     def walk_CircuitNodes(self, node, data):
         return self.walk_list(node.ast, data)
-
-    def walk_BracedExpression(self, node, data):
-        return self.walk(node.ast, data)
-
-    def walk_Ternary(self, node, data):
-        t = self.walk(node.t, data)
-        x = self.walk(node.x, data)
-        y = self.walk(node.y, data)
-        return self._functions["if"](t, x, y)
-
-    def walk_Conditional(self, node, data):
-        return self.walk(node.expr, data)
-
-    def walk_And(self, node, data):
-        left = self.walk(node.left, data)
-        if node.right is None:
-            return left
-        else:
-            right = self.walk(node.right, data)
-            return And(left, right)
-
-    def walk_Not(self, node, data):
-        operator = self.walk(node.operator, data)
-        if node.op is None:
-            return operator
-        else:
-            return Not(operator)
-
-    def walk_Or(self, node, data):
-        left = self.walk(node.left, data)
-        if node.right is None:
-            return left
-        else:
-            right = self.walk(node.right, data)
-            return Or(left, right)
-
-    def walk_Xor(self, node, data):
-        left = self.walk(node.left, data)
-        if node.right is None:
-            return left
-        else:
-            right = self.walk(node.right, data)
-            return Xor(left, right)
-
-    def walk_Relational(self, node, data):
-        if node.factor is None:
-            left = self.walk(node.left, data)
-            right = self.walk(node.right, data)
-            return self._relational[node.op](left, right)
-        else:
-            return self.walk(node.factor, data)
-
-    def walk_ConditionalFactor(self, node, data):
-        if node.boolean is None:
-            return self.walk(node.expr, data)
-        else:
-            return node.boolean.lower() == "true"
-
-    def walk_Expression(self, node, data):
-        if node.term is None:
-            return self.walk(node.ternary, data)
-        else:
-            return self.walk(node.term, data)
-
-    def walk_Functional(self, node, data):
-        return self.walk(node.ast, data)
-
-    def walk_Functions(self, node, data):
-        l_func = node.func.lower()
-        function = self._functions[l_func]
-        if function.nargs == 0:
-            return function()
-        elif l_func == 'v':
-            nodes = self.walk(node.node, data)
-            if isinstance(nodes, list):
-                return function(*nodes)
-            else:
-                return function(nodes)
-        elif l_func == 'i':
-            device = self.walk(node.device, data)
-            return function(device)
-        elif function.nargs == 1:
-            x = self.walk(node.x, data)
-            return function(x)
-        elif l_func == 'limit':
-            x = self.walk(node.x, data)
-            y = self.walk(node.y, data)
-            z = self.walk(node.z, data)
-            return function(x, y, z)
-        elif l_func == 'atan2':
-            x = self.walk(node.x, data)
-            y = self.walk(node.y, data)
-            return function(y, x)
-        elif l_func in ('aunif', 'unif'):
-            mu = self.walk(node.mu, data)
-            alpha = self.walk(node.alpha, data)
-            return function(mu, alpha)
-        elif l_func == "ddx":
-            f = node.f
-            x = self.walk(node.x, data)
-            return function(Symbol(f), x)
-        elif function.nargs == 2:
-            x = self.walk(node.x, data)
-            y = self.walk(node.y, data)
-            return function(x, y)
-        elif l_func == "if":
-            t = self.walk(node.t, data)
-            x = self.walk(node.x, data)
-            y = self.walk(node.y, data)
-            return function(t, x, y)
-        elif l_func == "limit":
-            x = self.walk(node.x, data)
-            y = self.walk(node.y, data)
-            z = self.walk(node.z, data)
-            return function(x, y, z)
-        elif l_func in ('agauss', 'gauss'):
-            mu = self.walk(node.mu, data)
-            alpha = self.walk(node.alpha, data)
-            n = self.walk(node.n, data)
-            return function(mu, alpha, n)
-        else:
-            raise NotImplementedError("Function: {}".format(node.func));
-
-    def walk_Term(self, node, data):
-        return self.walk(node.ast, data)
-
-    def walk_AddSub(self, node, data):
-        lhs = self.walk(node.left, data)
-        if node.right is not None:
-            rhs = self.walk(node.right, data)
-            if node.op == "+":
-                return Add(lhs, rhs)
-            else:
-                return Sub(lhs, rhs)
-        else:
-            return lhs
-
-    def walk_ProdDivMod(self, node, data):
-        lhs = self.walk(node.left, data)
-        if node.right is not None:
-            rhs = self.walk(node.right, data)
-            if node.op == "*":
-                return Mul(lhs, rhs)
-            elif node.op == "/":
-                return Div(lhs, rhs)
-            else:
-                return Mod(lhs, rhs)
-        else:
-            return lhs
-
-    def walk_Sign(self, node, data):
-        operator = self.walk(node.operator, data)
-        if node.op is not None:
-            if node.op == "-":
-                return Neg(operator)
-            else:
-                return Pos(operator)
-        else:
-            return operator
-
-    def walk_Exponential(self, node, data):
-        lhs = self.walk(node.left, data)
-        if node.right is not None:
-            rhs = self.walk(node.right, data)
-            return Power(lhs, rhs)
-        else:
-            return lhs
-
-    def walk_Factor(self, node, data):
-        return self.walk(node.ast, data)
-
-    def walk_Variable(self, node, data):
-        if node.variable is None:
-            return self.walk(node.factor, data)
-        else:
-            return Symbol(node.variable)
-
-    def walk_Value(self, node, data):
-        real = 0.0
-        if node.real is not None:
-            real = self.walk(node.real, data)
-        imag = None
-        if node.imag is not None:
-            imag = self.walk(node.imag, data)
-        if imag is None:
-            return SpiceModelWalker._to_number(real)
-        else:
-            return complex(float(real), float(imag))
-
-    def walk_ImagValue(self, node, data):
-        return self.walk(node.value, data)
-
-    def walk_RealValue(self, node, data):
-        return self.walk(node.value, data)
-
-    def walk_NumberScale(self, node, data):
-        value = self.walk(node.value, data)
-        scale = node.scale
-        if scale is not None:
-            scale = normalize("NFKD", scale).lower()
-            result = UnitValue(self._suffix[scale], value)
-        else:
-            result = UnitValue(PrefixedUnit(ZeroPower()), value)
-        return SpiceModelWalker._to_number(result)
-
-    def walk_Float(self, node, data):
-        value = SpiceModelWalker._to_number(node.ast)
-        return value
-
-    def walk_Int(self, node, data):
-        value = int(node.ast)
-        return value
-
     def walk_Comment(self, node, data):
         # TODO implement comments on devices
         return node.ast
@@ -2016,37 +1790,6 @@ class SpiceModelWalker(NodeWalker):
         filename = self.walk(node.filename, data)
         return TableFile(filename)
 
-    def walk_NetNode(self, node, data):
-        return node.node
-
-    def walk_Filename(self, node, data):
-        return node.ast
-
-    def walk_BinaryPattern(self, node, data):
-        return ''.join(node.pattern)
-
-    def walk_closure(self, node, data):
-        return ''.join(node)
-
-    def walk_list(self, node, data):
-        return [self.walk(e, data) for e in iter(node)]
-
-    def walk_object(self, node, data):
-        raise ParseError("No walker defined for the node: {}".format(node))
-
-    @staticmethod
-    def _to_number(value):
-        if type(value) is tuple:
-            value = value[0]
-        try:
-            int_value = int(value)
-            float_value = float(value)
-            if int_value == float_value:
-                return int_value
-            else:
-                return float_value
-        except ValueError:
-            return float(value)
 
 
 class ParsingData:

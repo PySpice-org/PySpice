@@ -48,11 +48,11 @@ BG1 IOUTp IOUTm I={TABLE {V(VCp,VCm)} =
 +(79.1111, 0.00033272)
 +(80, 0.00275)}
 
-G1 21 98 (6,15) 26E-6
+G1N 21 98 (6,15) 26E-6
 
 E23 21 98 (6,15) 26E-6
 
-BG1 IOUT- IOUT+ I={IF( (V(VC+,VC-)<=0),0,GAIN*V(VC+,VC-) )}
+BG2 IOUT- IOUT+ I={IF( (V(VC+,VC-)<=0),0,GAIN*V(VC+,VC-) )}
 
 FB    7 99 POLY(5) VB VC VE VLP VLN 0 147.3E6 -100E6 100E6 100E6 -100E6
 
@@ -67,7 +67,7 @@ CINT Y 0 1n
 
 E1 3 0 5 0 10
 
-G1 21 3 POLY(1) 1 3 0 1.57E-6 -0.97e-7
+G2N 21 3 POLY(1) 1 3 0 1.57E-6 -0.97e-7
 
 .MODEL DI_HBS410 D  ( IS=130.2n RS=6.366m BV=1.229k IBV=1m
 + CJO=69.01p  M=0.295 N=2.075 TT=4.32µ)
@@ -141,11 +141,11 @@ M1 42 43 17 17 NOUT L=3U W=700U
 
 .MODEL NOUT NMOS
 
-BG1 IOUT- IOUT+ I={IF( (V(VC+,VC-) <= 0) , 0 , 1 )}
-BG2 IOUT- IOUT+ I={IF( (V(VC+,VC-)<=0),0,GAIN*V(VC+,VC-) )}
+BG3 IOUT- IOUT+ I={IF( (V(VC+,VC-) <= 0) , 0 , 1 )}
+BG55 IOUT- IOUT+ I={IF( (V(VC+,VC-)<=0),0,GAIN*V(VC+,VC-) )}
 
 .SUBCKT VCCS_LIM_CLAW+_0_OPA350  VCp VCm IOUTp IOUTm
-BG1 IOUTp IOUTm I={TABLE {V(VCp,VCm)} =
+BG4 IOUTp IOUTm I={TABLE {V(VCp,VCm)} =
 +(0, 12.09e-6)
 +(26.6667, 0.0002474)
 +(53.3333, 0.00029078)
@@ -518,8 +518,7 @@ class TestSpiceParser(unittest.TestCase):
 VEXP 2 0 EXP(1 2 3)
 VPAT 3 4 PAT(3 0 2 1 2 3 b0101 1)
 IPULSE 2 3 PULSE(1 4)
-IPWL1 1 0 PWL( 0S 0A 2S 3A 3S 2A 4S 2A 4.01S 5A r=2s td=1)
-IPWL1 1 0 PWL(0S 0A 2S 3A 3S 2A 4S 2A 4.01S 5A r=2s td=1 )
+IPWL1 1 0 PWL(0S 0A 2S 3A 3S 2A 4S 2A 4.01S 5A r=2s td=1)
 VSFFM 1 0 SFFM (0 1 2)
 ISIN 4 3 AC 1 SIN 0 5 3 1
 """)
@@ -586,8 +585,8 @@ Xtest42 12 10 test4 params: j = 23
 
 .ends test3
 
-.subckt test4 5 6 params: j={(a + b)}
-.param d={(j + 32)}
+.subckt test4 5 6 params: j={a + b}
+.param d={j + 32}
 
 .ends test4
 
@@ -611,8 +610,8 @@ Vprobe probe Noutlp 0
         circuit = sources.build()
         expected = """.title
 
-iinj 0 probe dc 0a ac {(0.5 * (prb * (prb + 1)))}
-vinj probe ninplp dc 0v ac {(0.5 * (prb * (prb - 1)))}
+iinj 0 probe dc 0a ac {0.5 * (prb * (prb + 1))}
+vinj probe ninplp dc 0v ac {0.5 * (prb * (prb - 1))}
 vprobe probe noutlp dc 0v
 """
         result = str(circuit)
@@ -626,9 +625,9 @@ BEXOR YINT 0 V = {IF(V(A) > 0.5 ^ V(B) > 0.5, 1, 0)}
         circuit = and2.build()
         expected = """.title
 
-beand yint 0 v={if(((v(A) > 0.5) & (v(B) > 0.5)), 1, 0)}
-beor yint 0 v={if(((v(A) > 0.5) | (v(B) > 0.5)), 1, 0)}
-bexor yint 0 v={if(((v(A) > 0.5) ^ (v(B) > 0.5)), 1, 0)}
+beand yint 0 v={if((v(a) > 0.5) & (v(b) > 0.5), 1, 0)}
+beor yint 0 v={if((v(a) > 0.5) | (v(b) > 0.5), 1, 0)}
+bexor yint 0 v={if((v(a) > 0.5) ^ (v(b) > 0.5), 1, 0)}
 """
         result = str(circuit)
         self.assertEqual(expected, result)
@@ -645,7 +644,7 @@ bexor yint 0 v={if(((v(A) > 0.5) ^ (v(B) > 0.5)), 1, 0)}
 
 .model diode D (is=1.038e-15 n=1 tt=2e-08 cjo=5e-12 rs=0.5 bv=130)
 .subckt source vh vl hi lo
-bhigh vh vl v={if((v(hi, lo) > 0.5), 5, 0)} smoothbsrc=1
+bhigh vh vl v={if(v(hi, lo) > 0.5, 5, 0)} smoothbsrc=1
 .ends source
 
 .subckt mosdriver hb hi ho hs li lo vdd vss
@@ -659,7 +658,7 @@ dhb vdd hb diode
 .ends mosdriver
 
 xtest 0 1 2 3 4 5 6 7 mosdriver
-btest 1 0 v={if(True, 0, 1)} smoothbsrc=1
+btest 1 0 v={if(true, 0, 1)} smoothbsrc=1
 """
         result = str(circuit)
         self.assertEqual(expected, result)
@@ -702,7 +701,7 @@ Vm5 Nm5 0 -5
 
         expected = """.title
 
-bhn 81 98 v={(i(vn1) * 6)}
+bhn 81 98 v={i(vn1) * 6}
 vp5 np5 0 dc 5v
 vm5 nm5 0 dc -5v
 """

@@ -28,7 +28,7 @@
 
 from ..Math import rms_to_amplitude, amplitude_to_rms
 from ..Tools.StringTools import join_list, join_dict, str_spice, str_spice_list
-from ..Unit import as_s, as_V, as_A, as_Hz
+from ..Unit import as_s, as_v, as_a, as_Hz
 from .BasicElement import VoltageSource, CurrentSource
 
 ####################################################################################################
@@ -39,12 +39,12 @@ class SourceMixinAbc:
 ####################################################################################################
 
 class VoltageSourceMixinAbc:
-    AS_UNIT = as_V
+    AS_UNIT = as_v
 
 ####################################################################################################
 
 class CurrentSourceMixinAbc:
-    AS_UNIT = as_A
+    AS_UNIT = as_a
 
 ####################################################################################################
 

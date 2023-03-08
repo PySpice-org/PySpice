@@ -3,7 +3,7 @@ import os
 import csv
 
 from unicodedata import normalize
-from PySpice.Unit.Unit import UnitValue, ZeroPower, PrefixedUnit, UnitMetaclass
+from PySpice.Unit.Unit import UnitValue, ZeroPower, PrefixedUnit, UnitMetaclass, UnitPrefixMetaclass
 from PySpice.Unit.SiUnits import Tera, Giga, Mega, Kilo, Milli, Micro, Nano, Pico, Femto
 from PySpice.Tools.StringTools import join_lines
 from .Expressions import *
@@ -282,11 +282,14 @@ class ExpressionModelWalker(NodeWalker):
         operator = self.walk(node.operator, data)
         if node.op is not None:
             if node.op == "-":
-                return Neg(operator)
+                if isinstance(operator, (int, float)):
+                    return -operator
+                else:
+                    return Neg(operator)
             else:
-                return Pos(operator)
-        else:
-            return operator
+                if not isinstance(operator, (int, float)):
+                    return Pos(operator)
+        return operator
 
     def walk_Exponential(self, node, data):
         lhs = self.walk(node.left, data)
@@ -314,11 +317,16 @@ class ExpressionModelWalker(NodeWalker):
             imag = self.walk(node.imag, data)
         value = 0.0
         if imag is None:
-            value = ExpressionModelWalker._to_number(real)
+            value = real
         else:
             value = complex(float(real), float(imag))
         if node.unit is not None:
             unit = self.walk(node.unit, data)
+            if type(unit) is not str:
+                if not isinstance(value, UnitValue):
+                    value = PrefixedUnit.from_si_unit(unit.si_unit).new_value(value)
+                else:
+                    value = PrefixedUnit.from_prefixed_unit(unit, value.power).new_value(value.value)
         return value
 
     def walk_ImagValue(self, node, data):
@@ -328,14 +336,12 @@ class ExpressionModelWalker(NodeWalker):
         return self.walk(node.value, data)
 
     def walk_NumberScale(self, node, data):
-        value = self.walk(node.value, data)
+        value = ExpressionModelWalker._to_number(self.walk(node.value, data))
         scale = node.scale
         if scale is not None:
             scale = normalize("NFKD", scale).lower()
-            result = UnitValue(self._suffix[scale], value)
-        else:
-            result = UnitValue(PrefixedUnit(ZeroPower()), value)
-        return ExpressionModelWalker._to_number(result)
+            value = PrefixedUnit(power=UnitPrefixMetaclass.get(scale)).new_value(value)
+        return value
 
     def walk_Float(self, node, data):
         value = ExpressionModelWalker._to_number(node.ast)
@@ -346,7 +352,13 @@ class ExpressionModelWalker(NodeWalker):
         return value
 
     def walk_Unit(self, node, data):
-        return node.ast
+        unit = UnitMetaclass.from_prefix(node.ast.lower())
+        if unit is None:
+            unit = node.ast
+        return unit
+
+    def walk_Hz(self, node, data):
+        return UnitMetaclass.from_prefix(node.ast.lower())
 
     def walk_Comment(self, node, data):
         # TODO implement comments on devices
@@ -356,14 +368,11 @@ class ExpressionModelWalker(NodeWalker):
         if node.comment is not None:
             return self.walk(node.comment, data)
 
-    def walk_Command(self, node, data):
-        return self.walk(node.ast, data)
-
-    def walk_NetlistCmds(self, node, data):
-        return self.walk(node.ast, data)
-
     def walk_NetNode(self, node, data):
         return node.node
+
+    def walk_Filename(self, node, data):
+        return node.ast
 
     def walk_BinaryPattern(self, node, data):
         return ''.join(node.pattern)

@@ -100,7 +100,7 @@ See Ngspice documentation for details.
 import logging
 
 from ..Tools.StringTools import str_spice, join_list, join_dict
-from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
+from ..Unit import U_m, U_s, U_a, U_v, U_c, U_Ω, U_F, U_h, U_Hz
 from .Netlist import (Element, AnyPinElement, FixedPinElement, NPinElement,
                       OptionalPin, Pin, PinDefinition)
 from .ElementParameter import (
@@ -201,7 +201,9 @@ class SubCircuitElement(NPinElement):
 
         spice_parameters = super().format_spice_parameters()
         if self.parameters:
-            spice_parameters += ' params: ' + join_dict(self.parameters)
+            parameters = {key: ('{%s}' % str_spice(value)) if isinstance(value, Expression) else str_spice(value)
+                          for key, value in self.parameters.items()}
+            spice_parameters += ' params: ' + join_dict(parameters)
 
         return spice_parameters
 
@@ -264,8 +266,8 @@ class Resistor(DipoleElement):
     ac = FloatKeyParameter('ac', unit=U_Ω)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
-    temperature = FloatKeyParameter('temp', unit=U_Degree)
-    device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    temperature = FloatKeyParameter('temp', unit=U_c)
+    device_temperature = FloatKeyParameter('dtemp', unit=U_c)
     noisy = BoolKeyParameter('noisy')
     tc = FloatPairKeyParameter('tc')
     tc1 = FloatPairKeyParameter('tc1')
@@ -339,8 +341,8 @@ class SemiconductorResistor(DipoleElement):
     model = ModelPositionalParameter(position=0, key_parameter=True)
     length = FloatKeyParameter('l', unit=U_m)
     width = FloatKeyParameter('w', unit=U_m)
-    temperature = FloatKeyParameter('temp', unit=U_Degree)
-    device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    temperature = FloatKeyParameter('temp', unit=U_c)
+    device_temperature = FloatKeyParameter('dtemp', unit=U_c)
     multiplier = IntKeyParameter('m')
     ac = FloatKeyParameter('ac', unit=U_Ω)
     scale = FloatKeyParameter('scale')
@@ -440,8 +442,8 @@ class Capacitor(DipoleElement):
     model = ModelPositionalParameter(position=0, key_parameter=True)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
-    temperature = FloatKeyParameter('temp', unit=U_Degree)
-    device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    temperature = FloatKeyParameter('temp', unit=U_c)
+    device_temperature = FloatKeyParameter('dtemp', unit=U_c)
     initial_condition = FloatKeyParameter('ic')
     tc = FloatPairKeyParameter('tc')
     tc1 = FloatPairKeyParameter('tc1')
@@ -514,8 +516,8 @@ class SemiconductorCapacitor(DipoleElement):
     width = FloatKeyParameter('w', unit=U_m)
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
-    temperature = FloatKeyParameter('temp', unit=U_Degree)
-    device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    temperature = FloatKeyParameter('temp', unit=U_c)
+    device_temperature = FloatKeyParameter('dtemp', unit=U_c)
     initial_condition = FloatKeyParameter('ic')
 
 ####################################################################################################
@@ -608,13 +610,13 @@ class Inductor(DipoleElement):
     ALIAS = 'L'
     PREFIX = 'L'
 
-    inductance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_H)
+    inductance = FloatPositionalParameter(position=-1, key_parameter=False, unit=U_h)
     model = ModelPositionalParameter(position=0, key_parameter=True)
     nt = FloatKeyParameter('nt')
     multiplier = IntKeyParameter('m')
     scale = FloatKeyParameter('scale')
-    temperature = FloatKeyParameter('temp', unit=U_Degree)
-    device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    temperature = FloatKeyParameter('temp', unit=U_c)
+    device_temperature = FloatKeyParameter('dtemp', unit=U_c)
     initial_condition = FloatKeyParameter('ic')
     tc = FloatPairKeyParameter('tc')
     tc1 = FloatPairKeyParameter('tc1')
@@ -801,23 +803,35 @@ class VoltageSource(DipoleElement):
     PREFIX = 'V'
 
     # Fixme: ngspice manual doesn't describe well the syntax
-    dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_V)
-    ac_magnitude = FloatPositionalParameter(position=1, key_parameter=False, unit=U_V)
+    dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_v)
+    ac_magnitude = FloatPositionalParameter(position=1, key_parameter=False, unit=U_v)
     ac_phase = ExpressionPositionalParameter(position=2, key_parameter=False)
     transient = ExpressionPositionalParameter(position=3, key_parameter=False)
 
     def format_spice_parameters(self):
         parameters = []
         if self.dc_value is not None:
-            parameters.append('dc {}'.format(str_spice(self.dc_value)))
+            dc_value = str_spice(self.dc_value)
+            if isinstance(self.dc_value, Expression):
+                dc_value = "{%s}" % dc_value
+            parameters.append('dc {}'.format(dc_value))
         if self.ac_magnitude is not None:
-            parameters.append('ac {}'.format(str_spice(self.ac_magnitude)))
+            ac_magnitude = str_spice(self.ac_magnitude)
+            if isinstance(self.ac_magnitude, Expression):
+                ac_magnitude = "{%s}" % ac_magnitude
+            parameters.append('ac {}'.format(ac_magnitude))
         if self.ac_phase is not None:
+            ac_phase = str_spice(self.ac_phase)
             if self.ac_magnitude is None:
                 parameters.append('ac 0')
-            parameters.append(str_spice(self.ac_phase))
+            if isinstance(self.ac_phase, Expression):
+                ac_phase = "{%s}" % ac_phase
+            parameters.append(ac_phase)
         if self.transient is not None:
-            parameters.append(str_spice(self.transient))
+            transient = str_spice(self.transient)
+            if isinstance(self.transient, Expression):
+                transient = "{%s}" % transient
+            parameters.append(transient)
         return join_list(parameters)
 
 ####################################################################################################
@@ -844,23 +858,35 @@ class CurrentSource(DipoleElement):
     PREFIX = 'I'
 
     # Fixme: ngspice manual doesn't describe well the syntax
-    dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_A)
-    ac_magnitude = FloatPositionalParameter(position=1, key_parameter=False, unit=U_A)
+    dc_value = FloatPositionalParameter(position=0, key_parameter=False, unit=U_a)
+    ac_magnitude = FloatPositionalParameter(position=1, key_parameter=False, unit=U_a)
     ac_phase = ExpressionPositionalParameter(position=2, key_parameter=False)
     transient = ExpressionPositionalParameter(position=3, key_parameter=False)
 
     def format_spice_parameters(self):
         parameters = []
         if self.dc_value is not None:
-            parameters.append('dc {}'.format(str_spice(self.dc_value)))
+            dc_value = str_spice(self.dc_value)
+            if isinstance(self.dc_value, Expression):
+                dc_value = "{%s}" % dc_value
+            parameters.append('dc {}'.format(dc_value))
         if self.ac_magnitude is not None:
-            parameters.append('ac {}'.format(str_spice(self.ac_magnitude)))
+            ac_magnitude = str_spice(self.ac_magnitude)
+            if isinstance(self.ac_magnitude, Expression):
+                ac_magnitude = "{%s}" % ac_magnitude
+            parameters.append('ac {}'.format(ac_magnitude))
         if self.ac_phase is not None:
+            ac_phase = str_spice(self.ac_phase)
             if self.ac_magnitude is None:
                 parameters.append('ac 0')
-            parameters.append(str_spice(self.ac_phase))
+            if isinstance(self.ac_phase, Expression):
+                ac_phase = "{%s}" % ac_phase
+            parameters.append(ac_phase)
         if self.transient is not None:
-            parameters.append(str_spice(self.transient))
+            transient = str_spice(self.transient)
+            if isinstance(self.transient, Expression):
+                transient = "{%s}" % transient
+            parameters.append(transient)
         return join_list(parameters)
 
 ####################################################################################################
@@ -1037,8 +1063,8 @@ class BehavioralSource(DipoleElement):
     tc = FloatPairKeyParameter('tc')
     tc1 = FloatKeyParameter('tc1')
     tc2 = FloatKeyParameter('tc2')
-    temperature = FloatKeyParameter('temp', unit=U_Degree)
-    device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    temperature = FloatKeyParameter('temp', unit=U_c)
+    device_temperature = FloatKeyParameter('dtemp', unit=U_c)
     smoothbsrc = IntKeyParameter('smoothbsrc')
 
     ##############################################
@@ -1254,8 +1280,8 @@ class Diode(FixedPinElement):
     pj = FloatKeyParameter('pj')
     off = FlagParameter('off')
     ic = FloatPairKeyParameter('ic')
-    temperature = FloatKeyParameter('temp', unit=U_Degree)
-    device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    temperature = FloatKeyParameter('temp', unit=U_c)
+    device_temperature = FloatKeyParameter('dtemp', unit=U_c)
 
 ####################################################################################################
 #
@@ -1332,8 +1358,8 @@ class BipolarJunctionTransistor(FixedPinElement):
     multiplier = IntKeyParameter('m')
     off = FlagParameter('off')
     ic = FloatPairKeyParameter('ic')
-    temperature = FloatKeyParameter('temp', unit=U_Degree)
-    device_temperature = FloatKeyParameter('dtemp', unit=U_Degree)
+    temperature = FloatKeyParameter('temp', unit=U_c)
+    device_temperature = FloatKeyParameter('dtemp', unit=U_c)
 
     def format_node_names(self):
         fixed_pins = len(self.PINS) - self._number_of_optional_pins_
@@ -1404,7 +1430,7 @@ class JunctionFieldEffectTransistor(JfetElement):
     multiplier = IntKeyParameter('m')
     off = FlagParameter('off')
     ic = FloatPairKeyParameter('ic')
-    temperature = FloatKeyParameter('temp', unit=U_Degree)
+    temperature = FloatKeyParameter('temp', unit=U_c)
 
 ####################################################################################################
 #
@@ -1567,7 +1593,7 @@ class Mosfet(FixedPinElement):
     source_number_square = FloatKeyParameter('nrs')
     off = FlagParameter('off')
     ic = FloatTripletKeyParameter('ic')
-    temperature = FloatKeyParameter('temp', unit=U_Degree)
+    temperature = FloatKeyParameter('temp', unit=U_c)
 
     # only for Xyce
     nfin = IntKeyParameter('nfin')

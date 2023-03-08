@@ -62,7 +62,7 @@ class Giga(UnitPrefix):
 class Mega(UnitPrefix):
     POWER = 6
     PREFIX = 'M'
-    SPICE_PREFIX = 'Meg'
+    SPICE_PREFIX = 'meg'
 
 class Kilo(UnitPrefix):
     POWER = 3
@@ -98,7 +98,6 @@ class Pico(UnitPrefix):
 class Femto(UnitPrefix):
     POWER = -15
     PREFIX = 'f'
-    SPICE_PREFIX = None
 
 class Atto(UnitPrefix):
     POWER = -18
@@ -124,11 +123,13 @@ class Yocto(UnitPrefix):
 class Meter(SiBaseUnit):
     UNIT_NAME = 'meter'
     UNIT_SUFFIX = 'm'
+    SPICE_SUFFIX = ''
     QUANTITY = 'length'
 
 class Kilogram(SiBaseUnit):
     UNIT_NAME = 'kilogram'
     UNIT_SUFFIX = 'kg'
+    SPICE_SUFFIX = ''
     QUANTITY = 'mass'
 
 class Second(SiBaseUnit):
@@ -139,17 +140,20 @@ class Second(SiBaseUnit):
 
 class Ampere(SiBaseUnit):
     UNIT_NAME = 'ampere'
-    UNIT_SUFFIX = 'a'
+    UNIT_SUFFIX = 'A'
+    SPICE_SUFFIX = 'a'
     QUANTITY = 'electric current'
 
 class Kelvin(SiBaseUnit):
     UNIT_NAME = 'kelvin'
     UNIT_SUFFIX = 'K'
+    SPICE_SUFFIX = ''
     QUANTITY = 'thermodynamic temperature'
 
 class Mole(SiBaseUnit):
-    UNIT_NAME = 'mole'
+    UNIT_NAME = 'mol'
     UNIT_SUFFIX = 'mol'
+    SPICE_SUFFIX = ''
     QUANTITY = 'amount of substance'
 
 class Candela(SiBaseUnit):
@@ -171,43 +175,49 @@ class Radian(Unit):
 class Steradian(Unit):
     UNIT_NAME = 'steradian'
     UNIT_SUFFIX = 'sr'
+    SPICE_SUFFIX = ''
     QUANTITY = 'solid angle'
     SI_UNIT = 'm^2*m^-2'
     DEFAULT_UNIT = True
 
 class Hertz(Unit):
     UNIT_NAME = 'frequency'
-    UNIT_SUFFIX = 'hz'
+    UNIT_SUFFIX = 'Hz'
+    SPICE_SUFFIX = 'hz'
     QUANTITY = 'frequency'
     SI_UNIT = 's^-1'
     DEFAULT_UNIT = True
 
-#class Newton(Unit):
-#    UNIT_NAME = 'newton'
-#    UNIT_SUFFIX = 'N'
-#    QUANTITY = 'force'
-#    SI_UNIT = 'kg*m*s^-2'
-#    DEFAULT_UNIT = True
+class Newton(Unit):
+    UNIT_NAME = 'newton'
+    UNIT_SUFFIX = 'N'
+    SPICE_SUFFIX = ''
+    QUANTITY = 'force'
+    SI_UNIT = 'kg*m*s^-2'
+    DEFAULT_UNIT = True
 
-#class Pascal(Unit):
-#    UNIT_NAME = 'pascal'
-#    UNIT_SUFFIX = 'Pa'
-#    QUANTITY = 'pressure'
-#    SI_UNIT = 'kg*m^-1*s^-2'
-#    DEFAULT_UNIT = True
+class Pascal(Unit):
+    UNIT_NAME = 'pascal'
+    UNIT_SUFFIX = 'Pa'
+    SPICE_SUFFIX = ''
+    QUANTITY = 'pressure'
+    SI_UNIT = 'kg*m^-1*s^-2'
+    DEFAULT_UNIT = True
     # N/m^2
 
-#class Joule(Unit):
-#    UNIT_NAME = 'joule'
-#    UNIT_SUFFIX = 'J'
-#    QUANTITY = 'energy'
-#    SI_UNIT = 'kg*m^2*s^-2'
-#    DEFAULT_UNIT = True
+class Joule(Unit):
+    UNIT_NAME = 'joule'
+    UNIT_SUFFIX = 'J'
+    SPICE_SUFFIX = ''
+    QUANTITY = 'energy'
+    SI_UNIT = 'kg*m^2*s^-2'
+    DEFAULT_UNIT = True
     # N*m
 
 class Watt(Unit):
     UNIT_NAME = 'watt'
-    UNIT_SUFFIX = 'w'
+    UNIT_SUFFIX = 'W'
+    SPICE_SUFFIX = 'w'
     QUANTITY = 'power'
     SI_UNIT = 'kg*m^2*s^-3'
     DEFAULT_UNIT = True
@@ -216,40 +226,45 @@ class Watt(Unit):
 class Coulomb(Unit):
     UNIT_NAME = 'coulomb'
     UNIT_SUFFIX = 'c'
+    SPICE_SUFFIX = ''
     QUANTITY = 'electric charge'
     SI_UNIT = 's*A'
     DEFAULT_UNIT = True
 
 class Volt(Unit):
     UNIT_NAME = 'volt'
-    UNIT_SUFFIX = 'v'
+    UNIT_SUFFIX = 'V'
+    SPICE_SUFFIX = 'v'
     QUANTITY = 'voltage'
     SI_UNIT = 'kg*m^2*s^-3*A^-1'
     DEFAULT_UNIT = True
     # W/A
 
-#class Farad(Unit):
-#    UNIT_NAME = 'farad'
-#    UNIT_SUFFIX = 'F'
-#    QUANTITY = 'capacitance'
-#    SI_UNIT = 'kg^-1*m^-2*s^4*A^2'
-#    DEFAULT_UNIT = True
+class Farad(Unit):
+    UNIT_NAME = 'farad'
+    UNIT_SUFFIX = 'F'
+    SPICE_SUFFIX = ''
+    QUANTITY = 'capacitance'
+    SI_UNIT = 'kg^-1*m^-2*s^4*A^2'
+    DEFAULT_UNIT = True
     # C/V
 
 class Ohm(Unit):
     UNIT_NAME = 'ohm'
     UNIT_SUFFIX = 'Ω'
+    SPICE_SUFFIX = 'ohm'
     QUANTITY = 'electric resistance, impedance, reactance'
     SI_UNIT = 'kg*m^2*s^-3*A^-2'
     DEFAULT_UNIT = True
     # V/A
 
-#class Siemens(Unit):
-#    UNIT_NAME = 'siemens'
-#    UNIT_SUFFIX = 'S'
-#    QUANTITY = 'electrical conductance'
-#    SI_UNIT = 'kg^-1*m^-2*s^3*A^2'
-#    DEFAULT_UNIT = True
+class Siemens(Unit):
+    UNIT_NAME = 'siemens'
+    UNIT_SUFFIX = 'S'
+    SPICE_SUFFIX = ''
+    QUANTITY = 'electrical conductance'
+    SI_UNIT = 'kg^-1*m^-2*s^3*A^2'
+    DEFAULT_UNIT = True
     # A/V
 
 class Weber(Unit):
@@ -262,7 +277,8 @@ class Weber(Unit):
 
 class Tesla(Unit):
     UNIT_NAME = 'tesla'
-    UNIT_SUFFIX = ''
+    UNIT_SUFFIX = 'T'
+    SPICE_SUFFIX = ''
     QUANTITY = 'T'
     SI_UNIT = 'kg*s^-2*A^-1'
     DEFAULT_UNIT = True
@@ -272,13 +288,14 @@ class Henry(Unit):
     UNIT_NAME = 'henry'
     UNIT_SUFFIX = 'h'
     QUANTITY = 'inductance'
-    SI_UNIT = 'kg*m^2*s^-2*a^-2'
+    SI_UNIT = 'kg*m^2*s^-2*A^-2'
     DEFAULT_UNIT = True
     # Wb/A
 
 class DegreeCelsius(Unit):
     UNIT_NAME = 'degree celsius'
     UNIT_SUFFIX = '°C'
+    SPICE_SUFFIX = 'c'
     QUANTITY = 'temperature relative to 273.15 K'
     SI_UNIT = 'K'
 
@@ -303,25 +320,28 @@ class Becquerel(Unit):
     QUANTITY = 'radioactivity (decays per unit time)'
     SI_UNIT = 's^-1' # same as Hertz
 
-#class Gray(Unit):
-#    UNIT_NAME = 'gray'
-#    UNIT_SUFFIX = 'Gy'
-#    QUANTITY = 'absorbed dose (of ionizing radiation)'
-#    SI_UNIT = 'm^2*s^-2'
+class Gray(Unit):
+    UNIT_NAME = 'gray'
+    UNIT_SUFFIX = 'Gy'
+    SPICE_SUFFIX = ''
+    QUANTITY = 'absorbed dose (of ionizing radiation)'
+    SI_UNIT = 'm^2*s^-2'
     # J/kg
 
 class Sievert(Unit):
     UNIT_NAME = 'sievert'
     UNIT_SUFFIX = 'sv'
+    SPICE_SUFFIX = ''
     QUANTITY = ' equivalent dose (of ionizing radiation)'
     SI_UNIT = 'm^2*s^-2'
 
-#class Katal(Unit):
-#    UNIT_NAME = 'katal'
-#    UNIT_SUFFIX = 'kat'
-#    QUANTITY = 'catalytic activity'
-#    SI_UNIT = 'mol*s^-1'
-#    DEFAULT_UNIT = True
+class Katal(Unit):
+    UNIT_NAME = 'katal'
+    UNIT_SUFFIX = 'kat'
+    SPICE_SUFFIX = ''
+    QUANTITY = 'catalytic activity'
+    SI_UNIT = 'mol*s^-1'
+    DEFAULT_UNIT = True
 
 ####################################################################################################
 

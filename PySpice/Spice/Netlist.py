@@ -94,6 +94,7 @@ from .ElementParameter import (
     FlagParameter, KeyValueParameter,
 )
 from .Simulation import CircuitSimulator
+from .Expressions import Expression
 
 ####################################################################################################
 
@@ -507,7 +508,7 @@ class Element(metaclass=ElementParameterMetaClass):
     def __init__(self, netlist, name, *args, **kwargs):
 
         self._netlist = netlist
-        self._name = str(name)
+        self._name = str(name).lower()
         self.raw_spice = ''
         self.enabled = True
         parent = netlist
@@ -526,12 +527,12 @@ class Element(metaclass=ElementParameterMetaClass):
                 if parameter.attribute_name in kwargs:
                     optional_pins += 1
                     continue
-            if 0 < optional_pins <= self._number_of_optional_pins_:
+            if optional_pins <= self._number_of_optional_pins_ and len(args) >= optional_pins:
                 self._pins += [Pin(self, pin_definition, netlist.get_node(node, True))
                       for pin_definition, node in zip(self.PINS[len(self._pins):], args[:optional_pins])]
                 args = args[optional_pins:]
             else:
-                IndexError("Incongruent number of args")
+                raise IndexError("Incongruent number of optional pins on device: {}{}".format(self.PREFIX, self._name))
             if len(args) > 0:
                 read = [False] * len(args)
                 for parameter in self._positional_parameters.values():
@@ -984,7 +985,7 @@ class Netlist:
             return self._subcircuits[name_low]
 
     def _add_node(self, node_name):
-        node_name = str(node_name)
+        node_name = str(node_name).lower()
         if node_name not in self._nodes:
             node = Node(self, node_name)
             self._nodes[node_name] = node
@@ -1007,7 +1008,7 @@ class Netlist:
         if isinstance(node, Node):
             return node
         else:
-            str_node = str(node)
+            str_node = str(node).lower()
             if str_node in self._nodes:
                 return self._nodes[str_node]
             elif create:
@@ -1024,19 +1025,20 @@ class Netlist:
 
     def _add_element(self, element):
         """Add an element."""
-        if element.name not in self._elements:
-            self._elements[str(element.name).lower()] = element
+        element_name = str(element.name).lower()
+        if element_name not in self._elements:
+            self._elements[element_name] = element
             if hasattr(element, 'model'):
                 model = element.model
                 if model is not None:
-                    self._used_models.add(str(model).lower())
+                    self._used_models.add(model)
 
             if element.name[0] in "xX":
-                subcircuit_name = element.subcircuit_name
+                subcircuit_name = str(element.subcircuit_name).lower()
                 if subcircuit_name is not None:
-                    self._used_subcircuits.add(str(subcircuit_name).lower())
+                    self._used_subcircuits.add(subcircuit_name)
         else:
-            raise NameError("Element name {} is already defined".format(element.name))
+            raise NameError("Element name {} is already defined".format(element_name))
 
     ##############################################
 
@@ -1050,7 +1052,7 @@ class Netlist:
 
     def parameter(self, name, expression):
         """Set a parameter."""
-        self._parameters[str(name)] = expression
+        self._parameters[str(name).lower()] = expression
 
     ##############################################
 
@@ -1060,7 +1062,7 @@ class Netlist:
 
         model = DeviceModel(str(name).lower(), model_type, **parameters)
         if model.name not in self._models:
-            self._models[str(model.name).lower()] = model
+            self._models[model.name] = model
         else:
             raise NameError("Model name {} is already defined".format(name))
 
@@ -1104,7 +1106,7 @@ class Netlist:
     ##############################################
 
     def _str_parameters(self):
-        parameters = [".param {}={}".format(key, str_spice(value))
+        parameters = [".param {}={}".format(key, ('{%s}' % str_spice(value)) if isinstance(value, Expression) else str_spice(value))
                       for key, value in self._parameters.items()]
         return join_lines(parameters)
 
@@ -1156,8 +1158,9 @@ class Netlist:
                 library = library[entry]
             models = library.models
             for model in models:
-                self.model(model._name, model._model_type, **model._parameters)
-                self._models[model._name.lower()]._included = path
+                model_name = str(model._name).lower()
+                self.model(model_name, model._model_type, **model._parameters)
+                self._models[model_name]._included = path
             subcircuits = library.subcircuits
             for subcircuit in subcircuits:
                 subcircuit_def = subcircuit.build(parent=self)
@@ -1275,9 +1278,9 @@ class SubCircuit(Netlist):
 
         netlist = '.subckt ' + join_list((self._name, nodes))
         if self._params:
-            parameters = join_list(['{}={}'.format(key, str_spice(value))
-                                    for key, value in self._params.items()])
-            netlist += ' params: ' + parameters
+            parameters = {key: ('{%s}' % str_spice(value)) if isinstance(value, Expression) else str_spice(value)
+                          for key, value in self._params.items()}
+            netlist += ' params: ' + join_dict(parameters)
         netlist += os.linesep
         netlist += super().__str__()
         netlist += '.ends ' + self._name + os.linesep

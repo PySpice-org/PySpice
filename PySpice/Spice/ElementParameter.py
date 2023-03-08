@@ -26,7 +26,7 @@
 
 from ..Unit.Unit import UnitValue, PrefixedUnit
 from ..Tools.StringTools import str_spice
-from .Expressions import Expression
+from .Expressions import Expression, Symbol
 from .EBNFExpressionParser import ExpressionParser
 
 ####################################################################################################
@@ -113,18 +113,24 @@ class ParameterDescriptor:
         return self._attribute_name < other.attribute_name
 
     def _validate_float(self, value):
-        if (self._unit is None):
+        if self._unit is None:
             return float(value)
         if isinstance(value, type(self._unit)):
             return value
-        elif isinstance(value, UnitValue):
+        if type(value) is str:
+            value = ExpressionParser.parse(value)
+        if isinstance(value, Symbol):
+            if type(value.value) is str:
+                return value
+            value = value.value
+        if isinstance(value, Expression):
+            return value
+        if isinstance(value, UnitValue):
             if value.prefixed_unit.is_unit_less:
                 unit = PrefixedUnit(self._unit.unit, value.prefixed_unit.power)
                 return unit.new_value(value.value)
             elif value.prefixed_unit.unit == self._unit.unit:
                 return value
-        elif type(value) is str:
-            value = ExpressionParser.parse(value)
         return self._unit.new_value(value)
 
 ####################################################################################################
@@ -311,7 +317,10 @@ class KeyValueParameter(ParameterDescriptor):
     def to_str(self, instance):
 
         if bool(self):
-            return '{}={}'.format(self.spice_name, self.str_value(instance))
+            value = self.str_value(instance)
+            if isinstance(value, Expression):
+                value = '{%s}' % value
+            return '{}={}'.format(self.spice_name, value)
         else:
             return ''
 

@@ -30,7 +30,7 @@ import os
 
 from ..Config import ConfigInstall
 from ..Tools.StringTools import join_list, join_dict, str_spice
-from ..Unit import Unit, as_V, as_A, as_s, as_Hz, as_Degree, u_Degree
+from ..Unit import Unit, as_v, as_a, as_s, as_Hz, as_c, u_c
 
 ####################################################################################################
 
@@ -542,8 +542,8 @@ class CircuitSimulation:
         self._saved_nodes = set()
         self._analyses = {}
 
-        self.temperature = kwargs.get('temperature', u_Degree(27))
-        self.nominal_temperature = kwargs.get('nominal_temperature', u_Degree(27))
+        self.temperature = kwargs.get('temperature', u_c(27))
+        self.nominal_temperature = kwargs.get('nominal_temperature', u_c(27))
 
     ##############################################
 
@@ -567,7 +567,7 @@ class CircuitSimulation:
 
     @temperature.setter
     def temperature(self, value):
-        self._options['TEMP'] = as_Degree(value)
+        self._options['TEMP'] = as_c(value)
 
     ##############################################
 
@@ -577,7 +577,7 @@ class CircuitSimulation:
 
     @nominal_temperature.setter
     def nominal_temperature(self, value):
-        self._options['TNOM'] = as_Degree(value)
+        self._options['TNOM'] = as_c(value)
 
     ##############################################
 

@@ -2,6 +2,7 @@ import operator
 
 import numpy as np
 import operator as op
+from ..Tools.StringTools import str_spice
 
 class Expression:
     def __call__(self, **kwargs):
@@ -94,7 +95,7 @@ class Function(Expression):
                 ))
 
     def __str__(self):
-        arguments = ", ".join([str(symbol) for symbol in self._symbols])
+        arguments = ", ".join([str_spice(symbol) for symbol in self._symbols])
         return "{:s}({:s})".format(self.__class__.__name__.lower(), arguments)
 
     def __call__(self, **kwargs):
@@ -116,7 +117,13 @@ class BinaryOperator(Expression):
         self._string = string
 
     def __str__(self):
-        return "({:s} {:s} {:s})".format(str(self._lhs), str(self._string), str(self._rhs))
+        lhs = str_spice(self._lhs)
+        if isinstance(self._lhs, BinaryOperator):
+            lhs = "({:s})".format(lhs)
+        rhs = str_spice(self._rhs)
+        if isinstance(self._rhs, BinaryOperator):
+            rhs = "({:s})".format(rhs)
+        return "{:s} {:s} {:s}".format(lhs, str(self._string), rhs)
 
     def __call__(self, **kwargs):
         lhs = self._lhs
@@ -135,13 +142,16 @@ class BinaryOperator(Expression):
                 return self.__class__(lhs, rhs)
 
 class UnaryOperator(Expression):
-    def __init__(self, op, string, operator):
+    def __init__(self, op, operator, operand):
         self._op = op
         self._operator = operator
-        self._string = string
+        self._operand = operand
 
     def __str__(self):
-        return "({:s}({:s}))".format(str(self._string), str(self._operator))
+        operand = str_spice(self._operand)
+        if isinstance(self._operand, BinaryOperator):
+            operand = "({:s})".format(operand)
+        return "{:s}{:s}".format(str(self._operator), operand)
 
     def __call__(self, **kwargs):
         operator = self._operator
@@ -624,17 +634,28 @@ class URamp(Function):
 
 
 class Symbol(Expression):
-    def __init__(self, name):
-        self._name = str(name)
+    def __init__(self, value):
+        self._value = value
+
+    @property
+    def value(self):
+        return self._value
 
     def __str__(self):
-        return self._name
+        return str_spice(self._value)
 
     def subs(self, **kwargs):
-        if self._name in kwargs:
-            return kwargs[self._name]
+        name = str(self._value)
+        if name in kwargs:
+            return kwargs[name]
         else:
             return self
+
+    def __int__(self):
+        return int(self._value)
+
+    def __float__(self):
+        return float(self._value)
 
 
 class I(Symbol):
