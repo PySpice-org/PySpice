@@ -255,10 +255,10 @@ class Analysis:
 
         self._simulation = simulation
         # Fixme: to func?
-        self._nodes = {waveform.name:waveform for waveform in nodes}
-        self._branches = {waveform.name:waveform for waveform in branches}
-        self._elements = {waveform.name:waveform for waveform in elements}
-        self._internal_parameters = {waveform.name:waveform for waveform in internal_parameters}
+        self._nodes = {waveform.name.lower():waveform for waveform in nodes}
+        self._branches = {waveform.name.lower():waveform for waveform in branches}
+        self._elements = {waveform.name.lower():waveform for waveform in elements}
+        self._internal_parameters = {waveform.name.lower():waveform for waveform in internal_parameters}
 
     ##############################################
 
@@ -302,10 +302,7 @@ class Analysis:
     ##############################################
 
     def __getitem__(self, name):
-        try:
-            return self._get_item(name)
-        except IndexError:
-            return self._get_item(name.lower())
+        return self._get_item(name.lower())
 
     ##############################################
 
