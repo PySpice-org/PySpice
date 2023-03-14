@@ -295,7 +295,7 @@ class Henry(Unit):
 class DegreeCelsius(Unit):
     UNIT_NAME = 'degree celsius'
     UNIT_SUFFIX = '°C'
-    SPICE_SUFFIX = 'c'
+    SPICE_SUFFIX = 'celsius'
     QUANTITY = 'temperature relative to 273.15 K'
     SI_UNIT = 'K'
 
