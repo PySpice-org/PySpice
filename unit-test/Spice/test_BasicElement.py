@@ -26,6 +26,7 @@ import unittest
 
 from PySpice.Spice.BasicElement import *
 from PySpice.Spice.Netlist import Circuit
+from PySpice.Spice.Expressions import Symbol
 from PySpice.Unit import *
 
 ####################################################################################################
@@ -52,10 +53,12 @@ class TestBasicElement(unittest.TestCase):
                                               scale=1.5,
                                               temperature=25, device_temperature=26,
                                               noisy=True),
-                                     'R1 n1 n2 1kohm ac=2kohm dtemp=26c m=2 noisy=1 scale=1.5 temp=25c'.lower())
+                                     'R1 n1 n2 1kohm ac=2kohm dtemp=26 m=2 noisy=1 scale=1.5 temp=25'.lower())
         self._test_spice_declaration(Resistor(Circuit(''), '1', 'n1', 'n2', kilo(1),
                                               noisy=False),
                                      'R1 n1 n2 1kohm'.lower())
+        self._test_spice_declaration(Resistor(Circuit(''), '1', 'n1', 'n2', Symbol('r_1')),
+                                     'R1 n1 n2 {r_1}'.lower())
 
         self._test_spice_declaration(Diode(Circuit(''), '1', 1, 2, '1N4148'), 'd1 1 2 1n4148')
 

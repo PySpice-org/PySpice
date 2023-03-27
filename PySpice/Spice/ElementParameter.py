@@ -171,7 +171,14 @@ class PositionalElementParameter(ParameterDescriptor):
     ##############################################
 
     def to_str(self, instance):
-        return str_spice(self.__get__(instance))
+
+        if bool(self):
+            value = self.__get__(instance)
+            if isinstance(value, Expression):
+                return '{%s}' % value
+            return str_spice(value)
+        else:
+            return ''
 
     ##############################################
 
