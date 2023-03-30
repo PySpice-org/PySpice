@@ -159,10 +159,16 @@ class DCAnalysisParameters(AnalysisParameters):
     def __init__(self, **kwargs):
 
         self._parameters = []
-        for variable, value_slice in kwargs.items():
+        for variable, value in kwargs.items():
             variable_lower = variable.lower()
+
             if variable_lower[0] in ('v', 'i', 'r') or variable_lower == 'temp':
-                self._parameters += [variable, value_slice.start, value_slice.stop, value_slice.step]
+                try:
+                    iter(value)
+                    self._parameters += [variable, 'LIST'] + [val for val in value]
+                except TypeError:
+                    self._parameters += [variable, value.start, value.stop, value.step]
+
             else:
                 raise NameError('Sweep variable must be a voltage/current source, '
                                 'a resistor or the circuit temperature')
