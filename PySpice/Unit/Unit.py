@@ -856,7 +856,7 @@ class PrefixedUnit:
     def new_value(self, value):
         if isinstance(value, np.ndarray):
             return self._values_ctor.from_ndarray(value, self)
-        elif isinstance(value, collections.Iterable):
+        elif (not isinstance(value, str)) and isinstance(value, collections.Iterable):
             return [self._value_ctor(self, x) for x in value]
         else:
             return self._value_ctor(self, value)
@@ -881,6 +881,8 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def __init__(self, prefixed_unit, value):
+        from ..Spice.EBNFExpressionParser import ExpressionParser
+
         self._prefixed_unit = prefixed_unit
 
         if isinstance(value, UnitValue):
@@ -897,7 +899,11 @@ class UnitValue: # numbers.Real
         elif isinstance(value, int):
             self._value = value # to keep as int
         elif isinstance(value, str):
-            ValueError(value)
+            try:
+                expr = ExpressionParser.parse(value)
+                self._value = expr
+            except:
+                self._value = float(value)
         else:
             self._value = float(value)
 
@@ -1008,11 +1014,16 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def str(self, spice=False, space=False, unit=True):
-        string = str_spice(self._value, unit=False)
-        if space and not self.unit.is_unit_less:
-            string += ' '
-        if self.prefixed_unit:
-            string += self.prefixed_unit.str(spice, unit)
+        from ..Spice.Expressions import Expression
+        if isinstance(self._value, Expression):
+            string = '{{{}}}'.format(str_spice(self._value, unit=False))
+        else:
+            string = str_spice(self._value, unit=False)
+            if space and not self.unit.is_unit_less:
+                string += ' '
+            if self.prefixed_unit:
+                string += self.prefixed_unit.str(spice, unit)
+
         return string
 
     ##############################################

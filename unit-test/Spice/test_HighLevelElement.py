@@ -71,6 +71,22 @@ class TestHighLevelElement(unittest.TestCase):
             'vpwl1 1 0 dc 50v pwl(0s 0v 10ms 0v 11ms 5v 20ms 5v r=12ms td=34ms)',
         )
 
+        self._test_spice_declaration(
+            PulseVoltageSource(
+                Circuit(''),
+                'pulsed1', '1', '0',
+                initial_value=0,
+                pulse_value='{high}',
+                pulse_width=5,
+                period=10,
+                delay_time=1,
+                rise_time=0.1,
+                fall_time=0.1,
+                phase=None
+            ),
+            'vpulsed1 1 0 pulse(0v {high} 1s 0.1s 0.1s 5s 10s)',
+        )
+
 ####################################################################################################
 
 if __name__ == '__main__':
