@@ -711,5 +711,20 @@ vm5 nm5 0 dc -5v
         result = str(circuit)
         self.assertEqual(expected, result)
 
+    def test_pulsed_source(self):
+        source = """
+vpulsed1 1 0 pulse(0v {high} 1s 0.1s 0.1s 5s 10s)
+"""
+
+        expected = """.title
+
+vpulsed1 1 0 pulse(0v {high} 1s 0.1s 0.1s 5s 10s)
+"""
+
+        model = SpiceParser.parse(source=source)
+        circuit = model.build()
+        result = str(circuit)
+        self.assertEqual(expected, result)
+
 if __name__ == '__main__':
     unittest.main()

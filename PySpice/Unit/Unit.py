@@ -43,6 +43,7 @@ import numpy as np
 
 from ..Tools.EnumFactory import EnumFactory
 from ..Tools.StringTools import str_spice
+from ..Spice.Expressions import Expression
 
 ####################################################################################################
 
@@ -904,6 +905,8 @@ class UnitValue: # numbers.Real
                 self._value = expr
             except:
                 self._value = float(value)
+        elif isinstance(value, Expression):
+            self._value = value
         else:
             self._value = float(value)
 
@@ -1014,7 +1017,6 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def str(self, spice=False, space=False, unit=True):
-        from ..Spice.Expressions import Expression
         if isinstance(self._value, Expression):
             string = '{{{}}}'.format(str_spice(self._value, unit=False))
         else:
