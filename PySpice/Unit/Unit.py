@@ -43,7 +43,6 @@ import numpy as np
 
 from ..Tools.EnumFactory import EnumFactory
 from ..Tools.StringTools import str_spice
-from ..Spice.Expressions import Expression
 
 ####################################################################################################
 
@@ -883,6 +882,7 @@ class UnitValue: # numbers.Real
 
     def __init__(self, prefixed_unit, value):
         from ..Spice.EBNFExpressionParser import ExpressionParser
+        from ..Spice.Expressions import Expression
 
         self._prefixed_unit = prefixed_unit
 
@@ -1017,6 +1017,8 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def str(self, spice=False, space=False, unit=True):
+        from ..Spice.Expressions import Expression
+
         if isinstance(self._value, Expression):
             string = '{{{}}}'.format(str_spice(self._value, unit=False))
         else:
