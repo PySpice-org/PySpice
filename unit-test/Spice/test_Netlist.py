@@ -213,11 +213,16 @@ r1 in out 9kohm
         from PySpice.Spice.Xyce.RawFile import RawFile
         circuit = Circuit('DC list')
         circuit.V('input', 'in', circuit.gnd, '10V')
-        circuit.R('load', 'in', 'out', 9@u_kΩ)
+        circuit.R('load', 'in', circuit.gnd, 9@u_kΩ)
         simulator = circuit.simulator(simulator='xyce-serial', working_directory='.')
         simulator.save('all')
         if shutil.which('xyce'):
             result = simulator.dc(rload=slice(1, 3, 1), vinput=(1, 2, 3, 4))
+            self.assertTrue(os.path.exists('input.cir') and os.path.isfile('input.cir'))
+            self.assertTrue(os.path.exists('output.raw') and os.path.isfile('output.raw'))
+            data = RawFile(filename="output.raw")
+            print(data.nodes())
+            result = simulator.dc_sensitivity('v(in)')
             self.assertTrue(os.path.exists('input.cir') and os.path.isfile('input.cir'))
             self.assertTrue(os.path.exists('output.raw') and os.path.isfile('output.raw'))
             data = RawFile(filename="output.raw")

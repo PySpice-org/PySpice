@@ -435,6 +435,14 @@ def circuit_gft(prb):
 ####################################################################################################
 
 class TestSpiceParser(unittest.TestCase):
+    @staticmethod
+    def _getdir(pathname):
+        import os
+        curdir = os.path.abspath(os.curdir)
+        if curdir.endswith(pathname):
+            return curdir
+        else:
+            return os.path.abspath('unit-test/SpiceParser')
 
     ##############################################
 
@@ -450,8 +458,7 @@ class TestSpiceParser(unittest.TestCase):
 
     def test_library(self):
         from PySpice.Spice.Library import SpiceLibrary
-        import os
-        libraries_path = os.path.abspath('unit-test/SpiceParser')
+        libraries_path = self._getdir('unit-test/SpiceParser')
         spice_library = SpiceLibrary(libraries_path)
         circuit = Circuit('MOS Driver')
         circuit.include(spice_library['mosdriver'])
@@ -636,7 +643,7 @@ bexor yint 0 v={if((v(a) > 0.5) ^ (v(b) > 0.5), 1, 0)}
         print(os.getcwd())
         circuit = Circuit('MOS Driver\nSimple check')
         circuit.spice_sim = 'xyce'
-        circuit.include(os.path.join(os.getcwd(), 'unit-test/SpiceParser/mosdriver.lib'))
+        circuit.include(self._getdir('unit-test/SpiceParser') + '/mosdriver.lib')
         circuit.X('test', 'mosdriver', '0', '1', '2', '3', '4', '5', '6', '7')
         circuit.BehavioralSource('test', '1', '0', voltage_expression='{if(True, 0, 1)}', smoothbsrc=1)
         expected = """.title MOS Driver

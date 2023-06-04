@@ -1147,11 +1147,18 @@ class Netlist:
         return netlist
 
     def include(self, path, entry=None):
-        from .EBNFSpiceParser import SpiceParser
+        from .EBNFSpiceParser import SpiceParser, ModelStatement, SubCircuitStatement
 
         """Include a file."""
-
-        if path not in self._includes:
+        if isinstance(path, ModelStatement):
+            model = path
+            model_def = model.build(parent=self)
+            self.model(model_def)
+        elif isinstance(path, SubCircuitStatement):
+            subcircuit = path
+            subcircuit_def = subcircuit.build(parent=self)
+            self.subcircuit(subcircuit_def)
+        elif path not in self._includes:
             self._includes.append(path)
             library = SpiceParser.parse(path=path)
             if entry is not None:

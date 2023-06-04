@@ -26,7 +26,7 @@ import re
 ####################################################################################################
 
 from ..Tools.File import Directory
-from .Parser import SpiceParser
+from .EBNFSpiceParser import SpiceParser
 
 ####################################################################################################
 
@@ -76,22 +76,22 @@ class SpiceLibrary:
             if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
                 try:
-                    spice_parser = SpiceParser(path=path, recurse=recurse, section=section)
-                    for lib in spice_parser.incl_libs:
-                        self._subcircuits.update(lib._subcircuits)
-                        self._models.update(lib._models)
+                    spice_parser = SpiceParser.parse(path=path, library=True)
+                    for subcircuit in spice_parser.subcircuits:
+                        self._subcircuits[str(subcircuit.name).lower()] = subcircuit
+                    for model in spice_parser.models:
+                        self._models[str(model.name).lower()] = model
                 except Exception as e:
                     # Parse problem with this file, so skip it and keep going.
                     self._logger.warn("Problem parsing {path} - {e}".format(**locals()))
                     continue
-                if spice_parser.is_only_subcircuit():
-                    for subcircuit in spice_parser.subcircuits:
-                        name = self._suffix_name(subcircuit.name, extension)
-                        self._subcircuits[name] = path
-                elif spice_parser.is_only_model():
-                    for model in spice_parser.models:
-                        name = self._suffix_name(model.name, extension)
-                        self._models[name] = path
+        for subcircuit in self._subcircuits.values():
+            for sub in subcircuit._required_subcircuits:
+                if sub in self._subcircuits:
+                    subcircuit._subcircuits.append(self._subcircuits[sub])
+            for mod in subcircuit._required_models:
+                if mod in self._models:
+                    subcircuit._models.append(self._models[mod])
 
     ##############################################
 
