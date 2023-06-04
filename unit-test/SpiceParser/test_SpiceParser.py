@@ -456,6 +456,25 @@ class TestSpiceParser(unittest.TestCase):
         circuit_gft(values)
         self.assertNotRegex(values, r'([Nn][Oo][Nn][Ee])')
 
+    def test_libraryRaw(self):
+        from PySpice.Spice.Library import SpiceLibrary
+        spice_library = SpiceLibrary()
+        spice_library.insert("""
+.subckt test1 1 2 3
+xt 1 2 3 check
+.ends
+
+.subckt check 5 6 7
+.ends
+""")
+        circuit = Circuit('Lib test')
+        circuit.include(spice_library['test1'])
+        x_mos = circuit.X('test',
+                          'test1',
+                          'hb',
+                          'hi',
+                          'ho')
+
     def test_library(self):
         from PySpice.Spice.Library import SpiceLibrary
         libraries_path = self._getdir('unit-test/SpiceParser')

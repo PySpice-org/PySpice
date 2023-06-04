@@ -62,29 +62,13 @@ class SpiceLibrary:
         '.mod@xyce',
     )
 
-    ##############################################
+    def _add_parsed(self, parsed):
+        for subcircuit in parsed.subcircuits:
+            self._subcircuits[str(subcircuit.name).lower()] = subcircuit
+        for model in parsed.models:
+            self._models[str(model.name).lower()] = model
 
-    def __init__(self, root_path, recurse=False, section=None):
-
-        self._directory = Directory(root_path).expand_vars_and_user()
-
-        self._subcircuits = {}
-        self._models = {}
-
-        for path in self._directory.iter_file():
-            extension = path.extension.lower()
-            if extension in self.EXTENSIONS:
-                self._logger.debug("Parse {}".format(path))
-                try:
-                    spice_parser = SpiceParser.parse(path=path, library=True)
-                    for subcircuit in spice_parser.subcircuits:
-                        self._subcircuits[str(subcircuit.name).lower()] = subcircuit
-                    for model in spice_parser.models:
-                        self._models[str(model.name).lower()] = model
-                except Exception as e:
-                    # Parse problem with this file, so skip it and keep going.
-                    self._logger.warn("Problem parsing {path} - {e}".format(**locals()))
-                    continue
+    def _update_subcircuits(self):
         for subcircuit in self._subcircuits.values():
             for sub in subcircuit._required_subcircuits:
                 if sub in self._subcircuits:
@@ -92,6 +76,31 @@ class SpiceLibrary:
             for mod in subcircuit._required_models:
                 if mod in self._models:
                     subcircuit._models.append(self._models[mod])
+
+    ##############################################
+
+    def __init__(self, root_path=None, recurse=False, section=None):
+
+        self._directory = Directory(root_path).expand_vars_and_user()
+
+        self._subcircuits = {}
+        self._models = {}
+
+        if root_path is None:
+            return
+
+        for path in self._directory.iter_file():
+            extension = path.extension.lower()
+            if extension in self.EXTENSIONS:
+                self._logger.debug("Parse {}".format(path))
+                try:
+                    parsed = SpiceParser.parse(path=path, library=True)
+                    self._add_parsed(parsed)
+                except Exception as e:
+                    # Parse problem with this file, so skip it and keep going.
+                    self._logger.warn("Problem parsing {path} - {e}".format(**locals()))
+                    continue
+        self._update_subcircuits()
 
     ##############################################
 
@@ -148,3 +157,8 @@ class SpiceLibrary:
             if re.search(s, name):
                 matches[name] = mdl_subckt
         return matches
+
+    def insert(self, raw):
+        parsed = SpiceParser.parse(source=raw)
+        self._add_parsed(parsed)
+        self._update_subcircuits()
