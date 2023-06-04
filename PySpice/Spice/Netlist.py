@@ -884,7 +884,7 @@ class Netlist:
 
         self.raw_spice = ''
 
-        self.spice_sim = ''
+        self._spice_sim = ''
 
     ##############################################
 
@@ -951,6 +951,16 @@ class Netlist:
 
     def node(self, name):
         return self._nodes[name]
+
+    def _get_spice_sim(self):
+        return self._spice_sim
+
+    def _set_spice_sim(self, spice_sim):
+        for subcircuit in self._subcircuits:
+            self._subcircuits[subcircuit].spice_sim = spice_sim
+        self._spice_sim = spice_sim
+
+    spice_sim = property(_get_spice_sim, _set_spice_sim)
 
     ##############################################
 
@@ -1146,39 +1156,22 @@ class Netlist:
             netlist += os.linesep
         return netlist
 
-    def include(self, path, entry=None):
-        from .EBNFSpiceParser import SpiceParser, ModelStatement, SubCircuitStatement
+    def include(self, library):
+        from .Library import SpiceLibrary
 
         """Include a file."""
-        if isinstance(path, ModelStatement):
-            model = path
-            model_def = model.build(parent=self)
-            self.model(model_def)
-        elif isinstance(path, SubCircuitStatement):
-            subcircuit = path
-            subcircuit_def = subcircuit.build(parent=self)
-            self.subcircuit(subcircuit_def)
-        elif path not in self._includes:
-            self._includes.append(path)
-            library = SpiceParser.parse(path=path)
-            if entry is not None:
-                library = library[entry]
-            models = library.models
-            for model in models:
-                model_name = str(model._name).lower()
-                self.model(model_name, model._model_type, **model._parameters)
-                self._models[model_name]._included = path
-            subcircuits = library.subcircuits
-            for subcircuit in subcircuits:
-                subcircuit_def = subcircuit.build(parent=self)
-                self.subcircuit(subcircuit_def)
-                self._subcircuits[subcircuit._name.lower()]._included = path
-            parameters = library.parameters
-            for param in parameters:
-                self.parameters(*param)
+        if isinstance(library, SpiceLibrary):
+            spice_library = library
         else:
-            self._logger.warn("Duplicated include")
-
+            spice_library = SpiceLibrary(library)
+        models = spice_library.models
+        for model in models:
+            model_name = str(model).lower()
+            self.model(model_name, spice_library[model]._model_type, **spice_library[model]._parameters)
+        subcircuits = spice_library.subcircuits
+        for subcircuit in subcircuits:
+            subcircuit_def = spice_library[subcircuit].build(parent=self)
+            self.subcircuit(subcircuit_def)
 
 ####################################################################################################
 
@@ -1280,16 +1273,31 @@ class SubCircuit(Netlist):
     ##############################################
 
     def __str__(self):
+        netlist = self._str_raw_spice()
+
+        if self._subcircuits:
+            subcircuits = self._str_subcircuits()
+            netlist += subcircuits  # before elements
+            netlist += os.linesep
+
         """Return the formatted subcircuit definition."""
         nodes = join_list(self._external_nodes)
 
-        netlist = '.subckt ' + join_list((self._name, nodes))
+        netlist += '.subckt ' + join_list((self._name, nodes))
         if self._params:
             parameters = {key: ('{%s}' % str_spice(value)) if isinstance(value, Expression) else str_spice(value)
                           for key, value in self._params.items()}
             netlist += ' params: ' + join_dict(parameters)
         netlist += os.linesep
-        netlist += super().__str__()
+        if self._parameters:
+            parameters = self._str_parameters()
+            netlist += parameters
+            netlist += os.linesep
+        if self._models:
+            models = self._str_models()
+            netlist += models
+            netlist += os.linesep
+        netlist += self._str_elements() + os.linesep
         netlist += '.ends ' + self._name + os.linesep
         return netlist
 
@@ -1421,8 +1429,8 @@ class Circuit(Netlist):
         netlist = self._str_title()
         netlist += os.linesep
         # netlist += self._str_includes(simulator)
-        for sub_circuit in self.subcircuits:
-            sub_circuit.spice_sim = self.spice_sim
+        for sub_circuit in self._subcircuits:
+            self._subcircuits[sub_circuit].spice_sim = self.spice_sim
 
         if self._global_nodes:
             netlist += self._str_globals() + os.linesep

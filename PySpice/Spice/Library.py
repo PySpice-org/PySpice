@@ -22,6 +22,7 @@
 
 import logging
 import re
+import sys
 
 ####################################################################################################
 
@@ -71,10 +72,10 @@ class SpiceLibrary:
     def _update_subcircuits(self):
         for subcircuit in self._subcircuits.values():
             for sub in subcircuit._required_subcircuits:
-                if sub in self._subcircuits:
+                if sub not in subcircuit._subcircuits and sub in self._subcircuits:
                     subcircuit._subcircuits.append(self._subcircuits[sub])
             for mod in subcircuit._required_models:
-                if mod in self._models:
+                if mod not in subcircuit._models and mod in self._models:
                     subcircuit._models.append(self._models[mod])
 
     ##############################################
@@ -87,6 +88,7 @@ class SpiceLibrary:
         self._models = {}
 
         if root_path is None:
+            self._directory=None
             return
 
         for path in self._directory.iter_file():
@@ -94,12 +96,12 @@ class SpiceLibrary:
             if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
                 try:
-                    parsed = SpiceParser.parse(path=path, library=True)
+                    parsed = SpiceParser.parse(path=path)
                     self._add_parsed(parsed)
                 except Exception as e:
+                    tb = sys.exc_info()[2]
                     # Parse problem with this file, so skip it and keep going.
-                    self._logger.warn("Problem parsing {path} - {e}".format(**locals()))
-                    continue
+                    raise RuntimeError("Problem parsing {path} - {e}\n{}".format(**locals())).with_traceback(tb)
         self._update_subcircuits()
 
     ##############################################

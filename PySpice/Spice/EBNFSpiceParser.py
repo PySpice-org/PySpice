@@ -140,7 +140,7 @@ class IncludeStatement(Statement):
         if not (os.path.exists(file_name) and os.path.isfile(file_name)):
             raise ParseError("{}: File not found: {}".format(parent.path, file_name))
         try:
-            self._contents = SpiceParser.parse(path=file_name, library=True)
+            self._contents = SpiceParser.parse(path=file_name)
         except Exception as e:
             raise ParseError("{}: {:s}".format(parent.path, e))
 
@@ -172,10 +172,16 @@ class ModelStatement(Statement):
 
     """
 
+    def __eq__(self, other):
+        return isinstance(other, ModelStatement) and self._name == other._name
+
+    def __hash__(self):
+        return hash(self._name)
+
     ##############################################
 
     def __init__(self, name, device, **parameters):
-        self._name = name
+        self._name = str(name).lower()
         self._model_type = device
         self._parameters = parameters
 
@@ -456,10 +462,15 @@ class SubCircuitStatement(Statement):
     """
 
     ##############################################
+    def __eq__(self, other):
+        return isinstance(other, SubCircuitStatement) and self._name == other._name
+
+    def __hash__(self):
+        return hash(self._name)
 
     def __init__(self, name, *nodes, **params):
 
-        self._name = name
+        self._name = str(name).lower()
         self._nodes = nodes
         self._params = params
 
@@ -638,7 +649,7 @@ class CircuitStatement(Statement):
 
     def __repr__(self):
 
-        text = 'Library {}'.format(self._title) + os.linesep
+        text = 'Circuit {}'.format(self._title) + os.linesep
         text += os.linesep.join([repr(library) for library in self._libraries]) + os.linesep
         text += os.linesep.join([repr(parameter) for parameter in self._parameters]) + os.linesep
         text += os.linesep.join([repr(model) for model in self._models]) + os.linesep
@@ -1824,7 +1835,16 @@ class SpiceParser:
         pass
 
     @staticmethod
-    def parse(path=None, source=None, library=False):
+    def _update_subcircuits(statement, library):
+        for sub in statement._required_subcircuits:
+            if sub not in statement._subcircuits and sub in library._subcircuits:
+                statement._subcircuits.append(library._subcircuits[sub])
+        for mod in statement._required_models:
+            if mod not in statement._models and mod in library._models:
+                statement._models.append(library._models[mod])
+
+    @staticmethod
+    def parse(path=None, source=None, library=None):
         # Fixme: empty source
 
         if path is not None:
@@ -1847,11 +1867,11 @@ class SpiceParser:
             path = os.getcwd()
         data = ParsingData(path)
         circuit = SpiceParser._walker.walk(model, data)
-        if library:
-            circuit._required_models = {model.name.lower()
-                                        for model in circuit._models}
-            circuit._required_subcircuits = {subckt.name.lower()
-                                             for subckt in circuit._subcircuits}
+        if library is not None:
+            SpiceParser._update_subcircuits(circuit, library)
+            for subcircuit in circuit._subcircuits:
+                SpiceParser._update_subcircuits(subcircuit, library)
+
         try:
             SpiceParser._check_models(circuit)
             SpiceParser._sort_subcircuits(circuit)

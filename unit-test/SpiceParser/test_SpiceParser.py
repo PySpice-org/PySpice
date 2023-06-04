@@ -467,20 +467,32 @@ xt 1 2 3 check
 .subckt check 5 6 7
 .ends
 """)
-        circuit = Circuit('Lib test')
-        circuit.include(spice_library['test1'])
-        x_mos = circuit.X('test',
-                          'test1',
-                          'hb',
-                          'hi',
-                          'ho')
+        circuit_source = """.title Lib test
+Xtest 1 2 3 test1
+.end
+"""
+        circuit = SpiceParser.parse(source=circuit_source, library=spice_library)
+        expected = """.title Lib test
+
+.subckt check 5 6 7
+
+.ends check
+
+.subckt test1 1 2 3
+xt 1 2 3 check
+.ends test1
+
+xtest 1 2 3 test1
+"""
+        result = str(circuit.build())
+        self.assertEqual(expected, result)
 
     def test_library(self):
         from PySpice.Spice.Library import SpiceLibrary
         libraries_path = self._getdir('unit-test/SpiceParser')
         spice_library = SpiceLibrary(libraries_path)
         circuit = Circuit('MOS Driver')
-        circuit.include(spice_library['mosdriver'])
+        circuit.include(spice_library)
         x_mos = circuit.X('driver',
                           'mosdriver',
                           'hb',
@@ -668,12 +680,13 @@ bexor yint 0 v={if((v(a) > 0.5) ^ (v(b) > 0.5), 1, 0)}
         expected = """.title MOS Driver
 * Simple check
 
-.model diode D (is=1.038e-15 n=1 tt=2e-08 cjo=5e-12 rs=0.5 bv=130)
+
 .subckt source vh vl hi lo
 bhigh vh vl v={if(v(hi, lo) > 0.5, 5, 0)} smoothbsrc=1
 .ends source
 
 .subckt mosdriver hb hi ho hs li lo vdd vss
+.model diode D (is=1.038e-15 n=1 tt=2e-08 cjo=5e-12 rs=0.5 bv=130)
 xhigh hoi hs hi vss source
 rhoi hoi ho 1ohm
 choi ho hs 1e-09
