@@ -228,8 +228,7 @@ def _build_unit_shortcut(unit):
     _build_as_unit_shortcut(unit)
     _build_unit_type_shortcut(unit)
     for unit_prefix in _Unit.UnitPrefixMetaclass.prefix_iter():
-        if unit_prefix.is_defined_in_spice:
-            _build_unit_prefix_shortcut(unit, unit_prefix)
+        _build_unit_prefix_shortcut(unit, unit_prefix)
 
 for unit in _Unit.UnitMetaclass.unit_iter():
     if unit.unit_suffix and unit.__class__ not in (_SiUnits.Kilogram,):
