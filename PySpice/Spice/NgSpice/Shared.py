@@ -1198,12 +1198,14 @@ class NgSpiceShared:
 
         # Parse out measurement results
         results = results if isinstance(results, list) else results.splitlines()
+        meas_start_index = 0
+        meas_end_index = 0
         for line in results:
             if line.startswith('Measurements'):
                 meas_start_index = results.index(line) + 1
             elif meas_start_index and '=' in line:
                 meas_end_index = results.index(line)
-        if meas_end_index:
+        if meas_start_index and meas_end_index:
             for line in results[meas_start_index:meas_end_index]:
                 # Extract each measurement result as a k,v pair
                 print(line)
