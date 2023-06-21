@@ -1189,12 +1189,24 @@ class NgSpiceShared:
         #  in the background thread and wait until the simulation is done
 
         command = 'bg_run' if background else 'run'
-        self.exec_command(command)
+        results = self.exec_command(command)
 
         if background:
             self._is_running = True
         else:
             self._logger.debug("Simulation is done")
+
+        # Parse out measurement results
+        results = results if isinstance(results, list) else results.splitlines()
+        for line in results:
+            if line.startswith('Measurements'):
+                meas_start_index = results.index(line) + 1
+            elif meas_start_index and '=' in line:
+                meas_end_index = results.index(line)
+        if meas_end_index:
+            for line in results[meas_start_index:meas_end_index]:
+                # Extract each measurement result as a k,v pair
+                print(line)
 
         # time.sleep(.1) # required before to test if the simulation is running
         # while (self._ngspice_shared.ngSpice_running()):
