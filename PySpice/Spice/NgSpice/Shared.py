@@ -285,7 +285,7 @@ class Plot(dict):
         else:
             raise NotImplementedError("Unsupported plot name {}".format(self.plot_name))
         
-        analysis._measurements = measurements # Unsafe! TODO: use a proper setter
+        analysis.measurements = measurements
         return analysis
 
     ##############################################
@@ -1213,7 +1213,7 @@ class NgSpiceShared:
             for line in results[meas_start_index:meas_end_index]:
                 # Extract each measurement result as a k,v pair
                 [k, _, v, *_] = line.split()
-                measurements[k] = v
+                measurements[k] = float(v)
         return measurements
 
         # time.sleep(.1) # required before to test if the simulation is running

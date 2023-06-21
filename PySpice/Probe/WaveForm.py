@@ -254,7 +254,7 @@ class Analysis:
         self._branches = {waveform.name:waveform for waveform in branches}
         self._elements = {waveform.name:waveform for waveform in elements}
         self._internal_parameters = {waveform.name:waveform for waveform in internal_parameters}
-        self._measurements = measurements
+        self.measurements = measurements
 
     ##############################################
 
@@ -278,10 +278,6 @@ class Analysis:
     @property
     def internal_parameters(self):
         return self._internal_parameters
-    
-    @property
-    def measurements(self):
-        return self._measurements
 
    ##############################################
 
@@ -296,8 +292,8 @@ class Analysis:
             return self._elements[name]
         elif name in self._internal_parameters:
             return self._internal_parameters[name]
-        elif name in self._measurements:
-            return self._measurements[name]
+        elif name in self.measurements:
+            return self.measurements[name]
         else:
             raise IndexError(name)
 
@@ -328,7 +324,7 @@ class Analysis:
                 'Branches :' + os.linesep + self._format_dict(self._branches) + os.linesep +
                 'Elements :' + os.linesep + self._format_dict(self._elements) + os.linesep +
                 'Internal Parameters :' + os.linesep + self._format_dict(self._internal_parameters) +
-                'Measurements :' + os.linesep + self._format_dict(self._measurements)
+                'Measurements :' + os.linesep + self._format_dict(self.measurements)
             )
 
 ####################################################################################################
