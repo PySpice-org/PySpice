@@ -173,8 +173,12 @@ class SubCircuitElement(NPinElement):
         #     setattr(self, key, parameter)
 
         subcircuit_name = subcircuit_name.lower()
+        if netlist is None:
+            raise ValueError("Unexpected None value")
         subcircuit = netlist._find_subcircuit(subcircuit_name)
 
+        if subcircuit is None:
+            raise ValueError("Non existing subcircuit: {}".format(subcircuit_name))
         if len(nodes) != len(subcircuit.PINS):
             raise ValueError("Incorrect number of nodes for subcircuit {}".format(subcircuit_name))
 
