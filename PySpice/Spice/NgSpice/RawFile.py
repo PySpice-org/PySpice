@@ -192,7 +192,7 @@ class RawFile(RawFileAbc):
         header_line_iterator = iter(header_lines)
 
         try:
-            self._read_header_field_line(header_line_iterator, 'Note', has_value=False)
+            self.note = self._read_header_field_line(header_line_iterator, 'Note')
         except Exception as e:
             if 'No compatibility mode selected' in str(e):
                 # Reset iterator
