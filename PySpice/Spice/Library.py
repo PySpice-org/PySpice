@@ -23,6 +23,7 @@
 import logging
 import re
 import sys
+from collections import OrderedDict
 
 ####################################################################################################
 
@@ -64,19 +65,10 @@ class SpiceLibrary:
     )
 
     def _add_parsed(self, parsed):
-        for subcircuit in parsed.subcircuits:
-            self._subcircuits[str(subcircuit.name).lower()] = subcircuit
-        for model in parsed.models:
-            self._models[str(model.name).lower()] = model
-
-    def _update_subcircuits(self):
-        for subcircuit in self._subcircuits.values():
-            for sub in subcircuit._required_subcircuits:
-                if sub not in subcircuit._subcircuits and sub in self._subcircuits:
-                    subcircuit._subcircuits.append(self._subcircuits[sub])
-            for mod in subcircuit._required_models:
-                if mod not in subcircuit._models and mod in self._models:
-                    subcircuit._models.append(self._models[mod])
+        for name, subcircuit in parsed.subcircuits.items():
+            self._subcircuits[name] = subcircuit
+        for name, model in parsed.models.items():
+            self._models[name] = model
 
     ##############################################
 
@@ -84,8 +76,8 @@ class SpiceLibrary:
 
         self._directory = Directory(root_path).expand_vars_and_user()
 
-        self._subcircuits = {}
-        self._models = {}
+        self._subcircuits = OrderedDict()
+        self._models = OrderedDict()
 
         if root_path is None:
             self._directory=None
@@ -101,8 +93,7 @@ class SpiceLibrary:
                 except Exception as e:
                     tb = sys.exc_info()[2]
                     # Parse problem with this file, so skip it and keep going.
-                    raise RuntimeError("Problem parsing {path} - {e}\n{}".format(**locals())).with_traceback(tb)
-        self._update_subcircuits()
+                    raise RuntimeError("Problem parsing {}".format(e)).with_traceback(tb)
 
     ##############################################
 
@@ -163,4 +154,3 @@ class SpiceLibrary:
     def insert(self, raw):
         parsed = SpiceParser.parse(source=raw)
         self._add_parsed(parsed)
-        self._update_subcircuits()

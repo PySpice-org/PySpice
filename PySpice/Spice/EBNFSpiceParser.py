@@ -1,8 +1,10 @@
 import logging
 import os
 import csv
+import sys
 
 from unicodedata import normalize
+from collections import OrderedDict
 from .EBNFExpressionParser import ExpressionModelWalker
 from ..Unit.Unit import UnitValue, ZeroPower, PrefixedUnit
 from ..Tools.StringTools import join_lines
@@ -475,11 +477,12 @@ class SubCircuitStatement(Statement):
         self._params = params
 
         self._statements = []
-        self._subcircuits = []
-        self._models = []
-        self._required_subcircuits = set()
+        self._subcircuits = OrderedDict()
+        self._models = OrderedDict()
+        self._required_subcircuits = OrderedDict()
         self._required_models = set()
         self._parameters = []
+        self._parent = None
 
     ##############################################
 
@@ -531,24 +534,26 @@ class SubCircuitStatement(Statement):
     def append(self, statement):
         """ Append a statement to the statement's list. """
         self._statements.append(statement)
+        if len(statement.name) > 0 and statement.name[0] in "xX":
+            self._required_subcircuits[statement.model] = None
 
     def appendModel(self, statement):
 
-        """ Append a model to the statement's list. """
+        """ Append a model to the models list. """
 
-        self._models.append(statement)
+        self._models[statement._name] = statement
 
     def appendParam(self, statement):
 
-        """ Append a param to the statement's list. """
+        """ Append a param to the parameters list. """
 
         self._parameters.append(statement)
 
     def appendSubCircuit(self, statement):
 
-        """ Append a model to the statement's list. """
-
-        self._subcircuits.append(statement)
+        """ Append a subcircuit to the subcircuits list. """
+        statement._parent = self
+        self._subcircuits[statement._name] = statement
 
     ##############################################
 
@@ -563,23 +568,66 @@ class SubCircuitStatement(Statement):
 
     ##############################################
 
+    def _build(self, ground, netlist):
+        for statement in self._parameters:
+            statement.build(netlist)
+        for name, statement in self._models.items():
+            statement.build(netlist)
+        # Check subcircuits
+        names = list(self._required_subcircuits.keys())
+        for name in names:
+            req_subcircuit = self._required_subcircuits[name]
+            if req_subcircuit is None:
+                # Search for the subcircuit
+                valid_subcircuit = self._search_build_subcircuit(name, ground, netlist)
+                if valid_subcircuit is not None:
+                    self._required_subcircuits[name] = id(valid_subcircuit)
+                else:
+                    self._required_subcircuits[name] = None
+        for name in names:
+            if self._required_subcircuits[name] is None:
+                raise ValueError("Subcircuit not found: {}", name)
+        for statement in self._statements:
+            if isinstance(statement, ElementStatement):
+                statement.build(netlist, ground)
+        return netlist
+
     def build(self, ground=0, parent=None):
         subcircuit = SubCircuit(str(self._name).lower(), *self._nodes, **self._params)
         subcircuit.parent = parent
-        for statement in self._parameters:
-            statement.build(subcircuit)
-        for statement in self._models:
-            statement.build(subcircuit)
-        for statement in self._subcircuits:
-            subckt = statement.build(ground, parent=subcircuit)  # Fixme: ok ???
-            subcircuit.subcircuit(subckt)
-        for statement in self._statements:
-            if isinstance(statement, ElementStatement):
-                statement.build(subcircuit, ground)
-        return subcircuit
+        return self._build(ground, subcircuit)
+
+    def _search_build_subcircuit(self, subcircuit_name, ground=0, netlist=None):
+        # If the subcircuit is in the netlist, return the subcircuit
+        subcircuit = None
+        if netlist is not None:
+            subcircuit = netlist._search_subcircuit(subcircuit_name)
+            if subcircuit is not None:
+                return subcircuit
+        # If it is not, search for it in subcircuits
+        if subcircuit_name in self._subcircuits:
+            subcircuit = self._subcircuits[subcircuit_name]
+        # Or in a possible library
+        elif hasattr(self, '_library'):
+            if subcircuit_name in self._library._subcircuits:
+                subcircuit = self._library._subcircuits[subcircuit_name]
+                self._subcircuits[subcircuit_name] = subcircuit
+        # If a netlist has been received and the subcircuit exists
+        if netlist is not None and subcircuit is not None:
+            # Build the subcircuit
+            result = self._subcircuits[subcircuit_name].build(ground, netlist)
+            # Add the subcircuit to the netlist
+            netlist.subcircuit(result)
+            # Return the subcircuit
+            return result
+        # If no subcircuit has been fount, try the parent
+        if self._parent is None or netlist.parent is None:
+            return None
+        else:
+            return self._parent._search_build_subcircuit(subcircuit_name, ground, netlist.parent)
 
 
-class CircuitStatement(Statement):
+class CircuitStatement(SubCircuitStatement):
     """ This class implements a circuit definition.
 
     Spice syntax::
@@ -591,6 +639,8 @@ class CircuitStatement(Statement):
     ##############################################
 
     def __init__(self, title, path):
+        super(CircuitStatement, self).__init__("")
+
         if path is not None:
             self._path = str(path)
         else:
@@ -599,14 +649,9 @@ class CircuitStatement(Statement):
         self._title = str(title)
 
         self._library_calls = []
-        self._statements = []
         self._libraries = {}
-        self._subcircuits = []
-        self._models = []
-        self._required_subcircuits = set()
-        self._required_models = set()
-        self._parameters = []
         self._data = {}
+        self._library = None
 
     ##############################################
 
@@ -667,12 +712,6 @@ class CircuitStatement(Statement):
 
     ##############################################
 
-    def append(self, statement):
-
-        """ Append a statement to the statement's list. """
-
-        self._statements.append(statement)
-
     def appendData(self, statement):
 
         """ Append a model to the statement's list. """
@@ -691,24 +730,6 @@ class CircuitStatement(Statement):
 
         self._library_calls.append(statement)
 
-    def appendModel(self, statement):
-
-        """ Append a model to the statement's list. """
-
-        self._models.append(statement)
-
-    def appendParam(self, statement):
-
-        """ Append a param to the statement's list. """
-
-        self._parameters.append(statement)
-
-    def appendSubCircuit(self, statement):
-
-        """ Append a model to the statement's list. """
-
-        self._subcircuits.append(statement)
-
     ##############################################
 
     def to_python(self, ground=0):
@@ -721,21 +742,16 @@ class CircuitStatement(Statement):
 
     ##############################################
 
-    def build(self, ground=0):
+    def build(self, ground=0, library=None):
         circuit = Circuit(self._title)
-        for statement in self._library_calls:
-            statement.build(circuit, self._libraries)
-        for statement in self._parameters:
-            statement.build(circuit)
-        for statement in self._models:
-            statement.build(circuit)
-        for statement in self._subcircuits:
-            subckt = statement.build(ground, parent=circuit)  # Fixme: ok ???
-            circuit.subcircuit(subckt)
-        for statement in self._statements:
-            if isinstance(statement, ElementStatement):
-                statement.build(circuit, ground)
-        return circuit
+        if library is not None:
+            if self._library is None:
+                self._library = library
+            else:
+                raise ValueError("Library already assigned.")
+        if self._library is not None:
+            circuit.include(self._library)
+        return self._build(ground, circuit)
 
 
 ####################################################################################################
@@ -1235,7 +1251,7 @@ class SpiceModelWalker(ExpressionModelWalker):
         if node.parameters is not None:
             parameters = self.walk(node.parameters, data)
             kwargs.update(parameters)
-        data._present._required_subcircuits.add(subcircuit_name.lower())
+        data._present._required_subcircuits[subcircuit_name.lower()] = None
         data._present.append(
             ElementStatement(
                 SubCircuitElement,
@@ -1497,8 +1513,15 @@ class SpiceModelWalker(ExpressionModelWalker):
         if isinstance(data, list):
             parameters.update({"values": data})
         else:
-            with open(data) as ifile:
-                ext = os.path.splitext(data)[1]
+            curdir = os.path.abspath(os.curdir)
+            datapath, filename = os.path.split(data)
+            if curdir.endswith(datapath):
+                curdir += os.sep + filename
+            else:
+                curdir = os.path.abspath(data)
+
+            with open(curdir) as ifile:
+                ext = os.path.splitext(curdir)[1]
                 reader = csv.reader(ifile, delimiter=',' if ext.lower() == ".csv" else ' ')
                 data = [(SpiceModelWalker._to_number(t),
                          SpiceModelWalker._to_number(value))
@@ -1639,9 +1662,23 @@ class SpiceModelWalker(ExpressionModelWalker):
         )
         # The include statement makes available all the parameters, models and
         # subcircuits in the file.
-        data._present._parameters.extend(include._contents._parameters)
-        data._present._models.extend(include._contents._models)
-        data._present._subcircuits.extend(include._contents._subcircuits)
+        for inc_parameters in include._contents._parameters:
+            for parameters in data._present._parameters:
+                for name in inc_parameters.names:
+                    if name in parameters.names:
+                        raise ValueError("Duplicated parameter name {} in include file: {}".format(name, filename))
+            data._present._parameters.append(inc_parameters)
+
+        for model in include._contents._models:
+            if model not in data._present._models:
+                data._present._models[model] = include._contents._models[model]
+            else:
+                raise ValueError("Duplicated model name {} in include file: {}".format(model.name, filename))
+        for name, subcircuit in include._contents._subcircuits.items():
+            if name not in data._present._subcircuits:
+                data._present._subcircuits[name] = subcircuit
+            else:
+                raise ValueError("Duplicated subcircuit name {} in include file: {}".format(subcircuit.name, filename))
 
     def walk_ICCmd(self, node, data):
         return node.text
@@ -1835,15 +1872,6 @@ class SpiceParser:
         pass
 
     @staticmethod
-    def _update_subcircuits(statement, library):
-        for sub in statement._required_subcircuits:
-            if sub not in statement._subcircuits and sub in library._subcircuits:
-                statement._subcircuits.append(library._subcircuits[sub])
-        for mod in statement._required_models:
-            if mod not in statement._models and mod in library._models:
-                statement._models.append(library._models[mod])
-
-    @staticmethod
     def parse(path=None, source=None, library=None):
         # Fixme: empty source
 
@@ -1868,15 +1896,13 @@ class SpiceParser:
         data = ParsingData(path)
         circuit = SpiceParser._walker.walk(model, data)
         if library is not None:
-            SpiceParser._update_subcircuits(circuit, library)
-            for subcircuit in circuit._subcircuits:
-                SpiceParser._update_subcircuits(subcircuit, library)
-
+            circuit._library = library
         try:
             SpiceParser._check_models(circuit)
-            SpiceParser._sort_subcircuits(circuit)
+            #SpiceParser._check_subcircuits(circuit)
         except Exception as e:
-            raise ParseError("{}: ".format(path) + str(e)) from e
+            tb = sys.exc_info()[2]
+            raise ParseError("{}: ".format(path) + str(e)).with_traceback(tb)
 
         return circuit
 
@@ -1903,47 +1929,39 @@ class SpiceParser:
     @staticmethod
     def _check_models(circuit, available_models=set()):
         p_available_models = {model.lower() for model in available_models}
-        p_available_models.update([model.name.lower() for model in circuit._models])
-        for subcircuit in circuit._subcircuits:
+        p_available_models.update([model.lower() for model in circuit._models])
+        for name, subcircuit in circuit._subcircuits.items():
             SpiceParser._check_models(subcircuit, p_available_models)
         for model in circuit._required_models:
             if model not in p_available_models:
                 raise ValueError("Model (%s) not available in (%s)" % (model, circuit.name))
 
     @staticmethod
-    def _sort_subcircuits(circuit, available_subcircuits=set()):
-        p_available_subcircuits = {subckt.lower() for subckt in available_subcircuits}
-        names = [subcircuit.name.lower() for subcircuit in circuit._subcircuits]
-        p_available_subcircuits.update(names)
-        dependencies = dict()
-        for subcircuit in circuit._subcircuits:
-            required = SpiceParser._sort_subcircuits(subcircuit, p_available_subcircuits)
-            dependencies[subcircuit] = required
-        for subcircuit in circuit._required_subcircuits:
-            if subcircuit not in p_available_subcircuits:
-                raise ValueError("Subcircuit (%s) not available in (%s)" % (subcircuit, circuit.name))
-        items = sorted(dependencies.items(), key=lambda item: len(item[1]))
-        result = list()
-        result_names = list()
-        previous = len(items) + 1
-        while 0 < len(items) < previous:
-            previous = len(items)
-            remove = list()
-            for item in items:
-                subckt, depends = item
-                for name in depends:
-                    if name not in result_names:
-                        break
+    def _check_subcircuits(circuit):
+        p_available_subcircuits = dict(circuit._subcircuits)
+        library_available = circuit._library is not None
+        if library_available:
+            for name, subckt in circuit._library._subcircuits.items():
+                if name not in p_available_subcircuits:
+                    p_available_subcircuits[name] = subckt
                 else:
-                    result.append(subckt)
-                    result_names.append(subckt.name.lower())
-                    remove.append(item)
-            for item in remove:
-                items.remove(item)
-        if len(items) > 0:
-            raise ValueError("Crossed dependencies (%s)" % [(key.name, value) for key, value in items])
-        circuit._subcircuits = result
-        return circuit._required_subcircuits - set(names)
+                    raise NameError("Already used subcircuit name {} found in library {}".format(
+                        name,
+                        circuit._library.name))
+        for subcircuit in circuit._subcircuits.values():
+            required = subcircuit._revise_required_subcircuits(p_available_subcircuits)
+            for name, subckt in required.items():
+                if name not in circuit._required_subcircuits:
+                    circuit._required_subcircuits[name] = id(subckt)
+        for name, subcktid in circuit._required_subcircuits.items():
+            if subcktid is None:
+                raise NameError("Unable to find subcircuit: {}".format(name))
+            if name not in  circuit._subcircuits:
+                if library_available:
+                    if name in circuit._library._subcircuits:
+                        circuit._subcircuits[name] = circuit._library._subcircuits[name]
+                        continue
+
 
 
     @property

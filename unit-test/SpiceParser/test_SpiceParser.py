@@ -519,6 +519,54 @@ xtest 1 2 3 test1
         if shutil.which('xyce'):
             simulator.transient(1e-9, 1e-3)
 
+    def test_library_str(self):
+        from PySpice.Spice.Library import SpiceLibrary
+        libraries_path = self._getdir('unit-test/SpiceParser')
+        spice_library = SpiceLibrary()
+        spice_library.insert("""
+.subckt mosdriver hb hi ho hs li lo vdd vss
+
+.subckt source vh vl hi lo
+vhl vh vl 1
+vhilo hi lo 2
+.ends
+
+xhigh hb vss hi vss source
+xlow ho vss hs vss source
+rloi li lo 1
+
+.model diode d
+
+.ENDS mosdriver
+""")
+        circuit = Circuit('MOS Driver')
+        circuit.include(spice_library)
+        circuit.X('driver',
+                  'mosdriver',
+                  'hb',
+                  'hi',
+                  'ho',
+                  'hs',
+                  'li',
+                  'lo',
+                  'vdd',
+                  'vss')
+        circuit.R('hb', 'hb', 0, 1e12)
+        circuit.R('hi', 'hi', 0, 1e12)
+        circuit.R('ho', 'ho', 0, 1e12)
+        circuit.R('hs', 'hs', 0, 1e12)
+        circuit.R('li', 'li', 0, 1e12)
+        circuit.R('lo', 'lo', 0, 1e12)
+        circuit.R('test_temp', 'vss', 0, 10, tc=(4, 5))
+        circuit.B('test_tc', 'vdd', 0, v=5, tc=(7, 8))
+        simulator = circuit.simulator(simulator='xyce-serial',
+                                      temperature=25,
+                                      nominal_temperature=25,
+                                      working_directory='.')
+        simulator.options('device smoothbsrc=1')
+        if shutil.which('xyce'):
+            simulator.transient(1e-25, 1e-20)
+
     def test_working_dir(self):
         from PySpice.Spice.Xyce.RawFile import RawFile
         circuit = Circuit('Test working directory')
@@ -680,13 +728,12 @@ bexor yint 0 v={if((v(a) > 0.5) ^ (v(b) > 0.5), 1, 0)}
         expected = """.title MOS Driver
 * Simple check
 
-
+.model diode D (is=1.038e-15 n=1 tt=2e-08 cjo=5e-12 rs=0.5 bv=130)
 .subckt source vh vl hi lo
 bhigh vh vl v={if(v(hi, lo) > 0.5, 5, 0)} smoothbsrc=1
 .ends source
 
 .subckt mosdriver hb hi ho hs li lo vdd vss
-.model diode D (is=1.038e-15 n=1 tt=2e-08 cjo=5e-12 rs=0.5 bv=130)
 xhigh hoi hs hi vss source
 rhoi hoi ho 1ohm
 choi ho hs 1e-09

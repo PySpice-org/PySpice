@@ -878,13 +878,15 @@ class Netlist:
         self._elements = OrderedDict()  # to keep the declaration order
         self._models = OrderedDict()
         self._includes = []  # .include
-        self._used_models = set()
-        self._used_subcircuits = set()
+        self._used_models = {}
+        self._used_subcircuits = {}
         self._parameters = OrderedDict()
 
         self.raw_spice = ''
 
         self._spice_sim = ''
+
+        self._parent = None
 
     ##############################################
 
@@ -1033,20 +1035,87 @@ class Netlist:
 
     ##############################################
 
+    # def _update_used_models_subcircuits(self, subcircuit):
+    #     for mod in subcircuit._used_models:
+    #         if mod not in subcircuit._models:
+    #             self._used_models.add(mod)
+    #     for sub in subcircuit._used_subcircuits:
+    #         if sub in subcircuit._subcircuits:
+    #             if sub in self._subcircuits:
+    #                 raise ValueError("Repeated subcircuit label: {}".format(sub))
+    #             self._update_used_models_subcircuits(subcircuit._subcircuits[sub])
+    #             if sub not in self._subcircuits:
+    #                 self._subcircuits[sub] = subcircuit._subcircuits[sub]
+    #     self._used_subcircuits.add(subcircuit.name)
+
+    def _revise_required_models_subcircuits(self, subcircuits):
+        # Check the subcircuits required in the present object
+        # and confirm there are no duplicated subcircuit object with the same name
+        for subcircuit_name, subid in self._used_subcircuits.items():
+            if subcircuit_name in self._subcircuits:
+                subcktid = id(self._subcircuits[subcircuit_name])
+                if subid is None:
+                    self._used_subcircuits[subcircuit_name] = subcktid
+                elif subid != subcktid:
+                    raise ValueError("Differing subcircuits: {}".format(subcircuit_name))
+
+        # Check the subcircuits required in the present object with respect to parent
+        # and confirm there are no duplicated subcircuit object with the same name
+        for subcircuit_name in self._used_subcircuits:
+            if subcircuit_name in subcircuits:
+                subcktid = id(subcircuits[subcircuit_name])
+                if self._used_subcircuits[subcircuit_name] is not None and self._used_subcircuits[subcircuit_name] != subcktid:
+                    raise ValueError("Differing subcircuits: {}".format(subcircuit_name))
+                else:
+                    self._used_subcircuits[subcircuit_name] = subcktid
+
+        # Check the subcircuits in the present object with respect to parent
+        # and confirm there are no duplicated subcircuit object with the same name
+        for subcircuit_name in self._subcircuits:
+            if subcircuit_name in subcircuits:
+                if id(self._subcircuits[subcircuit_name]) != id(subcircuits[subcircuit_name]):
+                    raise ValueError("Differing subcircuits: {}".format(subcircuit_name))
+            else:
+                _, subcircuits[subcircuit_name] = self._subcircuits.popitem(subcircuit_name)
+
+        # Check the subcircuits in the child objects
+        for subcircuit_name in self._subcircuits:
+            required_subs, required_mods = self._subcircuits[subcircuit_name]._revise_required_models_subcircuits(subcircuits)
+            for subckt, subid in required_subs.items():
+                if subckt in self._used_subcircuits:
+                    if self._used_subcircuits[subckt] is None:
+                        self._used_subcircuits[subckt] = subid
+                    elif subid is not None and subid != self._used_subcircuits[subckt]:
+                        raise ValueError("Differing subcircuits: {}".format(subckt))
+                else:
+                    self._used_subcircuits[subckt] = subid
+            for mod_name, modid in required_mods.items():
+                if mod_name in self._used_models:
+                    if self._used_models[mod_name] is None:
+                        self._used_models[mod_name] = modid
+                    elif modid is not None and modid != self._used_models[mod_name]:
+                        raise ValueError("Differing subcircuits: {}".format(mod_name))
+                else:
+                    self._used_models[mod_name] = modid
+        return self._used_subcircuits, self._used_models
+
     def _add_element(self, element):
+        from .BasicElement import SubCircuitElement
         """Add an element."""
         element_name = str(element.name).lower()
         if element_name not in self._elements:
             self._elements[element_name] = element
             if hasattr(element, 'model'):
-                model = element.model
+                model = str(element.model).lower()
                 if model is not None:
-                    self._used_models.add(model)
+                    self._used_models[model] = None
 
-            if element.name[0] in "xX":
+            if isinstance(element, SubCircuitElement):
                 subcircuit_name = str(element.subcircuit_name).lower()
                 if subcircuit_name is not None:
-                    self._used_subcircuits.add(subcircuit_name)
+                    self._used_subcircuits[subcircuit_name] = None
+                else:
+                    ValueError("Subcircuit not provided for element: {}".format(element_name))
         else:
             raise NameError("Element name {} is already defined".format(element_name))
 
@@ -1083,14 +1152,10 @@ class Netlist:
     def subcircuit(self, subcircuit):
         """Add a sub-circuit."""
         # Fixme: subcircuit is a class
+        assert isinstance(subcircuit, SubCircuit)
         self._subcircuits[str(subcircuit.name).lower()] = subcircuit
-        subcircuit.parent = self
-        for model in subcircuit._used_models:
-            if model not in subcircuit._models:
-                self._used_models.add(model)
-        for subckt in subcircuit._used_subcircuits:
-            if subckt not in subcircuit._subcircuits:
-                self._used_subcircuits.add(subckt)
+        subcircuit._parent = self
+        self._revise_required_models_subcircuits(self._subcircuits)
 
     ##############################################
 
@@ -1165,14 +1230,25 @@ class Netlist:
         else:
             spice_library = SpiceLibrary(library)
         models = spice_library.models
-        for model in models:
-            model_name = str(model).lower()
-            self.model(model_name, spice_library[model]._model_type, **spice_library[model]._parameters)
+        for model_name in models:
+            self.model(model_name,
+                       spice_library[model_name]._model_type,
+                       **spice_library[model_name]._parameters)
         subcircuits = spice_library.subcircuits
-        for subcircuit in subcircuits:
-            subcircuit_def = spice_library[subcircuit].build(parent=self)
+        for subcircuit_name in subcircuits:
+            if self._search_subcircuit(subcircuit_name) is not None:
+                continue
+            subcircuit = spice_library[subcircuit_name]
+            assert subcircuit is not None
+            subcircuit_def = subcircuit.build(parent=self)
             self.subcircuit(subcircuit_def)
 
+    def _search_subcircuit(self, name):
+        if name in self._subcircuits:
+            return self._subcircuits[name]
+        if self._parent is not None:
+            return self._parent._search_subcircuit(name)
+        return None
 ####################################################################################################
 
 class SubCircuit(Netlist):
@@ -1275,11 +1351,6 @@ class SubCircuit(Netlist):
     def __str__(self):
         netlist = self._str_raw_spice()
 
-        if self._subcircuits:
-            subcircuits = self._str_subcircuits()
-            netlist += subcircuits  # before elements
-            netlist += os.linesep
-
         """Return the formatted subcircuit definition."""
         nodes = join_list(self._external_nodes)
 
@@ -1296,6 +1367,10 @@ class SubCircuit(Netlist):
         if self._models:
             models = self._str_models()
             netlist += models
+            netlist += os.linesep
+        if self._subcircuits:
+            subcircuits = self._str_subcircuits()
+            netlist += subcircuits  # before elements
             netlist += os.linesep
         netlist += self._str_elements() + os.linesep
         netlist += '.ends ' + self._name + os.linesep
