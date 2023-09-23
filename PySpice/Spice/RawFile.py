@@ -297,6 +297,9 @@ class RawFileAbc:
             raise NotImplementedError
 
         input_data = np.frombuffer(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
+        if len(input_data) != number_of_columns*self.number_of_points:
+            self.number_of_points = len(input_data)//number_of_columns
+            input_data = input_data[:number_of_columns*self.number_of_points]
         input_data = input_data.reshape((self.number_of_points, number_of_columns))
         input_data = input_data.transpose()
         # np.savetxt('raw.txt', input_data)
