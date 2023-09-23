@@ -519,6 +519,292 @@ xtest 1 2 3 test1
         if shutil.which('xyce'):
             simulator.transient(1e-9, 1e-3)
 
+    def test_library_direct(self):
+        from PySpice.Spice.Library import SpiceLibrary
+
+        library = SpiceLibrary()
+        library.insert("""
+
+        * INA901-SP
+        *****************************************************************************
+        * (C) Copyright 2011 Texas Instruments Incorporated. All rights reserved.                                            
+        *****************************************************************************
+        ** This model is designed as an aid for customers of Texas Instruments.
+        ** TI and its licensors and suppliers make no warranties, either expressed
+        ** or implied, with respect to this model, including the warranties of 
+        ** merchantability or fitness for a particular purpose.  The model is
+        ** provided solely on an "as is" basis.  The entire risk as to its quality
+        ** and performance is with the customer.
+        *****************************************************************************
+        *
+        * This model is subject to change without notice. Texas Instruments
+        * Incorporated is not responsible for updating this model.
+        *
+        *****************************************************************************
+        *
+        ** Released by: Analog eLab Design Center, Texas Instruments Inc.
+        * Part: INA901-SP
+        * Date: 27SEP2018
+        * Model Type: ALL IN ONE
+        * Simulator: PSPICE
+        * Simulator Version: 16.2.0.p001
+        * EVM Order Number: N/A
+        * EVM Users Guide: N/A
+        * Datasheet: SBOS938 OCTOBER 2018
+        *
+        * Model Version: 1.0
+        *
+        *****************************************************************************
+        *
+        * Updates:
+        *
+        * Version 1.0 : 
+        * Release to Web
+        *
+        *****************************************************************************
+        * BEGIN MODEL INA901-SP
+        * MODEL FEATURES INCLUDE INPUT FULL SCALE RANGE,
+        * COMMON MODE VOLTAGE RANGE, COMMON MODE REJECTION
+        * WITH FREQUENCY EFFECTS, POWER SUPPLY REJECTION
+        * WITH FREQUENCY EFFECTS, OFFSET VOLTAGE WITH
+        * TEMPCO, INPUT BIAS CURRENT, BUFFER BIAS CURRENT
+        * WITH TEMPCO, INPUT VOLTAGE NOISE, GAIN AND GAIN
+        * ERROR, GAIN AND PHASE VERSUS FREQUENCY, CLOAD
+        * EFFECTS, PRE OUT OUTPUT RESISTANCE, ALL FIVE
+        * OUTPUT ERROR MODES, OUTPUT SWING, OUTPUT CURRENT
+        * LIMIT, OUTPUT CURRENT FLOWING THROUGH THE SUPPLY
+        * RAILS, SLEW RATE, AND SETTLING TIME.
+        * PINOUT ORDER IN- GND PREOUT BUFIN OUT V+ IN+
+        * PINOUT ORDER  1   2     3     4    5   6  8
+        .SUBCKT INA901-SP 1 2 3 4 5 6 8
+        R42 2 1 1E12
+        R43 9 1 2.5E3
+        R44 9 8 2.5E3
+        E5 10 0 1 0 1
+        E6 11 0 8 0 1
+        R47 12 10 1E3
+        R48 12 11 1E3
+        E7 9 2 12 0 1
+        E8 13 0 14 0 10
+        R49 0 15 1E6
+        E9 16 0 15 0 1.0033
+        R50 0 17 1E12
+        E10 18 0 8 1 1
+        E11 19 0 20 9 1000
+        R53 0 19 1E12
+        E12 21 0 9 22 100
+        R54 0 21 1E12
+        E13 23 0 14 24 1000
+        R55 0 23 1E12
+        V17 24 2 0.02
+        M1 25 23 0 0 MNL
+        R56 25 26 1E5
+        M2 25 19 0 0 MNL
+        M3 25 21 0 0 MNL
+        V18 26 0 5
+        M5 27 19 0 0 MNL
+        R58 27 26 1E5
+        M6 27 21 0 0 MNL
+        R59 15 13 5E3
+        D1 28 15 DD
+        E14 29 0 25 0 0.04
+        V19 20 2 0.03
+        E15 30 0 31 32 0.5
+        R60 0 30 1E12
+        V20 31 0 0.3
+        E16 32 0 14 0 15
+        R61 0 32 1E12
+        E17 33 0 30 34 1000
+        D2 33 34 DD
+        R62 34 33 1E11
+        R63 0 34 1E3
+        E18 17 16 35 0 1
+        R64 0 16 1E12
+        R66 35 34 1E6
+        M8 35 36 0 0 MNL
+        R67 2 37 36E3
+        M9 38 27 0 0 MNL
+        R68 38 26 1E5
+        M10 38 23 0 0 MNL
+        M12 36 38 0 0 MNL
+        R70 36 26 1E5
+        R73 0 29 1E12
+        E20 28 0 29 15 300
+        R74 0 28 1E12
+        D3 39 14 DD
+        E22 39 0 40 14 500
+        R76 0 39 1E12
+        V21 40 0 0.001
+        R77 14 18 5E3
+        R78 3 41 96E3
+        R79 5 37 36E3
+        E23 41 2 17 42 1
+        Q21 43 44 45 QLN
+        R82 46 47 2
+        R83 48 47 2
+        R84 44 49 100
+        R85 50 51 100
+        R86 51 6 20
+        R87 2 49 20
+        R88 52 53 2E3
+        R89 54 22 20
+        R90 45 55 20
+        D6 5 6 DX
+        D7 2 5 DX
+        D8 56 0 DIN
+        D9 57 0 DIN
+        I9 0 56 0.1E-3
+        I10 0 57 0.1E-3
+        E24 45 0 2 0 1
+        E25 22 0 6 0 1
+        D10 58 0 DVN
+        D11 59 0 DVN
+        I11 0 58 0.4E-6
+        I12 0 59 0.4E-6
+        E26 60 37 58 59 1.03
+        G3 61 37 56 57 2.9E-7
+        I13 6 2 490E-6
+        R91 2 6 1E6
+        E27 62 0 22 0 1
+        E28 63 0 45 0 1
+        E29 64 0 12 0 1
+        R92 62 65 1E6
+        R93 63 66 1E6
+        R94 64 67 1E6
+        R95 0 65 100
+        R96 0 66 100
+        R97 0 67 100
+        E30 68 4 67 0 0.005
+        R98 69 70 1E3
+        R99 70 71 1E3
+        C7 62 65 0.2E-12
+        C8 63 66 0.2E-12
+        C9 64 67 300E-12
+        E31 72 68 66 0 0.001
+        E32 73 72 65 0 0.001
+        E33 74 45 22 45 0.5
+        D12 52 22 DX
+        D13 45 52 DX
+        M13 75 76 49 49 NOUT L=3U W=200U
+        M14 77 78 51 51 POUT L=3U W=200U
+        M15 79 79 54 54 POUT L=3U W=200U
+        M16 80 81 46 46 PIN L=3U W=21U
+        M17 82 60 48 48 PIN L=3U W=21U
+        M18 83 83 55 55 NOUT L=3U W=200U
+        R100 84 78 100
+        R101 85 76 100
+        G4 52 74 86 74 0.2E-3
+        R102 74 52 6E6
+        C13 53 5 15E-12
+        R103 45 80 1.7E3
+        R104 45 82 1.7E3
+        C14 80 82 6.5E-12
+        C15 61 0 1E-12
+        C16 60 0 1E-12
+        C17 5 0 1E-12
+        D14 76 43 DX
+        D15 87 78 DX
+        Q22 87 50 22 QLP
+        V24 61 81 -0.002
+        M19 88 89 90 90 NIN L=3U W=21U
+        R105 91 90 2
+        M20 92 60 93 93 NIN L=3U W=21U
+        R106 91 93 2
+        R107 88 22 1.7E3
+        R108 92 22 1.7E3
+        C21 88 92 6.5E-12
+        V25 81 89 0
+        M21 94 95 96 96 PIN L=6U W=500U
+        M22 97 98 22 22 PIN L=6U W=500U
+        V26 22 95 1.9
+        M23 91 94 45 45 NIN L=6U W=500U
+        M24 94 94 45 45 NIN L=6U W=500U
+        G7 52 74 99 74 0.2E-3
+        I15 79 83 80E-6
+        E34 71 0 61 0 1
+        E35 69 0 37 0 1
+        M25 98 98 22 22 PIN L=6U W=500U
+        I16 98 45 45E-6
+        V27 97 47 0
+        R109 5 77 50
+        R110 75 5 50
+        J2 22 61 22 NJ
+        J3 22 60 22 NJ
+        J4 60 45 60 NJ
+        J5 61 45 61 NJ
+        C22 61 60 0.1E-12
+        E36 100 74 92 88 1
+        R111 100 99 1E4
+        C23 99 74 9E-12
+        E37 101 74 82 80 1
+        R112 101 86 1E4
+        C24 86 74 9E-12
+        G8 102 74 52 74 -1E-3
+        G9 74 103 52 74 1E-3
+        G10 74 104 83 45 1E-3
+        G11 105 74 22 79 1E-3
+        D18 105 102 DX
+        D19 103 104 DX
+        R113 102 105 100E6
+        R114 104 103 100E6
+        R115 105 22 1E3
+        R116 45 104 1E3
+        E38 22 84 22 105 1
+        E39 85 45 104 45 1
+        R117 103 74 1E6
+        R118 104 74 1E6
+        R119 74 105 1E6
+        R120 74 102 1E6
+        R121 4 68 1E9
+        R122 68 72 1E9
+        R123 72 73 1E9
+        R124 37 60 1E9
+        R125 84 22 1E9
+        R126 45 85 1E9
+        R127 74 86 1E9
+        R128 74 99 1E9
+        R129 70 0 1E9
+        I21 60 0 1E-12
+        R130 96 97 6.5E3
+        C25 3 2 1P
+        R131 52 5 6E8
+        E41 42 0 106 0 4.19
+        R132 0 106 1E6
+        R133 0 106 1E6
+        R134 0 42 1E12
+        R136 0 20 1E12
+        R137 0 24 1E12
+        R138 31 0 1E12
+        R139 0 40 1E12
+        I22 0 107 1E-3
+        D20 107 0 DX
+        R140 0 107 1E9
+        V28 107 108 0.6551
+        R141 0 108 1E9
+        R142 0 108 1E9
+        G12 61 0 108 0 1.68E-8
+        E42 61 73 108 0 7.01E-3
+        R143 73 61 1E9
+        I23 61 0 50E-9
+        .MODEL MNL NMOS KP=200U VTO=0.7 IS=1E-18
+        .MODEL DVN D KF=1.6E-16 IS=1E-16
+        .MODEL DIN D
+        .MODEL DX D
+        .MODEL DD D
+        .MODEL NJ NJF
+        .MODEL QLP PNP
+        .MODEL QLN NPN
+        .MODEL POUT PMOS KP=200U VTO=-0.7 LAMBDA=0.01
+        .MODEL NOUT NMOS KP=200U VTO=0.7 LAMBDA=0.01
+        .MODEL PIN PMOS KP=200U VTO=-0.7
+        .MODEL NIN NMOS KP=200U VTO=0.7
+        .ENDS
+        * END MODEL INA901-SP
+
+
+        .MODEL DI_1N5819 D  ( IS=390n RS=0.115 BV=40.0 IBV=1.00m
+        + CJO=203p  M=0.333 N=1.70 TT=4.32u )
+        """)
     def test_library_str(self):
         from PySpice.Spice.Library import SpiceLibrary
         libraries_path = self._getdir('unit-test/SpiceParser')
