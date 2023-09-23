@@ -1897,11 +1897,6 @@ class SpiceParser:
         circuit = SpiceParser._walker.walk(model, data)
         if library is not None:
             circuit._library = library
-        try:
-            SpiceParser._check_models(circuit)
-        except Exception as e:
-            tb = sys.exc_info()[2]
-            raise ParseError("{}: ".format(path) + str(e)).with_traceback(tb)
 
         return circuit
 
@@ -1924,21 +1919,6 @@ class SpiceParser:
         model_file = os.path.join(location, "SpiceModel.py")
         with open(model_file, 'w') as model_ofile:
             model_ofile.write(python_model)
-
-    @staticmethod
-    def _check_models(circuit, available_models=set()):
-        p_available_models = {model.lower() for model in available_models}
-        p_available_models.update([model.lower() for model in circuit._models])
-        for name, subcircuit in circuit._subcircuits.items():
-            SpiceParser._check_models(subcircuit, p_available_models)
-        for model in circuit._required_models:
-            if model not in p_available_models:
-                if hasattr(circuit, "_library"):
-                    if model in circuit._library._models:
-                        circuit._models[model] = circuit._library._models[model]
-                        p_available_models.add(model)
-            if model not in p_available_models:
-                raise ValueError("Model (%s) not available in (%s)" % (model, circuit.name))
 
     @property
     def circuit(self):
