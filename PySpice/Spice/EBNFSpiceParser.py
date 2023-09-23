@@ -1899,7 +1899,6 @@ class SpiceParser:
             circuit._library = library
         try:
             SpiceParser._check_models(circuit)
-            #SpiceParser._check_subcircuits(circuit)
         except Exception as e:
             tb = sys.exc_info()[2]
             raise ParseError("{}: ".format(path) + str(e)).with_traceback(tb)
@@ -1934,35 +1933,12 @@ class SpiceParser:
             SpiceParser._check_models(subcircuit, p_available_models)
         for model in circuit._required_models:
             if model not in p_available_models:
+                if hasattr(circuit, "_library"):
+                    if model in circuit._library._models:
+                        circuit._models[model] = circuit._library._models[model]
+                        p_available_models.add(model)
+            if model not in p_available_models:
                 raise ValueError("Model (%s) not available in (%s)" % (model, circuit.name))
-
-    @staticmethod
-    def _check_subcircuits(circuit):
-        p_available_subcircuits = dict(circuit._subcircuits)
-        library_available = circuit._library is not None
-        if library_available:
-            for name, subckt in circuit._library._subcircuits.items():
-                if name not in p_available_subcircuits:
-                    p_available_subcircuits[name] = subckt
-                else:
-                    raise NameError("Already used subcircuit name {} found in library {}".format(
-                        name,
-                        circuit._library.name))
-        for subcircuit in circuit._subcircuits.values():
-            required = subcircuit._revise_required_subcircuits(p_available_subcircuits)
-            for name, subckt in required.items():
-                if name not in circuit._required_subcircuits:
-                    circuit._required_subcircuits[name] = id(subckt)
-        for name, subcktid in circuit._required_subcircuits.items():
-            if subcktid is None:
-                raise NameError("Unable to find subcircuit: {}".format(name))
-            if name not in  circuit._subcircuits:
-                if library_available:
-                    if name in circuit._library._subcircuits:
-                        circuit._subcircuits[name] = circuit._library._subcircuits[name]
-                        continue
-
-
 
     @property
     def circuit(self):

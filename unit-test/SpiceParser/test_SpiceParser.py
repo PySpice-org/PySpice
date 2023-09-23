@@ -805,6 +805,16 @@ xtest 1 2 3 test1
         .MODEL DI_1N5819 D  ( IS=390n RS=0.115 BV=40.0 IBV=1.00m
         + CJO=203p  M=0.333 N=1.70 TT=4.32u )
         """)
+        self.assertEqual(len(list(library.subcircuits)), 1)
+        self.assertEqual(len(list(library.models)), 1)
+
+        SpiceParser.parse(source="""
+XU5A np nn ncc nss nsee ADA4077
+Dup no ncc DI_1N5819
+Ddown 0 no DI_1N5819
+""", library=library)
+        circuit = Circuit("test")
+
     def test_library_str(self):
         from PySpice.Spice.Library import SpiceLibrary
         libraries_path = self._getdir('unit-test/SpiceParser')
