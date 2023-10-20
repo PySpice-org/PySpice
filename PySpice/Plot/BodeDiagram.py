@@ -33,7 +33,7 @@ from matplotlib import pyplot
 
 def bode_diagram_gain(axe, frequency, gain, **kwargs):
 
-    axe.semilogx(frequency, gain, basex=10, **kwargs)
+    axe.semilogx(frequency, gain, base=10, **kwargs)
     axe.grid(True)
     axe.grid(True, which='minor')
     axe.set_xlabel("Frequency [Hz]")
@@ -43,7 +43,7 @@ def bode_diagram_gain(axe, frequency, gain, **kwargs):
 
 def bode_diagram_phase(axe, frequency, phase, **kwargs):
 
-    axe.semilogx(frequency, phase, basex=10, **kwargs)
+    axe.semilogx(frequency, phase, base=10, **kwargs)
     axe.set_ylim(-math.pi, math.pi)
     axe.grid(True)
     axe.grid(True, which='minor')
