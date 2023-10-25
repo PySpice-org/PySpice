@@ -5,6 +5,8 @@ import operator as op
 from ..Tools.StringTools import str_spice
 
 class Expression:
+    """Base class for all expressions.
+    """
     def __call__(self, **kwargs):
         raise NotImplementedError("The call function is not implemented in class: {}".format(type(self)))
 
@@ -76,6 +78,18 @@ class Expression:
 
 
 class Function(Expression):
+    """Base class for all functions.
+
+    Args:
+        Expression (arguments): The arguments of the different functions.
+
+    Raises:
+        ValueError: If the number of arguments is not one of the expected.
+
+    Returns:
+        Expression or basic type: The result of the calculation of the expression
+        if all the arguments are basic types.
+    """
     nargs = 0
 
     def __init__(self, func, *symbols):
