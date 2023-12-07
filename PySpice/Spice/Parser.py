@@ -1005,7 +1005,7 @@ class SpiceParser:
                 statement.build(circuit, ground)
             elif isinstance(statement, Model):
                 statement.build(circuit)
-            elif isinstance(statement, SubCircuit):
+            elif isinstance(statement, SubCircuitStatement):
                 subcircuit = statement.build(ground) # Fixme: ok ???
                 circuit.subcircuit(subcircuit)
 
