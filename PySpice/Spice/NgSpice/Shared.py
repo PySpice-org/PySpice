@@ -618,7 +618,7 @@ class NgSpiceShared:
         prefix, _, content = message.partition(' ')
         if prefix == 'stderr':
             self._stderr.append(content)
-            if content.startswith('Warning:'):
+            if content.startswith('Warning:') or content.startswith('Note:') or content.startswith('Trying gmin'):
                 func = self._logger.warning
             # elif content.startswith('Warning:'):
             else:
@@ -847,7 +847,7 @@ class NgSpiceShared:
         if rc:  # Fixme: when not 0 ???
             raise NameError("ngSpice_Command '{}' returned {}".format(command, rc))
 
-        if self._error_in_stdout or self._error_in_stderr:
+        if self._error_in_stdout or self._error_in_stderr: #when run _error_in_stderr have been set
             raise NgSpiceCommandError("Command '{}' failed".format(command))
 
         if join_lines:
