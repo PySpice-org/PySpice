@@ -1251,13 +1251,17 @@ class SpiceSource:
 
     @property
     def is_only_subcircuit(self) -> bool:
-        return not self._circuit and self._subcircuits
+        # Fixme:
+        # return not self._circuit and
+        return self._subcircuits and not self._models
 
     ##############################################
 
     @property
     def is_only_model(self) -> bool:
-        return not self._circuit and not self._subcircuits and self._models
+        # Fixme:
+        # return not self._circuit and
+        return not self._subcircuits and self._models
 
 ####################################################################################################
 

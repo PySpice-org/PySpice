@@ -268,6 +268,7 @@ class Analysis:
     ##############################################
 
     def __setstate__(self, state):
+        # Fixme: useful ???
         self.__dict__.update(state)
 
     ##############################################
