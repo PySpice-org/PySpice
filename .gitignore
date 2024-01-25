@@ -36,6 +36,9 @@ yarn.lock
 .pytest_cache/
 .tox/
 
+.ipynb_checkpoints/
+.virtual_documents/
+
 PySpice.egg-info/
 build/
 dist/
