@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Looking for a Xyce Example - Xyce - PySpice</title>
+    <meta name="description" content="Hi, I have installed Xyce, NGSpice and PySpice and everything is almost working… except, when I run on iPython (actually Anaconda Spyder) then I stumbled into a cdef problem on duplidate definition of ngcomplex. I can se&amp;hellip;">
+    <meta name="generator" content="Discourse 2.9.0.beta4 - https://github.com/discourse/discourse version d90065e0efb7f68b92d06690a047a4d9cb972766">
+<link rel="icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_180x180.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="82.html" />
+<script type="application/ld+json">{"@context":"http://schema.org","@type":"WebSite","url":"https://pyspice.discourse.group","potentialAction":{"@type":"SearchAction","target":"https://pyspice.discourse.group/search?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+<link rel="search" type="application/opensearchdescription+xml" href="../../opensearch.xml" title="PySpice Search">
+
+    <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/color_definitions_base__2_eecd416525cef9093c2ee277775110e36aced01d.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-adplugin_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-adplugin"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-akismet_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-akismet"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-cakeday_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-cakeday"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-details_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-footnote_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-footnote"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-local-dates_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-narrative-bot_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-presence_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-solved_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-spoiler-alert_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-spoiler-alert"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/hosted-site_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="hosted-site"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/lazy-yt_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="lazy-yt"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_theme_2_34d020de06a5f743d99a6d1334b1cab5b823f5c9.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Looking for a Xyce Example&#39;" href="https://pyspice.discourse.group/t/looking-for-a-xyce-example/82.rss" />
+    <meta property="og:site_name" content="PySpice" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:url" content="https://pyspice.discourse.group/t/looking-for-a-xyce-example/82" />
+<meta name="twitter:url" content="https://pyspice.discourse.group/t/looking-for-a-xyce-example/82" />
+<meta property="og:title" content="Looking for a Xyce Example" />
+<meta name="twitter:title" content="Looking for a Xyce Example" />
+<meta property="og:description" content="Hi, I have installed Xyce, NGSpice and PySpice and everything is almost working… except, when I run on iPython (actually Anaconda Spyder) then I stumbled into a cdef problem on duplidate definition of ngcomplex. I can see on github some discussion, but not clear to me how to move forward on it. No mater, I have Xyce. But then I was stumbling at the start [again]. The documentation says to set an attribute  PySpice.Spice.Xyce.Server.XyceServer.XYCE_COMMAND = “C:\Program Files\Xyce 7.1 OPENSOURCE\..." />
+<meta name="twitter:description" content="Hi, I have installed Xyce, NGSpice and PySpice and everything is almost working… except, when I run on iPython (actually Anaconda Spyder) then I stumbled into a cdef problem on duplidate definition of ngcomplex. I can see on github some discussion, but not clear to me how to move forward on it. No mater, I have Xyce. But then I was stumbling at the start [again]. The documentation says to set an attribute  PySpice.Spice.Xyce.Server.XyceServer.XYCE_COMMAND = “C:\Program Files\Xyce 7.1 OPENSOURCE\..." />
+<meta property="article:published_time" content="2020-09-18T23:01:18+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    
+  </head>
+  <body class="crawler">
+    
+    <header>
+  <a href="../../index.html">
+    <h1>PySpice</h1>
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="82.html">Looking for a Xyce Example</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="../../c/xyce/7.html" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Xyce</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+
+      <div id='post_1' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/WannabeModeller'><span itemprop='name'>WannabeModeller</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="82.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2020-09-18T23:01:18Z' class='post-time'>
+                September 18, 2020, 11:01pm
+              </time>
+              <meta itemprop='dateModified' content='2020-09-18T23:01:18Z'>
+          <span itemprop='position'>#1</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>Hi, I have installed Xyce, NGSpice and PySpice and everything is almost working… except, when I run on iPython (actually Anaconda Spyder) then I stumbled into a cdef problem on duplidate definition of ngcomplex. I can see on github some discussion, but not clear to me how to move forward on it. No mater, I have Xyce. But then I was stumbling at the start [again]. The documentation says to set an attribute</p>
+<p>PySpice.Spice.Xyce.Server.XyceServer.XYCE_COMMAND = “C:\Program Files\Xyce 7.1 OPENSOURCE\bin\Xyce.exe”</p>
+<p>But where do I type that? It seems to be an attribute of a class or something?? So then I try<br>
+… = simulator(xyce_command=r"C:\Program Files\Xyce 7.1 OPENSOURCE\bin\Xyce.exe", simulator=‘xyce-serial’,…)</p>
+<p>and that one dies with file not found, although it is the correct command to launch Xyce.</p>
+<p>What finally worked (yeh!) was to edit by hand the PySpice source code and find where XyceCommand was defined and wow. I’m amazed. Works perfectly <img src="https://emoji.discourse-cdn.com/twitter/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>But was there a cleaner way that I could have done this?</p>
+<p>Thanks so much for  putting this product together. I’m excited to check it out further.</p>
+        </div>
+
+        <meta itemprop='headline' content='Looking for a Xyce Example'>
+          <meta itemprop='keywords' content=''>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="1" />
+          </div>
+
+      </div>
+      <div id='post_2' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/marianux'><span itemprop='name'>marianux</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="82.html">
+
+            <link itemprop="image" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/ec2cde7d7c59fb1524bfe18f30b83b2a68b7df2e.png">
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2021-11-26T14:51:51Z' class='post-time'>
+                November 26, 2021,  2:51pm
+              </time>
+              <meta itemprop='dateModified' content='2021-11-26T15:32:00Z'>
+          <span itemprop='position'>#2</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>I would also like Xyce examples too!</p>
+<p>Following the comments above, I managed to make all work in Ubuntu 20.04 here is some code:</p>
+<pre><code class="lang-auto">import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
+
+from PySpice.Spice.Netlist import Circuit
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+pCircuit1 = Circuit('Filtro pasabajo Bessel 3er orden')
+
+pCircuit1.SinusoidalVoltageSource('input', 'in', pCircuit1.gnd, amplitude=1)
+
+pCircuit1.R('G', 'in',  1, 1)
+pCircuit1.L('1',    1,  2,  1.255 )
+pCircuit1.C('1',    2,  pCircuit1.gnd,  0.5528 )
+pCircuit1.L('2',    2,  'out', 0.1922 )
+pCircuit1.R('L','out',  pCircuit1.gnd, 1)
+
+# NGspice
+# simulation1 = pCircuit1.simulator(temperature=25, nominal_temperature=25)
+# Xyce-serial
+simulation1 = pCircuit1.simulator(simulator = 'xyce-serial', xyce_command='/home/mariano/XyceInstall/Serial/bin/Xyce', temperature=25, nominal_temperature=25)
+
+analysis1 = simulation1.ac(start_frequency=0.001, stop_frequency=100, number_of_points=100,  variation='dec')
+
+ff = 2*np.pi * np.array(analysis1.frequency.tolist())
+
+figure, (axMod, axPha) = plt.subplots(2, sharex = True, figsize=(20, 10))
+
+axMod.semilogx(ff, 20*np.log10(np.abs(analysis1['out'])))
+axMod.semilogx(True)
+axMod.grid(True)
+axMod.grid(True, which='minor')
+axMod.set_ylabel("Módulo [dB]")
+
+plt.sca(axMod)
+plt.title("Síntesis doblemente cargada: Bessel de 3er orden")
+
+phase = np.unwrap(np.angle(analysis1['out']))
+delay = - np.diff(phase) / np.diff(ff)
+delay = np.concatenate(([delay[0]], delay))
+axPha.semilogx(ff, delay)
+axPha.grid(True)
+axPha.grid(True, which='minor')
+axPha.set_xlabel("Frecuencia [rad/s]")
+axPha.set_ylabel("Retardo [s]")
+</code></pre>
+<p>As a result a plot like that should be produced:</p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/ec2cde7d7c59fb1524bfe18f30b83b2a68b7df2e.png" data-download-href="/uploads/short-url/xHiOvs8STnZIQahaQ0KY9hzmBgq.png?dl=1" title="image" rel="noopener nofollow ugc"><img src="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/ec2cde7d7c59fb1524bfe18f30b83b2a68b7df2e_2_690x355.png" alt="image" data-base62-sha1="xHiOvs8STnZIQahaQ0KY9hzmBgq" width="690" height="355" srcset="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/ec2cde7d7c59fb1524bfe18f30b83b2a68b7df2e_2_690x355.png, https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/ec2cde7d7c59fb1524bfe18f30b83b2a68b7df2e_2_1035x532.png 1.5x, https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/ec2cde7d7c59fb1524bfe18f30b83b2a68b7df2e.png 2x" data-small-upload="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/ec2cde7d7c59fb1524bfe18f30b83b2a68b7df2e_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use href="#far-image"></use></svg><span class="filename">image</span><span class="informations">1179×608 33.1 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use href="#discourse-expand"></use></svg>
+</div></a></div></p>
+<p>The simulation is for this circuit</p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/91d30ada1040c58ff84780dcfe3170dc5fdf32bd.png" data-download-href="/uploads/short-url/kO1o92RO5ezqkb8szDKWNSkWjLv.png?dl=1" title="image" rel="noopener nofollow ugc"><img src="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/91d30ada1040c58ff84780dcfe3170dc5fdf32bd_2_690x264.png" alt="image" data-base62-sha1="kO1o92RO5ezqkb8szDKWNSkWjLv" width="690" height="264" srcset="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/91d30ada1040c58ff84780dcfe3170dc5fdf32bd_2_690x264.png, https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/91d30ada1040c58ff84780dcfe3170dc5fdf32bd.png 1.5x, https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/91d30ada1040c58ff84780dcfe3170dc5fdf32bd.png 2x" data-small-upload="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/91d30ada1040c58ff84780dcfe3170dc5fdf32bd_2_10x10.png"><div class="meta">
+<svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use href="#far-image"></use></svg><span class="filename">image</span><span class="informations">852×327 11 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use href="#discourse-expand"></use></svg>
+</div></a></div></p>
+        </div>
+
+        <meta itemprop='headline' content='Looking for a Xyce Example'>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='https://pyspice.discourse.group/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    
+  </body>
+  
+</html>

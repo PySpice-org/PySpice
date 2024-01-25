@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:discourse="http://www.discourse.org/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Data Analysis using Python - PySpice</title>
+    <link>https://pyspice.discourse.group/c/data-analysis-using-python/8</link>
+    <description>Topics in the &#39;Data Analysis using Python&#39; category </description>
+    
+      <lastBuildDate>Fri, 06 Nov 2020 15:07:46 +0000</lastBuildDate>
+      <atom:link href="https://pyspice.discourse.group/c/data-analysis-using-python/8.rss" rel="self" type="application/rss+xml" />
+        <item>
+          <title>Losing units when summing a Waveform</title>
+          <dc:creator><![CDATA[devbisme]]></dc:creator>
+          <category>Data Analysis using Python</category>
+          <description><![CDATA[
+            <p>I multiplied two Waveform objects: one containing voltages and the other containing currents. Then I multiplied it by a PeriodValue. As expected, the resulting Wavform object contains numbers with the units of Joules. But when I applied the sum() method to this Waveform, I got a scalar value with no units.</p>
+<p>Is there any way to do this without losing the units for the calculations that follow?</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/losing-units-when-summing-a-waveform/97">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/losing-units-when-summing-a-waveform/97</link>
+          <pubDate>Fri, 06 Nov 2020 15:07:46 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-97</guid>
+          <source url="https://pyspice.discourse.group/t/losing-units-when-summing-a-waveform/97.rss">Losing units when summing a Waveform</source>
+        </item>
+        <item>
+          <title>About the Data Analysis using Python category</title>
+          <dc:creator><![CDATA[fsalvaire]]></dc:creator>
+          <category>Data Analysis using Python</category>
+          <description><![CDATA[
+            <p>(Replace this first paragraph with a brief description of your new category. This guidance will appear in the category selection area, so try to keep it below 200 characters.)</p>
+<p>Use the following paragraphs for a longer description, or to establish category guidelines or rules:</p>
+<ul>
+<li>
+<p>Why should people use this category? What is it for?</p>
+</li>
+<li>
+<p>How exactly is this different than the other categories we already have?</p>
+</li>
+<li>
+<p>What should topics in this category generally contain?</p>
+</li>
+<li>
+<p>Do we need this category? Can we merge with another category, or subcategory?</p>
+</li>
+</ul>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/about-the-data-analysis-using-python-category/15">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/about-the-data-analysis-using-python-category/15</link>
+          <pubDate>Mon, 27 Apr 2020 19:46:59 +0000</pubDate>
+          <discourse:topicPinned>Yes</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-15</guid>
+          <source url="https://pyspice.discourse.group/t/about-the-data-analysis-using-python-category/15.rss">About the Data Analysis using Python category</source>
+        </item>
+  </channel>
+</rss>

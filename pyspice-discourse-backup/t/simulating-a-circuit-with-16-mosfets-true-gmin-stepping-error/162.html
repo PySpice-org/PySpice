@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Simulating a circuit with 16 MOSFETs: True gmin stepping error - Circuit Simulation - PySpice</title>
+    <meta name="description" content="Hello, 
+I am trying to simulate a circuit using 16 MOSFETS. 
+The issue is that once the MOSFETS’s 15 and 16 are placed in the schematic, it results in an error: PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR 
+I&amp;hellip;">
+    <meta name="generator" content="Discourse 2.9.0.beta4 - https://github.com/discourse/discourse version d90065e0efb7f68b92d06690a047a4d9cb972766">
+<link rel="icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_180x180.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="162.html" />
+<script type="application/ld+json">{"@context":"http://schema.org","@type":"WebSite","url":"https://pyspice.discourse.group","potentialAction":{"@type":"SearchAction","target":"https://pyspice.discourse.group/search?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+<link rel="search" type="application/opensearchdescription+xml" href="../../opensearch.xml" title="PySpice Search">
+
+    <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/color_definitions_base__2_eecd416525cef9093c2ee277775110e36aced01d.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-adplugin_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-adplugin"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-akismet_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-akismet"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-cakeday_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-cakeday"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-details_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-footnote_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-footnote"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-local-dates_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-narrative-bot_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-presence_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-solved_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-spoiler-alert_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-spoiler-alert"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/hosted-site_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="hosted-site"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/lazy-yt_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="lazy-yt"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_theme_2_34d020de06a5f743d99a6d1334b1cab5b823f5c9.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Simulating a circuit with 16 MOSFETs: True gmin stepping error&#39;" href="https://pyspice.discourse.group/t/simulating-a-circuit-with-16-mosfets-true-gmin-stepping-error/162.rss" />
+    <meta property="og:site_name" content="PySpice" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:url" content="https://pyspice.discourse.group/t/simulating-a-circuit-with-16-mosfets-true-gmin-stepping-error/162" />
+<meta name="twitter:url" content="https://pyspice.discourse.group/t/simulating-a-circuit-with-16-mosfets-true-gmin-stepping-error/162" />
+<meta property="og:title" content="Simulating a circuit with 16 MOSFETs: True gmin stepping error" />
+<meta name="twitter:title" content="Simulating a circuit with 16 MOSFETs: True gmin stepping error" />
+<meta property="og:description" content="Hello,  I am trying to simulate a circuit using 16 MOSFETS.  The issue is that once the MOSFETS’s 15 and 16 are placed in the schematic, it results in an error: PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR  If the MOSFET’s 15 and 16 are commented out, then the code compiles.  I am using NGspice-34.dll and PySpice 1.5. Have also tested with Pyspice 1.4.3 and NGspice-32.dll.  Is NGSpice reaching some maximum nodes/complexity limit? OR is this an issue with mosfet model? OR it is a cir..." />
+<meta name="twitter:description" content="Hello,  I am trying to simulate a circuit using 16 MOSFETS.  The issue is that once the MOSFETS’s 15 and 16 are placed in the schematic, it results in an error: PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR  If the MOSFET’s 15 and 16 are commented out, then the code compiles.  I am using NGspice-34.dll and PySpice 1.5. Have also tested with Pyspice 1.4.3 and NGspice-32.dll.  Is NGSpice reaching some maximum nodes/complexity limit? OR is this an issue with mosfet model? OR it is a cir..." />
+<meta property="article:published_time" content="2022-01-13T03:55:35+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    
+  </head>
+  <body class="crawler">
+    
+    <header>
+  <a href="../../index.html">
+    <h1>PySpice</h1>
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="162.html">Simulating a circuit with 16 MOSFETs: True gmin stepping error</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="../../c/circuit-simulation/9.html" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Circuit Simulation</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+
+      <div id='post_1' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/dsalman'><span itemprop='name'>dsalman</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="162.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2022-01-13T03:55:35Z' class='post-time'>
+                January 13, 2022,  3:55am
+              </time>
+              <meta itemprop='dateModified' content='2022-01-13T03:55:35Z'>
+          <span itemprop='position'>#1</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>Hello,</p>
+<p>I am trying to simulate a circuit using 16 MOSFETS.</p>
+<p>The issue is that once the MOSFETS’s 15 and 16 are placed in the schematic, it results in an error: PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR</p>
+<p>If the MOSFET’s 15 and 16 are commented out, then the code compiles.</p>
+<p>I am using NGspice-34.dll and PySpice 1.5. Have also tested with Pyspice 1.4.3 and NGspice-32.dll.</p>
+<p>Is NGSpice reaching some maximum nodes/complexity limit? OR is this an issue with mosfet model? OR it is a circuit netlist (floating node?) issue?</p>
+<p>Any help or ideas would be greatly appreciated.</p>
+<p>The code and error message are reproduced below.</p>
+<p>Thanks</p>
+<p>Kahless96</p>
+<p>##***********************************************<br>
+import math<br>
+import numpy as np<br>
+import matplotlib.pyplot as plt<br>
+from matplotlib.widgets import Cursor<br>
+from matplotlib.pyplot import semilogx<br>
+from matplotlib import pyplot</p>
+<p>import PySpice.Logging.Logging as Logging<br>
+logger = Logging.setup_logging()</p>
+<p>from PySpice.Doc.ExampleTools import find_libraries<br>
+from PySpice.Probe.Plot import plot<br>
+from PySpice.Spice.Library import SpiceLibrary<br>
+from PySpice.Spice.Netlist import Circuit<br>
+from PySpice.Unit import *</p>
+<p>from engineering_notation import EngNumber</p>
+<p>##***********************************************</p>
+<h2>
+<a name="circuit-netlist-1" class="anchor" href="162.html#circuit-netlist-1"></a>Circuit Netlist</h2>
+<p>circuit = Circuit(‘MyCircuit’)</p>
+<p>libraries_path = find_libraries()<br>
+spice_library = SpiceLibrary(libraries_path)<br>
+circuit.include(spice_library[‘ptm65nm_nmos’])<br>
+circuit.include(spice_library[‘ptm65nm_pmos’])</p>
+<h1>
+<a name="define-inputs-2" class="anchor" href="162.html#define-inputs-2"></a>Define inputs</h1>
+<p>HIGH = 1@u_V<br>
+LOW = 0@u_V<br>
+f_D = 1@u_Hz<br>
+f_C = f_D/2<br>
+f_B = f_D/4<br>
+f_A = f_D/8</p>
+<p>steptime=1@u_ms<br>
+finaltime = 8/f_D<br>
+circuit.V(1, ‘Vdd’, circuit.gnd,       HIGH@u_V)<br>
+circuit.PulseVoltageSource(2, ‘A’, circuit.gnd,<br>
+initial_value=HIGH, pulsed_value=LOW,<br>
+pulse_width=(1/f_A)/2, period=1/f_A)<br>
+circuit.PulseVoltageSource(3, ‘B’, circuit.gnd,<br>
+initial_value=HIGH, pulsed_value=LOW,<br>
+pulse_width=(1/f_B)/2, period=1/f_B)<br>
+circuit.PulseVoltageSource(4, ‘C’, circuit.gnd,<br>
+initial_value=HIGH, pulsed_value=LOW,<br>
+pulse_width=(1/f_C)/2, period=1/f_C)<br>
+circuit.PulseVoltageSource(5, ‘D’, circuit.gnd,<br>
+initial_value=HIGH, pulsed_value=LOW,<br>
+pulse_width=(1/f_D)/2, period=1/f_D)</p>
+<h1>
+<a name="m-name-drain-node-gate-node-source-node-bulksubstrate-node-3" class="anchor" href="162.html#m-name-drain-node-gate-node-source-node-bulksubstrate-node-3"></a>M    <source> &lt;bulk/substrate node&gt;</source>
+</h1>
+<p>circuit.MOSFET(1, ‘out1’, ‘A’, ‘Vdd’, ‘Vdd’, model=‘ptm65nm_pmos’)<br>
+circuit.MOSFET(2, ‘out1’, ‘B’, ‘Vdd’, ‘Vdd’, model=‘ptm65nm_pmos’)<br>
+circuit.MOSFET(3, ‘out1’, ‘A’, ‘temp’, circuit.gnd, model=‘ptm65nm_nmos’)<br>
+circuit.MOSFET(4, ‘temp’,‘B’, circuit.gnd, circuit.gnd, model=‘ptm65nm_nmos’)<br>
+circuit.MOSFET(5, ‘out2’, ‘out1’, circuit.gnd, circuit.gnd, model=‘ptm65nm_nmos’)<br>
+circuit.MOSFET(6, ‘out2’, ‘out1’, ‘Vdd’, ‘Vdd’, model=‘ptm65nm_pmos’)<br>
+circuit.MOSFET(7, ‘out3’, ‘C’, ‘Vdd’, ‘Vdd’, model=‘ptm65nm_pmos’)<br>
+circuit.MOSFET(8, ‘out3’, ‘D’, ‘Vdd’, ‘Vdd’, model=‘ptm65nm_pmos’)<br>
+circuit.MOSFET(9, ‘out3’, ‘C’, ‘temp1’, circuit.gnd, model=‘ptm65nm_nmos’)<br>
+circuit.MOSFET(10, ‘temp1’,‘D’, circuit.gnd, circuit.gnd, model=‘ptm65nm_nmos’)<br>
+circuit.MOSFET(11, ‘out4’, ‘out3’, circuit.gnd, circuit.gnd, model=‘ptm65nm_nmos’)<br>
+circuit.MOSFET(12, ‘out4’, ‘out3’, ‘Vdd’, ‘Vdd’, model=‘ptm65nm_pmos’)<br>
+circuit.MOSFET(13, ‘op’, ‘out2’, ‘Vdd’, ‘Vdd’, model=‘ptm65nm_pmos’)<br>
+circuit.MOSFET(14, ‘op’, ‘out4’, ‘Vdd’, ‘Vdd’, model=‘ptm65nm_pmos’)<br>
+circuit.MOSFET(15, ‘op’, ‘out2’, ‘temp2’, circuit.gnd, model=‘ptm65nm_nmos’)<br>
+circuit.MOSFET(16, ‘temp2’,‘out4’, circuit.gnd, circuit.gnd, model=‘ptm65nm_nmos’)</p>
+<p>##***********************************************</p>
+<h2>
+<a name="simulation-transient-analysis-4" class="anchor" href="162.html#simulation-transient-analysis-4"></a>Simulation: Transient Analysis</h2>
+<p>simulator = circuit.simulator(temperature=25, nominal_temperature=25)<br>
+analysis = simulator.transient(step_time=steptime, end_time=finaltime)</p>
+<p>#########################</p>
+<h1>
+<a name="plotting-commands-5" class="anchor" href="162.html#plotting-commands-5"></a>PLOTTING COMMANDS</h1>
+<p>figure = plt.subplots(figsize=(11, 6))<br>
+axe = plt.subplot(111)<br>
+plt.xlabel(‘Time [s]’)<br>
+plt.ylabel(‘Voltage [V]’)<br>
+plt.grid()<br>
+plot(analysis[‘op’], axis=axe, color=‘red’)<br>
+plt.show()</p>
+<p>Here is the error messages after which it fails to run:</p>
+<p>2022-01-13 14:24:25,298 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Note: Starting true gmin stepping<br>
+2022-01-13 14:24:25,298 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-03 Note: One successful gmin step<br>
+2022-01-13 14:24:25,298 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-04 Note: One successful gmin step<br>
+2022-01-13 14:24:25,298 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-05 Note: One successful gmin step<br>
+2022-01-13 14:24:25,298 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-06 Note: One successful gmin step<br>
+2022-01-13 14:24:25,298 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-07 Note: One successful gmin step<br>
+2022-01-13 14:24:25,298 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-08 Note: One successful gmin step<br>
+2022-01-13 14:24:25,298 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-09 Note: One successful gmin step<br>
+2022-01-13 14:24:25,314 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-10 Note: One successful gmin step<br>
+2022-01-13 14:24:25,314 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-11 Note: One successful gmin step<br>
+2022-01-13 14:24:25,314 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-12 Note: One successful gmin step<br>
+2022-01-13 14:24:25,314 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Trying gmin =   1.0000E-12 Note: One successful gmin step<br>
+2022-01-13 14:24:25,314 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Note: True gmin stepping completed</p>
+<p>I have seen this gmin stepping error in other forum posts but in those cases it was related to circuit netlist error. This does not seem to be the case here.</p>
+<p>The mosfet models being used are provided with Pyspice.</p>
+        </div>
+
+        <meta itemprop='headline' content='Simulating a circuit with 16 MOSFETs: True gmin stepping error'>
+          <meta itemprop='keywords' content=''>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+      <div id='post_2' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/dsalman'><span itemprop='name'>dsalman</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="162.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2022-01-19T04:02:18Z' class='post-time'>
+                January 19, 2022,  4:02am
+              </time>
+              <meta itemprop='dateModified' content='2022-01-19T04:02:18Z'>
+          <span itemprop='position'>#2</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>The issue was the MOSFET model. I managed to solve the problem. See: <a href="https://www.youtube.com/watch?v=NthRTlX1atk" class="inline-onebox" rel="noopener nofollow ugc">Simulation of Digital Logic Gates in PySpice (Python) - YouTube</a></p>
+        </div>
+
+        <meta itemprop='headline' content='Simulating a circuit with 16 MOSFETs: True gmin stepping error'>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='https://pyspice.discourse.group/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    
+  </body>
+  
+</html>

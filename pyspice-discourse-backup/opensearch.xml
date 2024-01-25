@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>PySpice Search</ShortName>
+  <Description>Search for posts on PySpice</Description>
+  <Tags>discourse forum</Tags>
+    <Image type="image/png">https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_32x32.png</Image>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://pyspice.discourse.group/opensearch.xml"/>
+  <Url type="text/html" template="https://pyspice.discourse.group/search?q={searchTerms}"/>
+  <Query role="example" searchTerms="search term"/>
+</OpenSearchDescription>

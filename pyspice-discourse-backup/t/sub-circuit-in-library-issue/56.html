@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Sub-circuit in library issue - Help - PySpice</title>
+    <meta name="description" content="Hi there ! 
+I would like to use a spice circuit model (a sub-circuit in a .MOD file) in a circuit created from a spice netlist (a .net file) inside PySpice. Following is a simplistic example that shows the problem with a&amp;hellip;">
+    <meta name="generator" content="Discourse 2.9.0.beta4 - https://github.com/discourse/discourse version d90065e0efb7f68b92d06690a047a4d9cb972766">
+<link rel="icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_180x180.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="56.html" />
+<script type="application/ld+json">{"@context":"http://schema.org","@type":"WebSite","url":"https://pyspice.discourse.group","potentialAction":{"@type":"SearchAction","target":"https://pyspice.discourse.group/search?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+<link rel="search" type="application/opensearchdescription+xml" href="../../opensearch.xml" title="PySpice Search">
+
+    <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/color_definitions_base__2_eecd416525cef9093c2ee277775110e36aced01d.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-adplugin_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-adplugin"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-akismet_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-akismet"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-cakeday_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-cakeday"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-details_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-footnote_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-footnote"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-local-dates_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-narrative-bot_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-presence_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-solved_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-spoiler-alert_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-spoiler-alert"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/hosted-site_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="hosted-site"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/lazy-yt_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="lazy-yt"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_theme_2_34d020de06a5f743d99a6d1334b1cab5b823f5c9.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Sub-circuit in library issue&#39;" href="https://pyspice.discourse.group/t/sub-circuit-in-library-issue/56.rss" />
+    <meta property="og:site_name" content="PySpice" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:url" content="https://pyspice.discourse.group/t/sub-circuit-in-library-issue/56" />
+<meta name="twitter:url" content="https://pyspice.discourse.group/t/sub-circuit-in-library-issue/56" />
+<meta property="og:title" content="Sub-circuit in library issue" />
+<meta name="twitter:title" content="Sub-circuit in library issue" />
+<meta property="og:description" content="Hi there !  I would like to use a spice circuit model (a sub-circuit in a .MOD file) in a circuit created from a spice netlist (a .net file) inside PySpice. Following is a simplistic example that shows the problem with a simple RC sub-circuit. I can’t figure out why the sub-circuit is not found although it is explicitly included with the circuit.include call as in the documentation examples…  The RC.py file :  import PySpice.Logging.Logging as Logging logger = Logging.setup_logging()  from PySpi..." />
+<meta name="twitter:description" content="Hi there !  I would like to use a spice circuit model (a sub-circuit in a .MOD file) in a circuit created from a spice netlist (a .net file) inside PySpice. Following is a simplistic example that shows the problem with a simple RC sub-circuit. I can’t figure out why the sub-circuit is not found although it is explicitly included with the circuit.include call as in the documentation examples…  The RC.py file :  import PySpice.Logging.Logging as Logging logger = Logging.setup_logging()  from PySpi..." />
+<meta property="article:published_time" content="2020-07-06T13:20:14+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    
+  </head>
+  <body class="crawler">
+    
+    <header>
+  <a href="../../index.html">
+    <h1>PySpice</h1>
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="56.html">Sub-circuit in library issue</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="../../c/help/5.html" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Help</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+
+      <div id='post_1' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/dlibault'><span itemprop='name'>dlibault</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="56.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2020-07-06T13:20:14Z' class='post-time'>
+                July 6, 2020,  1:20pm
+              </time>
+              <meta itemprop='dateModified' content='2020-07-06T13:20:14Z'>
+          <span itemprop='position'>#1</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>Hi there !</p>
+<p>I would like to use a spice circuit model (a sub-circuit in a .MOD file) in a circuit created from a spice netlist (a .net file) inside PySpice. Following is a simplistic example that shows the problem with a simple RC sub-circuit. I can’t figure out why the sub-circuit is not found although it is explicitly included with the circuit.include call as in the documentation examples…</p>
+<p>The RC.py file :</p>
+<pre><code class="lang-python">import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
+
+from PySpice.Spice.Library import SpiceLibrary
+from PySpice.Spice.Netlist import Circuit
+from PySpice.Spice.Parser import SpiceParser
+from PySpice.Unit import *
+
+spice_library = SpiceLibrary('../models/')
+parser = SpiceParser(path='RC.net')
+circuit = parser.build_circuit()
+circuit.include(spice_library['RC'])
+simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+analysis = simulator.ac('dec', 10, 100, 100e3)
+</code></pre>
+<p>The <a href="http://RC.net" rel="nofollow noopener">RC.net</a> circuit file :</p>
+<pre><code class="lang-auto">.title RC Circuit
+V1 VIN 0 AC
+X1 VIN 0 VOUT RC
+.end
+</code></pre>
+<p>The RC.MOD model file in the ../models directory :</p>
+<pre><code class="lang-auto">* PINOUT 1 2 3
+* PINOUT IN+ IN- OUT
+.subckt RC 1 2 3
+R1 1 3 1k
+C1 3 2 1nF
+.ends
+</code></pre>
+<p>Runing the python script gives :</p>
+<pre><code class="lang-auto">$ python RC.py
+2020-07-06 15:12:47,850 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Error: unknown subckt: x1 vin 0 vout rc
+2020-07-06 15:12:47,851 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Error: there aren't any circuits loaded.
+Traceback (most recent call last):
+  File "RC.py", line 14, in &lt;module&gt;
+    analysis = simulator.ac('dec', 10, 100, 100e3)
+  File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/Simulation.py", line 1161, in ac
+    return self._run('ac', *args, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Simulation.py", line 118, in _run
+    self._ngspice_shared.run()
+  File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Shared.py", line 1168, in run
+    self.exec_command(command)
+  File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Shared.py", line 842, in exec_command
+    raise NgSpiceCommandError("Command '{}' failed".format(command))
+PySpice.Spice.NgSpice.Shared.NgSpiceCommandError: Command 'run' failed
+</code></pre>
+        </div>
+
+        <meta itemprop='headline' content='Sub-circuit in library issue'>
+          <meta itemprop='keywords' content=''>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+      <div id='post_2' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/fsalvaire'><span itemprop='name'>fsalvaire</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="56.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2020-07-08T13:11:06Z' class='post-time'>
+                July 8, 2020,  1:11pm
+              </time>
+              <meta itemprop='dateModified' content='2020-07-08T13:11:06Z'>
+          <span itemprop='position'>#2</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>try to print(circuit) to see what is send to ngspice</p>
+        </div>
+
+        <meta itemprop='headline' content='Sub-circuit in library issue'>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+      <div id='post_3' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/dlibault'><span itemprop='name'>dlibault</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="56.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2020-07-08T14:28:29Z' class='post-time'>
+                July 8, 2020,  2:28pm
+              </time>
+              <meta itemprop='dateModified' content='2020-07-08T14:28:29Z'>
+          <span itemprop='position'>#3</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>Here is the print(circuit) output :</p>
+<pre><code class="lang-auto">.title RC Circuit
+.include /Users/{my home directory}/simulations/pyspice_models/RC.MOD
+V1 VIN 0 AC
+X1 VIN 0 VOUT RC
+</code></pre>
+<p>The directory of the .include line is an absolute path computed by pyspice from the local directory specified in SpiceLibrary. Is it then possible that the fact that there are spaces inside the {my home directory} directory name, makes ngspice not able to find the RC.MOD file ?<br>
+It seams strange to me that nothing is complaining about not finding the RC.MOD file…</p>
+        </div>
+
+        <meta itemprop='headline' content='Sub-circuit in library issue'>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="1" />
+          </div>
+
+      </div>
+      <div id='post_4' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/fsalvaire'><span itemprop='name'>fsalvaire</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="56.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2020-07-12T12:25:19Z' class='post-time'>
+                July 12, 2020, 12:25pm
+              </time>
+              <meta itemprop='dateModified' content='2020-07-12T12:25:19Z'>
+          <span itemprop='position'>#4</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>Are you using v1.4.3 ?</p>
+<p>Ngspice Manual:</p>
+<blockquote>
+<p>2.6<br>
+.INCLUDE<br>
+General form:<br>
+.INCLUDE filename<br>
+Examples:<br>
+.INCLUDE /users/spice/common/bsim3-param.mod<br>
+Frequently, portions of circuit descriptions will be reused in several input files, particularly with<br>
+common models and subcircuits. In any ngspice input file, the .INCLUDE line may be used to<br>
+copy some other file as if that second file appeared in place of the .INCLUDE line in the original<br>
+file.<br>
+There is no restriction on the file name imposed by ngspice beyond those imposed by the local<br>
+operating system.</p>
+</blockquote>
+        </div>
+
+        <meta itemprop='headline' content='Sub-circuit in library issue'>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+      <div id='post_5' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/dlibault'><span itemprop='name'>dlibault</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="56.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2020-07-12T23:07:04Z' class='post-time'>
+                July 12, 2020, 11:07pm
+              </time>
+              <meta itemprop='dateModified' content='2020-07-12T23:07:04Z'>
+          <span itemprop='position'>#5</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>Yes, I think I am. I installed PySpice on my mac using pip3. The libngspice was installed with brew.</p>
+<pre><code class="lang-bash">$ python3
+Python 3.7.4 (default, Oct 12 2019, 19:06:48) 
+[Clang 11.0.0 (clang-1100.0.33.8)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+&gt;&gt;&gt; import PySpice
+&gt;&gt;&gt; print(PySpice.__version__)
+1.4.3
+&gt;&gt;&gt; 
+</code></pre>
+        </div>
+
+        <meta itemprop='headline' content='Sub-circuit in library issue'>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="1" />
+          </div>
+
+      </div>
+      <div id='post_6' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/subassah'><span itemprop='name'>subassah</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="56.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2020-11-20T06:52:34Z' class='post-time'>
+                November 20, 2020,  6:52am
+              </time>
+              <meta itemprop='dateModified' content='2020-11-20T06:52:34Z'>
+          <span itemprop='position'>#6</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p><a class="mention" href="https://pyspice.discourse.group/u/dlibault">@dlibault</a><br>
+<a class="mention" href="https://pyspice.discourse.group/u/fsalvaire">@fsalvaire</a></p>
+<p>I am facing a similar issue, were we able to solve this in any way?<br>
+Suba</p>
+        </div>
+
+        <meta itemprop='headline' content='Sub-circuit in library issue'>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+      <div id='post_7' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/simugirl'><span itemprop='name'>simugirl</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="56.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2020-12-04T09:38:59Z' class='post-time'>
+                December 4, 2020,  9:38am
+              </time>
+              <meta itemprop='dateModified' content='2020-12-04T09:38:59Z'>
+          <span itemprop='position'>#7</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>Hi,<br>
+Just had this problem too, I changed my directory to something simple and everything worked.</p>
+        </div>
+
+        <meta itemprop='headline' content='Sub-circuit in library issue'>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+      <div id='post_8' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/letstrythis'><span itemprop='name'>letstrythis</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="56.html">
+
+            <link itemprop="image" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/9ad37fdf7284cc66e0b57faf857e794bb3494b36.png">
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2021-01-15T19:50:23Z' class='post-time'>
+                January 15, 2021,  7:50pm
+              </time>
+              <meta itemprop='dateModified' content='2021-01-15T19:51:29Z'>
+          <span itemprop='position'>#8</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>I have the same issue with error. I have imported a library using <code>circuit.include("foo.lib")</code>. The import works fine, I think I connect the pins correctly, but it never works.<br>
+Model I am importing is found here: <a href="https://www.ti.com/lit/zip/sbom310" rel="noopener nofollow ugc">https://www.ti.com/lit/zip/sbom310</a></p>
+<p><div class="lightbox-wrapper"><a class="lightbox" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/9ad37fdf7284cc66e0b57faf857e794bb3494b36.png" data-download-href="/uploads/short-url/m5EFihcgkgE6gpeTc9QdNlzKvoa.png?dl=1" title="image" rel="noopener nofollow ugc"><img src="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/9ad37fdf7284cc66e0b57faf857e794bb3494b36.png" alt="image" data-base62-sha1="m5EFihcgkgE6gpeTc9QdNlzKvoa" width="690" height="300" data-small-upload="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/9ad37fdf7284cc66e0b57faf857e794bb3494b36_2_10x10.png"><div class="meta"><svg class="fa d-icon d-icon-far-image svg-icon" aria-hidden="true"><use xlink:href="#far-image"></use></svg><span class="filename">image</span><span class="informations">781×340 16.5 KB</span><svg class="fa d-icon d-icon-discourse-expand svg-icon" aria-hidden="true"><use xlink:href="#discourse-expand"></use></svg></div></a></div></p>
+<pre><code>import matplotlib.pyplot as plt
+</code></pre>
+<p>from scipy import signal<br>
+from matplotlib.widgets import Cursor<br>
+import numpy as np</p>
+<p>import PySpice.Logging.Logging as Logging<br>
+logger = Logging.setup_logging()<br>
+from PySpice.Spice.Library import SpiceLibrary<br>
+<span class="hashtag">#from</span> PySpice.Doc.ExampleTools import find_libraries<br>
+<span class="hashtag">#from</span> PySpice.Probe.Plot import plot<br>
+<span class="hashtag">#from</span> PySpice.Spice.Library import SpiceLibrary<br>
+from PySpice.Spice.Netlist import Circuit<br>
+from PySpice.Unit import *</p>
+<p>#######################################################################</p>
+<h1>CIRCUIT NETLIST AND SIMULATION</h1>
+<p>circuit = Circuit(‘Circuit0’)<br>
+circuit.include(“INA333.LIB”)</p>
+<p>source = circuit.PulseVoltageSource(‘input’, ‘in’, circuit.gnd, 0, 3.3, 0.0005,0.000000001,0.000000001,0.005,0.010,0)<br>
+ref = circuit.V(‘ref’,‘ref’,circuit.gnd,1.65@u_V)<br>
+vcc= circuit.V(‘vcc’,‘vcc’,circuit.gnd,3.3@u_V)<br>
+vee = circuit.gnd</p>
+<p>circuit.R(1, ‘input’,‘v+’, 330@u_kOhm) #’’‘name, input node,  output node, unit’’’<br>
+circuit.R(2, ‘input’,‘v-’, 330@u_kOhm)<br>
+circuit.R(3, ‘v-’, ‘left_cap_input’, 10@u_kOhm)<br>
+circuit.R(4, ‘v+’,‘right_cap_input’, 100@u_kOhm)<br>
+circuit.C(1, ‘left_cap_input’,  circuit.gnd, 10@u_pF)<br>
+circuit.C(2, ‘right_cap_input’, circuit.gnd, 100@u_pF)<br>
+<span class="hashtag">#circuit</span>.R (5, ‘RG+’,‘RG-’, 100@u_MOhm)</p>
+<p><span class="hashtag">#Setting</span> up the INA333 subcircuit<br>
+#IN+ IN- VCC VEE OUT REF RG+ RG-<br>
+circuit.X(‘INA333’, ‘v-’,‘v+’, vcc, vee,‘vout’, ref,‘RG+’,‘RG-’)</p>
+<p>print (circuit)</p>
+<p>simulator = circuit.simulator(temperature = 25, nominal_temperature = 25)<br>
+analysis = simulator.transient(step_time = 1@u_us, end_time = 10@u_ms)</p>
+<h1>PLOTTING COMMANDS</h1>
+<p>figure = plt.subplots(figsize=(11, 6))</p>
+<p>plt.title(‘Bendlabs Circuit Simulation’)<br>
+plt.xlabel(‘Time [s]’)<br>
+plt.ylabel(‘Voltage [V]’)<br>
+plt.grid()</p>
+<p>plt(analysis[‘vin’],axis=axe)<br>
+plt(analysis[‘v+’],axis=axe)<br>
+plt(analysis[‘v-’],axis=axe)<br>
+plt(analysis[‘vout’],axis=axe)<br>
+plt.legend(‘vin’, ‘v+’, ‘v-’,‘vout’)</p>
+<p>cursor = Cursor(axe, useblit=True, color=‘red’, linewidth=1)</p>
+<p>plt.show()</p>
+<p>I wonder if anyone has found a way to overcome this issue. thank you</p>
+        </div>
+
+        <meta itemprop='headline' content='Sub-circuit in library issue'>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='https://pyspice.discourse.group/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    
+  </body>
+  
+</html>

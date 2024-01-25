@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Latest Installation topics - PySpice</title>
+    <meta name="description" content="Simulate electronic circuit using Python and the Ngspice / Xyce simulators">
+    <meta name="generator" content="Discourse 2.9.0.beta4 - https://github.com/discourse/discourse version d90065e0efb7f68b92d06690a047a4d9cb972766">
+<link rel="icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_180x180.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="10.html" />
+<script type="application/ld+json">{"@context":"http://schema.org","@type":"WebSite","url":"https://pyspice.discourse.group","potentialAction":{"@type":"SearchAction","target":"https://pyspice.discourse.group/search?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+<link rel="search" type="application/opensearchdescription+xml" href="../../opensearch.xml" title="PySpice Search">
+
+    <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/color_definitions_base__2_eecd416525cef9093c2ee277775110e36aced01d.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-adplugin_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-adplugin"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-akismet_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-akismet"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-cakeday_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-cakeday"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-details_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-footnote_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-footnote"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-local-dates_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-narrative-bot_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-presence_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-solved_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-spoiler-alert_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-spoiler-alert"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/hosted-site_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="hosted-site"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/lazy-yt_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="lazy-yt"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_theme_2_34d020de06a5f743d99a6d1334b1cab5b823f5c9.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    
+    
+        <link rel="next" href="https://pyspice.discourse.group/c/installation/10?page=1">
+    <link rel="alternate" type="application/rss+xml" title="Latest posts" href="../../posts.rss" />
+    <link rel="alternate" type="application/rss+xml" title="Latest topics" href="../../latest.rss" />
+    <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of topics in the &#39;Installation&#39; category" href="https://pyspice.discourse.group/c/installation/10.rss" />
+    <meta property="og:site_name" content="PySpice" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:url" content="https://pyspice.discourse.group/c/installation/10" />
+<meta name="twitter:url" content="https://pyspice.discourse.group/c/installation/10" />
+<meta property="og:title" content="Installation" />
+<meta name="twitter:title" content="Installation" />
+
+    
+  </head>
+  <body class="crawler">
+    
+    <header>
+  <a href="../../index.html">
+    <h1>PySpice</h1>
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+      
+
+
+
+  <h1>
+
+    <a itemprop="item" href="10.html">
+      <span itemprop='name'>Installation</span>
+</a>  </h1>
+  <br/>
+
+
+<div itemscope itemtype='http://schema.org/ItemList'>
+  <meta itemprop='itemListOrder' content='http://schema.org/ItemListOrderDescending'>
+
+  <table class='topic-list'>
+
+    <thead>
+      <tr>
+        <th>Topic</th>
+        <th></th>
+        <th class="replies">Replies</th>
+        <th class="views">Views</th>
+        <th>Activity</th>
+      </tr>
+    </thead>
+
+    <tbody>
+        <tr class="topic-list-item">
+          <td class="main-link" itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+            <meta itemprop='name' content='About the Installation category'>
+            <meta itemprop='url' content='https://pyspice.discourse.group/t/about-the-installation-category/17'>
+            <meta itemprop='position' content='1'>
+            <span class="link-top-line">
+              <a href='https://pyspice.discourse.group/t/about-the-installation-category/17' class='title raw-link raw-topic-link'>About the Installation category</a>
+            </span>
+            <div class="link-bottom-line">
+                <div class="discourse-tags">
+                </div>
+            </div>
+          </td>
+          <td class='posters'>
+              <a href="https://pyspice.discourse.group/u/fsalvaire" class="latest single">
+                <img width="25" height="25" src="../../user_avatar/pyspice.discourse.group/fsalvaire/25/9_2.png" class="avatar" title='fsalvaire - Original Poster, Most Recent Poster' aria-label='fsalvaire - Original Poster, Most Recent Poster'>
+              </a>
+          </td>
+          <td class="replies">
+            <span class='posts' title='posts'>0</span>
+          </td>
+          <td class="views">
+            <span class='views' title='views'>164</span>
+          </td>
+          <td>
+            April 27, 2020
+          </td>
+        </tr>
+        <tr class="topic-list-item">
+          <td class="main-link" itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+            <meta itemprop='name' content='Problems with running simulator'>
+            <meta itemprop='url' content='https://pyspice.discourse.group/t/problems-with-running-simulator/153'>
+            <meta itemprop='position' content='2'>
+            <span class="link-top-line">
+              <a href='https://pyspice.discourse.group/t/problems-with-running-simulator/153' class='title raw-link raw-topic-link'>Problems with running simulator</a>
+            </span>
+            <div class="link-bottom-line">
+                <div class="discourse-tags">
+                </div>
+            </div>
+          </td>
+          <td class='posters'>
+              <a href="https://pyspice.discourse.group/u/AMK" class="latest single">
+                <img width="25" height="25" src="https://avatars.discourse-cdn.com/v4/letter/a/f0a364/25.png" class="avatar" title='AMK - Original Poster, Most Recent Poster' aria-label='AMK - Original Poster, Most Recent Poster'>
+              </a>
+          </td>
+          <td class="replies">
+            <span class='posts' title='posts'>0</span>
+          </td>
+          <td class="views">
+            <span class='views' title='views'>81</span>
+          </td>
+          <td>
+            November 11, 2021
+          </td>
+        </tr>
+        <tr class="topic-list-item">
+          <td class="main-link" itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+            <meta itemprop='name' content='Getting keyerror while running example'>
+            <meta itemprop='url' content='https://pyspice.discourse.group/t/getting-keyerror-while-running-example/119'>
+              <meta itemprop='image' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/e4ddbf4c44c60a3f0af2c891aaffd47a4b842372.jpeg'>
+            <meta itemprop='position' content='3'>
+            <span class="link-top-line">
+              <a href='https://pyspice.discourse.group/t/getting-keyerror-while-running-example/119' class='title raw-link raw-topic-link'>Getting keyerror while running example</a>
+            </span>
+            <div class="link-bottom-line">
+                <div class="discourse-tags">
+                </div>
+            </div>
+          </td>
+          <td class='posters'>
+              <a href="https://pyspice.discourse.group/u/Sky77" class="">
+                <img width="25" height="25" src="https://avatars.discourse-cdn.com/v4/letter/s/b4bc9f/25.png" class="avatar" title='Sky77 - Original Poster' aria-label='Sky77 - Original Poster'>
+              </a>
+              <a href="https://pyspice.discourse.group/u/dsalman" class="latest">
+                <img width="25" height="25" src="https://avatars.discourse-cdn.com/v4/letter/d/838e76/25.png" class="avatar" title='dsalman - Most Recent Poster' aria-label='dsalman - Most Recent Poster'>
+              </a>
+          </td>
+          <td class="replies">
+            <span class='posts' title='posts'>3</span>
+          </td>
+          <td class="views">
+            <span class='views' title='views'>255</span>
+          </td>
+          <td>
+            February 5, 2021
+          </td>
+        </tr>
+        <tr class="topic-list-item">
+          <td class="main-link" itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+            <meta itemprop='name' content='Installation example scripts'>
+            <meta itemprop='url' content='https://pyspice.discourse.group/t/installation-example-scripts/117'>
+            <meta itemprop='position' content='4'>
+            <span class="link-top-line">
+              <a href='https://pyspice.discourse.group/t/installation-example-scripts/117' class='title raw-link raw-topic-link'>Installation example scripts</a>
+            </span>
+            <div class="link-bottom-line">
+                <div class="discourse-tags">
+                </div>
+            </div>
+          </td>
+          <td class='posters'>
+              <a href="https://pyspice.discourse.group/u/cyber-g" class="latest single">
+                <img width="25" height="25" src="https://avatars.discourse-cdn.com/v4/letter/c/b2d939/25.png" class="avatar" title='cyber-g - Original Poster, Most Recent Poster' aria-label='cyber-g - Original Poster, Most Recent Poster'>
+              </a>
+          </td>
+          <td class="replies">
+            <span class='posts' title='posts'>0</span>
+          </td>
+          <td class="views">
+            <span class='views' title='views'>284</span>
+          </td>
+          <td>
+            January 25, 2021
+          </td>
+        </tr>
+        <tr class="topic-list-item">
+          <td class="main-link" itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+            <meta itemprop='name' content='Linux installation of libngspice'>
+            <meta itemprop='url' content='https://pyspice.discourse.group/t/linux-installation-of-libngspice/84'>
+            <meta itemprop='position' content='5'>
+            <span class="link-top-line">
+              <a href='https://pyspice.discourse.group/t/linux-installation-of-libngspice/84' class='title raw-link raw-topic-link'>Linux installation of libngspice</a>
+            </span>
+            <div class="link-bottom-line">
+                <div class="discourse-tags">
+                </div>
+            </div>
+          </td>
+          <td class='posters'>
+              <a href="https://pyspice.discourse.group/u/Damian" class="">
+                <img width="25" height="25" src="https://avatars.discourse-cdn.com/v4/letter/d/34f0e0/25.png" class="avatar" title='Damian - Original Poster' aria-label='Damian - Original Poster'>
+              </a>
+              <a href="https://pyspice.discourse.group/u/cyber-g" class="latest">
+                <img width="25" height="25" src="https://avatars.discourse-cdn.com/v4/letter/c/b2d939/25.png" class="avatar" title='cyber-g - Most Recent Poster' aria-label='cyber-g - Most Recent Poster'>
+              </a>
+          </td>
+          <td class="replies">
+            <span class='posts' title='posts'>2</span>
+          </td>
+          <td class="views">
+            <span class='views' title='views'>411</span>
+          </td>
+          <td>
+            January 25, 2021
+          </td>
+        </tr>
+        <tr class="topic-list-item">
+          <td class="main-link" itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+            <meta itemprop='name' content='Load_circuit failing for some reasons'>
+            <meta itemprop='url' content='https://pyspice.discourse.group/t/load-circuit-failing-for-some-reasons/96'>
+            <meta itemprop='position' content='6'>
+            <span class="link-top-line">
+              <a href='https://pyspice.discourse.group/t/load-circuit-failing-for-some-reasons/96' class='title raw-link raw-topic-link'>Load_circuit failing for some reasons</a>
+            </span>
+            <div class="link-bottom-line">
+                <div class="discourse-tags">
+                </div>
+            </div>
+          </td>
+          <td class='posters'>
+              <a href="https://pyspice.discourse.group/u/asav86" class="latest">
+                <img width="25" height="25" src="https://avatars.discourse-cdn.com/v4/letter/a/7ba0ec/25.png" class="avatar" title='asav86 - Original Poster, Most Recent Poster' aria-label='asav86 - Original Poster, Most Recent Poster'>
+              </a>
+              <a href="https://pyspice.discourse.group/u/slatei" class="">
+                <img width="25" height="25" src="https://avatars.discourse-cdn.com/v4/letter/s/839c29/25.png" class="avatar" title='slatei - Frequent Poster' aria-label='slatei - Frequent Poster'>
+              </a>
+          </td>
+          <td class="replies">
+            <span class='posts' title='posts'>2</span>
+          </td>
+          <td class="views">
+            <span class='views' title='views'>689</span>
+          </td>
+          <td>
+            December 30, 2020
+          </td>
+        </tr>
+        <tr class="topic-list-item">
+          <td class="main-link" itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+            <meta itemprop='name' content='Two installation experiences on Windows'>
+            <meta itemprop='url' content='https://pyspice.discourse.group/t/two-installation-experiences-on-windows/107'>
+            <meta itemprop='position' content='7'>
+            <span class="link-top-line">
+              <a href='https://pyspice.discourse.group/t/two-installation-experiences-on-windows/107' class='title raw-link raw-topic-link'>Two installation experiences on Windows</a>
+            </span>
+            <div class="link-bottom-line">
+                <div class="discourse-tags">
+                </div>
+            </div>
+          </td>
+          <td class='posters'>
+              <a href="https://pyspice.discourse.group/u/endolith" class="latest single">
+                <img width="25" height="25" src="../../user_avatar/pyspice.discourse.group/endolith/25/8_2.png" class="avatar" title='endolith - Original Poster, Most Recent Poster' aria-label='endolith - Original Poster, Most Recent Poster'>
+              </a>
+          </td>
+          <td class="replies">
+            <span class='posts' title='posts'>1</span>
+          </td>
+          <td class="views">
+            <span class='views' title='views'>399</span>
+          </td>
+          <td>
+            December 18, 2020
+          </td>
+        </tr>
+        <tr class="topic-list-item">
+          <td class="main-link" itemprop='itemListElement' itemscope itemtype='http://schema.org/ListItem'>
+            <meta itemprop='name' content='Install Pyspice on Raspberry Pi 4 ERROR'>
+            <meta itemprop='url' content='https://pyspice.discourse.group/t/install-pyspice-on-raspberry-pi-4-error/90'>
+            <meta itemprop='position' content='8'>
+            <span class="link-top-line">
+              <a href='https://pyspice.discourse.group/t/install-pyspice-on-raspberry-pi-4-error/90' class='title raw-link raw-topic-link'>Install Pyspice on Raspberry Pi 4 ERROR</a>
+            </span>
+            <div class="link-bottom-line">
+                <div class="discourse-tags">
+                </div>
+            </div>
+          </td>
+          <td class='posters'>
+              <a href="https://pyspice.discourse.group/u/LencsesDaniel" class="latest single">
+                <img width="25" height="25" src="https://avatars.discourse-cdn.com/v4/letter/l/45deac/25.png" class="avatar" title='LencsesDaniel - Original Poster, Most Recent Poster' aria-label='LencsesDaniel - Original Poster, Most Recent Poster'>
+              </a>
+          </td>
+          <td class="replies">
+            <span class='posts' title='posts'>0</span>
+          </td>
+          <td class="views">
+            <span class='views' title='views'>170</span>
+          </td>
+          <td>
+            October 19, 2020
+          </td>
+        </tr>
+    </tbody>
+
+  </table>
+</div>
+
+  <div role='navigation' itemscope itemtype='http://schema.org/SiteNavigationElement'>
+  </div>
+
+
+ <!-- include_crawler_content? -->
+
+
+
+  
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='https://pyspice.discourse.group/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    
+  </body>
+  
+</html>

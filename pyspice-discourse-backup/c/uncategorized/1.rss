@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:discourse="http://www.discourse.org/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Uncategorized - PySpice</title>
+    <link>https://pyspice.discourse.group/c/uncategorized/1</link>
+    <description>Topics in the &#39;Uncategorized&#39; category </description>
+    
+      <lastBuildDate>Mon, 27 Sep 2021 20:08:15 +0000</lastBuildDate>
+      <atom:link href="https://pyspice.discourse.group/c/uncategorized/1.rss" rel="self" type="application/rss+xml" />
+        <item>
+          <title>Howto: Transient analysis</title>
+          <dc:creator><![CDATA[overthere]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>I want to do a transient analysis of a square wave.</p>
+<ol>
+<li>How do I do a transient analysis and plot the output?</li>
+<li>How do I implement a square wave?</li>
+</ol>
+<p>I found nothing in the examples. Thanks for your help,<br>
+Michael</p>
+            <p><small>3 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/howto-transient-analysis/150">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/howto-transient-analysis/150</link>
+          <pubDate>Mon, 27 Sep 2021 20:08:15 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-150</guid>
+          <source url="https://pyspice.discourse.group/t/howto-transient-analysis/150.rss">Howto: Transient analysis</source>
+        </item>
+        <item>
+          <title>How to get voltage acrros two points to write behavioral voltage source expression?</title>
+          <dc:creator><![CDATA[sant]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>I am new with pyspice. I want to add a behavioral voltage source to my circuit. To write its expression we need voltage across two points x and y. For example v=2*Voltage(x,y)</p>
+<p>Will anyone share the syntax in pyspice?<br>
+Thank you.</p>
+            <p><small>6 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/how-to-get-voltage-acrros-two-points-to-write-behavioral-voltage-source-expression/147">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/how-to-get-voltage-acrros-two-points-to-write-behavioral-voltage-source-expression/147</link>
+          <pubDate>Fri, 10 Sep 2021 13:08:01 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-147</guid>
+          <source url="https://pyspice.discourse.group/t/how-to-get-voltage-acrros-two-points-to-write-behavioral-voltage-source-expression/147.rss">How to get voltage acrros two points to write behavioral voltage source expression?</source>
+        </item>
+        <item>
+          <title>Divide one AC-analysis waveform by another</title>
+          <dc:creator><![CDATA[thicksheik]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>I have run an AC analysis in PySpice.<br>
+I have found the waveform for input (source) voltage, and input (source) current.<br>
+Now I would like to find the impedance waveform (voltage/current)<br>
+How can I divide one waveform by another?</p>
+<p>Thanks for your help!</p>
+            <p><small>2 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/divide-one-ac-analysis-waveform-by-another/140">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/divide-one-ac-analysis-waveform-by-another/140</link>
+          <pubDate>Fri, 28 May 2021 12:53:00 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-140</guid>
+          <source url="https://pyspice.discourse.group/t/divide-one-ac-analysis-waveform-by-another/140.rss">Divide one AC-analysis waveform by another</source>
+        </item>
+        <item>
+          <title>Extract array of complex numbers from waveform</title>
+          <dc:creator><![CDATA[thicksheik]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>Hi</p>
+<p>I am just getting started with PySpice.</p>
+<p>I have run an AC analysis on a netlist using PySpice, and have extracted my waveforms, but would like to convert these into a numpy array of complex numbers - how do I do this?</p>
+<p>I want to do further mathematical analysis on the PySpice Waveform output.</p>
+<p>Thanks</p>
+            <p><small>2 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/extract-array-of-complex-numbers-from-waveform/139">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/extract-array-of-complex-numbers-from-waveform/139</link>
+          <pubDate>Fri, 28 May 2021 12:50:00 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-139</guid>
+          <source url="https://pyspice.discourse.group/t/extract-array-of-complex-numbers-from-waveform/139.rss">Extract array of complex numbers from waveform</source>
+        </item>
+        <item>
+          <title>Extract float-type number from class &#39;PySpice.Unit.Unit.UnitValue&#39;</title>
+          <dc:creator><![CDATA[thicksheik]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>Hi</p>
+<p>I am just getting started with using PySpice.</p>
+<p>I have extracted voltage/current values from a PySpice analysis, and would like to analyze these using other Python functions.</p>
+<p>But all of my values are now of type class ‘PySpice.Unit.Unit.UnitValue’.</p>
+<p>How can I remove the units, so that these are just normal float numbers?</p>
+<p>Thanks</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/extract-float-type-number-from-class-pyspice-unit-unit-unitvalue/138">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/extract-float-type-number-from-class-pyspice-unit-unit-unitvalue/138</link>
+          <pubDate>Fri, 28 May 2021 12:44:13 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-138</guid>
+          <source url="https://pyspice.discourse.group/t/extract-float-type-number-from-class-pyspice-unit-unit-unitvalue/138.rss">Extract float-type number from class &#39;PySpice.Unit.Unit.UnitValue&#39;</source>
+        </item>
+        <item>
+          <title>Access to Diode Parameters</title>
+          <dc:creator><![CDATA[Martin_Sauter]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>Hello,</p>
+<p>when working with pyspice 1.3 it was possible for me to change device parameters in thie way described below. With 1.4 this does not seem to work any more. Is there a new or alternate syntax?</p>
+<p>#############################<br>
+import os<br>
+os.linesep="\n"</p>
+<p>source=’’’<br>
+.title xxx</p>
+<p>V1 N001 0 1 AC 1<br>
+D1 N001 0 john</p>
+<p>.model john D (Is=4.352e-9 Rs=0 N=1.906)<br>
+.end</p>
+<p>‘’’</p>
+<p>parser = SpiceParser(source=source)<br>
+circuit = parser.build_circuit()</p>
+<p>circuit.john._parameters[‘Is’] = 3e-08</p>
+<p>simulator = circuit.simulator(temperature=25, nominal_temperature=25)<br>
+analysis = simulator.dc(V1=slice(0.1, 1,0.01))</p>
+<p>#######################################</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/access-to-diode-parameters/108">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/access-to-diode-parameters/108</link>
+          <pubDate>Sat, 19 Dec 2020 17:38:44 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-108</guid>
+          <source url="https://pyspice.discourse.group/t/access-to-diode-parameters/108.rss">Access to Diode Parameters</source>
+        </item>
+        <item>
+          <title>Bode plot with sinusoidal Current Source</title>
+          <dc:creator><![CDATA[IanJannasch]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>Hi,</p>
+<p>I successfully ran this example: <a href="https://pyspice.fabrice-salvaire.fr/releases/v1.4/examples/filter/low-pass-rc-filter.html" rel="noopener nofollow ugc">https://pyspice.fabrice-salvaire.fr/releases/v1.4/examples/filter/low-pass-rc-filter.html</a></p>
+<p>I am however interested in replacing the voltage source with a current source and still get a bode plot that compares the output voltage to input current. Just replacing the voltage source with a current source as follows gives me an error.</p>
+<p>circuit.SinusoidalCurrentSource(‘input’, ‘in’, circuit.gnd, amplitude=1@u_uA)</p>
+<p><strong>NgSpiceCommandError</strong> : Command ‘run’ failed</p>
+<p>Thank you in advance</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/bode-plot-with-sinusoidal-current-source/103">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/bode-plot-with-sinusoidal-current-source/103</link>
+          <pubDate>Tue, 24 Nov 2020 12:13:04 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-103</guid>
+          <source url="https://pyspice.discourse.group/t/bode-plot-with-sinusoidal-current-source/103.rss">Bode plot with sinusoidal Current Source</source>
+        </item>
+        <item>
+          <title>Is PySpice 1.4.2 compatible with Ngspice 33?</title>
+          <dc:creator><![CDATA[Bha]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>Hello Community,</p>
+<p>I have set up PySpice 1.4.2 through a virtual environment and brew installed Ngspice and libngspice on Mac 0S X. However, “pyspice-post-installation --check-install” tells me that Ngspice version 33 is not supported.</p>
+<p>Please advise.</p>
+            <p><small>2 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/is-pyspice-1-4-2-compatible-with-ngspice-33/101">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/is-pyspice-1-4-2-compatible-with-ngspice-33/101</link>
+          <pubDate>Mon, 23 Nov 2020 02:57:05 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-101</guid>
+          <source url="https://pyspice.discourse.group/t/is-pyspice-1-4-2-compatible-with-ngspice-33/101.rss">Is PySpice 1.4.2 compatible with Ngspice 33?</source>
+        </item>
+        <item>
+          <title>Using the Skywater PDK with SKiDL/PySpice</title>
+          <dc:creator><![CDATA[devbisme]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>I’ve published a <a href="https://github.com/xesscorp/skidl/blob/development/examples/skywater/skywater.ipynb" rel="noopener nofollow ugc">Jupyter notebook</a> of my explorations using SKiDL and PySpice with the open Skywater PDK.</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/using-the-skywater-pdk-with-skidl-pyspice/98">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/using-the-skywater-pdk-with-skidl-pyspice/98</link>
+          <pubDate>Mon, 16 Nov 2020 18:41:20 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-98</guid>
+          <source url="https://pyspice.discourse.group/t/using-the-skywater-pdk-with-skidl-pyspice/98.rss">Using the Skywater PDK with SKiDL/PySpice</source>
+        </item>
+        <item>
+          <title>How to define multiple BJTs in the same circuit?</title>
+          <dc:creator><![CDATA[Vinnegans]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>If I try to define a pnp and an npn BJT in the same circuit:</p>
+<pre><code>circuit.BJT(1, 'in', 'in', 0, model='bjt')# Q is mapped to BJT !
+circuit.model('bjt', 'npn', bf=80, cjc=pico(5), rb=100)
+
+circuit.BJT(2, 2, 'in', 0, model='bjt')# Q is mapped to BJT !
+circuit.model('bjt', 'npn', bf=80, cjc=pico(5), rb=100)
+
+circuit.BJT(5, 'out', 2, 0, model='bjt')# Q is mapped to BJT !
+circuit.model('bjt', 'npn', bf=80, cjc=pico(5), rb=100)
+
+circuit.BJT(6, 4, 5, 'out', model='bjt')# Q is mapped to BJT !
+circuit.model('bjt', 'npn', bf=80, cjc=pico(5), rb=100)
+
+circuit.BJT(3, 'in', 4, 'in', model='bjt')# Q is mapped to BJT !
+circuit.model('bjt', 'pnp', bf=80, cjc=pico(5), rb=100)
+
+circuit.BJT(4, 2, 'in', 4, model='bjt') # Q is mapped to BJT !
+circuit.model('bjt', 'pnp', bf=80, cjc=pico(5), rb=100)
+</code></pre>
+<p>PySpice doesn’t allow me to call model() twice:</p>
+<pre><code>---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+&lt;ipython-input-2-c7415312c779&gt; in &lt;module&gt;
+     15 
+     16 circuit.BJT(2, 2, 'in', 0, model='bjt')# Q is mapped to BJT !
+---&gt; 17 circuit.model('bjt', 'npn', bf=80, cjc=pico(5), rb=100)
+     18 
+     19 circuit.BJT(5, 'out', 2, 0, model='bjt')# Q is mapped to BJT !
+
+~/anaconda3/envs/Circuits/lib/python3.6/site-packages/PySpice/Spice/Netlist.py in model(self, name, 
+modele_type, **parameters)
+   1002             self._models[model.name] = model
+   1003         else:
+-&gt; 1004             raise NameError("Model name {} is already defined".format(name))
+   1005 
+   1006         return model
+
+NameError: Model name bjt is already defined
+</code></pre>
+<p>What is the proper way to do this?</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/how-to-define-multiple-bjts-in-the-same-circuit/86">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/how-to-define-multiple-bjts-in-the-same-circuit/86</link>
+          <pubDate>Tue, 29 Sep 2020 13:52:47 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-86</guid>
+          <source url="https://pyspice.discourse.group/t/how-to-define-multiple-bjts-in-the-same-circuit/86.rss">How to define multiple BJTs in the same circuit?</source>
+        </item>
+        <item>
+          <title>Large archive of SPICE models/subcircuits</title>
+          <dc:creator><![CDATA[devbisme]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>I <a href="https://skidl.discourse.group/t/working-with-a-big-ol-archive-of-spice-models-subcircuits/29" rel="nofollow noopener">posted a message on the SKiDL forum</a> about using SKiDL/PySpice with a large archive of SPICE models.</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/large-archive-of-spice-models-subcircuits/67">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/large-archive-of-spice-models-subcircuits/67</link>
+          <pubDate>Fri, 07 Aug 2020 21:20:44 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-67</guid>
+          <source url="https://pyspice.discourse.group/t/large-archive-of-spice-models-subcircuits/67.rss">Large archive of SPICE models/subcircuits</source>
+        </item>
+        <item>
+          <title>How to modify a BJT&#39;s parameters?</title>
+          <dc:creator><![CDATA[Vinnegans]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>I have checked the API documentation but didn’t find an answer or example.</p>
+<blockquote>
+<p>circuit = Circuit(‘Transistor’)<br>
+source = circuit.SinusoidalVoltageSource(‘in’, ‘in’, circuit.gnd, amplitude=.5@u_V, frequency=1@u_kHz)<br>
+Vpower = circuit.V(‘power’, 5, circuit.gnd, 15@u_V)<br>
+R1 = circuit.R(1, 5, 2, 100@u_kΩ)<br>
+RC = circuit.R(‘C’, 5, 4, 10@u_kΩ)<br>
+C2 = circuit.C(2, 4, ‘out’, 10@u_uF)<br>
+C1 = circuit.C(1, ‘in’, 2, 10@u_uF)</p>
+<p>Q1= circuit.BJT(1, 4, 2, 3, model=‘bjt’) # Q is mapped to BJT !<br>
+circuit.model(‘bjt’, ‘npn’, bf=80, cjc=pico(5), rb=100) <span class="hashtag">#rb:</span> Base Resistor</p>
+</blockquote>
+<p>How to change BJT’s rb in this case?</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/how-to-modify-a-bjts-parameters/64">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/how-to-modify-a-bjts-parameters/64</link>
+          <pubDate>Sat, 01 Aug 2020 13:19:59 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-64</guid>
+          <source url="https://pyspice.discourse.group/t/how-to-modify-a-bjts-parameters/64.rss">How to modify a BJT&#39;s parameters?</source>
+        </item>
+        <item>
+          <title>OSError: cannot load library &#39;libngspice.so&#39;:</title>
+          <dc:creator><![CDATA[tadeus]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p>Good afternoon community, I am writing to you because I have encountered the following error trying to simulate the following filter that appears in the documentation.</p>
+<p><a href="https://pyspice.fabrice-salvaire.fr/examples/filter/low-pass-rc-filter.html" rel="nofollow noopener">https://pyspice.fabrice-salvaire.fr/examples/filter/low-pass-rc-filter.html</a></p>
+<p>The error is as follows.<br>
+2020-05-23 00:45:37,954 - PySpice.Spice.NgSpice.Shared.NgSpiceShared.new_instance - INFO - New instance for id 0<br>
+2020-05-23 00:45:37,955 - PySpice.Spice.NgSpice.Shared.NgSpiceShared._load_library - WARNING - Set locale LC_NUMERIC to C</p>
+<pre><code>---------------------------------------------------------------------------
+
+OSError                                   Traceback (most recent call last)
+
+&lt;ipython-input-6-475d4280ae1b&gt; in &lt;module&gt;()
+----&gt; 1 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+      2 analysis = simulator.ac(start_frequency=1@u_Hz, stop_frequency=1@u_MHz, number_of_points=10,  variation='dec')
+
+8 frames
+
+/usr/local/lib/python3.6/dist-packages/cffi/api.py in _load_backend_lib(backend, name, flags)
+    825         if first_error is not None:
+    826             msg = "%s.  Additionally, %s" % (first_error, msg)
+--&gt; 827         raise OSError(msg)
+    828     return backend.load_library(path, flags)
+    829 
+
+OSError: cannot load library 'libngspice.so': libngspice.so: cannot open shared object file: No such file or directory.  Additionally, ctypes.util.find_library() did not manage to locate a library called 'libngspice.so'
+</code></pre>
+<p>I have installed all the dependencies, although I have run out of ideas, I am starting in the world of programming, however, they asked me for a job to simulate filters in the university. I need your help, if possible, a lot of fat in advance</p>
+            <p><small>7 posts - 3 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/oserror-cannot-load-library-libngspice-so/37">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/oserror-cannot-load-library-libngspice-so/37</link>
+          <pubDate>Sat, 23 May 2020 00:47:20 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-37</guid>
+          <source url="https://pyspice.discourse.group/t/oserror-cannot-load-library-libngspice-so/37.rss">OSError: cannot load library &#39;libngspice.so&#39;:</source>
+        </item>
+        <item>
+          <title>Welcome to Discourse</title>
+          <dc:creator><![CDATA[system]]></dc:creator>
+          <category>Uncategorized</category>
+          <description><![CDATA[
+            <p><strong>Welcome to the PySpice Forum !</strong></p>
+<p>This forum is the right place to chat about <a href="https://github.com/FabriceSalvaire/PySpice">PySpice</a> between users and to get help.</p>
+<p><em>This forum is provided freely by <a href="https://www.discourse.org">https://www.discourse.org</a> as a part of its program to support open source projects.</em></p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/welcome-to-discourse/7">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/welcome-to-discourse/7</link>
+          <pubDate>Mon, 27 Apr 2020 09:02:31 +0000</pubDate>
+          <discourse:topicPinned>Yes</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-7</guid>
+          <source url="https://pyspice.discourse.group/t/welcome-to-discourse/7.rss">Welcome to Discourse</source>
+        </item>
+  </channel>
+</rss>

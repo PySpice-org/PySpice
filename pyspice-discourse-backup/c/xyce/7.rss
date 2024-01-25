@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:discourse="http://www.discourse.org/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Xyce - PySpice</title>
+    <link>https://pyspice.discourse.group/c/xyce/7</link>
+    <description>Topics in the &#39;Xyce&#39; category </description>
+    
+      <lastBuildDate>Fri, 18 Sep 2020 23:01:18 +0000</lastBuildDate>
+      <atom:link href="https://pyspice.discourse.group/c/xyce/7.rss" rel="self" type="application/rss+xml" />
+        <item>
+          <title>Looking for a Xyce Example</title>
+          <dc:creator><![CDATA[WannabeModeller]]></dc:creator>
+          <category>Xyce</category>
+          <description><![CDATA[
+            <p>Hi, I have installed Xyce, NGSpice and PySpice and everything is almost working… except, when I run on iPython (actually Anaconda Spyder) then I stumbled into a cdef problem on duplidate definition of ngcomplex. I can see on github some discussion, but not clear to me how to move forward on it. No mater, I have Xyce. But then I was stumbling at the start [again]. The documentation says to set an attribute</p>
+<p>PySpice.Spice.Xyce.Server.XyceServer.XYCE_COMMAND = “C:\Program Files\Xyce 7.1 OPENSOURCE\bin\Xyce.exe”</p>
+<p>But where do I type that? It seems to be an attribute of a class or something?? So then I try<br>
+… = simulator(xyce_command=r"C:\Program Files\Xyce 7.1 OPENSOURCE\bin\Xyce.exe", simulator=‘xyce-serial’,…)</p>
+<p>and that one dies with file not found, although it is the correct command to launch Xyce.</p>
+<p>What finally worked (yeh!) was to edit by hand the PySpice source code and find where XyceCommand was defined and wow. I’m amazed. Works perfectly <img src="https://emoji.discourse-cdn.com/twitter/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>But was there a cleaner way that I could have done this?</p>
+<p>Thanks so much for  putting this product together. I’m excited to check it out further.</p>
+            <p><small>2 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/looking-for-a-xyce-example/82">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/looking-for-a-xyce-example/82</link>
+          <pubDate>Fri, 18 Sep 2020 23:01:18 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-82</guid>
+          <source url="https://pyspice.discourse.group/t/looking-for-a-xyce-example/82.rss">Looking for a Xyce Example</source>
+        </item>
+        <item>
+          <title>About the Xyce category</title>
+          <dc:creator><![CDATA[fsalvaire]]></dc:creator>
+          <category>Xyce</category>
+          <description><![CDATA[
+            <p>(Replace this first paragraph with a brief description of your new category. This guidance will appear in the category selection area, so try to keep it below 200 characters.)</p>
+<p>Use the following paragraphs for a longer description, or to establish category guidelines or rules:</p>
+<ul>
+<li>
+<p>Why should people use this category? What is it for?</p>
+</li>
+<li>
+<p>How exactly is this different than the other categories we already have?</p>
+</li>
+<li>
+<p>What should topics in this category generally contain?</p>
+</li>
+<li>
+<p>Do we need this category? Can we merge with another category, or subcategory?</p>
+</li>
+</ul>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/about-the-xyce-category/14">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/about-the-xyce-category/14</link>
+          <pubDate>Mon, 27 Apr 2020 19:45:07 +0000</pubDate>
+          <discourse:topicPinned>Yes</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-14</guid>
+          <source url="https://pyspice.discourse.group/t/about-the-xyce-category/14.rss">About the Xyce category</source>
+        </item>
+  </channel>
+</rss>

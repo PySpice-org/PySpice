@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Problems with running simulator - Installation - PySpice</title>
+    <meta name="description" content="Hi every one! 
+I am new to PySpice. I was running 1.4.3 ver with ngspice 3.2 and everything was working well. 
+My computer did a usual clean up and update. 
+Now the netlist part works fine. But when I call the simulator &amp;hellip;">
+    <meta name="generator" content="Discourse 2.9.0.beta4 - https://github.com/discourse/discourse version d90065e0efb7f68b92d06690a047a4d9cb972766">
+<link rel="icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_180x180.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="153.html" />
+<script type="application/ld+json">{"@context":"http://schema.org","@type":"WebSite","url":"https://pyspice.discourse.group","potentialAction":{"@type":"SearchAction","target":"https://pyspice.discourse.group/search?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+<link rel="search" type="application/opensearchdescription+xml" href="../../opensearch.xml" title="PySpice Search">
+
+    <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/color_definitions_base__2_eecd416525cef9093c2ee277775110e36aced01d.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-adplugin_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-adplugin"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-akismet_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-akismet"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-cakeday_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-cakeday"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-details_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-footnote_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-footnote"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-local-dates_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-narrative-bot_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-presence_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-solved_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-spoiler-alert_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-spoiler-alert"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/hosted-site_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="hosted-site"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/lazy-yt_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="lazy-yt"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_theme_2_34d020de06a5f743d99a6d1334b1cab5b823f5c9.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;Problems with running simulator&#39;" href="https://pyspice.discourse.group/t/problems-with-running-simulator/153.rss" />
+    <meta property="og:site_name" content="PySpice" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:url" content="https://pyspice.discourse.group/t/problems-with-running-simulator/153" />
+<meta name="twitter:url" content="https://pyspice.discourse.group/t/problems-with-running-simulator/153" />
+<meta property="og:title" content="Problems with running simulator" />
+<meta name="twitter:title" content="Problems with running simulator" />
+<meta property="og:description" content="Hi every one!  I am new to PySpice. I was running 1.4.3 ver with ngspice 3.2 and everything was working well.  My computer did a usual clean up and update.  Now the netlist part works fine. But when I call the simulator I get a long error message (I will paste below). I was doing good progress and I am glad to share a 3 phase diode rectifier model which was working well. Until this problem arose. When I did an update I see that the cur ver is 1.5 and installs ngspice 3.4  Any help is appreciated..." />
+<meta name="twitter:description" content="Hi every one!  I am new to PySpice. I was running 1.4.3 ver with ngspice 3.2 and everything was working well.  My computer did a usual clean up and update.  Now the netlist part works fine. But when I call the simulator I get a long error message (I will paste below). I was doing good progress and I am glad to share a 3 phase diode rectifier model which was working well. Until this problem arose. When I did an update I see that the cur ver is 1.5 and installs ngspice 3.4  Any help is appreciated..." />
+<meta property="article:published_time" content="2021-11-11T13:45:39+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    
+  </head>
+  <body class="crawler">
+    
+    <header>
+  <a href="../../index.html">
+    <h1>PySpice</h1>
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="153.html">Problems with running simulator</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="../../c/installation/10.html" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>Installation</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+
+      <div id='post_1' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/AMK'><span itemprop='name'>AMK</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="153.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2021-11-11T13:45:39Z' class='post-time'>
+                November 11, 2021,  1:45pm
+              </time>
+              <meta itemprop='dateModified' content='2021-11-11T13:45:39Z'>
+          <span itemprop='position'>#1</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>Hi every one!<br>
+I am new to PySpice. I was running 1.4.3 ver with ngspice 3.2 and everything was working well.<br>
+My computer did a usual clean up and update.</p>
+<p>Now the netlist part works fine. But when I call the simulator I get a long error message (I will paste below). I was doing good progress and I am glad to share a 3 phase diode rectifier model which was working well. Until this problem arose. When I did an update I see that the cur ver is 1.5 and installs ngspice 3.4</p>
+<p>Any help is appreciated. Else will have to go back to LTspice</p>
+<p>Error msg attached below</p>
+<hr>
+<p>TypeError                                 Traceback (most recent call last)<br>
+ in <br>
+----&gt; 1 simulator = circuit3.simulator(temperature=25, nominal_temperature=25)<br>
+2 simulator.initial_condition(out = 90@u_V)<br>
+3 analysis = simulator.transient(step_time=Vac.period/1000, end_time=Vac.period*6)<br>
+4<br>
+5 res = format_output(analysis)</p>
+<p>~\Anaconda3\lib\site-packages\PySpice\Spice\Netlist.py in simulator(self, *args, **kwargs)</p>
+<p>~\Anaconda3\lib\site-packages\PySpice\Spice\Simulation.py in factory(cls, circuit, *args, **kwargs)<br>
+1117     “”" This class implements a circuit simulator. Each analysis mode is performed by a method that<br>
+1118     return the measured probes.<br>
+ → 1119<br>
+1120     For <em>ac</em> and <em>transient</em> analyses, the user must specify a list of nodes using the <em>probes</em> key<br>
+1121     argument.</p>
+<p>~\Anaconda3\lib\site-packages\PySpice\Spice\NgSpice\Simulation.py in <strong>init</strong>(self, circuit, **kwargs)<br>
+97         ngspice_shared = kwargs.get(‘ngspice_shared’, None)<br>
+98         if ngspice_shared is None:<br>
+—&gt; 99             self._ngspice_shared = NgSpiceShared.new_instance()<br>
+100         else:<br>
+101             self._ngspice_shared = ngspice_shared</p>
+<p>~\Anaconda3\lib\site-packages\PySpice\Spice\NgSpice\Shared.py in new_instance(cls, ngspice_id, send_data, verbose)<br>
+450             cls._instances[ngspice_id] = instance<br>
+451             return instance<br>
+ → 452<br>
+453     ##############################################<br>
+454</p>
+<p>~\Anaconda3\lib\site-packages\PySpice\Spice\NgSpice\Shared.py in <strong>init</strong>(self, ngspice_id, send_data, verbose)<br>
+478         self._library_path = None<br>
+479         self._load_library(verbose)<br>
+ → 480         self._init_ngspice(send_data)<br>
+481<br>
+482         self._is_running = False</p>
+<p>~\Anaconda3\lib\site-packages\PySpice\Spice\NgSpice\Shared.py in _load_library(self, verbose)<br>
+511             if ‘SPICE_LIB_DIR’ not in os.environ:<br>
+512                 _ = str(Path(self.NGSPICE_PATH).joinpath(‘share’, ‘ngspice’))<br>
+ → 513                 os.environ[‘SPICE_LIB_DIR’] = _<br>
+514                 # self._logger.warning(‘Set SPICE_LIB_DIR = %s’, _)<br>
+515</p>
+<p>~\Anaconda3\lib\pathlib.py in <strong>new</strong>(cls, *args, **kwargs)<br>
+1036         if cls is Path:<br>
+1037             cls = WindowsPath if os.name == ‘nt’ else PosixPath<br>
+ → 1038         self = cls._from_parts(args, init=False)<br>
+1039         if not self._flavour.is_supported:<br>
+1040             raise NotImplementedError(“cannot instantiate %r on your system”</p>
+<p>~\Anaconda3\lib\pathlib.py in _from_parts(cls, args, init)<br>
+677         # right flavour.<br>
+678         self = object.<strong>new</strong>(cls)<br>
+ → 679         drv, root, parts = self._parse_args(args)<br>
+680         self._drv = drv<br>
+681         self._root = root</p>
+<p>~\Anaconda3\lib\pathlib.py in _parse_args(cls, args)<br>
+661                 parts += a._parts<br>
+662             else:<br>
+ → 663                 a = os.fspath(a)<br>
+664                 if isinstance(a, str):<br>
+665                     # Force-cast str subclasses to str (issue <span class="hashtag">#21127</span>)</p>
+<p>TypeError: expected str, bytes or os.PathLike object, not NoneType</p>
+        </div>
+
+        <meta itemprop='headline' content='Problems with running simulator'>
+          <meta itemprop='keywords' content=''>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='https://pyspice.discourse.group/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    
+  </body>
+  
+</html>

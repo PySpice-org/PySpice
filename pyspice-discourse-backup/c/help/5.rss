@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:discourse="http://www.discourse.org/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Help - PySpice</title>
+    <link>https://pyspice.discourse.group/c/help/5</link>
+    <description>Topics in the &#39;Help&#39; category The right place to get help on PySpice</description>
+    
+      <lastBuildDate>Tue, 18 May 2021 20:26:00 +0000</lastBuildDate>
+      <atom:link href="https://pyspice.discourse.group/c/help/5.rss" rel="self" type="application/rss+xml" />
+        <item>
+          <title>Whats PySpice&#39;s Advantages?</title>
+          <dc:creator><![CDATA[bcalbatros]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>Hi friends, why I have use pySpice instead of use direct spice program? Whats advantages of using pyspice? I must a homework like electronic circuits with pyspice but I didn’t find a topic.  Can you help me find a topic. How can I do with pyspice?</p>
+            <p><small>2 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/whats-pyspices-advantages/135">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/whats-pyspices-advantages/135</link>
+          <pubDate>Tue, 18 May 2021 20:26:00 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-135</guid>
+          <source url="https://pyspice.discourse.group/t/whats-pyspices-advantages/135.rss">Whats PySpice&#39;s Advantages?</source>
+        </item>
+        <item>
+          <title>Can SpiceParser parse subcircuits?</title>
+          <dc:creator><![CDATA[jimzenn]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>We want to parse a sp file with a netlist that embeds a subcircuit definition. When we parse it with SpiceParser we noticed that the subcircuit definition is removed. Is there a way to include the subcircuit definition during the parsing process?</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/can-spiceparser-parse-subcircuits/133">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/can-spiceparser-parse-subcircuits/133</link>
+          <pubDate>Fri, 30 Apr 2021 03:23:54 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-133</guid>
+          <source url="https://pyspice.discourse.group/t/can-spiceparser-parse-subcircuits/133.rss">Can SpiceParser parse subcircuits?</source>
+        </item>
+        <item>
+          <title>Error in running examples</title>
+          <dc:creator><![CDATA[GillB]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>I’ve just installed PySpice (on Fedora, using pip install PySpice). I’ve downloaded the examples with pyspice-post-installation --download-example and tried to run them. I get a number of errors, but the one that appears most often is:</p>
+<p>pyspice-post-installation --download-example</p>
+<p>I googled the problem but couldn’t fix it, grateful for suggestions.</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/error-in-running-examples/127">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/error-in-running-examples/127</link>
+          <pubDate>Tue, 09 Mar 2021 23:43:16 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-127</guid>
+          <source url="https://pyspice.discourse.group/t/error-in-running-examples/127.rss">Error in running examples</source>
+        </item>
+        <item>
+          <title>Google COLAB + PySpice</title>
+          <dc:creator><![CDATA[LeandroVB]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>I trying use PySpice on google Colab, but I fail…<br>
+Some one  can tell me if is possible, and how i can do?</p>
+<p>Aparently… I should but i dont be able to install or reference there the “ngspice dll”</p>
+            <p><small>2 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/google-colab-pyspice/125">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/google-colab-pyspice/125</link>
+          <pubDate>Sun, 07 Mar 2021 02:56:43 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-125</guid>
+          <source url="https://pyspice.discourse.group/t/google-colab-pyspice/125.rss">Google COLAB + PySpice</source>
+        </item>
+        <item>
+          <title>Read a NgSpice rawfile using PySpice</title>
+          <dc:creator><![CDATA[Wallflower]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>Hello guys,</p>
+<p>I am writing a python script that generates, runs and eventually will read the raw files. The command I use to run the netlist is the following: <code>subprocess.run([path_to_ngspice_executable,'-r','rawfile.raw','-b','-i',my_netlist])</code> which generates my rawfile.</p>
+<p>Could you please tell me what PySpice command to use so I can read the generated raw file and plot the distribution of my voltages?</p>
+<p>Thanks in advance !</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/read-a-ngspice-rawfile-using-pyspice/123">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/read-a-ngspice-rawfile-using-pyspice/123</link>
+          <pubDate>Wed, 03 Mar 2021 08:40:44 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-123</guid>
+          <source url="https://pyspice.discourse.group/t/read-a-ngspice-rawfile-using-pyspice/123.rss">Read a NgSpice rawfile using PySpice</source>
+        </item>
+        <item>
+          <title>Trouble with Libraries</title>
+          <dc:creator><![CDATA[JOALCO]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>Hello!</p>
+<p>To better understand PySpice, I’m working through a very simple circuit involving a voltage source, a resistor, and a 1N4148 Diode.  However, I am having trouble with Python recognizing the library I need to bring in the characteristics of the diode. Here is my code:</p>
+<p>'import numpy as np<br>
+import matplotlib.pyplot as plt<br>
+import matplotlib.ticker as ticker</p>
+<p>import PySpice.Logging.Logging as Logging<br>
+logger = Logging.setup_logging()</p>
+<p>from PySpice.Doc.ExampleTools import find_libraries<br>
+from PySpice.Spice.Netlist import Circuit<br>
+from PySpice.Spice.Library import SpiceLibrary<br>
+from PySpice.Unit import *<br>
+from PySpice.Physics.SemiConductor import ShockleyDiode</p>
+<p>libraries_path = find_libraries()<br>
+spice_library = SpiceLibrary(libraries_path)</p>
+<p>circuit = Circuit(‘Diode Characteristic Curve’)</p>
+<p>circuit.include(spice_library[‘1N4148’])</p>
+<p>circuit.V(‘input’, ‘in’, circuit.gnd, 10@u_V)<br>
+circuit.R(1, ‘in’, ‘out’, 1@u_Ω) # not required for simulation<br>
+circuit.X(‘D1’, ‘1N4148’, ‘out’, circuit.gnd)’</p>
+<p>And here is my result:</p>
+<p>’ <code>---------------------------------------------------------------------------</code> <code>KeyError                                  Traceback (most recent call last)</code> <code>&lt;ipython-input-5-ae802129d891&gt; in &lt;module&gt;      20 circuit = Circuit('Diode Characteristic Curve')      21  ---&gt; 22 circuit.include(spice_library['1N4148'])      23       24 circuit.V('input', 'in', circuit.gnd, 10@u_V)</code> <code>/usr/local/lib/python3.8/dist-packages/PySpice/Spice/Library.py in __getitem__(self, name)     105             # print('Library {} not found in {}'.format(name, self._directory))     106             # self._logger.warn('Library {} not found in {}'.format(name, self._directory)) --&gt; 107             raise KeyError(name)     108      109     ##############################################</code> <code>KeyError: '1N4148'</code>’</p>
+<p>Can anyone help me understand what exactly is going wrong here and how I can correct it?</p>
+<p>Thanks!</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/trouble-with-libraries/94">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/trouble-with-libraries/94</link>
+          <pubDate>Sun, 25 Oct 2020 20:45:42 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-94</guid>
+          <source url="https://pyspice.discourse.group/t/trouble-with-libraries/94.rss">Trouble with Libraries</source>
+        </item>
+        <item>
+          <title>Getting started -- RLC example</title>
+          <dc:creator><![CDATA[karich]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>Hello everyone! I am new to pyspice and trying to run the example. The issue I’m running into is with rlc-filter.py, the bode plots aren’t working and don’t match what’s in the documentation. Here are screenshots of the plots and the output which hopefully points to the issue.<br>
+</p><div class="lightbox-wrapper"><a class="lightbox" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/6e85446f36a9711baadb20ade52eb978f6ea34f9.jpeg" data-download-href="/uploads/short-url/fLI2Pyq8vVEnMh906oi83jTWk2J.jpeg?dl=1" title="Screen Shot 2020-08-31 at 11.57.25 PM" rel="nofollow noopener"><img src="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/6e85446f36a9711baadb20ade52eb978f6ea34f9_2_690x242.jpeg" alt="Screen Shot 2020-08-31 at 11.57.25 PM" data-base62-sha1="fLI2Pyq8vVEnMh906oi83jTWk2J" width="690" height="242" srcset="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/6e85446f36a9711baadb20ade52eb978f6ea34f9_2_690x242.jpeg, https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/6e85446f36a9711baadb20ade52eb978f6ea34f9_2_1035x363.jpeg 1.5x, https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/6e85446f36a9711baadb20ade52eb978f6ea34f9_2_1380x484.jpeg 2x" data-small-upload="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/6e85446f36a9711baadb20ade52eb978f6ea34f9_2_10x10.png"></a></div><br>
+<div class="lightbox-wrapper"><a class="lightbox" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/221d125aa9603d129d74c9097be7e4eae801cf12.jpeg" data-download-href="/uploads/short-url/4RMweaOsxUqy5wW1OnGkgW9CdMu.jpeg?dl=1" title="Screen Shot 2020-08-31 at 11.57.03 PM" rel="nofollow noopener"><img src="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/221d125aa9603d129d74c9097be7e4eae801cf12_2_584x500.jpeg" alt="Screen Shot 2020-08-31 at 11.57.03 PM" data-base62-sha1="4RMweaOsxUqy5wW1OnGkgW9CdMu" width="584" height="500" srcset="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/221d125aa9603d129d74c9097be7e4eae801cf12_2_584x500.jpeg, https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/221d125aa9603d129d74c9097be7e4eae801cf12_2_876x750.jpeg 1.5x, https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/221d125aa9603d129d74c9097be7e4eae801cf12_2_1168x1000.jpeg 2x" data-small-upload="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/221d125aa9603d129d74c9097be7e4eae801cf12_2_10x10.png"></a></div><br>
+I appreciate any advice on how to fix this!<p></p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/getting-started-rlc-example/77">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/getting-started-rlc-example/77</link>
+          <pubDate>Tue, 01 Sep 2020 16:51:09 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-77</guid>
+          <source url="https://pyspice.discourse.group/t/getting-started-rlc-example/77.rss">Getting started -- RLC example</source>
+        </item>
+        <item>
+          <title>Starting with Pyspice</title>
+          <dc:creator><![CDATA[RNWx]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>Hello everyone,</p>
+<p>I’m very new to PySpice, but I want to learn it. The problem is that starting is complicated and I have not found any tutorials. Do you have any recommendations on how to get started with PySpice?</p>
+            <p><small>3 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/starting-with-pyspice/71">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/starting-with-pyspice/71</link>
+          <pubDate>Sun, 16 Aug 2020 18:30:48 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-71</guid>
+          <source url="https://pyspice.discourse.group/t/starting-with-pyspice/71.rss">Starting with Pyspice</source>
+        </item>
+        <item>
+          <title>Transfer function on voltage source</title>
+          <dc:creator><![CDATA[jcastillo]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>Hi,</p>
+<p>I am new to Pyspice and I am moving our LTSpice simulations to PySpice. In that simulation we have some transfer functions defined as voltage sources with a transfer function like this:</p>
+<p>I=V(A_IN) MAG FREQ=(34000.0,-0.386765E-03,-0.191481E-03)(34050.0,-0.415016E-03,-0.187603E-03)</p>
+<p>Is it posible to implement this in PySpice?</p>
+<p>Regards</p>
+            <p><small>2 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/transfer-function-on-voltage-source/69">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/transfer-function-on-voltage-source/69</link>
+          <pubDate>Sat, 08 Aug 2020 15:49:16 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-69</guid>
+          <source url="https://pyspice.discourse.group/t/transfer-function-on-voltage-source/69.rss">Transfer function on voltage source</source>
+        </item>
+        <item>
+          <title>Looking for two .mod files used in an example code</title>
+          <dc:creator><![CDATA[YogVaghani]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>Hello. How are you guys doing? I am looking for the model files of the 1N5822 and the irf150 from the buck convertor example in the link below. <a href="https://pyspice.fabrice-salvaire.fr/releases/v1.4/examples/switched-power-supplies/buck-converter.html" rel="nofollow noopener">https://pyspice.fabrice-salvaire.fr/releases/v1.4/examples/switched-power-supplies/buck-converter.html</a> . Thanks for any help that I get.</p>
+            <p><small>2 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/looking-for-two-mod-files-used-in-an-example-code/59">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/looking-for-two-mod-files-used-in-an-example-code/59</link>
+          <pubDate>Fri, 10 Jul 2020 22:35:03 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-59</guid>
+          <source url="https://pyspice.discourse.group/t/looking-for-two-mod-files-used-in-an-example-code/59.rss">Looking for two .mod files used in an example code</source>
+        </item>
+        <item>
+          <title>Sub-circuit in library issue</title>
+          <dc:creator><![CDATA[dlibault]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>Hi there !</p>
+<p>I would like to use a spice circuit model (a sub-circuit in a .MOD file) in a circuit created from a spice netlist (a .net file) inside PySpice. Following is a simplistic example that shows the problem with a simple RC sub-circuit. I can’t figure out why the sub-circuit is not found although it is explicitly included with the circuit.include call as in the documentation examples…</p>
+<p>The RC.py file :</p>
+<pre><code class="lang-python">import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
+
+from PySpice.Spice.Library import SpiceLibrary
+from PySpice.Spice.Netlist import Circuit
+from PySpice.Spice.Parser import SpiceParser
+from PySpice.Unit import *
+
+spice_library = SpiceLibrary('../models/')
+parser = SpiceParser(path='RC.net')
+circuit = parser.build_circuit()
+circuit.include(spice_library['RC'])
+simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+analysis = simulator.ac('dec', 10, 100, 100e3)
+</code></pre>
+<p>The <a href="http://RC.net" rel="nofollow noopener">RC.net</a> circuit file :</p>
+<pre><code class="lang-auto">.title RC Circuit
+V1 VIN 0 AC
+X1 VIN 0 VOUT RC
+.end
+</code></pre>
+<p>The RC.MOD model file in the ../models directory :</p>
+<pre><code class="lang-auto">* PINOUT 1 2 3
+* PINOUT IN+ IN- OUT
+.subckt RC 1 2 3
+R1 1 3 1k
+C1 3 2 1nF
+.ends
+</code></pre>
+<p>Runing the python script gives :</p>
+<pre><code class="lang-auto">$ python RC.py
+2020-07-06 15:12:47,850 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Error: unknown subckt: x1 vin 0 vout rc
+2020-07-06 15:12:47,851 - PySpice.Spice.NgSpice.Shared.NgSpiceShared - Shared.ERROR - Error: there aren't any circuits loaded.
+Traceback (most recent call last):
+  File "RC.py", line 14, in &lt;module&gt;
+    analysis = simulator.ac('dec', 10, 100, 100e3)
+  File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/Simulation.py", line 1161, in ac
+    return self._run('ac', *args, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Simulation.py", line 118, in _run
+    self._ngspice_shared.run()
+  File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Shared.py", line 1168, in run
+    self.exec_command(command)
+  File "/usr/local/lib/python3.7/site-packages/PySpice/Spice/NgSpice/Shared.py", line 842, in exec_command
+    raise NgSpiceCommandError("Command '{}' failed".format(command))
+PySpice.Spice.NgSpice.Shared.NgSpiceCommandError: Command 'run' failed
+</code></pre>
+            <p><small>8 posts - 5 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/sub-circuit-in-library-issue/56">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/sub-circuit-in-library-issue/56</link>
+          <pubDate>Mon, 06 Jul 2020 13:20:14 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-56</guid>
+          <source url="https://pyspice.discourse.group/t/sub-circuit-in-library-issue/56.rss">Sub-circuit in library issue</source>
+        </item>
+        <item>
+          <title>.cir to Python classes</title>
+          <dc:creator><![CDATA[subash774]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>I am completely new to electronics and any kind of circuit modelling. I have a .cir file that I need to turn into python classes so I can carry out precedures like chaining 2 or more subcircuits together and doing monte carlo simulation. The .cir was exported from PSpice. I was wondering, is this possible? To turn .cir to python classes? .cir has subcircuits defined.</p>
+            <p><small>3 posts - 3 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/cir-to-python-classes/54">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/cir-to-python-classes/54</link>
+          <pubDate>Thu, 02 Jul 2020 13:52:17 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-54</guid>
+          <source url="https://pyspice.discourse.group/t/cir-to-python-classes/54.rss">.cir to Python classes</source>
+        </item>
+        <item>
+          <title>.param command and formula evaluation</title>
+          <dc:creator><![CDATA[Martin_Sauter]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>Hello All,<br>
+being familiar with spice, usually prefer to create netlists in the bootstrapping way like this:</p>
+<p>from PySpice.Spice.Parser import SpiceParser</p>
+<p>#######################################</p>
+<h1></h1>
+<h1></h1>
+<p>import os<br>
+os.linesep="\n"</p>
+<p>source=’’’<br>
+.title abc</p>
+<p>V1 inx 0 DC 2V<br>
+R1 inx out 1k<br>
+R2 out 0 2k<br>
+.end<br>
+‘’’</p>
+<p>parser = SpiceParser(source=source)<br>
+circuit = parser.build_circuit()</p>
+<p>simulator = circuit.simulator(temperature=25, nominal_temperature=25)<br>
+<span class="hashtag">#analysis</span> = simulator.dc(V1=slice(Vmin, Vmax,Vstep))<br>
+analysis = simulator.operating_point()</p>
+<p>for node in analysis.nodes.values():<br>
+print(‘Node {}: {:5.2f} V’.format(str(node), float(node)))</p>
+<p>######################################</p>
+<p>However in Spice Macromodels global parameters should be possible like a netlist in this way:<br>
+######################################<br>
+…<br>
+source=’’’<br>
+.title abc<br>
+.param res=1k<br>
+V1 inx 0 DC 2V<br>
+R1 inx out {res}<br>
+R2 out 0 2k<br>
+.end<br>
+‘’’<br>
+… and so on…</p>
+<p>Anyway, the parser does not seem to recognize neither the “.param” nor the curled braces.</p>
+<p>Is there a workaround for this?</p>
+<p>Kind rgs Martin</p>
+            <p><small>5 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/param-command-and-formula-evaluation/44">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/param-command-and-formula-evaluation/44</link>
+          <pubDate>Fri, 29 May 2020 13:17:57 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-44</guid>
+          <source url="https://pyspice.discourse.group/t/param-command-and-formula-evaluation/44.rss">.param command and formula evaluation</source>
+        </item>
+        <item>
+          <title>Electronic component libraries</title>
+          <dc:creator><![CDATA[tadeus]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>Good afternoon everyone, I am writing to the community to consult a page to find electronic components for pyspice something similar to the page of <a href="https://www.snapeda.com/" rel="nofollow noopener">https://www.snapeda.com/</a>, if anyone has information you are very much appreciated</p>
+            <p><small>2 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/electronic-component-libraries/42">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/electronic-component-libraries/42</link>
+          <pubDate>Thu, 28 May 2020 17:28:43 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-42</guid>
+          <source url="https://pyspice.discourse.group/t/electronic-component-libraries/42.rss">Electronic component libraries</source>
+        </item>
+        <item>
+          <title>About the Help category</title>
+          <dc:creator><![CDATA[fsalvaire]]></dc:creator>
+          <category>Help</category>
+          <description><![CDATA[
+            <p>The right place to get help on PySpice</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/about-the-help-category/12">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/about-the-help-category/12</link>
+          <pubDate>Mon, 27 Apr 2020 19:31:11 +0000</pubDate>
+          <discourse:topicPinned>Yes</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-12</guid>
+          <source url="https://pyspice.discourse.group/t/about-the-help-category/12.rss">About the Help category</source>
+        </item>
+  </channel>
+</rss>

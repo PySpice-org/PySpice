@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:discourse="http://www.discourse.org/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>NgSpice - PySpice</title>
+    <link>https://pyspice.discourse.group/c/ngspice/6</link>
+    <description>Topics in the &#39;NgSpice&#39; category </description>
+    
+      <lastBuildDate>Mon, 09 Aug 2021 06:01:08 +0000</lastBuildDate>
+      <atom:link href="https://pyspice.discourse.group/c/ngspice/6.rss" rel="self" type="application/rss+xml" />
+        <item>
+          <title>Library import corner analysis</title>
+          <dc:creator><![CDATA[junsang]]></dc:creator>
+          <category>NgSpice</category>
+          <description><![CDATA[
+            <p>Hello!</p>
+<p>I am not familiar with English so if there is something not clear, please ask me!!</p>
+<p>I am trying to import library file using corner analysis<br>
+The code below is what I wish to use in NgSpice text</p>
+<pre><code class="lang-auto">.lib 'mm018.l' TT
+</code></pre>
+<p>Since there is “TT” added for typical type analysis,<br>
+I can’t use the library import using the code below in pyspice</p>
+<pre><code class="lang-auto">spice_library = SpiceLibrary('./library_to_add')
+</code></pre>
+<p>I have no idea how I should solve this problem, please help me</p>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/library-import-corner-analysis/143">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/library-import-corner-analysis/143</link>
+          <pubDate>Mon, 09 Aug 2021 06:01:08 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-143</guid>
+          <source url="https://pyspice.discourse.group/t/library-import-corner-analysis/143.rss">Library import corner analysis</source>
+        </item>
+        <item>
+          <title>NgSpice Options Help</title>
+          <dc:creator><![CDATA[az743]]></dc:creator>
+          <category>NgSpice</category>
+          <description><![CDATA[
+            <p>How do you use the simulation options in a simulation?  For example how does one call up any of the options in chapter 15.1 of the NgSpice users guide.</p>
+<p>Say I want to change the transient solver to METHOD=‘Gear’ how would I?</p>
+            <p><small>2 posts - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/ngspice-options-help/131">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/ngspice-options-help/131</link>
+          <pubDate>Sun, 21 Mar 2021 01:18:42 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-131</guid>
+          <source url="https://pyspice.discourse.group/t/ngspice-options-help/131.rss">NgSpice Options Help</source>
+        </item>
+        <item>
+          <title>How to measure voltage and current in pyspice</title>
+          <dc:creator><![CDATA[huszing]]></dc:creator>
+          <category>NgSpice</category>
+          <description><![CDATA[
+            <p>hi，everybody!</p>
+<p>I’ve built a memristor model in Pspice，The model can run .I wanted it to run in pyspice, but there was an error.</p>
+<p>In PSpice, the following statement is OK ：<br>
+Emem plus aux value={-I(Emem)<em>V(x)</em>(1000-10)}</p>
+<p>But in pyspice，An error occurred.</p>
+<h3>NameError: name ‘V’ is not defined</h3>
+<p>The reason is that V (x) and I (EMEM) have problems.How can I solve this problem？</p>
+<p>Thank you very much！</p>
+<h3>Environment (windows10, Python 3.2, PySpice 1.4.3, NGspice)</h3>
+<h3>Expected Behaviour</h3>
+<h3>Actual Behaviour</h3>
+<h3>Steps to reproduce the behaviour</h3>
+            <p><small>2 posts - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/how-to-measure-voltage-and-current-in-pyspice/74">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/how-to-measure-voltage-and-current-in-pyspice/74</link>
+          <pubDate>Mon, 24 Aug 2020 11:59:27 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-74</guid>
+          <source url="https://pyspice.discourse.group/t/how-to-measure-voltage-and-current-in-pyspice/74.rss">How to measure voltage and current in pyspice</source>
+        </item>
+        <item>
+          <title>Relatively accurate component (and board) thermal simulations?</title>
+          <dc:creator><![CDATA[brainstorm]]></dc:creator>
+          <category>NgSpice</category>
+          <description><![CDATA[
+            <p>After playing around with SkiDL+NgSpice on <a href="https://pyspice.discourse.group/t/skidl-ngspice-via-pyspice-simulating-a-simple-parallel-resistors-circuits-power-outputs/26/3" class="inline-onebox">SkiDL+NgSpice (via PySpice): simulating a simple parallel resistors circuit's power outputs</a>, I wonder what’s the recommended/best/suitable way to go about simulating thermodynamics on a circuit. Talking with an expert colleague he recommended the following theoretical approach:</p>
+<p><a href="https://lpsa.swarthmore.edu/Systems/Thermal/SysThermalModel.html" class="onebox" target="_blank" rel="nofollow noopener">https://lpsa.swarthmore.edu/Systems/Thermal/SysThermalModel.html</a></p>
+<p>Essentially I would like to have a way to “heat map” a circuit pretty much like a FLIR camera does but via simulation/software… is it possible with NgSpice alone? Or would this require more ammo with FEA modelling or the like?</p>
+<p>I would like to know if somebody has attempted this successfully and has good experience/code to share? <img src="https://emoji.discourse-cdn.com/twitter/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+            <p><small>2 posts - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/relatively-accurate-component-and-board-thermal-simulations/28">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/relatively-accurate-component-and-board-thermal-simulations/28</link>
+          <pubDate>Thu, 30 Apr 2020 22:42:47 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-28</guid>
+          <source url="https://pyspice.discourse.group/t/relatively-accurate-component-and-board-thermal-simulations/28.rss">Relatively accurate component (and board) thermal simulations?</source>
+        </item>
+        <item>
+          <title>SkiDL+NgSpice (via PySpice): simulating a simple parallel resistors circuit&#39;s power outputs</title>
+          <dc:creator><![CDATA[brainstorm]]></dc:creator>
+          <category>NgSpice</category>
+          <description><![CDATA[
+            <p>Hi folks, this seems to be the first post over this forum, hopefully it’s not too soon to start asking questions? <img src="https://emoji.discourse-cdn.com/twitter/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>I’m extending a bit one of the SKiDL simulation tutorials, as presented in this Jupyter notebook with a simple resistor (among other more complex examples):</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/xesscorp/skidl/blob/master/examples/spice-sim-intro/spice-sim-intro.ipynb" target="_blank" rel="nofollow noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/xesscorp/skidl/blob/master/examples/spice-sim-intro/spice-sim-intro.ipynb" target="_blank" rel="nofollow noopener">xesscorp/skidl/blob/master/examples/spice-sim-intro/spice-sim-intro.ipynb</a></h4>
+<pre><code class="lang-ipynb">{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "&lt;style&gt;\n",
+       "@import url('http://fonts.googleapis.com/css?family=Source+Code+Pro');\n",
+       "@import url('http://fonts.googleapis.com/css?family=Lora');\n",
+       "\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Open+Sans');\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Vollkorn');\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Karla');\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Poppins');\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Arimo');\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Roboto');\n",
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/xesscorp/skidl/blob/master/examples/spice-sim-intro/spice-sim-intro.ipynb" target="_blank" rel="nofollow noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>My intention is to extend the single resistor example with a netlist of several resistors in parallel (a 19x19 matrix), something like this:</p>
+<pre><code class="lang-python">#!/usr/bin/env python
+
+from skidl.pyspice import R, V, gnd, u_V
+from skidl.pyspice import u_Ohm, u_kOhm
+from skidl.pyspice import generate_netlist, reset, lib_search_paths, node
+
+reset()  # This will clear any previously defined circuitry.
+
+# Voltage Source
+vs = V(ref="VS", dc_value = 1 @ u_V)
+
+rnet = []
+
+# Create several resistors.
+rnet = 19*19*R(value = 1.7 @ u_kOhm)
+
+# Connect the nets and resistors.
+vs['p'] += [rnet[n][1] for n in range(0, 19*19)]
+gnd += [rnet[n][2] for n in range(0, 19*19)]
+gnd += vs['n']
+
+# Simulate the circuit.
+circ = generate_netlist()              # Translate the SKiDL code into a PyCircuit Circuit object.
+sim = circ.simulator()                 # Create a simulator for the Circuit object.
+dc_vals = sim.dc(VS=slice(1, 24, 1))  # Run a DC simulation where the voltage ramps from 1 to 12V by 1V increments.
+
+# Get the voltage applied to the resistor and the current coming out of the voltage source.
+voltage = dc_vals[node(vs['p'])]
+current = -dc_vals['VS']
+
+# Print a table showing the current through the resistor for the various applied voltages.
+print('{:^7s}{:^7s}{:^7s}'.format('V', ' I (A)', "P (W)"))
+print('='*25)
+for v, i, p in zip(voltage.as_ndarray(), current.as_ndarray(), voltage.as_ndarray()*current.as_ndarray()):
+    print('{:6.2f} {:6.2f} {:6.2f}'.format(v, i, p))
+</code></pre>
+<p>Unfortunately the output looks something like this:</p>
+<pre><code class="lang-auto">$ ./skidl_sim.py
+
+No errors or warnings found during netlist generation.
+
+warning, can't find model at
+Warning: r1: resistance to low, set to 1 mOhm
+Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Note: Starting dynamic gmin stepping
+Trying gmin =   1.0000E-03 Note: One successful gmin step
+Trying gmin =   1.0000E-04 Note: One successful gmin step
+Trying gmin =   1.0000E-05 Note: One successful gmin step
+Trying gmin =   1.0000E-06 Note: One successful gmin step
+Trying gmin =   1.0000E-07 Note: One successful gmin step
+Trying gmin =   1.0000E-08 Note: One successful gmin step
+Trying gmin =   1.0000E-09 Note: One successful gmin step
+Trying gmin =   1.0000E-10 Note: One successful gmin step
+Trying gmin =   1.0000E-11 Note: One successful gmin step
+Trying gmin =   1.0000E-12 Note: One successful gmin step
+Trying gmin =   1.0000E-12 Note: One successful gmin step
+Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Warning: Dynamic gmin stepping failed
+Note: Starting source stepping
+Supplies reduced to   0.0000% Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Trying gmin =   1.0000E-02 Note: One successful gmin step
+Trying gmin =   1.0000E-03 Note: One successful gmin step
+Trying gmin =   1.0000E-04 Note: One successful gmin step
+Trying gmin =   1.0000E-05 Note: One successful gmin step
+Trying gmin =   1.0000E-06 Note: One successful gmin step
+Trying gmin =   1.0000E-07 Note: One successful gmin step
+Trying gmin =   1.0000E-08 Note: One successful gmin step
+Trying gmin =   1.0000E-09 Note: One successful gmin step
+Trying gmin =   1.0000E-10 Note: One successful gmin step
+Trying gmin =   1.0000E-11 Note: One successful gmin step
+Trying gmin =   1.0000E-12 Note: One successful gmin step
+Note: One successful source step
+Supplies reduced to   0.1000% Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Supplies reduced to   0.0000% Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Warning: source stepping failed
+doAnalyses: iteration limit reached
+run simulation(s) aborted
+   V    I (A)  P (W)
+=========================
+</code></pre>
+<p>Can anybody let me know what’s going on? Which syntax should I be using to define that resistor “network” so that ngspice accepts it as well-defined?</p>
+            <p><small>2 posts - 2 participants</small></p>
+            <p><a href="https://pyspice.discourse.group/t/skidl-ngspice-via-pyspice-simulating-a-simple-parallel-resistors-circuits-power-outputs/26">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/skidl-ngspice-via-pyspice-simulating-a-simple-parallel-resistors-circuits-power-outputs/26</link>
+          <pubDate>Thu, 30 Apr 2020 15:01:26 +0000</pubDate>
+          <discourse:topicPinned>No</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-26</guid>
+          <source url="https://pyspice.discourse.group/t/skidl-ngspice-via-pyspice-simulating-a-simple-parallel-resistors-circuits-power-outputs/26.rss">SkiDL+NgSpice (via PySpice): simulating a simple parallel resistors circuit&#39;s power outputs</source>
+        </item>
+        <item>
+          <title>About the NgSpice category</title>
+          <dc:creator><![CDATA[fsalvaire]]></dc:creator>
+          <category>NgSpice</category>
+          <description><![CDATA[
+            <p>(Replace this first paragraph with a brief description of your new category. This guidance will appear in the category selection area, so try to keep it below 200 characters.)</p>
+<p>Use the following paragraphs for a longer description, or to establish category guidelines or rules:</p>
+<ul>
+<li>
+<p>Why should people use this category? What is it for?</p>
+</li>
+<li>
+<p>How exactly is this different than the other categories we already have?</p>
+</li>
+<li>
+<p>What should topics in this category generally contain?</p>
+</li>
+<li>
+<p>Do we need this category? Can we merge with another category, or subcategory?</p>
+</li>
+</ul>
+            <p><small>1 post - 1 participant</small></p>
+            <p><a href="https://pyspice.discourse.group/t/about-the-ngspice-category/13">Read full topic</a></p>
+          ]]></description>
+          <link>https://pyspice.discourse.group/t/about-the-ngspice-category/13</link>
+          <pubDate>Mon, 27 Apr 2020 19:44:26 +0000</pubDate>
+          <discourse:topicPinned>Yes</discourse:topicPinned>
+          <discourse:topicClosed>No</discourse:topicClosed>
+          <discourse:topicArchived>No</discourse:topicArchived>
+          <guid isPermaLink="false">pyspice.discourse.group-topic-13</guid>
+          <source url="https://pyspice.discourse.group/t/about-the-ngspice-category/13.rss">About the NgSpice category</source>
+        </item>
+  </channel>
+</rss>

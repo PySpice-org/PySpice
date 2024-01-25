@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SkiDL+NgSpice (via PySpice): simulating a simple parallel resistors circuit&#39;s power outputs - NgSpice - PySpice</title>
+    <meta name="description" content="Hi folks, this seems to be the first post over this forum, hopefully it’s not too soon to start asking questions? :slight_smile: 
+I’m extending a bit one of the SKiDL simulation tutorials, as presented in this Jupyter no&amp;hellip;">
+    <meta name="generator" content="Discourse 2.9.0.beta4 - https://github.com/discourse/discourse version d90065e0efb7f68b92d06690a047a4d9cb972766">
+<link rel="icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_32x32.png">
+<link rel="apple-touch-icon" type="image/png" href="https://aws1.discourse-cdn.com/free1/uploads/pyspice/optimized/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a_2_180x180.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<link rel="canonical" href="26.html" />
+<script type="application/ld+json">{"@context":"http://schema.org","@type":"WebSite","url":"https://pyspice.discourse.group","potentialAction":{"@type":"SearchAction","target":"https://pyspice.discourse.group/search?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+<link rel="search" type="application/opensearchdescription+xml" href="../../opensearch.xml" title="PySpice Search">
+
+    <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/color_definitions_base__2_eecd416525cef9093c2ee277775110e36aced01d.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" class="light-scheme"/>
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop"  />
+
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-adplugin_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-adplugin"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-akismet_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-akismet"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-cakeday_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-cakeday"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-details_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-details"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-footnote_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-footnote"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-local-dates_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-local-dates"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-narrative-bot_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-narrative-bot"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-presence_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-presence"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-solved_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-solved"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/discourse-spoiler-alert_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="discourse-spoiler-alert"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/hosted-site_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="hosted-site"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/lazy-yt_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="lazy-yt"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll"  />
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/poll_desktop_b0513461446f8c5b1f1a37d268c587e0428de349.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="poll_desktop"  />
+
+  <link href="https://yyz1.discourse-cdn.com/free1/stylesheets/desktop_theme_2_34d020de06a5f743d99a6d1334b1cab5b823f5c9.css?__ws=pyspice.discourse.group" media="all" rel="stylesheet" data-target="desktop_theme" data-theme-id="2" data-theme-name="light"/>
+
+    
+    
+        <link rel="alternate nofollow" type="application/rss+xml" title="RSS feed of &#39;SkiDL+NgSpice (via PySpice): simulating a simple parallel resistors circuit&#39;s power outputs&#39;" href="https://pyspice.discourse.group/t/skidl-ngspice-via-pyspice-simulating-a-simple-parallel-resistors-circuits-power-outputs/26.rss" />
+    <meta property="og:site_name" content="PySpice" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:image" content="https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/c8a5f9e5a96fcfbc05759ee1427b85cedcb4ce5a.png" />
+<meta property="og:url" content="https://pyspice.discourse.group/t/skidl-ngspice-via-pyspice-simulating-a-simple-parallel-resistors-circuits-power-outputs/26" />
+<meta name="twitter:url" content="https://pyspice.discourse.group/t/skidl-ngspice-via-pyspice-simulating-a-simple-parallel-resistors-circuits-power-outputs/26" />
+<meta property="og:title" content="SkiDL+NgSpice (via PySpice): simulating a simple parallel resistors circuit&#39;s power outputs" />
+<meta name="twitter:title" content="SkiDL+NgSpice (via PySpice): simulating a simple parallel resistors circuit&#39;s power outputs" />
+<meta property="og:description" content="Hi folks, this seems to be the first post over this forum, hopefully it’s not too soon to start asking questions? 🙂  I’m extending a bit one of the SKiDL simulation tutorials, as presented in this Jupyter notebook with a simple resistor (among other more complex examples):    My intention is to extend the single resistor example with a netlist of several resistors in parallel (a 19x19 matrix), something like this:  #!/usr/bin/env python  from skidl.pyspice import R, V, gnd, u_V from..." />
+<meta name="twitter:description" content="Hi folks, this seems to be the first post over this forum, hopefully it’s not too soon to start asking questions? 🙂  I’m extending a bit one of the SKiDL simulation tutorials, as presented in this Jupyter notebook with a simple resistor (among other more complex examples):    My intention is to extend the single resistor example with a netlist of several resistors in parallel (a 19x19 matrix), something like this:  #!/usr/bin/env python  from skidl.pyspice import R, V, gnd, u_V from..." />
+<meta name="twitter:label1" value="Reading time" />
+<meta name="twitter:data1" value="2 mins 🕑" />
+<meta name="twitter:label2" value="Likes" />
+<meta name="twitter:data2" value="1 ❤" />
+<meta property="article:published_time" content="2020-04-30T15:01:26+00:00" />
+<meta property="og:ignore_canonical" content="true" />
+
+
+    
+  </head>
+  <body class="crawler">
+    
+    <header>
+  <a href="../../index.html">
+    <h1>PySpice</h1>
+  </a>
+</header>
+
+    <div id="main-outlet" class="wrap" role="main">
+        <div id="topic-title">
+    <h1>
+      <a href="26.html">SkiDL+NgSpice (via PySpice): simulating a simple parallel resistors circuit&#39;s power outputs</a>
+    </h1>
+
+      <div class="topic-category" itemscope itemtype="http://schema.org/BreadcrumbList">
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a href="../../c/ngspice/6.html" class="badge-wrapper bullet" itemprop="item">
+              <span class='badge-category-bg' style='background-color: #0088CC'></span>
+              <span class='badge-category clear-badge'>
+                <span class='category-name' itemprop='name'>NgSpice</span>
+              </span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </span>
+      </div>
+
+  </div>
+
+  
+
+
+      <div id='post_1' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/brainstorm'><span itemprop='name'>brainstorm</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="26.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2020-04-30T15:01:26Z' class='post-time'>
+                April 30, 2020,  3:01pm
+              </time>
+              <meta itemprop='dateModified' content='2020-04-30T15:01:26Z'>
+          <span itemprop='position'>#1</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>Hi folks, this seems to be the first post over this forum, hopefully it’s not too soon to start asking questions? <img src="https://emoji.discourse-cdn.com/twitter/slight_smile.png?v=9" title=":slight_smile:" class="emoji" alt=":slight_smile:"></p>
+<p>I’m extending a bit one of the SKiDL simulation tutorials, as presented in this Jupyter notebook with a simple resistor (among other more complex examples):</p>
+<aside class="onebox githubblob">
+  <header class="source">
+      <a href="https://github.com/xesscorp/skidl/blob/master/examples/spice-sim-intro/spice-sim-intro.ipynb" target="_blank" rel="nofollow noopener">github.com</a>
+  </header>
+  <article class="onebox-body">
+    <h4><a href="https://github.com/xesscorp/skidl/blob/master/examples/spice-sim-intro/spice-sim-intro.ipynb" target="_blank" rel="nofollow noopener">xesscorp/skidl/blob/master/examples/spice-sim-intro/spice-sim-intro.ipynb</a></h4>
+<pre><code class="lang-ipynb">{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "&lt;style&gt;\n",
+       "@import url('http://fonts.googleapis.com/css?family=Source+Code+Pro');\n",
+       "@import url('http://fonts.googleapis.com/css?family=Lora');\n",
+       "\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Open+Sans');\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Vollkorn');\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Karla');\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Poppins');\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Arimo');\n",
+       "//@import url('http://fonts.googleapis.com/css?family=Roboto');\n",
+</code></pre>
+
+  This file has been truncated. <a href="https://github.com/xesscorp/skidl/blob/master/examples/spice-sim-intro/spice-sim-intro.ipynb" target="_blank" rel="nofollow noopener">show original</a>
+
+  </article>
+  <div class="onebox-metadata">
+    
+    
+  </div>
+  <div style="clear: both"></div>
+</aside>
+
+<p>My intention is to extend the single resistor example with a netlist of several resistors in parallel (a 19x19 matrix), something like this:</p>
+<pre><code class="lang-python">#!/usr/bin/env python
+
+from skidl.pyspice import R, V, gnd, u_V
+from skidl.pyspice import u_Ohm, u_kOhm
+from skidl.pyspice import generate_netlist, reset, lib_search_paths, node
+
+reset()  # This will clear any previously defined circuitry.
+
+# Voltage Source
+vs = V(ref="VS", dc_value = 1 @ u_V)
+
+rnet = []
+
+# Create several resistors.
+rnet = 19*19*R(value = 1.7 @ u_kOhm)
+
+# Connect the nets and resistors.
+vs['p'] += [rnet[n][1] for n in range(0, 19*19)]
+gnd += [rnet[n][2] for n in range(0, 19*19)]
+gnd += vs['n']
+
+# Simulate the circuit.
+circ = generate_netlist()              # Translate the SKiDL code into a PyCircuit Circuit object.
+sim = circ.simulator()                 # Create a simulator for the Circuit object.
+dc_vals = sim.dc(VS=slice(1, 24, 1))  # Run a DC simulation where the voltage ramps from 1 to 12V by 1V increments.
+
+# Get the voltage applied to the resistor and the current coming out of the voltage source.
+voltage = dc_vals[node(vs['p'])]
+current = -dc_vals['VS']
+
+# Print a table showing the current through the resistor for the various applied voltages.
+print('{:^7s}{:^7s}{:^7s}'.format('V', ' I (A)', "P (W)"))
+print('='*25)
+for v, i, p in zip(voltage.as_ndarray(), current.as_ndarray(), voltage.as_ndarray()*current.as_ndarray()):
+    print('{:6.2f} {:6.2f} {:6.2f}'.format(v, i, p))
+</code></pre>
+<p>Unfortunately the output looks something like this:</p>
+<pre><code class="lang-auto">$ ./skidl_sim.py
+
+No errors or warnings found during netlist generation.
+
+warning, can't find model at
+Warning: r1: resistance to low, set to 1 mOhm
+Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Note: Starting dynamic gmin stepping
+Trying gmin =   1.0000E-03 Note: One successful gmin step
+Trying gmin =   1.0000E-04 Note: One successful gmin step
+Trying gmin =   1.0000E-05 Note: One successful gmin step
+Trying gmin =   1.0000E-06 Note: One successful gmin step
+Trying gmin =   1.0000E-07 Note: One successful gmin step
+Trying gmin =   1.0000E-08 Note: One successful gmin step
+Trying gmin =   1.0000E-09 Note: One successful gmin step
+Trying gmin =   1.0000E-10 Note: One successful gmin step
+Trying gmin =   1.0000E-11 Note: One successful gmin step
+Trying gmin =   1.0000E-12 Note: One successful gmin step
+Trying gmin =   1.0000E-12 Note: One successful gmin step
+Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Warning: Dynamic gmin stepping failed
+Note: Starting source stepping
+Supplies reduced to   0.0000% Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Trying gmin =   1.0000E-02 Note: One successful gmin step
+Trying gmin =   1.0000E-03 Note: One successful gmin step
+Trying gmin =   1.0000E-04 Note: One successful gmin step
+Trying gmin =   1.0000E-05 Note: One successful gmin step
+Trying gmin =   1.0000E-06 Note: One successful gmin step
+Trying gmin =   1.0000E-07 Note: One successful gmin step
+Trying gmin =   1.0000E-08 Note: One successful gmin step
+Trying gmin =   1.0000E-09 Note: One successful gmin step
+Trying gmin =   1.0000E-10 Note: One successful gmin step
+Trying gmin =   1.0000E-11 Note: One successful gmin step
+Trying gmin =   1.0000E-12 Note: One successful gmin step
+Note: One successful source step
+Supplies reduced to   0.1000% Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Supplies reduced to   0.0000% Warning: singular matrix:  check nodes &lt;skidl.part.pinnumbersearch and &lt;skidl.part.pinnumbersearch
+Warning: source stepping failed
+doAnalyses: iteration limit reached
+run simulation(s) aborted
+   V    I (A)  P (W)
+=========================
+</code></pre>
+<p>Can anybody let me know what’s going on? Which syntax should I be using to define that resistor “network” so that ngspice accepts it as well-defined?</p>
+        </div>
+
+        <meta itemprop='headline' content='SkiDL+NgSpice (via PySpice): simulating a simple parallel resistors circuit&#39;s power outputs'>
+          <meta itemprop='keywords' content=''>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="0" />
+           <span class='post-likes'></span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+      <div id='post_2' itemscope itemtype='http://schema.org/DiscussionForumPosting' class='topic-body crawler-post'>
+        <div class='crawler-post-meta'>
+          <div itemprop='publisher' itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop='name' content='PySpice'>
+              <div itemprop='logo' itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop='url' content='https://aws1.discourse-cdn.com/free1/uploads/pyspice/original/1X/a0a6a9dbd195af9bf9d34ec258a0ce754fa07a12.png'>
+              </div>
+          </div>
+          <span class="creator" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <a itemprop="url" href='https://pyspice.discourse.group/u/devbisme'><span itemprop='name'>devbisme</span></a>
+            
+          </span>
+
+          <link itemprop="mainEntityOfPage" href="26.html">
+
+
+          <span class="crawler-post-infos">
+              <time itemprop='datePublished' datetime='2020-04-30T16:05:53Z' class='post-time'>
+                April 30, 2020,  4:05pm
+              </time>
+              <meta itemprop='dateModified' content='2020-04-30T16:05:53Z'>
+          <span itemprop='position'>#2</span>
+          </span>
+        </div>
+        <div class='post' itemprop='articleBody'>
+          <p>I edited your code. You only had a single, tiny mistake: you created an actual resistor that was added to the netlist, and then you created an additional 19*19=361 resistors from that one. This gave you a total of 362 resistors, but you only connected 361 of them. That dangling resistor seems to cause the problem.</p>
+<p>By making the first resistor a TEMPLATE, then it isn’t actually added to the netlist but it can serve as a template for making other resistors. Once I did that, everything worked as expected.</p>
+<pre><code class="lang-auto">#!/usr/bin/env python
+
+from skidl import TEMPLATE
+from skidl.pyspice import R, V, gnd, u_V
+from skidl.pyspice import u_Ohm, u_kOhm
+from skidl.pyspice import generate_netlist, reset, lib_search_paths, node
+
+reset()  # This will clear any previously defined circuitry.
+
+# Voltage Source
+vs = V(ref="VS", dc_value = 1 @ u_V)
+
+rnet = []
+
+# Create several resistors.
+# I changed it so the resistor was a template that is then replicated to create the actual resistors.
+rnet = 19*19*R(value = 1.7 @ u_kOhm, dest=TEMPLATE)
+
+# Connect the nets and resistors.
+vs['p'] += [rnet[n][1] for n in range(0, 19*19)]
+gnd += [rnet[n][2] for n in range(0, 19*19)]
+gnd += vs['n']
+
+# Simulate the circuit.
+circ = generate_netlist()              # Translate the SKiDL code into a PyCircuit Circuit object.
+sim = circ.simulator()                 # Create a simulator for the Circuit object.
+dc_vals = sim.dc(VS=slice(1, 24, 1))  # Run a DC simulation where the voltage ramps from 1 to 12V by 1V increments.
+
+# Get the voltage applied to the resistor and the current coming out of the voltage source.
+voltage = dc_vals[node(vs['p'])]
+current = -dc_vals['VS']
+
+# Print a table showing the current through the resistor for the various applied voltages.
+print('{:^7s}{:^7s}{:^7s}'.format('V', ' I (A)', "P (W)"))
+print('='*25)
+for v, i, p in zip(voltage.as_ndarray(), current.as_ndarray(), voltage.as_ndarray()*current.as_ndarray()):
+    print('{:6.2f} {:6.2f} {:6.2f}'.format(v, i, p))
+</code></pre>
+        </div>
+
+        <meta itemprop='headline' content='SkiDL+NgSpice (via PySpice): simulating a simple parallel resistors circuit&#39;s power outputs'>
+
+        <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+           <meta itemprop="interactionType" content="http://schema.org/LikeAction"/>
+           <meta itemprop="userInteractionCount" content="1" />
+           <span class='post-likes'>1 Like</span>
+         </div>
+
+         <div itemprop="interactionStatistic" itemscope itemtype="http://schema.org/InteractionCounter">
+            <meta itemprop="interactionType" content="http://schema.org/CommentAction"/>
+            <meta itemprop="userInteractionCount" content="0" />
+          </div>
+
+      </div>
+
+
+
+
+
+
+    </div>
+    <footer class="container wrap">
+  <nav class='crawler-nav'>
+    <ul>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../index.html' itemprop="url">Home </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../categories.html' itemprop="url">Categories </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='https://pyspice.discourse.group/guidelines' itemprop="url">FAQ/Guidelines </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../tos.html' itemprop="url">Terms of Service </a>
+        </span>
+      </li>
+      <li itemscope itemtype='http://schema.org/SiteNavigationElement'>
+        <span itemprop='name'>
+          <a href='../../privacy.html' itemprop="url">Privacy Policy </a>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  <p class='powered-by-link'>Powered by <a href="https://www.discourse.org">Discourse</a>, best viewed with JavaScript enabled</p>
+</footer>
+
+    
+    
+  </body>
+  
+</html>
