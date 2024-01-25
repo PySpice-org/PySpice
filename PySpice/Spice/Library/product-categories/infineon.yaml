@@ -1,0 +1,38 @@
+- Power
+  - MOSFET (Si/SiC)
+  - IGBT
+  - HEMT (GaN)
+  - Smart Low-Side & High-Side Switches
+  - Linear Voltage Regulator (LDO)
+  - DC-DC Converters
+  - LED Driver ICs
+  - Diode & Thyristor (Si/SiC)
+  - Gate Driver ICs
+  - Motor Control ICs
+  - AC-DC Power Conversion
+  - Solid State Relay
+  - Class D Audio Amplifier IC
+  - Isolated Industrial Interface
+  - Intelligent Power Modules (IPM)
+- Automotive System IC
+- Battery Management ICs
+- Clocks & Timing Solutions
+  - Clock Generators
+  - Buffers
+  - Oscillators
+- ESD and Surge Protection
+  - Multi purpose diodes for ESD protection
+  - Low capacitance diodes for ESD protection
+  - Diodes for surge protection
+- HiRel
+- Memories
+- Microcontroller
+- Security & smart card solutions
+- RF & Wireless Control
+- Small Signal Transistors & Diodes
+  - Bipolar Transistor
+  - Diode
+- Sensor
+- Transceivers
+- Universal Serial Bus (USB) – Power Delivery Controller
+- Wireless Connectivity

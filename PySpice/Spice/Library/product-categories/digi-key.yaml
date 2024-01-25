@@ -1,0 +1,435 @@
+- Capacitors
+  - Aluminum - Polymer Capacitors
+  - Aluminum Electrolytic Capacitors
+  - Capacitor Networks, Arrays
+  - Ceramic Capacitors
+  - Electric Double Layer Capacitors (EDLC), Supercapacitors
+  - Film Capacitors
+  - Mica and PTFE Capacitors
+  - Niobium Oxide Capacitors
+  - Silicon Capacitors
+  - Tantalum - Polymer Capacitors
+  - Tantalum Capacitors
+  - Thin Film Capacitors
+  - Trimmers, Variable Capacitors
+- Circuit Protection
+  - Circuit Breakers
+  - Electrical, Specialty Fuses
+  - Fuseholders
+  - Fuses
+  - Gas Discharge Tube Arresters (GDT)
+  - Ground Fault Circuit Interrupter (GFCI)
+  - Inrush Current Limiters (ICL)
+  - Lighting Protection
+  - PTC Resettable Fuses
+  - Surge Suppression ICs
+  - TVS - Diodes
+  - TVS - Mixed Technology
+  - TVS - Surge Protection Devices (SPDs)
+  - TVS - Thyristors
+  - TVS - Varistors, MOVs
+  - Thermal Cutoffs (Thermal Fuses)
+- Crystals, Oscillators, Resonators
+  - Crystals
+  - Oscillators
+  - Pin Configurable/Selectable Oscillators
+  - Programmable Oscillators
+  - Resonators
+  - Stand Alone Programmers
+  - VCOs (Voltage Controlled Oscillators)
+- Discrete Semiconductor Products
+  - Diodes - Bridge Rectifiers
+  - Diodes - RF
+  - Diodes - Rectifiers - Arrays
+  - Diodes - Rectifiers - Single
+  - Diodes - Variable Capacitance (Varicaps, Varactors)
+  - Diodes - Zener - Arrays
+  - Diodes - Zener - Single
+  - Power Driver Modules
+  - Thyristors - DIACs, SIDACs
+  - Thyristors - SCRs - Modules
+  - Thyristors - SCRs
+  - Thyristors - TRIACs
+  - Transistors - Bipolar (BJT) - Arrays
+  - Transistors - Bipolar (BJT) - Arrays, Pre-Biased
+  - Transistors - Bipolar (BJT) - RF
+  - Transistors - Bipolar (BJT) - Single
+  - Transistors - Bipolar (BJT) - Single, Pre-Biased
+  - Transistors - FETs, MOSFETs - Arrays
+  - Transistors - FETs, MOSFETs - RF
+  - Transistors - FETs, MOSFETs - Single
+  - Transistors - IGBTs - Arrays
+  - Transistors - IGBTs - Modules
+  - Transistors - IGBTs - Single
+  - Transistors - JFETs
+  - Transistors - Programmable Unijunction
+  - Transistors - Special Purpose
+- Filters
+  - Cable Ferrites
+  - Ceramic Filters
+  - Common Mode Chokes
+  - DSL Filters
+  - EMI/RFI Filters (LC, RC Networks)
+  - Feed Through Capacitors
+  - Ferrite Beads and Chips
+  - Ferrite Disks and Plates
+  - Monolithic Crystals
+  - Power Line Filter Modules
+  - RF Filters
+  - SAW Filters
+- Inductors, Coils, Chokes
+  - Adjustable Inductors
+  - Arrays, Signal Transformers
+  - Delay Lines
+  - Fixed Inductors
+  - Wireless Charging Coils
+- Integrated Circuits (ICs)
+  - Audio Special Purpose
+  - Clock/Timing - Application Specific
+  - Clock/Timing - Clock Buffers, Drivers
+  - Clock/Timing - Clock Generators, PLLs, Frequency Synthesizers
+  - Clock/Timing - Delay Lines
+  - Clock/Timing - IC Batteries
+  - Clock/Timing - Programmable Timers and Oscillators
+  - Clock/Timing - Real Time Clocks
+  - Data Acquisition - ADCs/DACs - Special Purpose
+  - Data Acquisition - Analog Front End (AFE)
+  - Data Acquisition - Analog to Digital Converters (ADC)
+  - Data Acquisition - Digital Potentiometers
+  - Data Acquisition - Digital to Analog Converters (DAC)
+  - Data Acquisition - Touch Screen Controllers
+  - Embedded - CPLDs (Complex Programmable Logic Devices)
+  - Embedded - DSP (Digital Signal Processors)
+  - Embedded - FPGAs (Field Programmable Gate Array) with Microcontrollers
+  - Embedded - FPGAs (Field Programmable Gate Array)
+  - Embedded - Microcontroller, Microprocessor, FPGA Modules
+  - Embedded - Microcontrollers - Application Specific
+  - Embedded - Microcontrollers
+  - Embedded - Microprocessors
+  - Embedded - PLDs (Programmable Logic Device)
+  - Embedded - System On Chip (SoC)
+  - Interface - Analog Switches - Special Purpose
+  - Interface - Analog Switches, Multiplexers, Demultiplexers
+  - Interface - CODECs
+  - Interface - Controllers
+  - Interface - Direct Digital Synthesis (DDS)
+  - Interface - Drivers, Receivers, Transceivers
+  - Interface - Encoders, Decoders, Converters
+  - Interface - Filters - Active
+  - Interface - I/O Expanders
+  - Interface - Modems - ICs and Modules
+  - Interface - Modules
+  - Interface - Sensor and Detector Interfaces
+  - Interface - Sensor, Capacitive Touch
+  - Interface - Serializers, Deserializers
+  - Interface - Signal Buffers, Repeaters, Splitters
+  - Interface - Signal Terminators
+  - Interface - Specialized
+  - Interface - Telecom
+  - Interface - UARTs (Universal Asynchronous Receiver Transmitter)
+  - Interface - Voice Record and Playback
+  - Linear - Amplifiers - Audio
+  - Linear - Amplifiers - Instrumentation, OP Amps, Buffer Amps
+  - Linear - Amplifiers - Special Purpose
+  - Linear - Amplifiers - Video Amps and Modules
+  - Linear - Analog Multipliers, Dividers
+  - Linear - Comparators
+  - Linear - Video Processing
+  - Logic - Buffers, Drivers, Receivers, Transceivers
+  - Logic - Comparators
+  - Logic - Counters, Dividers
+  - Logic - FIFOs Memory
+  - Logic - Flip Flops
+  - Logic - Gates and Inverters - Multi-Function, Configurable
+  - Logic - Gates and Inverters
+  - Logic - Latches
+  - Logic - Multivibrators
+  - Logic - Parity Generators and Checkers
+  - Logic - Shift Registers
+  - Logic - Signal Switches, Multiplexers, Decoders
+  - Logic - Specialty Logic
+  - Logic - Translators, Level Shifters
+  - Logic - Universal Bus Functions
+  - Memory - Batteries
+  - Memory - Configuration Proms for FPGAs
+  - Memory - Controllers
+  - Memory
+  - PMIC - AC DC Converters, Offline Switchers
+  - PMIC - Battery Chargers
+  - PMIC - Battery Management
+  - PMIC - Current Regulation/Management
+  - PMIC - Display Drivers
+  - PMIC - Energy Metering
+  - PMIC - Full, Half-Bridge Drivers
+  - PMIC - Gate Drivers
+  - PMIC - Hot Swap Controllers
+  - PMIC - LED Drivers
+  - PMIC - Laser Drivers
+  - PMIC - Lighting, Ballast Controllers
+  - PMIC - Motor Drivers, Controllers
+  - PMIC - OR Controllers, Ideal Diodes
+  - PMIC - PFC (Power Factor Correction)
+  - PMIC - Power Distribution Switches, Load Drivers
+  - PMIC - Power Management - Specialized
+  - PMIC - Power Over Ethernet (PoE) Controllers
+  - PMIC - Power Supply Controllers, Monitors
+  - PMIC - RMS to DC Converters
+  - PMIC - Supervisors
+  - PMIC - Thermal Management
+  - PMIC - V/F and F/V Converters
+  - PMIC - Voltage Reference
+  - PMIC - Voltage Regulators - DC DC Switching Controllers
+  - PMIC - Voltage Regulators - DC DC Switching Regulators
+  - PMIC - Voltage Regulators - Linear + Switching
+  - PMIC - Voltage Regulators - Linear Regulator Controllers
+  - PMIC - Voltage Regulators - Linear
+  - PMIC - Voltage Regulators - Special Purpose
+  - Specialized ICs
+- Isolators
+  - Digital Isolators
+  - Isolators - Gate Drivers
+  - Optoisolators - Logic Output
+  - Optoisolators - Transistor, Photovoltaic Output
+  - Optoisolators - Triac, SCR Output
+  - Special Purpose
+- Magnetics - Transformer, Inductor Components
+  - Bobbins (Coil Formers), Mounts, Hardware
+  - Ferrite Cores
+  - Magnetic Wire
+- Memory Cards, Modules
+  - Memory - Modules
+  - Memory Cards
+  - Solid State Drives (SSDs), Hard Disk Drives (HDDs)
+  - Specialized
+  - USB Flash Drives
+- Motors, Solenoids, Driver Boards/Modules
+  - Motor Driver Boards, Modules
+  - Motors - AC, DC
+  - Solenoids, Actuators
+  - Stepper Motors
+- Optoelectronics
+  - Ballasts, Inverters
+  - Display Bezels, Lenses
+  - Display Modules - LCD, OLED Character and Numeric
+  - Display Modules - LCD, OLED, Graphic
+  - Display Modules - LED Character and Numeric
+  - Display Modules - LED Dot Matrix and Cluster
+  - Display Modules - Vacuum Fluorescent (VFD)
+  - Display, Monitor - LCD Driver/Controller
+  - Electroluminescent
+  - Fiber Optics - Attenuators
+  - Fiber Optics - Receivers
+  - Fiber Optics - Switches, Multiplexers, Demultiplexers
+  - Fiber Optics - Transceiver Modules
+  - Fiber Optics - Transmitters - Discrete
+  - Fiber Optics - Transmitters - Drive Circuitry Integrated
+  - HeNe Laser Heads
+  - HeNe Laser System Accessories
+  - HeNe Laser Systems
+  - LED Addressable, Specialty
+  - LED Emitters - Infrared, UV, Visible
+  - LED Indication - Discrete
+  - LED Lighting - COBs, Engines, Modules, Strips
+  - LED Lighting - Color
+  - LED Lighting - White
+  - LED Lighting Kits
+  - LED Thermal Products
+  - LEDs - Circuit Board Indicators, Arrays, Light Bars, Bar Graphs
+  - LEDs - Lamp Replacements
+  - LEDs - Spacers, Standoffs
+  - Lamps - Cold Cathode Fluorescent (CCFL) & UV
+  - Lamps - Incandescents, Neons
+  - Laser Diodes, Laser Modules - Accessories
+  - Laser Diodes, Laser Modules - Laser Delivery, Laser Fibers
+  - Laser Diodes, Laser Modules
+  - Optics - Lenses
+  - Optics - Light Pipes
+  - Optics - Reflectors
+  - Optics - Remote Phosphor Light Source
+  - Optomechanical
+  - Panel Indicators, Pilot Lights
+  - Touch Screen Overlays
+  - Xenon Lighting
+- Potentiometers, Variable Resistors
+  - Adjustable Power Resistor
+  - Rotary Potentiometers, Rheostats
+  - Scale Dials
+  - Slide Potentiometers
+  - Thumbwheel Potentiometers
+  - Trimmer Potentiometers
+  - Value Display Potentiometers
+- Power Supplies - Board Mount
+  - AC DC Converters
+  - Accessories
+  - DC DC Converters
+  - LED Drivers
+- Power Supplies - External/Internal (Off-Board)
+  - AC AC Wall Adapters
+  - AC DC Configurable Power Supplies (Factory Assembled)
+  - AC DC Configurable Power Supply Chassis
+  - AC DC Configurable Power Supply Modules
+  - AC DC Converters
+  - AC DC Desktop, Wall Adapters
+  - Accessories
+  - DC DC Converters
+  - Industrial, DIN Rail Power Supplies
+  - LED Drivers
+  - Power over Ethernet (PoE)
+- RF/IF and RFID
+  - Attenuators
+  - Balun
+  - RF Accessories
+  - RF Amplifiers
+  - RF Antennas
+  - RF Circulators and Isolators
+  - RF Demodulators
+  - RF Detectors
+  - RF Directional Coupler
+  - RF Evaluation and Development Kits, Boards
+  - RF Front End (LNA + PA)
+  - RF Misc ICs and Modules
+  - RF Mixers
+  - RF Modulators
+  - RF Multiplexers
+  - RF Power Controller ICs
+  - RF Power Dividers/Splitters
+  - RF Receiver, Transmitter, and Transceiver Finished Units
+  - RF Receivers
+  - RF Shields
+  - RF Switches
+  - RF Transceiver ICs
+  - RF Transceiver Modules and Modems
+  - RF Transmitters
+  - RFI and EMI - Contacts, Fingerstock and Gaskets
+  - RFI and EMI - Shielding and Absorbing Materials
+  - RFID Accessories
+  - RFID Antennas
+  - RFID Evaluation and Development Kits, Boards
+  - RFID Reader Modules
+  - RFID Transponders, Tags
+  - RFID, RF Access, Monitoring ICs
+- Relays
+  - Automotive Relays
+  - Contactors (Electromechanical)
+  - Contactors (Solid State)
+  - High Frequency (RF) Relays
+  - I/O Relay Module Racks
+  - I/O Relay Modules
+  - Power Relays, Over 2 Amps
+  - Reed Relays
+  - Relay Sockets
+  - Safety Relays
+  - Signal Relays, Up to 2 Amps
+  - Solid State Relays
+- Resistors
+  - Chassis Mount Resistors
+  - Chip Resistor - Surface Mount
+  - Resistor Networks, Arrays
+  - Specialized Resistors
+  - Through Hole Resistors
+- Sensors, Transducers
+  - Amplifiers
+  - Camera Modules
+  - Color Sensors - Industrial
+  - Color Sensors
+  - Current Sensors
+  - Encoders - Industrial
+  - Encoders
+  - Float, Level Sensors - Industrial
+  - Float, Level Sensors
+  - Flow Sensors - Industrial
+  - Flow Sensors
+  - Force Sensors - Industrial
+  - Force Sensors
+  - Gas Sensors
+  - Humidity, Moisture Sensors
+  - Image Sensors, Camera
+  - IrDA Transceiver Modules
+  - LVDT Transducers (Linear Variable Differential Transformer)
+  - Magnetic Sensors - Compass, Magnetic Field (Modules)
+  - Magnetic Sensors - Linear, Compass (ICs)
+  - Magnetic Sensors - Position, Proximity, Speed (Modules) - Industrial
+  - Magnetic Sensors - Position, Proximity, Speed (Modules)
+  - Magnetic Sensors - Switches (Solid State)
+  - Magnets - Multi Purpose
+  - Magnets - Sensor Matched
+  - Motion Sensors - Accelerometers
+  - Motion Sensors - Gyroscopes
+  - Motion Sensors - IMUs (Inertial Measurement Units)
+  - Motion Sensors - Inclinometers
+  - Motion Sensors - Optical
+  - Motion Sensors - Tilt Switches
+  - Motion Sensors - Vibration
+  - Multifunction
+  - Optical Sensors - Ambient Light, IR, UV Sensors
+  - Optical Sensors - Distance Measuring
+  - Optical Sensors - Photo Detectors - CdS Cells
+  - Optical Sensors - Photo Detectors - Logic Output
+  - Optical Sensors - Photo Detectors - Remote Receiver
+  - Optical Sensors - Photodiodes
+  - Optical Sensors - Photoelectric, Industrial
+  - Optical Sensors - Photointerrupters - Slot Type - Logic Output
+  - Optical Sensors - Photointerrupters - Slot Type - Transistor Output
+  - Optical Sensors - Photonics - Counters, Detectors, SPCM (Single Photon Counting Module)
+  - Optical Sensors - Phototransistors
+  - Optical Sensors - Reflective - Analog Output
+  - Optical Sensors - Reflective - Logic Output
+  - Particle, Dust Sensors
+  - Position Sensors - Angle, Linear Position Measuring
+  - Pressure Sensors, Transducers - Industrial
+  - Pressure Sensors, Transducers
+  - Proximity Sensors - Industrial
+  - Proximity Sensors
+  - Proximity/Occupancy Sensors - Finished Units
+  - Sensor Cable - Accessories
+  - Sensor Cable - Assemblies
+  - Sensor Interface - Junction Blocks
+  - Shock Sensors
+  - Solar Cells
+  - Specialized Sensors
+  - Strain Gauges
+  - Temperature Sensors - Analog and Digital Output - Industrial
+  - Temperature Sensors - Analog and Digital Output
+  - Temperature Sensors - NTC Thermistors
+  - Temperature Sensors - PTC Thermistors
+  - Temperature Sensors - RTD (Resistance Temperature Detector)
+  - Temperature Sensors - Thermocouples, Temperature Probes
+  - Temperature Sensors - Thermostats - Mechanical - Industrial
+  - Temperature Sensors - Thermostats - Mechanical
+  - Temperature Sensors - Thermostats - Solid State
+  - Touch Sensors
+  - Ultrasonic Receivers, Transmitters - Industrial
+  - Ultrasonic Receivers, Transmitters
+- Switches
+  - Cable Pull Switches
+  - Configurable Switch Components - Body
+  - Configurable Switch Components - Contact Block
+  - Configurable Switch Components - Illumination Source
+  - Configurable Switch Components - Lens
+  - DIP Switches
+  - Disconnect Switch Components
+  - Emergency Stop (E-Stop) Switches
+  - Interlock Switches
+  - Keylock Switches
+  - Keypad Switches
+  - Magnetic, Reed Switches
+  - Navigation Switches, Joystick
+  - Programmable Display Switches
+  - Pushbutton Switches - Hall Effect
+  - Pushbutton Switches
+  - Rocker Switches
+  - Rotary Switches
+  - Selector Switches
+  - Slide Switches
+  - Snap Action, Limit Switches
+  - Tactile Switches
+  - Thumbwheel Switches
+  - Toggle Switches
+- Transformers
+  - Audio Transformers
+  - Current Sense Transformers
+  - Isolation Transformers and Autotransformers, Step Up, Step Down
+  - Power Transformers
+  - Pulse Transformers
+  - Specialty Transformers
+  - Switching Converter, SMPS Transformers

@@ -25,11 +25,11 @@ from typing import Iterator
 
 import logging
 import os
+import pickle
 import re
 
-####################################################################################################
-
-from .Parser import SpiceFile, ParseError, Subcircuit, Model
+from .SpiceInclude import SpiceInclude
+from PySpice.Spice.Parser import SpiceFile, ParseError, Subcircuit, Model
 from PySpice.Tools import PathTools
 
 ####################################################################################################
@@ -68,43 +68,99 @@ class SpiceLibrary:
 
     ##############################################
 
-    def __init__(self, root_path: str | Path) -> None:
-
-        self._directory = PathTools.expand_path(root_path)
+    def __init__(self, root_path: str | Path, scan: bool=True) -> None:
+        self._path = PathTools.expand_path(root_path)
+        if not self._path.exists():
+            os.mkdir(self._path)
+            self._logger.info(f"Created {self._path}")
 
         self._subcircuits = {}
         self._models = {}
 
-        for path in PathTools.walk(self._directory):
+        if scan:
+            self.scan()
+            self.save()
+
+    ##############################################
+
+    @property
+    def db_path(self) -> Path:
+        return self._path.joinpath('db.pickle')
+
+    ##############################################
+
+    def __getstate__(self):
+        # state = self.__dict__.copy()
+        state = {
+            'subcircuits': self._subcircuits,
+            'models': self._models,
+        }
+        return state
+
+    ##############################################
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
+    ##############################################
+
+    def save(self) -> None:
+        with open(self.db_path, 'wb') as fh:
+            pickle.dump(self.__getstate__(), fh)
+
+    ##############################################
+
+    def _category_path(self, category: str) -> Path:
+        category = category.split('/')
+        return self._path.joinpath(*category)
+
+    ##############################################
+
+    def add_category(self, category: str) -> None:
+        path = self._category_path(category)
+        if not path.exists():
+            os.makedirs(path)
+            self._logger.info(f"Created {path}")
+        else:
+            self._logger.info(f"category '{category}' already exists")
+
+    ##############################################
+
+    def _list_categories(self, path: Path | str, level: int=0) -> str:
+        text = ''
+        indent = ' '*4*level
+        for entry in sorted(os.scandir(path), key=lambda entry: entry.name):
+            if entry.is_dir():
+                text += f'{indent}{entry.name}' + os.linesep
+                text += self._list_categories(entry.path, level+1)
+        return text
+
+    def list_categories(self) -> str:
+        return self._list_categories(self._path)
+
+    ##############################################
+
+    def scan(self) -> None:
+        for path in PathTools.walk(self._path):
             extension = path.suffix.lower()
             if extension in self.EXTENSIONS:
-                self._handle_library(path, extension)
+                self._handle_library(path)
 
     ##############################################
 
-    def _handle_library(self, path: Path, extension: str) -> None:
-        self._logger.info(f"Parse {path}")
-        try:
-            library = SpiceFile(path)
-            if library.is_only_subcircuit:
-                for subcircuit in library.subcircuits:
-                    name = self._suffix_name(subcircuit.name, extension)
-                    self._subcircuits[name] = path
-            elif library.is_only_model:
-                for model in library.models:
-                    name = self._suffix_name(model.name, extension)
-                    self._models[name] = path
-        except ParseError as exception:
-            # Parse problem with this file, so skip it and keep going.
-            self._logger.warn(f"Parse error in Spice library {path}{os.linesep}{exception}")
+    def _handle_library(self, path: Path) -> None:
+        spice_include = SpiceInclude(path)
+        self._models.update({_: path for _ in spice_include.models})
+        self._subcircuits.update({_: path for _ in spice_include.subcircuits})
 
     ##############################################
 
-    @staticmethod
-    def _suffix_name(name: str, extension: str) -> str:
-        if extension.endswith('@xyce'):
-            name += '@xyce'
-        return name
+    def delete_yaml(self) -> None:
+        for path in PathTools.walk(self._path):
+            extension = path.suffix.lower()
+            if extension == '.yaml':
+                self._logger.info(f"{os.linesep}Delete {path}")
+                os.unlink(path)
 
     ##############################################
 
@@ -114,8 +170,8 @@ class SpiceLibrary:
         elif name in self._models:
             return self._models[name]
         else:
-            # print('Library {} not found in {}'.format(name, self._directory))
-            # self._logger.warn('Library {} not found in {}'.format(name, self._directory))
+            # print('Library {} not found in {}'.format(name, self._path))
+            # self._logger.warn('Library {} not found in {}'.format(name, self._path))
             raise KeyError(name)
 
     ##############################################
