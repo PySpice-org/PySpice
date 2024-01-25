@@ -199,7 +199,6 @@ class SiDerivedUnit:
     ##############################################
 
     def __init__(self, string=None, powers=None):
-
         if powers is not None:
             self._powers = self.new_powers()
             self._powers.update(powers)
@@ -393,7 +392,6 @@ class UnitMetaclass(type):
 
     @classmethod
     def init_unit(meta, cls):
-
         si_unit = cls.SI_UNIT
         if not (isinstance(si_unit, SiDerivedUnit) and si_unit):
             # si_unit is not defined
@@ -407,10 +405,8 @@ class UnitMetaclass(type):
 
     @classmethod
     def register_unit(meta, cls):
-
         obj = cls()
         meta._units[obj.unit_suffix] = obj
-
         if obj.si_unit:
             hash_ = obj.si_unit.hash
             if hash_ in meta._hash_map:
@@ -440,13 +436,11 @@ class UnitMetaclass(type):
 
     @classmethod
     def from_si_unit(meta, si_unit, unique=True):
-
         # Fixme:
         #  - handle power of units
         #      unit -> numpy vector, divide and test for identical factor
         #      define unit, format as V^2
         #  - complex unit
-
         units = meta._hash_map.get(si_unit.hash, None)
         if unique and units is not None:
             if len(units) > 1:
@@ -484,11 +478,9 @@ class Unit(metaclass=UnitMetaclass):
     ##############################################
 
     def __init__(self, si_unit=None):
-
         self._unit_name = self.UNIT_NAME
         self._unit_suffix = self.UNIT_SUFFIX
         self._quantity = self.QUANTITY
-
         if si_unit is None:
             self._si_unit = self.SI_UNIT
         else:
@@ -559,7 +551,6 @@ class Unit(metaclass=UnitMetaclass):
     ##############################################
 
     def _equivalent_unit(self, si_unit):
-
         equivalent_unit = UnitMetaclass.from_si_unit(si_unit)
         if equivalent_unit is not None:
             return equivalent_unit
@@ -705,7 +696,6 @@ class PrefixedUnit:
 
     @classmethod
     def from_prefixed_unit(cls, unit, power=0):
-
         if unit.unit_suffix:
             unit_key = str(unit)
         else:
@@ -720,7 +710,6 @@ class PrefixedUnit:
     ##############################################
 
     def __init__(self, unit=None, power=None, value_ctor=None, values_ctor=None):
-
         if unit is None:
             self._unit = Unit()
         else:
@@ -816,10 +805,8 @@ class PrefixedUnit:
         # Fixme: unit clash, e.g. mm ???
 
         string = self._power.str(spice)
-
         if unit:
             string += str(self._unit)
-
         if spice:
             # F is interpreted as f = femto
             if string == 'F':
@@ -832,7 +819,6 @@ class PrefixedUnit:
                 # U+2109 ℉
                 string = string.replace('Ω', 'Ohm')  # U+CEA0
                 string = string.replace('μ',   'u')  # U+CEBC
-
         return string
 
     ##############################################
@@ -875,9 +861,7 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def __init__(self, prefixed_unit, value):
-
         self._prefixed_unit = prefixed_unit
-
         if isinstance(value, UnitValue):
             # Fixme: anonymous ???
             if not self.is_same_unit(value):
@@ -1129,9 +1113,7 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def __floordiv__(self, other):
-
         """self // other """
-
         if (isinstance(other, UnitValue)):
             equivalent_unit = self.unit.divide(other.unit, True)
             value = float(self) // float(other)
@@ -1167,9 +1149,7 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def __truediv__(self, other):
-
         """self / other"""
-
         if (isinstance(other, UnitValue)):
             equivalent_unit = self.unit.divide(other.unit, True)
             value = float(self) / float(other)
@@ -1345,9 +1325,7 @@ class UnitValue: # numbers.Real
     ##############################################
 
     def canonise(self):
-
         # log10(10**n) = n    log10(1) = 0   log10(10**-n) = -n   log10(0) = -oo
-
         try:
             abs_value = abs(float(self))
             log = math.log(abs_value)/math.log(1000)
@@ -1507,7 +1485,6 @@ class UnitValues(np.ndarray):
 
     @classmethod
     def from_ndarray(cls, array, prefixed_unit):
-
         # cls._logger.debug('UnitValues.__new__ ' + str((cls, array, prefixed_unit)))
 
         # obj = cls(prefixed_unit, array.shape, array.dtype) # Fixme: buffer ???
@@ -1515,10 +1492,8 @@ class UnitValues(np.ndarray):
 
         obj = array.view(UnitValues)
         obj._prefixed_unit = prefixed_unit
-
         if isinstance(array, UnitValues):
             return array.convert(prefixed_unit)
-
         return obj
 
     ##############################################
@@ -1534,9 +1509,7 @@ class UnitValues(np.ndarray):
 
         obj = super(UnitValues, cls).__new__(cls, shape, dtype, buffer, offset, strides, order)
         # obj = np.asarray(input_array).view(cls)
-
         obj._prefixed_unit = prefixed_unit
-
         return obj
 
     ##############################################
@@ -1724,9 +1697,7 @@ class UnitValues(np.ndarray):
     ##############################################
 
 #   def __array_wrap__(self, out_array, context=None):
-#
 #       self._logger.debug('\n  self={}\n  out_array={}\n  context={}'.format(self, out_array, context))
-#
 #       return super(UnitValues, self).__array_wrap__(out_array, context)
 
     ##############################################
@@ -1741,9 +1712,7 @@ class UnitValues(np.ndarray):
     ##############################################
 
     def __getitem__(self, slice_):
-
         value = super(UnitValues, self).__getitem__(slice_)
-
         if isinstance(value, UnitValue): # slice
             return value
         else:
@@ -1752,14 +1721,12 @@ class UnitValues(np.ndarray):
     ##############################################
 
     def __setitem__(self, slice_, value):
-
         if isinstance(value, UnitValue):
             self._check_unit(value)
             value = self._convert_value(value).value
         elif isinstance(value, UnitValues):
             self._check_unit(value)
             value = self._convert_value(value)
-
         super(UnitValues, self).__setitem__(slice_, value)
 
     ##############################################

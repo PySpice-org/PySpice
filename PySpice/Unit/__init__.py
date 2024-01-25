@@ -111,29 +111,23 @@ class UnitValueShorcut:
     ##############################################
 
     def __init__(self, prefixed_unit):
-
         self._prefixed_unit = prefixed_unit
 
     ##############################################
 
     def _new_value(self, other):
-
         return self._prefixed_unit.new_value(other)
 
     ##############################################
 
     def __call__(self, other):
-
         """self(other)"""
-
         return self._new_value(other)
 
     ##############################################
 
     def __rmatmul__(self, other):
-
         """other @ self"""
-
         return self._new_value(other)
 
 ####################################################################################################
