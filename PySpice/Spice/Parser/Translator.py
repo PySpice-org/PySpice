@@ -196,7 +196,7 @@ class Builder(Translator):
     ##############################################
 
     def handle_Model(self, obj: Model) -> None:
-        self._circuit.model(obj._name, obj._model_type, **obj._parameters)
+        self._circuit.model(obj.name, obj.type, **obj.parameters)
 
     ##############################################
 
@@ -457,8 +457,8 @@ class ToPython(Translator):
     ##############################################
 
     def handle_Model(self, obj: Model) -> str:
-        args = self.values_to_python((obj.name, obj.model_type))
-        kwargs = self.kwargs_to_python(self.parameters)
+        args = self.values_to_python((obj.name, obj.type))
+        kwargs = self.format_kwargs(obj.py_parameters)
         parameters = self.join_args(args + kwargs)
         return f'{self._circuit_name}.model({parameters})'
 
