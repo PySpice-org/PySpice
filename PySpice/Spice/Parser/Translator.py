@@ -297,9 +297,9 @@ class ToPython(Translator):
     def value_to_python(cls, x) -> str:
         if x:
             match x:
-                case int():
+                case int() | float():
                     return str(x)
-                case str():
+                case _:
                     return f"'{x}'"
         else:
             return ''
