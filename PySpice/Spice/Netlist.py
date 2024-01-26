@@ -79,6 +79,7 @@ To simulate the circuit, we must create a simulator instance using the :meth:`Ci
 
 from collections import OrderedDict
 from pathlib import Path
+from typing import TYPE_CHECKING, Iterator, Self, Union
 import keyword
 import logging
 import os
@@ -88,9 +89,13 @@ import os
 ####################################################################################################
 
 from PySpice.Tools.TextBuffer import TextBuffer
+# from . import Library
 from .DeviceModel import DeviceModel
-from .Element import Pin
+from .Element import Pin, Element
 from .StringTools import join_list, prefix_lines
+
+if TYPE_CHECKING:
+    from .Simulator import Simulator
 
 ####################################################################################################
 
@@ -114,13 +119,13 @@ class Node:
     ##############################################
 
     @classmethod
-    def _warn_iskeyword(cls, name):
+    def _warn_iskeyword(cls, name: str) -> None:
         if keyword.iskeyword(name):
             cls._logger.warning(f"Node name '{name}' is a Python keyword")
 
     ##############################################
 
-    def __init__(self, netlist, name):
+    def __init__(self, netlist: 'Netlist', name: str) -> None:
         self._warn_iskeyword(name)
         self._netlist = netlist
         self._name = str(name)
@@ -128,55 +133,55 @@ class Node:
 
     ##############################################
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Node {self._name}'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._name
 
     ##############################################
 
     @property
-    def netlist(self):
+    def netlist(self) -> 'Netlist':
         return self._netlist
 
     @property
-    def name(self):
+    def name(self) -> int | str:
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: int | str) -> bool:
         self._warn_iskeyword(value)
         self._name = value
         # update nodes dict
         self._netlist._update_node_name(self, value)
 
     @property
-    def is_ground_node(self):
+    def is_ground_node(self) -> bool:
         return self._name in (Node.SPICE_GROUND_NAME, 'gnd')
 
     ##############################################
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self._pins)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._pins)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Pin]:
         return iter(self._pins)
 
     @property
-    def pins(self):
+    def pins(self) -> Iterator[Pin]:
         # Fixme: iter ?
         return iter(self._pins)
 
-    def __contains__(self, pin):
+    def __contains__(self, pin: Pin) -> bool:
         return pin in self._pins
 
     ##############################################
 
-    def connect(self, pin):
+    def connect(self, pin: Pin) -> None:
         self._logger.info(f"Connect {pin} => {self}")
         if pin not in self:
             self._pins.add(pin)
@@ -186,13 +191,13 @@ class Node:
 
     ##############################################
 
-    def disconnect(self, pin):
+    def disconnect(self, pin: Pin) -> None:
         self._logger.info(f"Disconnect {pin}")
         self._pins.remove(pin)
 
     ##############################################
 
-    def merge(self, node):
+    def merge(self, node: 'Node') -> None:
         self._logger.info(f"Merge {self} and {node}")
         for pin in list(node.pins):
             pin.disconnect()
@@ -201,7 +206,7 @@ class Node:
 
     ##############################################
 
-    def __iadd__(self, args):
+    def __iadd__(self, args: Union['Node', Pin, list[Union['Node', Pin]]]) -> Self:
         """Connect a node, a pin or a list of them to the node."""
         if isinstance(args, (Node, Pin)):
             args = (args,)
@@ -233,8 +238,7 @@ class Netlist:
 
     ##############################################
 
-    def __init__(self):
-
+    def __init__(self) -> None:
         self._nodes = {}
         self._ground_name = Node.SPICE_GROUND_NAME   # Fixme: just here
         self._ground_node = self._add_node(self._ground_name)
@@ -250,30 +254,25 @@ class Netlist:
 
     ##############################################
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict) -> None:
         self.__dict__.update(state)
 
     ##############################################
 
-    def copy_to(self, netlist):
-
+    def copy_to(self, netlist: 'Netlist') -> 'Netlist':
         for subcircuit in self.subcircuits:
             netlist.subcircuit(subcircuit)
-
         for element in self.elements:
             element.copy_to(netlist)
-
         for name, model in self._models.items():
             netlist._models[name] = model.clone()
-
         netlist.raw_spice = str(self.raw_spice)
-
         return netlist
 
     ##############################################
 
     @property
-    def gnd(self):
+    def gnd(self) -> int | str:
         # Fixme: purpose ???
         # return self._ground
         return self._ground_node
@@ -283,40 +282,40 @@ class Netlist:
     #   call a setter...
 
     @property
-    def nodes(self):
+    def nodes(self) -> Iterator[Node]:
         return self._nodes.values()
 
     @property
-    def node_names(self):
+    def node_names(self) -> Iterator[str]:
         return self._nodes.keys()
 
     @property
-    def elements(self):
+    def elements(self) -> Iterator[Element]:
         return self._elements.values()
 
     @property
-    def element_names(self):
+    def element_names(self) -> Iterator[str]:
         return self._elements.keys()
 
     @property
-    def models(self):
+    def models(self) -> Iterator[DeviceModel]:
         return self._models.values()
 
     @property
-    def model_names(self):
+    def model_names(self) -> Iterator[str]:
         return self._models.keys()
 
     @property
-    def subcircuits(self):
+    def subcircuits(self) -> Iterator['SubCircuit']:
         return self._subcircuits.values()
 
     @property
-    def subcircuit_names(self):
+    def subcircuit_names(self) -> Iterator[str]:
         return self._subcircuits.keys()
 
     ##############################################
 
-    def element(self, name):
+    def element(self, name: str) -> Element:
         return self._elements[name]
 
     # Fixme: clash with
@@ -325,15 +324,16 @@ class Netlist:
     #     return self._models[name]
 
     # Fixme: versus get node ???
-    def node(self, name):
+    def node(self, name: str) -> Node:
         return self._nodes[str(name)]
 
     ##############################################
 
-    def __getitem__(self, attribute_name):
+    def __getitem__(self, attribute_name) -> Element:
         if attribute_name in self._elements:
             return self.element(attribute_name)
         elif attribute_name in self._models:
+            # Fixme: error missing modele_type ?
             return self.model(attribute_name)
         # Fixme: subcircuits
         elif attribute_name in self._nodes:
@@ -351,7 +351,7 @@ class Netlist:
 
     ##############################################
 
-    def _add_node(self, node_name):
+    def _add_node(self, node_name: int | str) -> Node:
         node_name = str(node_name)
         if node_name not in self._nodes:
             self._logger.info(f'Create node "{node_name}"')
@@ -363,12 +363,12 @@ class Netlist:
 
     ##############################################
 
-    def _del_node(self, node):
+    def _del_node(self, node) -> None:
         del self._nodes[node.name]
 
     ##############################################
 
-    def _update_node_name(self, node, new_name):
+    def _update_node_name(self, node, new_name) -> None:
         """Update the node's map for the new node's name"""
         # Fixme: check node is None ???
         if node.name not in self._nodes:
@@ -378,7 +378,7 @@ class Netlist:
 
     ##############################################
 
-    def get_node(self, node, create=False):
+    def get_node(self, node: Node | int | str, create: bool = False) -> Node:
         """Return a node. `node` can be a node instance or node name.  A node is created if `create` is set
         and the node don't yet exist.
 
@@ -400,13 +400,13 @@ class Netlist:
 
     ##############################################
 
-    def has_ground_node(self):
+    def has_ground_node(self) -> bool:
         """Test if ground node is connected"""
         return bool(self._ground_node)
 
     ##############################################
 
-    def _add_element(self, element):
+    def _add_element(self, element: Element) -> None:
         """Add an element."""
         if element.name not in self._elements:
             self._elements[element.name] = element
@@ -415,7 +415,7 @@ class Netlist:
 
     ##############################################
 
-    def _remove_element(self, element):
+    def _remove_element(self, element: Element) -> None:
         try:
             del self._elements[element.name]
         except KeyError:
@@ -423,26 +423,25 @@ class Netlist:
 
     ##############################################
 
-    def model(self, name, modele_type, **parameters):
+    def model(self, name: str, modele_type: str, **parameters) -> DeviceModel:
         """Add a model."""
-        model = DeviceModel(name, modele_type, **parameters)
-        if model.name not in self._models:
-            self._models[model.name] = model
+        _ = DeviceModel(name, modele_type, **parameters)
+        if _.name not in self._models:
+            self._models[_.name] = _
         else:
             raise NameError(f"Model name {name} is already defined")
-
-        return model
+        return _
 
     ##############################################
 
-    def subcircuit(self, subcircuit):
+    def subcircuit(self, subcircuit: 'SubCircuit') -> None:
         """Add a sub-circuit."""
         # Fixme: subcircuit is a class
         self._subcircuits[str(subcircuit.name)] = subcircuit
 
     ##############################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         """ Return the formatted list of element and model definitions. """
         # Fixme: order ???
         netlist = TextBuffer()
@@ -454,23 +453,23 @@ class Netlist:
 
     ##############################################
 
-    def _str_raw_spice(self):
+    def _str_raw_spice(self) -> str:
         return self.raw_spice.rstrip()
 
     ##############################################
 
-    def _str_subcircuits(self):
+    def _str_subcircuits(self) -> list:
         # ensure list instead of odict_values
         return list(self.subcircuits)
 
     ##############################################
 
-    def _str_elements(self):
+    def _str_elements(self) -> list:
         return [element for element in self.elements if element.enabled]
 
     ##############################################
 
-    def _str_models(self):
+    def _str_models(self) -> list:
         # ensure list instead of dict_values
         return list(self.models)
 
@@ -482,8 +481,7 @@ class SubCircuit(Netlist):
 
     ##############################################
 
-    def __init__(self, name, *nodes, **kwargs):
-
+    def __init__(self, name: str, *nodes, **kwargs) -> None:
         if len(set(nodes)) != len(nodes):
             raise ValueError(f"Duplicated nodes in {nodes}")
 
@@ -499,8 +497,7 @@ class SubCircuit(Netlist):
 
     ##############################################
 
-    def clone(self, name=None):
-
+    def clone(self, name: str = None) -> None:
         if name is None:
             name = self._name
 
@@ -514,21 +511,21 @@ class SubCircuit(Netlist):
     ##############################################
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def external_nodes(self):
+    def external_nodes(self) -> list[Node]:
         return self._external_nodes
 
     @property
-    def parameters(self):
+    def parameters(self) -> dict:
         """Parameters"""
         return self._parameters
 
     ##############################################
 
-    def check_nodes(self):
+    def check_nodes(self) -> None:
         """Check for dangling nodes in the subcircuit."""
         nodes = self._external_nodes
         connected_nodes = set()
@@ -540,7 +537,7 @@ class SubCircuit(Netlist):
 
     ##############################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the formatted subcircuit definition."""
         netlist = TextBuffer()
         nodes = join_list(self._external_nodes)
@@ -560,7 +557,7 @@ class SubCircuitFactory(SubCircuit):
 
     ##############################################
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(self.NAME, *self.NODES, **kwargs)
 
 ####################################################################################################
@@ -581,11 +578,12 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def __init__(self, title,
-                 ground=Node.SPICE_GROUND_NUMBER,   # Fixme: gnd = Node.SPICE_GROUND_NUMBER
-                 global_nodes=(),
-                 ):
-
+    def __init__(
+        self,
+        title: str,   # pylint issue
+        ground: int | str = Node.SPICE_GROUND_NUMBER,   # Fixme: gnd = Node.SPICE_GROUND_NUMBER
+        global_nodes: list[int | str] = (),
+    ) -> None:
         super().__init__()
 
         self.title = str(title)
@@ -602,8 +600,7 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def clone(self, title=None):
-
+    def clone(self, title: str = None) -> 'Circuit':
         if title is None:
             title = self.title
 
@@ -620,7 +617,7 @@ class Circuit(Netlist):
     ##############################################
 
     @property
-    def includes(self):
+    def includes(self) -> Iterator[Path]:
         return iter(self._includes)
 
     ##############################################
@@ -634,7 +631,7 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def lib(self, name, section=None):
+    def lib(self, name: str, section: str = None) -> None:
         """Load a library."""
         v = (name, section)
         if v not in self._libs:
@@ -644,13 +641,13 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def parameter(self, name, expression):
+    def parameter(self, name: str, expression: str) -> None:
         """Set a parameter."""
         self._parameters[str(name)] = str(expression)
 
     ##############################################
 
-    def str(self, simulator=None):
+    def str(self, simulator: 'Simulator' = None) -> str:
         """Return the formatted desk.
 
         :param simulator: simulator instance to select the flavour of a Spice library
@@ -658,23 +655,23 @@ class Circuit(Netlist):
         """
         # if not self.has_ground_node():
         #     raise NameError("Circuit don't have ground node")
-        netlist = TextBuffer()
-        netlist += self._str_title()
-        netlist += self._str_includes(simulator)
-        netlist += self._str_libs(simulator)
-        netlist += self._str_globals()
-        netlist += self._str_parameters()
-        netlist += super().__str__()
-        return str(netlist) + os.linesep    # Fixme: linesep here ???
+        _ = TextBuffer()
+        _ += self._str_title()
+        _ += self._str_includes(simulator)
+        _ += self._str_libs(simulator)
+        _ += self._str_globals()
+        _ += self._str_parameters()
+        _ += super().__str__()
+        return str(_) + os.linesep    # Fixme: linesep here ???
 
     ##############################################
 
-    def _str_title(self):
+    def _str_title(self) -> str:
         return f'.title {self.title}'
 
     ##############################################
 
-    def _str_includes(self, simulator=None):
+    def _str_includes(self, simulator: 'Simulator' = None) -> list[str]:
         if self._includes:
             # ngspice don't like // in path, thus ensure we write real paths
             real_paths = []
@@ -691,7 +688,7 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def _str_libs(self, simulator=None):
+    def _str_libs(self, simulator: 'Simulator' = None) -> list[str]:
         if self._libs:
             libs = []
             for lib, section in self._libs:
@@ -710,7 +707,7 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def _str_globals(self):
+    def _str_globals(self) -> str:
         if self._global_nodes:
             return '.global ' + join_list(self._global_nodes)
         else:
@@ -718,7 +715,7 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def _str_parameters(self):
+    def _str_parameters(self) -> list[str]:
         if self._parameters:
             return [f'.param {key}={value}' for key, value in self._parameters.items()]
         else:
@@ -726,12 +723,12 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.str(simulator=None)
 
     ##############################################
 
-    def str_end(self):
+    def str_end(self) -> str:
         return str(self) + '.end'
 
     ##############################################
