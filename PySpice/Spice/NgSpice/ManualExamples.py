@@ -25,7 +25,7 @@ Usage::
 
 ####################################################################################################
 
-from typing import Iterator, Generator
+from typing import Generator
 
 class Examples:
 
@@ -46,7 +46,7 @@ class Examples:
     ##############################################
 
     @classmethod
-    def iter_on_examples(cls, label: str=None) -> Generator[tuple[str, str], None, None]:
+    def iter_on_examples(cls, label: str = None) -> Generator[tuple[str, str], None, None]:
         if label is None:
             # Fixme:
             for key, value in cls.__dict__.items():
@@ -411,7 +411,7 @@ V1 input 0 AC {amplitude}
 ##################################################
 # @3673
 
-    Ea8f3 = """
+    Ea8f3 = r"""
 * Logical operators
 
 v1or   1 0  {1 || 0}
@@ -3005,7 +3005,7 @@ unset __flag
 ##################################################
 # @30496
 
-    s5e51 = """
+    s5e51 = r"""
 * User defined ngspice init file
 set filetype=ascii
 *set ngdebug
@@ -3834,7 +3834,7 @@ listing [logical] [physical] [deck] [expand] [runable] [param]
 ##################################################
 # @33165
 
-    sc806 = """
+    sc806 = r"""
 source d:\myngspice\inputs\decade_counter.cir
 listing r > $inputdir/decade_counter_runable.cir
 """
@@ -4298,7 +4298,7 @@ snload circuit-file file
 ##################################################
 # @34176
 
-    se050 = """
+    se050 = r"""
 *  SCRIPT: ADDER - 4 BIT BINARY
 * script to reload circuit and continue the simulation
 * begin with editing the file location
@@ -4326,7 +4326,7 @@ snsave file
 ##################################################
 # @34209
 
-    s407c = """
+    s407c = r"""
 Example input file for snsave
 * load a circuit (including transistor models and .tran command)
 * starts transient simulation until stop point
@@ -5260,7 +5260,7 @@ gnuplot plot_1 vss#branch vss2#branch
 ##################################################
 # @36944
 
-    s5783 = """
+    s5783 = r"""
 * for MS Windows only
 if $oscompiled = 1 | $oscompiled = 8
   shell Start c:\"program files"\irfanview\i_view64.exe plot_1.png
@@ -5753,7 +5753,7 @@ pack .checkvd
 ##################################################
 # @37992
 
-    sdd3c = """
+    sdd3c = r"""
 #!/bin/sh
 # WishFix \
 exec wish "$0" ${1+"$@"}
@@ -5912,7 +5912,7 @@ disp_curve $r10 $r12
 ##################################################
 # @38170
 
-    s6bab = """
+    s6bab = r"""
 #!/bin/sh
 # WishFix \
   exec wish -f "$0" ${1+"$@"}
