@@ -32,14 +32,14 @@ import sys
 
 ####################################################################################################
 
-import PySpice.Config.ConfigInstall as ConfigInstall
+from PySpice.Config import ConfigInstall
 
 ####################################################################################################
 
 def setup_logging(
-        application_name='PySpice',
-        config_file=ConfigInstall.Logging.default_config_file,
-        logging_level=None,
+    application_name='PySpice',
+    config_file=ConfigInstall.Logging.default_config_file,
+    logging_level=None,
 ):
 
     """Setup the logging.

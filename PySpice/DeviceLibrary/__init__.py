@@ -24,11 +24,11 @@ class Manufacturer:
 
     ##############################################
 
-    def __init__(self,
-                 name,
-                 url=None,
+    def __init__(
+        self,
+        name,
+        url=None,
     ):
-
         self._name = name
         self._url = url
 
@@ -56,10 +56,10 @@ class Footprint:
 
     ##############################################
 
-    def __init__(self,
-                 name,
+    def __init__(
+        self,
+        name,
     ):
-
         self._name = name
 
     ##############################################
@@ -78,13 +78,13 @@ class Device:
 
     ##############################################
 
-    def __init__(self,
-                 name,
-                 manufacturer,
-                 datasheet_url=None,
-                 model_url=None
+    def __init__(
+        self,
+        name,
+        manufacturer,
+        datasheet_url=None,
+        model_url=None
     ):
-
         # part
         # part_number
         # footprint
@@ -92,7 +92,6 @@ class Device:
         # device_category x/y
         # pins
         # features / parameters
-
         self._name = name
 
     ##############################################

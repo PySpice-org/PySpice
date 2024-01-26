@@ -142,7 +142,7 @@ def _to_ascii(name):
         ascii_name = ascii_name.replace(*args)
     return ascii_name
 
-def define_shortcut(name, shortcut) :
+def define_shortcut(name, shortcut):
     # ° is illegal in Python 3.5
     #  see https://docs.python.org/3/reference/lexical_analysis.html#identifiers
     #      https://www.python.org/dev/peps/pep-3131/
@@ -166,7 +166,7 @@ def _build_prefix_shortcut(unit_prefix):
 
 for unit_prefix in _Unit.UnitPrefixMetaclass.prefix_iter():
     if unit_prefix.__class__ != _Unit.ZeroPower:
-        _build_prefix_shortcut(unit_prefix) # capture unit_prefix
+        _build_prefix_shortcut(unit_prefix)   # capture unit_prefix
 
 ####################################################################################################
 
@@ -176,13 +176,13 @@ class FrequencyValue(_Unit.UnitValue, _Unit.FrequencyMixin):
     pass
 
 # Fixme:
-class FrequencyValues(_Unit.UnitValues): # , _Unit.FrequencyMixin
+class FrequencyValues(_Unit.UnitValues):   # , _Unit.FrequencyMixin
     pass
 
 class PeriodValue(_Unit.UnitValue, _Unit.PeriodMixin):
     pass
 
-class PeriodValues(_Unit.UnitValues): # , _Unit.PeriodMixin
+class PeriodValues(_Unit.UnitValues):   # , _Unit.PeriodMixin
     pass
 
 ####################################################################################################

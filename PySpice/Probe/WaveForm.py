@@ -96,10 +96,11 @@ class WaveForm(UnitValues):
 
     ##############################################
 
-    def __new__(cls, name, prefixed_unit, shape,
-                dtype=float, buffer=None, offset=0, strides=None, order=None,
-                title=None, abscissa=None,
-                ):
+    def __new__(
+            cls, name, prefixed_unit, shape,
+            dtype=float, buffer=None, offset=0, strides=None, order=None,
+            title=None, abscissa=None,
+    ):
         # Called first
         # cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
 
@@ -173,7 +174,8 @@ class WaveForm(UnitValues):
     ##############################################
 
     def __repr__(self):
-        return '{0.__class__.__name__} {0._name} {1}'.format(self, super().__str__())
+        _ = super().__str__()
+        return '{self.__class__.__name__} {self._name} {_}'
 
     ##############################################
 
@@ -255,15 +257,13 @@ class Analysis:
     ##############################################
 
     def __init__(self, simulation, nodes=(), branches=(), elements=(), internal_parameters=()):
-
         # Fixme: branches are elements in fact, and elements is not yet supported ...
-
         self._simulation = simulation
         # Fixme: to func?
-        self._nodes = {waveform.name:waveform for waveform in nodes}
-        self._branches = {waveform.name:waveform for waveform in branches}
-        self._elements = {waveform.name:waveform for waveform in elements}
-        self._internal_parameters = {waveform.name:waveform for waveform in internal_parameters}
+        self._nodes = {waveform.name: waveform for waveform in nodes}
+        self._branches = {waveform.name: waveform for waveform in branches}
+        self._elements = {waveform.name: waveform for waveform in elements}
+        self._internal_parameters = {waveform.name: waveform for waveform in internal_parameters}
 
     ##############################################
 
@@ -294,7 +294,7 @@ class Analysis:
     def internal_parameters(self):
         return self._internal_parameters
 
-   ##############################################
+    ##############################################
 
     def _get_item(self, name):
         # Fixme: cache dict ???
@@ -343,7 +343,6 @@ class Analysis:
 
 class OperatingPoint(Analysis):
     """This class implements an operating point analysis."""
-    pass
 
 ####################################################################################################
 
@@ -376,8 +375,10 @@ class DcAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, sweep, nodes, branches, internal_parameters):
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
         self._sweep = sweep
 
     ##############################################
@@ -396,8 +397,10 @@ class AcAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, frequency, nodes, branches, internal_parameters):
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
         self._frequency = frequency
 
     ##############################################
@@ -416,8 +419,10 @@ class TransientAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, time, nodes, branches, internal_parameters):
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
         self._time = time
 
     ##############################################
@@ -436,8 +441,10 @@ class PoleZeroAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, nodes, branches, internal_parameters):
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
 
 ####################################################################################################
 
@@ -448,8 +455,10 @@ class NoiseAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, nodes, branches, internal_parameters):
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
 
 ####################################################################################################
 
@@ -460,8 +469,10 @@ class DistortionAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, frequency, nodes, branches, internal_parameters):
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
         self._frequency = frequency
 
     ##############################################
@@ -480,5 +491,7 @@ class TransferFunctionAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, nodes, branches, internal_parameters):
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
