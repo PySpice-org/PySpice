@@ -29,12 +29,25 @@
 * `Ngspice Bug Tracker <https://sourceforge.net/p/ngspice/bugs>`_
 * `Xyce of Sandia National Laboratories <https://xyce.sandia.gov>`_
 
-Brief Notes
+2024 Update
 ===========
 
-Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a **Forum** hosted at https://pyspice.discourse.group
-
 **Disclaimer: PySpice is developed on my free time actually, so I could be busy with other tasks and less reactive.**
+
+The free Discourse forum was closed some time ago due to a lack of activity.
+A HTML backup is stored in the directory `pyspice-discourse-backup`.
+
+**On Devel HEAD**
+* fixed the ngspice library loading for recent cffi
+* fixed simulation aborting due to a message from newer ngspice
+* fixes for Spice parser
+* added support for Pint unit library
+* implemented SpiceLibrary
+* code cleanup but must check for typo...
+
+..
+    Brief Notes
+    ===========
 
 An issue was found with NgSpice Shared, we must `setlocale(LC_NUMERIC, "C");` see https://sourceforge.net/p/ngspice/bugs/490/
 

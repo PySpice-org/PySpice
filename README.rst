@@ -43,6 +43,10 @@
 .. |Tavis CI master| image:: https://travis-ci.com/FabriceSalvaire/PySpice.svg?branch=master
    :target: https://travis-ci.com/FabriceSalvaire/PySpice
    :alt: PySpice build status @travis-ci.org
+
+.. |Pyspice Test Workflow| image:: https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml/badge.svg?branch=devel
+    :target: https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml
+    :alt: Pyspice Test
 .. -*- Mode: rst -*-
 
 .. _CFFI: http://cffi.readthedocs.org/en/latest/
@@ -75,9 +79,9 @@
 .. |Tikz| replace:: Tikz
 .. |Xyce| replace:: Xyce
 
-=====================================================================================
+======================================================================================
  PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
-=====================================================================================
+======================================================================================
 
 |Pypi License|
 |Pypi Python Version|
@@ -89,24 +93,41 @@
 
 |Tavis CI master|
 
+|Pyspice Test Workflow|
+
 **Quick Links**
 
-* `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
 * `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
-* `Travis CI <https://travis-ci.com/github/FabriceSalvaire/PySpice>`_
+* `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
+* `Travis CI <https://travis-ci.com/github/FabriceSalvaire/PySpice>`_ but need free credits...
+
 * `pyspice@conda-forge <https://github.com/conda-forge/pyspice-feedstock>`_
 * `conda-forge/pyspice <https://anaconda.org/conda-forge/pyspice>`_
 * `ngspice@conda-forge <https://github.com/conda-forge/ngspice-feedstock>`_
+
 * `Ngspice <http://ngspice.sourceforge.net>`_
 * `Ngspice Bug Tracker <https://sourceforge.net/p/ngspice/bugs>`_
 * `Xyce of Sandia National Laboratories <https://xyce.sandia.gov>`_
 
-Brief Notes
+2024 Update
 ===========
 
-Thanks to `Discourse <https://www.discourse.org>`_, PySpice now has a **Forum** hosted at https://pyspice.discourse.group
-
 **Disclaimer: PySpice is developed on my free time actually, so I could be busy with other tasks and less reactive.**
+
+The free Discourse forum was closed some time ago due to a lack of activity.
+A HTML backup is stored in the directory `pyspice-discourse-backup`.
+
+**On HEAD**
+* fixed the ngspice library loading for recent cffi
+* fixed simulation aborting due to a message from newer ngspice
+* fixes for Spice parser
+* added support for Pint unit library
+* implemented SpiceLibrary
+* code cleanup but must check for typo...
+
+..
+    Brief Notes
+    ===========
 
 An issue was found with NgSpice Shared, we must `setlocale(LC_NUMERIC, "C");` see https://sourceforge.net/p/ngspice/bugs/490/
 
@@ -162,7 +183,7 @@ pull requests blindly then there is a high risk this software will become a mess
 Credits
 =======
 
-Authors: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_ and `contributors <https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md>`_
+Authors: `Fabrice SALVAIRE <http://fabrice-salvaire.fr>`_ and `contributors <https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md>`_
 
 News
 ====
@@ -172,17 +193,58 @@ News
 
 .. no title here
 
+Vx.y.0 (wishes)
+----------------
+
+* The circuit API is actually low level. It is fastidious to work with
+  and error-prone.  Skidl has a very good approach to make the
+  connections between elements.  A clever idea is to make the
+  connection through loop, e.g. `gnd & C1 & (R1 | R2) & D1 & vcc`.
+* Improve Spice library handling, e.g. we have to read the library
+  code to know how to map the pins, etc.
+* Unit should be provided by a third party.  We need a library that works well with Spice.
+
 V1.6.0 (development release)
 ----------------------------
 
+* **New Simulation API**
+
+  .. code-block:: python
+
+       # build a circuit
+
+       # instantiate a simulator
+       simulator = Simulator.factory()
+       # or
+       simulator = Simulator.factory(simulator='ngspice')
+       # same as
+       simulator = Simulator.factory(simulator='ngspice-shared')
+
+       # create a simulation, it corresponds to the Spice code part with lines starting with ".something ..."
+       simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+       # define an analysis and run it
+       analysis = simulation.transient(step_time=ac_line.period/200, end_time=ac_line.period*50, log_desk=True)
+       # analysis is now Pickable
+
+* Simulation output is now Pickable
+
+* The **Spice parser** was rewritten from scratch using the `PLY <https://www.dabeaz.com/ply>`_
+  library, which is an implementation of lex and yacc parsing tools for Python.  The LALR parser
+  generates an AST from a BNF grammar written from scratch using the Ngspice manual.  Up to now, it
+  only requires a hack to handle the grammar, cf. XSpice vector syntax :code:`[1 -1 -2]` which
+  interfere with mathematical expression.  PySpice is now able to parse completely and properly all
+  the examples from the Ngspice manual.  However, the processing of the AST does actually the bare
+  minimum.
 * **KiCadTools** a proof of concept module to read KiCad 6
   `.kicad_sch` schema file and compute the netlist.  *This module can
-  be used to perform any kind of processings on a KiCad schema.  It is
+  be used to perform any kind of processing on a KiCad schema.  It is
   actually hosted in the source but could become a standalone
   project.* For PySpice, it provides a very flexible way to draft a
   circuit with the help of KiCad and then generate the netlist without
   using the netlist export feature of KiCad.  And thus leverage the
-  writing of fastidious cicruit.
+  writing of fastidious circuit.
+* The most common PySpice parts can be imported from :code:`from PySpice import ...`
+* Logging setup code clean-up
 
 V1.5.0 (production release) 2021-05-15
 --------------------------------------
@@ -203,14 +265,14 @@ V1.5.0 (production release) 2021-05-15
 * `Netlist.py`: Fix wrong method when joining parameters during netlist parse #245 (thanks to cyber-g)
 * Unit: add Pickle support
 * Add Parser code from #136 (thanks to jmgc) but not yet merged
-* Unit: add np.mean
+* Unit: add :code:`np.mean`
 
 V1.4.3 2020-07-04
 -----------------
 
 A huge effort, thanks to @stuarteberg Stuart Berg, has been made to make Ngspice and PySpice
 available on Anaconda (conda-forge) for the Window, OSX and Linux platforms.  Thanks to the
-conda-forge continuous integration platform, we can now run unit tests and the examples on theses
+conda-forge continuous integration platform, we can now run unit tests and the examples on these
 platforms automatically.  Hope this will make the software more robust and easier to run !
 
 * PySpice is now available on Anaconda(conda-forge) as well as a wheel on PyPI
@@ -218,24 +280,24 @@ platforms automatically.  Hope this will make the software more robust and easie
   It should now simplify considerably the PySpice installation on Windows.
 * This tool can also download the examples and the Ngspice PDF manual.
 * On Linux and OSX, a Ngspice package is now available on Anaconda(conda-forge).
-  Note that theses two platforms do not download a binary from Ngspice since a compiler can easily be installed on theses platforms.
+  Note that theses two platforms do not download a binary from Ngspice since a compiler can easily be installed on these platforms.
 * Updated installation documentation for Linux, the main distributions now provide a ngspice shared package.
 
-* Added a front-end web site so as to keep older releases documentation available on the web.
+* Added a front-end website to keep older releases documentation available on the web.
 * fixed and rebuilt all examples (but mistakes could happen ...)
 * examples are now available as Python files and Jupyter notebooks
   (but some issues must be fixed, e.g. due to the way Jupyter handles Matplotlib plots)
 
 * support NgSpice 32 API (no change)
-* removed @substitution@ in PySpice/__init__.py, beacause it breaks pip install from git
+* removed :code:`@substitution@` in PySpice/__init__.py, beacause it breaks pip install from git
 * fixed some logging spams
 * fixed NonLinearVoltageSource
 * fixed Unicode issue with °C (° is Extended ASCII)
 * fixed ffi_string_utf8 for UnicodeDecodeError
-* fixed logging formater for OSX (removed ANSI codes)
+* fixed logging formatter for OSX (removed ANSI codes)
 * reworded "Invalid plot name" exception
 * removed diacritics in example filenames
-* cir2py has been converted to an entry point so as to work on all platforms
+* cir2py has been converted to an entry point to work on all platforms
 * updated Matplotlib subplots in examples
 * added a unit example
 * added a NMOS example (thanks to cyber-g) cf. #221
@@ -255,7 +317,7 @@ This release is yanked due to broken Windows support.
 * support NgSpice 31 API (no change)
 * added check for `CoupledInductor` #157
 * added `check-installation` tool to help to fix broken installation
-* added pole-zero, noise, distorsion, transfer-function analyses (thanks to Peter Garrone) #191
+* added pole-zero, noise, distortion, transfer-function analyses (thanks to Peter Garrone) #191
 * added `.measure` support (thanks to ceprio) #160
 * added `log_desk` parameter to `CircuitSimulator`
 * added `listing` command method to `NgSpiceShared`
@@ -281,7 +343,7 @@ V1.2.0 2018-06-07
 * Implemented missing transmission line devices
 * Implemented high level current sources
   **Notice: Some classes were renamed !**
-* Implemented node kwarg e.g. :code:`circuit.Q(1, base=1, collector=2, emitter=3, model='npn')`
+* Implemented node kwargs e.g. :code:`circuit.Q(1, base=1, collector=2, emitter=3, model='npn')`
 * Implemented raw spice pass through (see `User FAQ </faq.html>`_)
 * Implemented access to internal parameters (cf. :code:`save @device[parameter]`)
 * Implemented check for missing ground node
@@ -294,9 +356,9 @@ V1.2.0 2018-06-07
   * Added Numpy array support to unit, see `UnitValues` **Notice: this new feature could be buggy !!!**
   * Rebased `WaveForm` to `UnitValues`
 
-* Fixed node order so as to not confuse users **Now PySpice matches SPICE order for two ports elements !**
+* Fixed node order to not confuse users **Now PySpice matches SPICE order for two ports elements !**
 * Fixed device shortcuts in `Netlist` class
-* Fixed model kwarg for BJT **Notice: it must be passed exclusively as kwarg !**
+* Fixed model kwargs for BJT **Notice: it must be passed exclusively as kwargs !**
 * Fixed subcircuit nesting
 * Outsourced documentation generator to |Pyterate|_
 * Updated `setup.py` for wheel
@@ -325,7 +387,7 @@ V0.4.2
 V0.4.0 2017-07-31
 -----------------
 
-* Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size.
+* Git repository clean-up: filtered generated doc and useless files to shrink the repository size.
 * Improved documentation generator: Implemented :code:`format` for RST content and Tikz figure.
 * Improved unit support: It implements now the International System of Units.
   And we can now use unit helper like :code:`u_mV` or compute the value of :code:`1.2@u_kΩ / 2@u_mA`.
