@@ -18,9 +18,11 @@
 #
 ####################################################################################################
 
-__all__= ["expand_path", "find", "walk"]
+__all__ = ['expand_path', 'find', 'walk']
 
 ####################################################################################################
+
+from typing import Iterator
 
 import os
 from pathlib import Path
@@ -39,13 +41,13 @@ def find(file_name, directories):
 
 ####################################################################################################
 
-def expand_path(path):
+def expand_path(path) -> Path:
     _ = os.path.expandvars(path)
     return Path(_).expanduser().absolute()
 
 ####################################################################################################
 
-def walk(path, followlinks=False):
-    for root, _, files in os.walk(path, followlinks=followlinks):
+def walk(path: Path | str, followlinks: bool = False) -> Iterator[Path]:
+    for root, _, files in Path(path).walk(follow_symlinks=followlinks):
         for filename in files:
             yield Path(root).joinpath(filename)
