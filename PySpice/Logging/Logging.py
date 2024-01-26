@@ -41,7 +41,6 @@ def setup_logging(
     config_file=ConfigInstall.Logging.default_config_file,
     logging_level=None,
 ):
-
     """Setup the logging.
 
     Logging configuration is set by a YAML file given by *config_file*.
