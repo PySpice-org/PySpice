@@ -263,9 +263,13 @@ class Include(Statement):
     ##############################################
 
     def __init__(self, line):
+        if str(line).lower().startswith('.include'):
+            super().__init__(line, statement='include')
+            self._include = self._line.right_of('.include').strip('"')
+        else:
+            super().__init__(line, statement='inc')
+            self._include = self._line.right_of('.inc').strip('"')
 
-        super().__init__(line, statement='include')
-        self._include = self._line.right_of('.include').strip('"')
 
     ##############################################
 
@@ -821,6 +825,7 @@ class SpiceParser:
         # Fixme: empty source
 
         self._path = path  # For use by _parse() when recursing through files.
+        os.chdir(os.path.dirname(self._path))
 
         if path is not None:
             with open(str(path), 'r') as f:
@@ -927,12 +932,12 @@ class SpiceParser:
                 elif lower_case_text.startswith('model'):
                     model = Model(line)
                     scope.append(model)
-                elif lower_case_text.startswith('include'):
+                elif lower_case_text.startswith('include') or lower_case_text.startswith('inc'):
                     incl = Include(line)
                     scope.append(incl)
                     if recurse:
                         from .Library import SpiceLibrary
-                        incl_path = os.path.join(str(self._path.directory_part()), str(incl))
+                        incl_path = os.path.join(str(os.path.dirname(self._path)), str(incl))
                         self.incl_libs.append(SpiceLibrary(root_path=incl_path, recurse=recurse))
                 elif lower_case_text.startswith('lib'):
                     lib = Lib(line)
@@ -1005,7 +1010,7 @@ class SpiceParser:
                 statement.build(circuit, ground)
             elif isinstance(statement, Model):
                 statement.build(circuit)
-            elif isinstance(statement, SubCircuit):
+            elif isinstance(statement, SubCircuitStatement):
                 subcircuit = statement.build(ground) # Fixme: ok ???
                 circuit.subcircuit(subcircuit)
 
