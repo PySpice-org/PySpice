@@ -99,7 +99,9 @@ See Ngspice documentation for details.
 
 import logging
 
+# pylint: disable=no-name-in-module
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
+# pylint: enable=no-name-in-module
 from .Element import (
     AnyPinElement,
     FixedPinElement,
@@ -671,9 +673,9 @@ class CoupledInductor(AnyPinElement):
                 try:
                     inductor = 'L' + inductor
                     self.netlist.element(inductor)
-                    self._logger.info('Prefixed element {}'.format(inductor))
+                    self._logger.info(f'Prefixed element {inductor}')
                 except KeyError:
-                    raise ValueError('Element with name {} not found'.format(inductor))
+                    raise ValueError(f'Element with name {inductor} not found')
             # Fixme: str or Element instance ?
             self._inductors.append(inductor)
         self.inductor1, self.inductor2 = self._inductors
@@ -1025,7 +1027,7 @@ class NonLinearVoltageSource(DipoleElement):
         # Fixme: expression
         if self.table is not None:
             # TABLE {expression} = (x0, y0) (x1, y1) ...
-            table = ['({}, {})'.format(str_spice(x), str_spice(y)) for x, y in self.table]
+            table = [f'({str_spice(x)}, {str_spice(y)})' for x, y in self.table]
             spice_element += ' TABLE {%s} = %s' % (self.expression, join_list(table))
         return spice_element
 
