@@ -96,10 +96,9 @@ circuit = Circuit('Diode Characteristic Curve')
 circuit.V('input', 'in', circuit.gnd, 10@u_V)
 circuit.R(1, 'in', 'out', 1@u_Ω) # not required for simulation
 D1N4148 = spice_library['1N4148']
-circuit.include(D1N4148)
+# circuit.include(D1N4148)
 # circuit.X('D1', '1N4148', 'out', circuit.gnd)
-diode_nodes = D1N4148.map_nodes(anode=0, cathode='out')
-circuit.X('D1', D1N4148.name, *diode_nodes)
+circuit.X('D1', D1N4148, cathode='out', anode=circuit.gnd)
 
 #r# We simulate the circuit at these temperatures: 0, 25 and 100 °C.
 

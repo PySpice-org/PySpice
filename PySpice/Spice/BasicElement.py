@@ -127,6 +127,7 @@ from .ElementParameter import (
     IntKeyParameter,
     ModelPositionalParameter,
 )
+from . import Library
 from .StringTools import join_list, join_dict
 from .unit import str_spice
 
@@ -164,7 +165,27 @@ class SubCircuitElement(NPinElement):
 
     ##############################################
 
-    def __init__(self, netlist: 'Netlist', name: str, subcircuit_name, *nodes, **parameters) -> None:
+    def __init__(
+        self,
+        netlist: 'Netlist',
+        name: str,
+        subcircuit_name: str | Library.Subcircuit,
+        *nodes,
+        **parameters,
+    ) -> None:
+        if isinstance(subcircuit_name, Library.Subcircuit):
+            subcircuit = subcircuit_name
+            subcircuit_name = subcircuit.name
+            pins = {}
+            for pin in subcircuit.pin_names:
+                _ = parameters.pop(pin, None)
+                if _ is None:
+                    raise ValueError(f"Missing pin {pin} for subcircuit {subcircuit_name}")
+                pins[pin] = _
+            nodes = subcircuit.map_nodes(**pins)
+            # isinstance(netlist, Circuit)
+            if hasattr(netlist, 'include'):
+                netlist.include(subcircuit)
         super().__init__(netlist, name, nodes, subcircuit_name)
         # Fixme: match parameters to subcircuit
         self.parameters = parameters
