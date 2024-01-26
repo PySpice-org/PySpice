@@ -98,11 +98,13 @@ See Ngspice documentation for details.
 ####################################################################################################
 
 import logging
+from typing import TYPE_CHECKING
 
 # pylint: disable=no-name-in-module
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
 # pylint: enable=no-name-in-module
 from .Element import (
+    Element,
     AnyPinElement,
     FixedPinElement,
     NPinElement,
@@ -127,6 +129,9 @@ from .ElementParameter import (
 )
 from .StringTools import join_list, join_dict
 from .unit import str_spice
+
+if TYPE_CHECKING:
+    from .Netlist import Netlist
 
 ####################################################################################################
 
@@ -159,10 +164,8 @@ class SubCircuitElement(NPinElement):
 
     ##############################################
 
-    def __init__(self, netlist, name, subcircuit_name, *nodes, **parameters):
-
+    def __init__(self, netlist: 'Netlist', name: str, subcircuit_name, *nodes, **parameters) -> None:
         super().__init__(netlist, name, nodes, subcircuit_name)
-
         # Fixme: match parameters to subcircuit
         self.parameters = parameters
 
@@ -175,14 +178,14 @@ class SubCircuitElement(NPinElement):
 
     ##############################################
 
-    def copy_to(self, netlist):
+    def copy_to(self, netlist: 'Netlist') -> Element:
         element = self.__class__(netlist, self._name, self.subcircuit_name, *self.node_names, **self.parameters)
         # Element.copy_to(self, element)
         return element
 
     ##############################################
 
-    def format_spice_parameters(self):
+    def format_spice_parameters(self) -> str:
         """ Return the formatted list of parameters. """
         spice_parameters = super().format_spice_parameters()
         if self.parameters:
@@ -663,7 +666,7 @@ class CoupledInductor(AnyPinElement):
 
     ##############################################
 
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, name: str, *args, **kwargs) -> None:
         super().__init__(name, *args, **kwargs)
         self._inductors = []
         for inductor in (self.inductor1, self.inductor2):
@@ -1015,14 +1018,14 @@ class NonLinearVoltageSource(DipoleElement):
 
     ##############################################
 
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, name: str, *args, **kwargs) -> None:
         super().__init__(name, *args, **kwargs)
         self.expression = kwargs.get('expression', None)
         self.table = kwargs.get('table', None)
 
     ##############################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         spice_element = self.format_node_names()
         # Fixme: expression
         if self.table is not None:
@@ -1499,7 +1502,7 @@ class LosslessTransmissionLine(TwoPortElement):
 
     ##############################################
 
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, name: str, *args, **kwargs) -> None:
         super().__init__(name, *args, **kwargs)
         if not (self.has_parameter('time_delay') or
                 (self.has_parameter('frequency') and self.has_parameter('normalized_length'))):
@@ -1562,7 +1565,7 @@ class CoupledMulticonductorLine(NPinElement):
 
     ##############################################
 
-    def __init__(self, netlist, name, *nodes, **parameters):
+    def __init__(self, netlist: 'Netlist', name: str, *nodes, **parameters) -> None:
         super().__init__(netlist, name, nodes, **parameters)
 
 ####################################################################################################
@@ -1676,7 +1679,7 @@ class XSpiceElement(NPinElement):
 
     ##############################################
 
-    def __init__(self, netlist, name, *nodes, **parameters):
+    def __init__(self, netlist: 'Netlist', name: str, *nodes, **parameters) -> None:
         # Fixme: ok ???
         super().__init__(netlist, name, nodes, **parameters)
 
@@ -1698,5 +1701,5 @@ class GSSElement(NPinElement):
 
     ##############################################
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise NotImplementedError
