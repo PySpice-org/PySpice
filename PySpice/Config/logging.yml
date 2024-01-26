@@ -32,7 +32,7 @@ handlers:
 
 ####################################################################################################
 
-# PySpice.Doc.ExampleTools.find_librariesb
+# PySpice.Doc.ExampleTools.find_libraries
 root:
   # level: CRITICAL
   # level: ERROR
