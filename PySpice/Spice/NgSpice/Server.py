@@ -18,7 +18,7 @@
 #
 ####################################################################################################
 
-"""This module provides an interface to run ngspice in server mode and get back the simulation
+r"""This module provides an interface to run ngspice in server mode and get back the simulation
 output.
 
 When ngspice runs in server mode, it writes on the standard output an header and then the simulation
