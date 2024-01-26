@@ -616,12 +616,11 @@ a { text-decoration: none; }
 <p><a class="reference external image-reference" href="https://anaconda.org/conda-forge/pyspice/badges/version.svg"><img alt="Anaconda last version" src="https://anaconda.org/conda-forge/pyspice/badges/version.svg" /></a>
 <a class="reference external image-reference" href="https://anaconda.org/conda-forge/pyspice/badges/downloads.svg"><img alt="Anaconda donwloads" src="https://anaconda.org/conda-forge/pyspice/badges/downloads.svg" /></a></p>
 <p><a class="reference external image-reference" href="https://travis-ci.com/FabriceSalvaire/PySpice"><img alt="PySpice build status &#64;travis-ci.org" src="https://travis-ci.com/FabriceSalvaire/PySpice.svg?branch=master" /></a></p>
-<p><a class="reference external image-reference" href="https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml"><img alt="Pyspice Test" src="https://github.com/FabriceSalvaire/PySpice/actions/workflows/pyspice-test.yml/badge.svg?branch=devel" /></a></p>
 <p><strong>Quick Links</strong></p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/tree/devel">Devel Branch</a></p></li>
 <li><p><a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/tree/master">Production Branch</a></p></li>
-<li><p><a class="reference external" href="https://travis-ci.com/github/FabriceSalvaire/PySpice">Travis CI</a> but need free credits...</p></li>
+<li><p><a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/tree/devel">Devel Branch</a></p></li>
+<li><p><a class="reference external" href="https://travis-ci.com/github/FabriceSalvaire/PySpice">Travis CI</a></p></li>
 <li><p><a class="reference external" href="https://github.com/conda-forge/pyspice-feedstock">pyspice&#64;conda-forge</a></p></li>
 <li><p><a class="reference external" href="https://anaconda.org/conda-forge/pyspice">conda-forge/pyspice</a></p></li>
 <li><p><a class="reference external" href="https://github.com/conda-forge/ngspice-feedstock">ngspice&#64;conda-forge</a></p></li>
@@ -634,13 +633,15 @@ a { text-decoration: none; }
 <p><strong>Disclaimer: PySpice is developed on my free time actually, so I could be busy with other tasks and less reactive.</strong></p>
 <p>The free Discourse forum was closed some time ago due to a lack of activity.
 A HTML backup is stored in the directory <cite>pyspice-discourse-backup</cite>.</p>
-<p><strong>On HEAD</strong>
-* fixed the ngspice library loading for recent cffi
-* fixed simulation aborting due to a message from newer ngspice
-* fixes for Spice parser
-* added support for Pint unit library
-* implemented SpiceLibrary
-* code cleanup but must check for typo...</p>
+<p><strong>On Devel HEAD</strong></p>
+<ul class="simple">
+<li><p>fixed the ngspice library loading for recent cffi</p></li>
+<li><p>fixed simulation aborting due to a message from newer ngspice</p></li>
+<li><p>fixes for Spice parser</p></li>
+<li><p>added support for Pint unit library</p></li>
+<li><p>implemented SpiceLibrary</p></li>
+<li><p>code cleanup but must check for typo...</p></li>
+</ul>
 <!-- Brief Notes
 =========== -->
 <p>An issue was found with NgSpice Shared, we must <cite>setlocale(LC_NUMERIC, &quot;C&quot;);</cite> see <a class="reference external" href="https://sourceforge.net/p/ngspice/bugs/490/">https://sourceforge.net/p/ngspice/bugs/490/</a></p>
@@ -690,61 +691,23 @@ pull requests blindly then there is a high risk this software will become a mess
 </section>
 <section id="credits">
 <h2>Credits</h2>
-<p>Authors: <a class="reference external" href="http://fabrice-salvaire.fr">Fabrice SALVAIRE</a> and <a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md">contributors</a></p>
+<p>Authors: <a class="reference external" href="http://fabrice-salvaire.fr">Fabrice Salvaire</a> and <a class="reference external" href="https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md">contributors</a></p>
 </section>
 <section id="news">
 <h2>News</h2>
 <!-- -*- Mode: rst -*- -->
 <!-- no title here -->
-<section id="vx-y-0-wishes">
-<h3>Vx.y.0 (wishes)</h3>
-<ul class="simple">
-<li><p>The circuit API is actually low level. It is fastidious to work with
-and error-prone.  Skidl has a very good approach to make the
-connections between elements.  A clever idea is to make the
-connection through loop, e.g. <cite>gnd &amp; C1 &amp; (R1 | R2) &amp; D1 &amp; vcc</cite>.</p></li>
-<li><p>Improve Spice library handling, e.g. we have to read the library
-code to know how to map the pins, etc.</p></li>
-<li><p>Unit should be provided by a third party.  We need a library that works well with Spice.</p></li>
-</ul>
-</section>
 <section id="v1-6-0-development-release">
 <h3>V1.6.0 (development release)</h3>
-<ul>
-<li><p><strong>New Simulation API</strong></p>
-<pre class="code python literal-block"><code><span class="comment single"># build a circuit</span><span class="whitespace">
-
-</span><span class="comment single"># instantiate a simulator</span><span class="whitespace">
-</span><span class="name">simulator</span> <span class="operator">=</span> <span class="name">Simulator</span><span class="operator">.</span><span class="name">factory</span><span class="punctuation">()</span><span class="whitespace">
-</span><span class="comment single"># or</span><span class="whitespace">
-</span><span class="name">simulator</span> <span class="operator">=</span> <span class="name">Simulator</span><span class="operator">.</span><span class="name">factory</span><span class="punctuation">(</span><span class="name">simulator</span><span class="operator">=</span><span class="literal string single">'ngspice'</span><span class="punctuation">)</span><span class="whitespace">
-</span><span class="comment single"># same as</span><span class="whitespace">
-</span><span class="name">simulator</span> <span class="operator">=</span> <span class="name">Simulator</span><span class="operator">.</span><span class="name">factory</span><span class="punctuation">(</span><span class="name">simulator</span><span class="operator">=</span><span class="literal string single">'ngspice-shared'</span><span class="punctuation">)</span><span class="whitespace">
-
-</span><span class="comment single"># create a simulation, it corresponds to the Spice code part with lines starting with &quot;.something ...&quot;</span><span class="whitespace">
-</span><span class="name">simulation</span> <span class="operator">=</span> <span class="name">simulator</span><span class="operator">.</span><span class="name">simulation</span><span class="punctuation">(</span><span class="name">circuit</span><span class="punctuation">,</span> <span class="name">temperature</span><span class="operator">=</span><span class="literal number integer">25</span><span class="punctuation">,</span> <span class="name">nominal_temperature</span><span class="operator">=</span><span class="literal number integer">25</span><span class="punctuation">)</span><span class="whitespace">
-</span><span class="comment single"># define an analysis and run it</span><span class="whitespace">
-</span><span class="name">analysis</span> <span class="operator">=</span> <span class="name">simulation</span><span class="operator">.</span><span class="name">transient</span><span class="punctuation">(</span><span class="name">step_time</span><span class="operator">=</span><span class="name">ac_line</span><span class="operator">.</span><span class="name">period</span><span class="operator">/</span><span class="literal number integer">200</span><span class="punctuation">,</span> <span class="name">end_time</span><span class="operator">=</span><span class="name">ac_line</span><span class="operator">.</span><span class="name">period</span><span class="operator">*</span><span class="literal number integer">50</span><span class="punctuation">,</span> <span class="name">log_desk</span><span class="operator">=</span><span class="keyword constant">True</span><span class="punctuation">)</span><span class="whitespace">
-</span><span class="comment single"># analysis is now Pickable</span></code></pre>
-</li>
-<li><p>Simulation output is now Pickable</p></li>
-<li><p>The <strong>Spice parser</strong> was rewritten from scratch using the <a class="reference external" href="https://www.dabeaz.com/ply">PLY</a>
-library, which is an implementation of lex and yacc parsing tools for Python.  The LALR parser
-generates an AST from a BNF grammar written from scratch using the Ngspice manual.  Up to now, it
-only requires a hack to handle the grammar, cf. XSpice vector syntax <code>[1 -1 -2]</code> which
-interfere with mathematical expression.  PySpice is now able to parse completely and properly all
-the examples from the Ngspice manual.  However, the processing of the AST does actually the bare
-minimum.</p></li>
+<ul class="simple">
 <li><p><strong>KiCadTools</strong> a proof of concept module to read KiCad 6
 <cite>.kicad_sch</cite> schema file and compute the netlist.  <em>This module can
-be used to perform any kind of processing on a KiCad schema.  It is
+be used to perform any kind of processings on a KiCad schema.  It is
 actually hosted in the source but could become a standalone
 project.</em> For PySpice, it provides a very flexible way to draft a
 circuit with the help of KiCad and then generate the netlist without
 using the netlist export feature of KiCad.  And thus leverage the
-writing of fastidious circuit.</p></li>
-<li><p>The most common PySpice parts can be imported from <code>from PySpice import ...</code></p></li>
-<li><p>Logging setup code clean-up</p></li>
+writing of fastidious cicruit.</p></li>
 </ul>
 </section>
 <section id="v1-5-0-production-release-2021-05-15">
@@ -766,14 +729,14 @@ writing of fastidious circuit.</p></li>
 <li><p><cite>Netlist.py</cite>: Fix wrong method when joining parameters during netlist parse #245 (thanks to cyber-g)</p></li>
 <li><p>Unit: add Pickle support</p></li>
 <li><p>Add Parser code from #136 (thanks to jmgc) but not yet merged</p></li>
-<li><p>Unit: add <code>np.mean</code></p></li>
+<li><p>Unit: add np.mean</p></li>
 </ul>
 </section>
 <section id="v1-4-3-2020-07-04">
 <h3>V1.4.3 2020-07-04</h3>
 <p>A huge effort, thanks to &#64;stuarteberg Stuart Berg, has been made to make Ngspice and PySpice
 available on Anaconda (conda-forge) for the Window, OSX and Linux platforms.  Thanks to the
-conda-forge continuous integration platform, we can now run unit tests and the examples on these
+conda-forge continuous integration platform, we can now run unit tests and the examples on theses
 platforms automatically.  Hope this will make the software more robust and easier to run !</p>
 <ul class="simple">
 <li><p>PySpice is now available on Anaconda(conda-forge) as well as a wheel on PyPI</p></li>
@@ -781,22 +744,22 @@ platforms automatically.  Hope this will make the software more robust and easie
 It should now simplify considerably the PySpice installation on Windows.</p></li>
 <li><p>This tool can also download the examples and the Ngspice PDF manual.</p></li>
 <li><p>On Linux and OSX, a Ngspice package is now available on Anaconda(conda-forge).
-Note that theses two platforms do not download a binary from Ngspice since a compiler can easily be installed on these platforms.</p></li>
+Note that theses two platforms do not download a binary from Ngspice since a compiler can easily be installed on theses platforms.</p></li>
 <li><p>Updated installation documentation for Linux, the main distributions now provide a ngspice shared package.</p></li>
-<li><p>Added a front-end website to keep older releases documentation available on the web.</p></li>
+<li><p>Added a front-end web site so as to keep older releases documentation available on the web.</p></li>
 <li><p>fixed and rebuilt all examples (but mistakes could happen ...)</p></li>
 <li><p>examples are now available as Python files and Jupyter notebooks
 (but some issues must be fixed, e.g. due to the way Jupyter handles Matplotlib plots)</p></li>
 <li><p>support NgSpice 32 API (no change)</p></li>
-<li><p>removed <code>&#64;substitution&#64;</code> in PySpice/__init__.py, beacause it breaks pip install from git</p></li>
+<li><p>removed &#64;substitution&#64; in PySpice/__init__.py, beacause it breaks pip install from git</p></li>
 <li><p>fixed some logging spams</p></li>
 <li><p>fixed NonLinearVoltageSource</p></li>
 <li><p>fixed Unicode issue with °C (° is Extended ASCII)</p></li>
 <li><p>fixed ffi_string_utf8 for UnicodeDecodeError</p></li>
-<li><p>fixed logging formatter for OSX (removed ANSI codes)</p></li>
+<li><p>fixed logging formater for OSX (removed ANSI codes)</p></li>
 <li><p>reworded &quot;Invalid plot name&quot; exception</p></li>
 <li><p>removed diacritics in example filenames</p></li>
-<li><p>cir2py has been converted to an entry point to work on all platforms</p></li>
+<li><p>cir2py has been converted to an entry point so as to work on all platforms</p></li>
 <li><p>updated Matplotlib subplots in examples</p></li>
 <li><p>added a unit example</p></li>
 <li><p>added a NMOS example (thanks to cyber-g) cf. #221</p></li>
@@ -816,7 +779,7 @@ Note that theses two platforms do not download a binary from Ngspice since a com
 <li><p>support NgSpice 31 API (no change)</p></li>
 <li><p>added check for <cite>CoupledInductor</cite> #157</p></li>
 <li><p>added <cite>check-installation</cite> tool to help to fix broken installation</p></li>
-<li><p>added pole-zero, noise, distortion, transfer-function analyses (thanks to Peter Garrone) #191</p></li>
+<li><p>added pole-zero, noise, distorsion, transfer-function analyses (thanks to Peter Garrone) #191</p></li>
 <li><p>added <cite>.measure</cite> support (thanks to ceprio) #160</p></li>
 <li><p>added <cite>log_desk</cite> parameter to <cite>CircuitSimulator</cite></p></li>
 <li><p>added <cite>listing</cite> command method to <cite>NgSpiceShared</cite></p></li>
@@ -844,7 +807,7 @@ research use.</p></li>
 <li><p>Implemented missing transmission line devices</p></li>
 <li><p>Implemented high level current sources
 <strong>Notice: Some classes were renamed !</strong></p></li>
-<li><p>Implemented node kwargs e.g. <code>circuit.Q(1, base=1, collector=2, emitter=3, model='npn')</code></p></li>
+<li><p>Implemented node kwarg e.g. <code>circuit.Q(1, base=1, collector=2, emitter=3, model='npn')</code></p></li>
 <li><p>Implemented raw spice pass through (see <a class="reference external" href="/faq.html">User FAQ</a>)</p></li>
 <li><p>Implemented access to internal parameters (cf. <code>save &#64;device[parameter]</code>)</p></li>
 <li><p>Implemented check for missing ground node</p></li>
@@ -858,9 +821,9 @@ research use.</p></li>
 <li><p>Rebased <cite>WaveForm</cite> to <cite>UnitValues</cite></p></li>
 </ul>
 </li>
-<li><p>Fixed node order to not confuse users <strong>Now PySpice matches SPICE order for two ports elements !</strong></p></li>
+<li><p>Fixed node order so as to not confuse users <strong>Now PySpice matches SPICE order for two ports elements !</strong></p></li>
 <li><p>Fixed device shortcuts in <cite>Netlist</cite> class</p></li>
-<li><p>Fixed model kwargs for BJT <strong>Notice: it must be passed exclusively as kwargs !</strong></p></li>
+<li><p>Fixed model kwarg for BJT <strong>Notice: it must be passed exclusively as kwarg !</strong></p></li>
 <li><p>Fixed subcircuit nesting</p></li>
 <li><p>Outsourced documentation generator to <a class="reference external" href="https://github.com/FabriceSalvaire/Pyterate">Pyterate</a></p></li>
 <li><p>Updated <cite>setup.py</cite> for wheel</p></li>
@@ -892,7 +855,7 @@ research use.</p></li>
 <section id="v0-4-0-2017-07-31">
 <h3>V0.4.0 2017-07-31</h3>
 <ul class="simple">
-<li><p>Git repository clean-up: filtered generated doc and useless files to shrink the repository size.</p></li>
+<li><p>Git repository cleanup: filtered generated doc and useless files so as to shrink the repository size.</p></li>
 <li><p>Improved documentation generator: Implemented <code>format</code> for RST content and Tikz figure.</p></li>
 <li><p>Improved unit support: It implements now the International System of Units.
 And we can now use unit helper like <code>u_mV</code> or compute the value of <code>1.2&#64;u_kΩ / 2&#64;u_mA</code>.
