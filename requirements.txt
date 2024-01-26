@@ -1,5 +1,6 @@
 PyYAML>=5.3
 cffi>=1.14
+colorama>=0.4.6
 matplotlib>=3.2
 numpy>=1.18
 ply>=3.11
