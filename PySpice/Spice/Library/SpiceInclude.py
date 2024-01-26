@@ -36,6 +36,8 @@ from PySpice.Spice.Parser import SpiceFile, ParseError
 
 ####################################################################################################
 
+NEWLINE = os.linesep
+
 _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
@@ -51,7 +53,7 @@ class Mixin:
 
     ##############################################
 
-    def __init__(self, name: str, description: str='') -> None:
+    def __init__(self, name: str, description: str = '') -> None:
         self._name = name
         self._description = description
 
@@ -68,10 +70,10 @@ class Mixin:
     ##############################################
 
     def to_yaml(self) -> dict:
-        return dict(
-            name=self._name,
-            description=self._description,
-        )
+        return {
+            'name': self._name,
+            'description': self._description,
+        }
 
 ####################################################################################################
 
@@ -86,7 +88,7 @@ class Model(Mixin):
 
     ##############################################
 
-    def __init__(self, name: str, type_: str, description: str='') -> None:
+    def __init__(self, name: str, type_: str, description: str = '') -> None:
         super().__init__(name, description)
         self._type = type_
 
@@ -100,9 +102,7 @@ class Model(Mixin):
 
     def to_yaml(self) -> dict:
         _ = super().to_yaml()
-        _.update(dict(
-            type=self._type,
-        ))
+        _.update({'type': self._type})
         return _
 
     ##############################################
@@ -114,6 +114,23 @@ class Model(Mixin):
 
 class Subcircuit(Mixin):
 
+    """
+    Subcircuit definitions are for example:
+    ```
+    .SUBCKT 1N4148 1 2
+
+    .SUBCKT d1n5919brl 2 1
+
+    .SUBCKT LMV981 1 3 6 2 4 5
+    # for pinout: +IN -IN +V -V OUT NSD
+    ```
+
+    and a call is:
+    ```
+    X1 2 4 17 3 1 MULTI
+    ```
+    """
+
     ##############################################
 
     @classmethod
@@ -123,7 +140,7 @@ class Subcircuit(Mixin):
 
     ##############################################
 
-    def __init__(self, name: str, nodes: list[str], description: str='') -> None:
+    def __init__(self, name: str, nodes: list[str], description: str = '') -> None:
         super().__init__(name, description)
         self._nodes = nodes
 
@@ -139,7 +156,7 @@ class Subcircuit(Mixin):
 
     def to_yaml(self) -> dict:
         _ = super().to_yaml()
-        _.update(dict(nodes=self._nodes))
+        _.update({'nodes': self._nodes})
         return _
 
     ##############################################
@@ -157,7 +174,7 @@ class SpiceInclude:
 
     ##############################################
 
-    def __init__(self, path: str | Path, rewrite_yaml: bool=False) -> None:
+    def __init__(self, path: str | Path, rewrite_yaml: bool = False) -> None:
         self._path = Path(path)
         self._extension = None
 
@@ -169,6 +186,7 @@ class SpiceInclude:
         self._digest = None
         self._recursive_digest = None
 
+        # Fixme:
         # rewrite_yaml = True
         # Fixme: check still valid !
         if not rewrite_yaml and self.yaml_path.exists():
@@ -202,7 +220,7 @@ class SpiceInclude:
 
     @property
     def mtime(self) -> float:
-        return os.path.getmtime(self._path)
+        return self._path.stat().st_mtime
 
     @property
     def yaml_path(self) -> str:
@@ -236,16 +254,16 @@ class SpiceInclude:
             spice_file = SpiceFile(self._path)
         except ParseError as exception:
             # Parse problem with this file, so skip it and keep going.
-            self._logger.warn(f"Parse error in Spice library {self._path}{os.linesep}{exception}")
+            self._logger.warn(f"Parse error in Spice library {self._path}{NEWLINE}{exception}")
         self._inner_includes = [Path(str(_)) for _ in spice_file.includes]
         self._inner_libraries = [Path(str(_)) for _ in spice_file.libraries]
         for subcircuit in spice_file.subcircuits:
-            name = self._suffix_name(subcircuit.name)
+            # name = self._suffix_name(subcircuit.name)
             _ = Subcircuit(subcircuit.name, subcircuit.nodes)
             self._subcircuits.append(_)
         if spice_file.is_only_model:
             for model in spice_file.models:
-                name = self._suffix_name(model.name)
+                # name = self._suffix_name(model.name)
                 _ = Model(model.name, model.type)
                 self._models.append(_)
 
@@ -259,17 +277,19 @@ class SpiceInclude:
     ##############################################
 
     def write_yaml(self):
-        with open(self.yaml_path, 'w') as fh:
+        with open(self.yaml_path, 'w', encoding='utf8') as fh:
             data = {
-                'path': str(self._path),
+                # 'path': str(self._path),
+                'path': self._path.name,
+                # Fixme: float
                 'date': self.mtime,
                 'digest': self.digest,
                 'description': self._description,
             }
             if self._models:
-                data['models'] = list([_.to_yaml() for _ in self.models])
+                data['models'] = [_.to_yaml() for _ in self.models]
             if self._subcircuits:
-                data['subcircuits'] = list([_.to_yaml() for _ in self.subcircuits])
+                data['subcircuits'] = [_.to_yaml() for _ in self.subcircuits]
             if self._inner_includes:
                 data['inner_includes'] = self._inner_includes
             if self._inner_libraries:
@@ -280,7 +300,7 @@ class SpiceInclude:
     ##############################################
 
     def _read_yaml(self) -> dict:
-        with open(self.yaml_path, 'r') as fh:
+        with open(self.yaml_path, 'r', encoding='utf8') as fh:
             data = yaml.load(fh.read(), Loader=yaml.SafeLoader)
         return data
 

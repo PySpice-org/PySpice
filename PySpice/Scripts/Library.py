@@ -22,11 +22,10 @@
 
 from pathlib import Path
 import argparse
-import os
 
 ####################################################################################################
 
-import PySpice.Logging.Logging as Logging
+from PySpice.Logging import Logging
 logger = Logging.setup_logging()
 
 ####################################################################################################
@@ -36,37 +35,51 @@ from PySpice.Spice.Library import SpiceLibrary
 ####################################################################################################
 
 def main() -> None:
-
     parser = argparse.ArgumentParser(description='Manage Spice library')
-
-    parser.add_argument('library_path', metavar='LibraryPath', type=str,
-                        help='Spice library root path')
-
-    parser.add_argument('--scan',
-                        default=False, action='store_true',
-                        help='Scan library')
-
-    parser.add_argument('--delete-yaml',
-                        default=False, action='store_true',
-                        help='WARNING: Delete YAML Files')
-
-    parser.add_argument('--add-category',
-                        type=str,
-                        help='Add a category')
-
-    parser.add_argument('--category',
-                        type=str,
-                        default=None,
-                        help='specify the category')
-
-    parser.add_argument('--add-library',
-                        type=str,
-                        help='Add a library')
-
-    parser.add_argument('--show-categories',
-                        default=False, action='store_true',
-                        help='Show categories')
-
+    parser.add_argument(
+        '-l',
+        '--library_path',
+        required=True,
+        help='Spice library root path',
+    )
+    parser.add_argument(
+        '--scan',
+        default=False,
+        action='store_true',
+        help='Scan library',
+    )
+    parser.add_argument(
+        '--delete-yaml',
+        default=False,
+        action='store_true',
+        help='WARNING: Delete YAML Files',
+    )
+    parser.add_argument(
+        '--add-category',
+        type=str,
+        help='Add a category',
+    )
+    parser.add_argument(
+        '--category',
+        type=str,
+        default=None,
+        help='specify the category',
+    )
+    parser.add_argument(
+        '--add-library',
+        type=str,
+        help='Add a library',
+    )
+    parser.add_argument(
+        '--show-categories',
+        default=False,
+        action='store_true',
+        help='Show categories',
+    )
+    parser.add_argument(
+        '--search',
+        help='search',
+    )
     args = parser.parse_args()
 
     ##############################################
@@ -74,7 +87,9 @@ def main() -> None:
     library_path = Path(args.library_path).resolve()
     print(f"Library is {library_path}")
 
-    spice_library = SpiceLibrary(library_path, scan=args.scan)
+    # scan = args.search is not None or args.scan
+    scan = False
+    spice_library = SpiceLibrary(library_path, scan=scan)
 
     if args.delete_yaml:
         rc = input('Confirm deletion (y/n): ')
@@ -90,4 +105,11 @@ def main() -> None:
     if args.add_library:
         if args.category is None:
             print("A category is required")
+        raise NotImplementedError
 
+    if args.search:
+        print()
+        print(f'Results for "{args.search}":')
+        for name, path in spice_library.search(args.search).items():
+            path = path.relative_to(library_path)
+            print(f"  {name} {path}")
