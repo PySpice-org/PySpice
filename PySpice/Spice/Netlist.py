@@ -89,6 +89,7 @@ import os
 ####################################################################################################
 
 from PySpice.Tools.TextBuffer import TextBuffer
+# Fixme: circular import
 # from . import Library
 from .DeviceModel import DeviceModel
 from .Element import Pin, Element
@@ -96,6 +97,7 @@ from .StringTools import join_list, prefix_lines
 
 if TYPE_CHECKING:
     from .Simulator import Simulator
+    from . import Library
 
 ####################################################################################################
 
@@ -622,11 +624,10 @@ class Circuit(Netlist):
 
     ##############################################
 
-    # Fixme: circular import...
-    #  , Library.SubCircuit
-    def include(self, path: Union[Path, str], warn: bool = True) -> None:
+    def include(self, path: Union[Path, str, 'Library.SubCircuit'], warn: bool = True) -> None:
         """Include a file."""
         # Fixme: str(path) ?
+        # Fixme: circular import...
         from . import Library
         if isinstance(path, Library.Subcircuit):
             path = path.path
