@@ -622,12 +622,19 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def include(self, path):
+    # Fixme: circular import...
+    #  , Library.SubCircuit
+    def include(self, path: Union[Path, str], warn: bool = True) -> None:
         """Include a file."""
+        # Fixme: str(path) ?
+        from . import Library
+        if isinstance(path, Library.Subcircuit):
+            path = path.path
+        path = Path(path).resolve()
         if path not in self._includes:
             self._includes.append(path)
-        else:
-            self._logger.warn("Duplicated include")
+        elif warn:
+            self._logger.warn(f"Duplicated include {path}")
 
     ##############################################
 
@@ -676,9 +683,8 @@ class Circuit(Netlist):
             # ngspice don't like // in path, thus ensure we write real paths
             real_paths = []
             for path in self._includes:
-                path = Path(str(path)).resolve()
                 if simulator:
-                    path_flavour = Path(str(path) + '@' + simulator)
+                    path_flavour = path.parent.joinpath(f"{path.name}@{simulator}")
                     if path_flavour.exists():
                         path = path_flavour
                 real_paths.append(path)

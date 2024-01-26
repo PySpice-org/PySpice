@@ -21,16 +21,16 @@
 ####################################################################################################
 
 from pathlib import Path
-from typing import Iterator
+from typing import Iterable, Iterator
 
 import logging
 import os
 import pickle
 import re
 
-from .SpiceInclude import SpiceInclude
 from PySpice.Spice.Parser import Subcircuit, Model
 from PySpice.Tools import PathTools
+from .SpiceInclude import SpiceInclude, is_yaml
 
 ####################################################################################################
 
@@ -70,24 +70,37 @@ class SpiceLibrary:
 
     ##############################################
 
-    def __init__(self, root_path: str | Path, scan: bool = True) -> None:
+    def __init__(self, root_path: str | Path, scan: bool = False) -> None:
         self._path = PathTools.expand_path(root_path)
         if not self._path.exists():
             self._path.mkdir(parents=True)
             self._logger.info(f"Created {self._path}")
         self._subcircuits = {}
         self._models = {}
+        if not scan:
+            if self.has_db_path:
+                self.load()
+            else:
+                self._logger.info("Initialize library...")
+                scan = True
         if scan:
             self.scan()
             self.save()
-        else:
-            self.load()
 
     ##############################################
 
     @property
     def db_path(self) -> Path:
         return self._path.joinpath('db.pickle')
+
+    @property
+    def has_db_path(self) -> bool:
+        return self.db_path.exists()
+
+    ##############################################
+
+    def __bool__(self) -> bool:
+        return bool(self._subcircuits or self._models)
 
     ##############################################
 
@@ -114,13 +127,10 @@ class SpiceLibrary:
             pickle.dump(_, fh)
 
     def load(self) -> None:
-        if self.db_path.exists():
-            self._logger.info(f"Load {self.db_path}")
-            with open(self.db_path, 'rb') as fh:
-                _ = pickle.load(fh)
-                self.__setstate__(_)
-        else:
-            self._logger.warning("uninitialised library")
+        self._logger.info(f"Load {self.db_path}")
+        with open(self.db_path, 'rb') as fh:
+            _ = pickle.load(fh)
+            self.__setstate__(_)
 
     ##############################################
 
@@ -155,15 +165,17 @@ class SpiceLibrary:
     ##############################################
 
     def scan(self) -> None:
+        self._logger.info(f"Scan {self._path}...")
         for path in PathTools.walk(self._path):
-            extension = path.suffix.lower()
-            if extension in self.EXTENSIONS:
+            _ = path.suffix.lower()
+            if _ in self.EXTENSIONS:
                 self._handle_library(path)
 
     ##############################################
 
     def _handle_library(self, path: Path) -> None:
         spice_include = SpiceInclude(path)
+        # Fixme: check overwrite
         self._models.update({_.name: path for _ in spice_include.models})
         self._subcircuits.update({_.name: path for _ in spice_include.subcircuits})
 
@@ -171,24 +183,25 @@ class SpiceLibrary:
 
     def delete_yaml(self) -> None:
         for path in PathTools.walk(self._path):
-            extension = path.suffix.lower()
-            if extension == '.yaml':
+            if is_yaml(path):
                 self._logger.info(f"{NEWLINE}Delete {path}")
                 path.unlink()
 
     ##############################################
 
     def __getitem__(self, name: str) -> Subcircuit | Model:
-        if not (self._subcircuits or self._models):
+        if not self:
             self._logger.warning("Empty library")
         if name in self._subcircuits:
-            return self._subcircuits[name]
+            path = self._subcircuits[name]
         elif name in self._models:
-            return self._models[name]
+            path = self._models[name]
         else:
             # print('Library {} not found in {}'.format(name, self._path))
             # self._logger.warn('Library {} not found in {}'.format(name, self._path))
             raise KeyError(name)
+        # Fixme: lazy ???
+        return SpiceInclude(path)[name]
 
     ##############################################
 
@@ -214,14 +227,12 @@ class SpiceLibrary:
 
     # ##############################################
 
-    def search(self, regexp: str) -> dict[str, Subcircuit | Model]:
+    def search(self, regexp: str) -> Iterable[tuple[str, SpiceInclude]]:
         """ Return dict of all models/subcircuits with names matching regex. """
         regexp = re.compile(regexp)
-        matches = {}
         models_subcircuits = {**self._models, **self._subcircuits}
         if not models_subcircuits:
             self._logger.warning("Empty library")
         for name, _ in models_subcircuits.items():
             if regexp.search(name):
-                matches[name] = _
-        return matches
+                yield name, SpiceInclude(_)

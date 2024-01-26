@@ -18,10 +18,15 @@
 #
 ####################################################################################################
 
-__all__ = ['SpiceInclude']
+__all__ = [
+    'is_yaml',
+    'SpiceInclude',
+]
 
 ####################################################################################################
 
+from collections import namedtuple
+from datetime import datetime
 from pathlib import Path
 from typing import Iterator
 import hashlib
@@ -42,22 +47,43 @@ _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
+YAML_EXTENSION = '.yaml'
+
+def is_yaml(path: Path) -> bool:
+    _ = path.suffix.lower()
+    return _ == YAML_EXTENSION
+
+####################################################################################################
+
+Pin = namedtuple('Pin', ['index', 'name', 'internal_node'])
+
+####################################################################################################
+
 class Mixin:
 
     ##############################################
 
     @classmethod
-    def from_yaml(cls, data: dict) -> 'Mixin':
+    def from_yaml(cls, include: 'SpiceInclude', data: dict) -> 'Mixin':
         args = [data[_] for _ in ('name', 'description')]
-        return cls(*args)
+        return cls(include, *args)
 
     ##############################################
 
-    def __init__(self, name: str, description: str = '') -> None:
+    def __init__(self, include: 'SpiceInclude', name: str, description: str = '') -> None:
+        self._include = include
         self._name = name
         self._description = description
 
     ##############################################
+
+    @property
+    def include(self) -> 'SpiceInclude':
+        return self._include
+
+    @property
+    def path(self) -> Path:
+        return self._include.path
 
     @property
     def name(self) -> str:
@@ -82,14 +108,14 @@ class Model(Mixin):
     ##############################################
 
     @classmethod
-    def from_yaml(cls, data: dict) -> 'Model':
+    def from_yaml(cls, include: 'SpiceInclude', data: dict) -> 'Model':
         args = [data[_] for _ in ('name', 'type', 'description')]
-        return cls(*args)
+        return cls(include, *args)
 
     ##############################################
 
-    def __init__(self, name: str, type_: str, description: str = '') -> None:
-        super().__init__(name, description)
+    def __init__(self, include: 'SpiceInclude', name: str, type_: str, description: str = '') -> None:
+        super().__init__(include, name, description)
         self._type = type_
 
     ##############################################
@@ -112,6 +138,7 @@ class Model(Mixin):
 
 ####################################################################################################
 
+# Fixme: SubCircuit to be consistent with netlist
 class Subcircuit(Mixin):
 
     """
@@ -131,26 +158,75 @@ class Subcircuit(Mixin):
     ```
     """
 
+    _logger = _module_logger.getChild('Subcircuit')
+
     ##############################################
 
     @classmethod
-    def from_yaml(cls, data: dict) -> 'Subcircuit':
+    def from_yaml(cls, include: 'SpiceInclude', data: dict) -> 'Subcircuit':
         args = [data[_] for _ in ('name', 'nodes', 'description')]
-        return cls(*args)
+        return cls(include, *args)
 
     ##############################################
 
-    def __init__(self, name: str, nodes: list[str], description: str = '') -> None:
-        super().__init__(name, description)
-        self._nodes = nodes
+    def __init__(self, include: 'SpiceInclude', name: str, nodes: list[str], description: str = '') -> None:
+        super().__init__(include, name, description)
+        self._valid = False
+        self._nodes = []
+        self._pin_map = {}
+        self._parse_nodes(nodes)
 
     ##############################################
+
+    def _parse_nodes(self, nodes: list[str]) -> None:
+        self._valid = True
+        for index, node_str in enumerate(nodes):
+            internal_node = None
+            name = None
+            if isinstance(node_str, int):
+                internal_node = node_str
+            else:
+                node_str = node_str.strip()
+                i = node_str.find(' ')
+                if i >= 1:
+                    try:
+                        internal_node = int(node_str[:i])
+                    except ValueError:
+                        self._logger.error(f"Invalid pin format {node_str} for {self.name}")
+                    name = node_str[i:].strip()
+            if internal_node and name:
+                _ = Pin(index, name, internal_node)
+                self._nodes.append(_)
+                # Fixme: useful ?
+                # self._pin_map[internal_node] = _
+                self._pin_map[name] = _
+            else:
+                self._valid = False
+
+    ##############################################
+
+    def __repr__(self) -> str:
+        return f'Subcircuit {self._name} {self._nodes} "{self._description}"'
+
+    def __bool__(self) -> bool:
+        return self._valid
 
     def __len__(self) -> int:
         return len(self._nodes)
 
     def __iter__(self) -> Iterator[str]:
         return iter(self._nodes)
+
+    @property
+    def number_of_pins(self) -> int:
+        # Fixme: self._nodes ?
+        return len(self)
+
+    ##############################################
+
+    @property
+    def pin_names(self) -> list[str]:
+        return list(self._pin_map.keys())
 
     ##############################################
 
@@ -161,8 +237,16 @@ class Subcircuit(Mixin):
 
     ##############################################
 
-    def __repr__(self) -> str:
-        return f'Subcircuit {self._name} {self._nodes} "{self._description}"'
+    def map_nodes(self, **kwargs) -> list[str]:
+        # Fixme: if name is not valid python id ?
+        N = self.number_of_pins
+        if len(kwargs) != N:
+            raise NameError(f"wrong number of nodes {len(kwargs)} != {N}")
+        nodes = [None] * N
+        for name, node in kwargs.items():
+            pin = self._pin_map[name]
+            nodes[pin.index] = node
+        return nodes
 
 ####################################################################################################
 
@@ -175,21 +259,19 @@ class SpiceInclude:
     ##############################################
 
     def __init__(self, path: str | Path, rewrite_yaml: bool = False) -> None:
-        self._path = Path(path)
+        self._path = Path(path)   # .resolve()
         self._extension = None
 
         self._description = ''
         self._inner_includes = []
         self._inner_libraries = []
-        self._models = []
-        self._subcircuits = []
+        self._models = {}
+        self._subcircuits = {}
         self._digest = None
         self._recursive_digest = None
 
-        # Fixme:
-        # rewrite_yaml = True
         # Fixme: check still valid !
-        if not rewrite_yaml and self.yaml_path.exists():
+        if not rewrite_yaml and self.has_yaml:
             self.load_yaml()
             # self.dump()
         else:
@@ -219,16 +301,24 @@ class SpiceInclude:
         return self._extension
 
     @property
-    def mtime(self) -> float:
-        return self._path.stat().st_mtime
+    def mtime(self) -> datetime:
+        _ = self._path.stat().st_mtime
+        return datetime.fromtimestamp(_)
 
     @property
     def yaml_path(self) -> str:
-        return Path(str(self._path) + '.yaml')
+        # self._path.parent(f'{self._path.name}{YAML_EXTENSION}')
+        return self._path.with_suffix(YAML_EXTENSION)
+
+    @property
+    def has_yaml(self) -> bool:
+        return self.yaml_path.exists()
 
     @property
     def description(self) -> str:
         return self._description
+
+    ##############################################
 
     @property
     def inner_includes(self) -> Iterator[Path]:
@@ -238,13 +328,34 @@ class SpiceInclude:
     def inner_libraries(self) -> Iterator[Path]:
         return iter(self._inner_libraries)
 
+    ##############################################
+
     @property
     def subcircuits(self) -> Iterator[Subcircuit]:
-        return iter(self._subcircuits)
+        # Fixme: iter ?
+        return iter(self._subcircuits.values())
 
     @property
     def models(self) -> Iterator[Model]:
-        return iter(self._models)
+        return iter(self._models.values())
+
+    def __getitem__(self, name: str) -> Subcircuit | Model:
+        if name in self._subcircuits:
+            return self._subcircuits[name]
+        elif name in self._models:
+            return self._models[name]
+        else:
+            message = f"Library {self.path} contains:{NEWLINE}"
+            def add_line(item):
+                nonlocal message
+                message += f'    - {item}{NEWLINE}'
+            message += f"  Subcircuits:{NEWLINE}"
+            for _ in self._subcircuits:
+                add_line(_)
+            for _ in self._models:
+                add_line(_)
+            self._logger.error(message)
+            raise KeyError(name)
 
     ##############################################
 
@@ -259,13 +370,13 @@ class SpiceInclude:
         self._inner_libraries = [Path(str(_)) for _ in spice_file.libraries]
         for subcircuit in spice_file.subcircuits:
             # name = self._suffix_name(subcircuit.name)
-            _ = Subcircuit(subcircuit.name, subcircuit.nodes)
-            self._subcircuits.append(_)
+            _ = Subcircuit(self, subcircuit.name, subcircuit.nodes)
+            self._subcircuits[_.name] = _
         if spice_file.is_only_model:
             for model in spice_file.models:
                 # name = self._suffix_name(model.name)
-                _ = Model(model.name, model.type)
-                self._models.append(_)
+                _ = Model(self, model.name, model.type)
+                self._models[_.name] = _
 
     ##############################################
 
@@ -281,8 +392,7 @@ class SpiceInclude:
             data = {
                 # 'path': str(self._path),
                 'path': self._path.name,
-                # Fixme: float
-                'date': self.mtime,
+                'date': self.mtime.isoformat(),
                 'digest': self.digest,
                 'description': self._description,
             }
@@ -311,9 +421,11 @@ class SpiceInclude:
         data = self._read_yaml()
         self._description = data['description']
         if 'models' in data:
-            self._models = [Model.from_yaml(_) for _ in data['models']]
+            models = [Model.from_yaml(self, _) for _ in data['models']]
+            self._models = {_.name: _ for _ in models}
         if 'subcircuits' in data:
-            self._subcircuits = [Subcircuit.from_yaml(_) for _ in data['subcircuits']]
+            subcircuits = [Subcircuit.from_yaml(self, _) for _ in data['subcircuits']]
+            self._subcircuits = {_.name: _ for _ in subcircuits}
         if 'inner_libraries' in data:
             self._inner_includes = data['inner_includes']
         if 'inner_libraries' in data:

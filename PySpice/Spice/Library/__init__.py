@@ -18,6 +18,11 @@
 #
 ####################################################################################################
 
-__all__ = ['SpiceLibrary']
+__all__ = [
+    'SpiceLibrary',
+    'Model',
+    'Subcircuit',
+]
 
 from .Library import SpiceLibrary
+from .SpiceInclude import Model, Subcircuit

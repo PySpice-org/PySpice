@@ -30,7 +30,7 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Spice.Library import SpiceLibrary
+from PySpice.Spice.Library import SpiceLibrary, Model, Subcircuit
 
 ####################################################################################################
 
@@ -87,9 +87,7 @@ def main() -> None:
     library_path = Path(args.library_path).resolve()
     print(f"Library is {library_path}")
 
-    # scan = args.search is not None or args.scan
-    scan = False
-    spice_library = SpiceLibrary(library_path, scan=scan)
+    spice_library = SpiceLibrary(library_path, scan=args.scan)
 
     if args.delete_yaml:
         rc = input('Confirm deletion (y/n): ')
@@ -110,6 +108,18 @@ def main() -> None:
     if args.search:
         print()
         print(f'Results for "{args.search}":')
-        for name, path in spice_library.search(args.search).items():
-            path = path.relative_to(library_path)
-            print(f"  {name} {path}")
+        # list() to don't mix logging and print
+        for name, include in list(spice_library.search(args.search)):
+            path = include.path.relative_to(library_path)
+            print(' '*2 + f"{name} {path}")
+            indent = ' '*4
+            if include.description:
+                print(f"{indent}Library: {include.description}")
+            _ = include[name]
+            is_model = isinstance(_, Model)
+            if is_model:
+                print(f"{indent}Model: {_.name} — {_.description}")
+            else:
+                print(f"{indent}Subcircuit: {_.name} — {_.description}")
+                pins = ' '.join(_.pin_names)
+                print(f"{indent}Pins: {pins}")
