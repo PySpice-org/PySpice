@@ -375,6 +375,7 @@ class RawFileAbc:
         return SensitivityAnalysis(
             simulation=self.simulation,
             elements=self.elements(),
+            internal_parameters=self.internal_parameters(),
         )
 
     ##############################################
