@@ -29,19 +29,26 @@ from pathlib import Path
 
 ####################################################################################################
 
-def find(file_name, directories):
+def find(file_name: str, directories: list[str]) -> Path:
     # Fixme: bytes ???
-    if isinstance(directories, bytes):
-        directories = (directories,)
+    #  on Linux path are bytes, thus some files can be invalid utf8...
+    # if isinstance(directories, bytes):
+    #     directories = (directories,)
     for directory in directories:
-        for directory_path, _, file_names in os.walk(directory):
+        directory = Path(directory)
+        # for directory_path, _, file_names in os.walk(directory):
+        for directory_path, _, file_names in directory.walk():
+            directory_path = Path(directory_path)
             if file_name in file_names:
-                return os.path.join(directory_path, file_name)
-    raise NameError("File %s not found in directories %s" % (file_name, str(directories)))
+                return directory_path.joinpath(file_name)
+    raise NameError(f"File {file_name} not found in directories {directories}")
 
 ####################################################################################################
 
-def expand_path(path) -> Path:
+def expand_path(path: Path | str) -> Path:
+    # Substrings of the form $name or ${name} are replaced by the value of environment variable name.
+    # On Unix and Windows, return the argument with an initial component of ~ or ~user
+    # replaced by that user’s home directory.
     _ = os.path.expandvars(path)
     return Path(_).expanduser().absolute()
 

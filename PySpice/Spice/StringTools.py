@@ -28,25 +28,32 @@ __all__ = [
 
 ####################################################################################################
 
+from typing import Any, Iterable
 import os
 
 from .unit import str_spice
 
 ####################################################################################################
 
-def prefix_lines(items, prefix=''):
-    return [prefix + str(item)
-            for item in items
-            if item is not None]   # Fixme: and item
+NEWLINE = os.linesep
 
 ####################################################################################################
 
-def join_lines(items, prefix=''):
-    return os.linesep.join(prefix_lines(items, prefix))
+def prefix_lines(items: Iterable[Any], prefix: str = '') -> list[str]:
+    return [
+        prefix + str(item)
+        for item in items
+        if item is not None
+    ]   # Fixme: and item
 
 ####################################################################################################
 
-def join_list(items):
+def join_lines(items: Iterable[Any], prefix: str = '') -> str:
+    return NEWLINE.join(prefix_lines(items, prefix))
+
+####################################################################################################
+
+def join_list(items: Iterable[Any]) -> str:
     # return ' '.join([str_spice(item)
     #                  for item in items
     #                  if item is not None and str_spice(item)])
@@ -68,11 +75,13 @@ def join_list(items):
 #
 ####################################################################################################
 
-def join_dict(d):
+def join_dict(d: dict[str, Any]) -> str:
     # Fixme: remove trailing _ to key ???
-    return ' '.join([f'{key}={str_spice(value)}'
-                     for key, value in sorted(d.items())
-                     if value is not None])
+    return ' '.join([
+        f'{key}={str_spice(value)}'
+        for key, value in sorted(d.items())
+        if value is not None
+    ])
 
 ####################################################################################################
 
