@@ -82,6 +82,7 @@ __all__ = [
 ####################################################################################################
 
 from pathlib import Path
+import ctypes.util
 import logging
 import os
 import platform
@@ -429,6 +430,16 @@ class NgSpiceShared:
 
     ##############################################
 
+    @classmethod
+    def find_library(cls, name: str) -> str:
+        # name must not be prefixed by lib !
+        if name.startswith('lib'):
+            name = name[3:]
+        cls._logger.debug(f'Search library "{name}"')
+        return ctypes.util.find_library(name)
+
+    ##############################################
+
     _instances = {}
 
     @classmethod
@@ -484,17 +495,16 @@ class NgSpiceShared:
     def library_path(self):
         if self._library_path is None:
             if not self._ngspice_id:
-                library_prefix = ''
+                _ = ''
             else:
-                library_prefix = '{}'.format(self._ngspice_id)  # id =
-            library_path = self.LIBRARY_PATH.format(library_prefix)
+                _ = f'{self._ngspice_id}'   # id =
+            library_path = self.find_library(self.LIBRARY_PATH.format(_))
             self._library_path = library_path
         return self._library_path
 
     ##############################################
 
     def _load_library(self, verbose):
-
         if ConfigInstall.OS.on_windows:
             # https://sourceforge.net/p/ngspice/discussion/133842/thread/1cece652/#4e32/5ab8/9027
             # When environment variable SPICE_LIB_DIR is empty, ngspice looks in C:\Spice64\share\ngspice\scripts
