@@ -90,7 +90,7 @@ def update_git_sha(ctx):
         version = version.replace('-branched', '')
     else:
         version = tag
-    if not re.match('\d+(\.\d+(\.\d+)?)?', version):
+    if not re.match(r'\d+(\.\d+(\.\d+)?)?', version):
         raise ValueError('Invalid version {}'.format(version))
     result = ctx.run('git rev-parse HEAD', hide='out')
     sha = result.stdout.strip()
