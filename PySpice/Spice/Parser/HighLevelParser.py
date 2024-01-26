@@ -81,8 +81,8 @@ from typing import Generator, Iterator, Optional
 import logging
 import os
 
-from PySpice.Spice.Netlist import Node
-from PySpice.Tools.StringTools import remove_multi_space
+from ..Netlist import Node
+from ..StringTools import remove_multi_space
 from . import Ast
 from . import ElementData
 from .Ast import AstNode

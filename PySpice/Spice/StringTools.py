@@ -22,45 +22,22 @@ __all__ = [
     'join_dict',
     'join_lines',
     'join_list',
-    'str_spice',
-    'str_spice_list',
     'prefix_lines',
     'remove_multi_space',
-    'TextBufer',
 ]
 
 ####################################################################################################
 
 import os
 
-####################################################################################################
-
-from PySpice.Unit.Unit import UnitValue
-
-####################################################################################################
-
-def str_spice(obj, unit=True):
-    # Fixme: right place ???
-    '''Convert an object to a Spice compatible string.'''
-    if isinstance(obj, UnitValue):
-        if unit:
-            return obj.str_spice()
-        else:   # Fixme: ok ???
-            return obj.str(spice=False, space=False, unit=False)
-    else:
-        return str(obj)
-
-####################################################################################################
-
-def str_spice_list(*args):
-    return [str_spice(x) for x in args]
+from .unit import str_spice
 
 ####################################################################################################
 
 def prefix_lines(items, prefix=''):
     return [prefix + str(item)
             for item in items
-            if item is not None] # Fixme: and item
+            if item is not None]   # Fixme: and item
 
 ####################################################################################################
 
@@ -110,35 +87,3 @@ def remove_multi_space(txt: str) -> str:
         new_txt += c
         last_c = c
     return new_txt
-
-####################################################################################################
-
-class TextBuffer:
-
-    ##############################################
-
-    def __init__(self):
-        self._lines = []
-
-    ##############################################
-
-    def _append_line(self, line):
-        if line is not None:
-            _ = str(line)
-            if _:
-                self._lines.append(_)
-
-    ##############################################
-
-    def __iadd__(self, obj):
-        if isinstance(obj, (list, tuple)):
-            for _ in obj:
-                self._append_line(_)
-        else:
-            self._append_line(obj)
-        return self
-
-    ##############################################
-
-    def __str__(self):
-        return os.linesep.join(self._lines)

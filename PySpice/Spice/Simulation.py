@@ -33,7 +33,7 @@ import os
 
 ####################################################################################################
 
-from ..Tools.StringTools import join_list, join_dict, str_spice, TextBuffer
+from ..Tools.TextBuffer import TextBuffer
 from ..Unit import as_Degree, u_Degree
 from .AnalysisParameters import (
     ACAnalysisParameters,
@@ -48,6 +48,8 @@ from .AnalysisParameters import (
     TransferFunctionAnalysisParameters,
     TransientAnalysisParameters,
 )
+from .StringTools import join_list, join_dict
+from .unit import str_spice
 
 ####################################################################################################
 

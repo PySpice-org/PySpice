@@ -99,7 +99,6 @@ See Ngspice documentation for details.
 
 import logging
 
-from ..Tools.StringTools import str_spice, join_list, join_dict
 from ..Unit import U_m, U_s, U_A, U_V, U_Degree, U_Ω, U_F, U_H, U_Hz
 from .Element import (
     AnyPinElement,
@@ -124,6 +123,8 @@ from .ElementParameter import (
     IntKeyParameter,
     ModelPositionalParameter,
 )
+from .StringTools import join_list, join_dict
+from .unit import str_spice
 
 ####################################################################################################
 

@@ -87,9 +87,10 @@ import os
 
 ####################################################################################################
 
-from PySpice.Tools.StringTools import join_lines, join_list, prefix_lines, TextBuffer
+from PySpice.Tools.TextBuffer import TextBuffer
 from .DeviceModel import DeviceModel
 from .Element import Pin
+from .StringTools import join_list, prefix_lines
 
 ####################################################################################################
 

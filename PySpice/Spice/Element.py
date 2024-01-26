@@ -38,13 +38,13 @@ import logging
 
 ####################################################################################################
 
-from PySpice.Tools.StringTools import join_list
 from .ElementParameter import (
     ParameterDescriptor,
     PositionalElementParameter,
     FlagParameter, KeyValueParameter,
 )
 from .FakeDipole import FakeDipole
+from .StringTools import join_list
 
 ####################################################################################################
 
