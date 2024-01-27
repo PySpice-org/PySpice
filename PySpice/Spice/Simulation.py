@@ -680,13 +680,11 @@ class Simulation:
         else:
             _str = lambda x: str_spice(x, unit)
         netlist = TextBuffer()
-        # Fixme: wrong
-        if self.options:
-            for key, value in self._options.items():
-                if value is not None:
-                    netlist += f'.options {key} = {_str(value)}'
-                else:
-                    netlist += f'.options {key}'
+        for key, value in self._options.items():
+            _ = f'.options {key}'
+            if value is not None:
+                _ += f' = {_str(value)}'
+            netlist += _
         return netlist
 
     ##############################################
