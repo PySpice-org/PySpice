@@ -27,6 +27,7 @@ starting by a dot at the end of the desk.
 
 ####################################################################################################
 
+from typing import TYPE_CHECKING
 from datetime import datetime
 import logging
 import os
@@ -34,7 +35,9 @@ import os
 ####################################################################################################
 
 from ..Tools.TextBuffer import TextBuffer
+# pylint: disable=no-name-in-module
 from ..Unit import as_Degree, u_Degree
+# pylint: enable=no-name-in-module
 from .AnalysisParameters import (
     ACAnalysisParameters,
     AcSensitivityAnalysisParameters,
@@ -50,6 +53,10 @@ from .AnalysisParameters import (
 )
 from .StringTools import join_list, join_dict
 from .unit import str_spice
+
+if TYPE_CHECKING:
+    from .Netlist import Circuit
+    from .Simulator import Simulator
 
 ####################################################################################################
 
@@ -89,8 +96,7 @@ class Simulation:
 
     ##############################################
 
-    def __init__(self, simulator, circuit, **kwargs):
-
+    def __init__(self, simulator: 'Simulator', circuit: 'Circuit', **kwargs) -> None:
         self._simulator = simulator
         self._circuit = circuit
 
@@ -109,7 +115,7 @@ class Simulation:
 
     ##############################################
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict:
         # Pickle: get state
         state = self.__dict__.copy()
         # state['_simulator'] = self._simulator.__class__.__name__
@@ -119,7 +125,7 @@ class Simulation:
 
     ##############################################
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict) -> None:
         # Pickle: restore state
         self.__dict__.update(state)
         # Fixme: ok ??? duplicate simulator ???
@@ -129,25 +135,25 @@ class Simulation:
     ##############################################
 
     @property
-    def circuit(self):
+    def circuit(self) -> 'Circuit':
         return self._circuit
 
     @property
-    def simulator(self):
+    def simulator(self) -> 'Simulator':
         return self._simulator
 
     ##############################################
 
     @property
-    def simulator_name(self):
+    def simulator_name(self) -> str:
         return self._simulator.name
 
     @property
-    def simulator_version(self):
+    def simulator_version(self) -> str:
         return self._simulator.version
 
     @property
-    def simulation_date(self):
+    def simulation_date(self) -> str:
         return self._simulation_date
 
     @property
@@ -156,7 +162,7 @@ class Simulation:
 
     ##############################################
 
-    def options(self, *args, **kwargs):
+    def options(self, *args, **kwargs) -> None:
         for item in args:
             self._options[str(item)] = None
         for key, value in kwargs.items():
@@ -169,7 +175,7 @@ class Simulation:
         return self._options['TEMP']
 
     @temperature.setter
-    def temperature(self, value):
+    def temperature(self, value: float) -> None:
         self._options['TEMP'] = as_Degree(value)
 
     ##############################################
@@ -179,18 +185,18 @@ class Simulation:
         return self._options['TNOM']
 
     @nominal_temperature.setter
-    def nominal_temperature(self, value):
+    def nominal_temperature(self, value: float) -> None:
         self._options['TNOM'] = as_Degree(value)
 
     ##############################################
 
     @staticmethod
-    def _make_initial_condition_dict(kwargs):
+    def _make_initial_condition_dict(kwargs: dict) -> dict:
         return {f"V({key})": str_spice(value) for key, value in kwargs.items()}
 
     ##############################################
 
-    def initial_condition(self, **kwargs):
+    def initial_condition(self, **kwargs) -> None:
         """Set initial condition for voltage nodes.
 
         Usage::
@@ -229,7 +235,7 @@ class Simulation:
 
     ##############################################
 
-    def node_set(self, **kwargs):
+    def node_set(self, **kwargs) -> None:
         """Specify initial node voltage guesses.
 
         Usage::
@@ -254,10 +260,8 @@ class Simulation:
 
     ##############################################
 
-    def save(self, *args):
-
+    def save(self, *args) -> None:
         # Fixme: pass Node for voltage node, Element for source branch current, ...
-
         """Set the list of saved vectors.
 
         If no *.save* line is given, then the default set of vectors is saved (node voltages and
@@ -272,12 +276,11 @@ class Simulation:
         *all* to the additional vectors to be saved.
 
         """
-
         self._saved_nodes |= set(*args)
 
     ##############################################
 
-    def save_internal_parameters(self, *args):
+    def save_internal_parameters(self, *args) -> None:
         """This method is similar to`save` but assume *all*."""
         # Fixme: ok ???
         self.save(list(args) + ['all'])
@@ -290,7 +293,7 @@ class Simulation:
         return self._options.get('SAVECURRENTS', False)
 
     @save_currents.setter
-    def save_currents(self, value):
+    def save_currents(self, value) -> None:
         if value:
             self._options['SAVECURRENTS'] = True
         else:
@@ -298,7 +301,7 @@ class Simulation:
 
     ##############################################
 
-    def reset_analysis(self):
+    def reset_analysis(self) -> None:
         self._analyses.clear()
 
     ##############################################
@@ -310,24 +313,23 @@ class Simulation:
 
     ##############################################
 
-    def _add_analysis(self, analysis_parameters):
+    def _add_analysis(self, analysis_parameters) -> None:
         self._analyses[analysis_parameters.analysis_name] = analysis_parameters
 
     ##############################################
 
-    def _add_measure(self, measure_parameters):
+    def _add_measure(self, measure_parameters) -> None:
         self._measures.append(measure_parameters)
 
     ##############################################
 
-    def _impl_operating_point(self):
+    def _impl_operating_point(self) -> None:
         """Compute the operating point of the circuit with capacitors open and inductors shorted."""
         self._add_analysis(OperatingPointAnalysisParameters())
 
     ##############################################
 
-    def _impl_dc_sensitivity(self, output_variable):
-
+    def _impl_dc_sensitivity(self, output_variable) -> None:
         """Compute the sensitivity of the DC operating point of a node voltage or voltage-source
         branch current to all non-zero device parameters.
 
@@ -349,13 +351,11 @@ class Simulation:
             .sens I(VTEST)
 
         """
-
         self._add_analysis(DcSensitivityAnalysisParameters(output_variable))
 
     ##############################################
 
-    def _impl_ac_sensitivity(self, output_variable, variation, number_of_points, start_frequency, stop_frequency):
-
+    def _impl_ac_sensitivity(self, output_variable, variation, number_of_points, start_frequency, stop_frequency) -> None:
         """Compute the sensitivity of the AC values of a node voltage or voltage-source branch
         current to all non-zero device parameters.
 
@@ -378,7 +378,6 @@ class Simulation:
             .sens V(OUT) AC DEC 10 100 100 k
 
         """
-
         self._add_analysis(
             AcSensitivityAnalysisParameters(
                 output_variable,
@@ -387,8 +386,7 @@ class Simulation:
 
     ##############################################
 
-    def _impl_dc(self, **kwargs):
-
+    def _impl_dc(self, **kwargs) -> None:
         """Compute the DC transfer fonction of the circuit with capacitors open and inductors shorted.
 
         Examples of usage::
@@ -422,15 +420,12 @@ class Simulation:
             .dc TEMP -15 75 5
 
         """
-
         self._add_analysis(DCAnalysisParameters(**kwargs))
 
     ##############################################
 
-    def _impl_ac(self, variation, number_of_points, start_frequency, stop_frequency):
-
+    def _impl_ac(self, variation, number_of_points, start_frequency, stop_frequency) -> None:
         # fixme: concise keyword ?
-
         """Perform a small-signal AC analysis of the circuit where all non-linear devices are linearized
         around their actual DC operating point.
 
@@ -454,7 +449,6 @@ class Simulation:
         The parameter *variation* must be either `dec`, `oct` or `lin`.
 
         """
-
         self._add_analysis(
             ACAnalysisParameters(
                 variation, number_of_points, start_frequency, stop_frequency
@@ -462,8 +456,7 @@ class Simulation:
 
     ##############################################
 
-    def _impl_measure(self, analysis_type, name, *args):
-
+    def _impl_measure(self, analysis_type, name, *args) -> None:
         """Add a measure in the circuit.
 
         Examples of usage::
@@ -480,13 +473,18 @@ class Simulation:
             .meas tran tdiff TRIG AT=0m TARG v(n1) VAL=75.0 CROSS=1
 
         """
-
         self._add_measure(MeasureParameters(analysis_type, name, *args))
 
     ##############################################
 
-    def _impl_transient(self, step_time, end_time, start_time=0, max_time=None, use_initial_condition=False):
-
+    def _impl_transient(
+        self,
+        step_time,
+        end_time,
+        start_time=0,
+        max_time=None,
+        use_initial_condition=False,
+    ) -> None:
         """Perform a transient analysis of the circuit.
 
         Examples of usage::
@@ -510,8 +508,7 @@ class Simulation:
 
     ##############################################
 
-    def _impl_polezero(self, node1, node2, node3, node4, tf_type, pz_type):
-
+    def _impl_polezero(self, node1, node2, node3, node4, tf_type, pz_type) -> None:
         """Perform a Pole-Zero analysis of the circuit.
 
         node1, node2 - Input node pair.
@@ -542,21 +539,28 @@ class Simulation:
             .pz 4 1 4 1 cur pz
 
         """
-
         # do some rudimentary parameter checking.
         if tf_type not in ('cur', 'vol'):
             raise NameError("polezero type must be 'cur' or 'vol'")
         if pz_type not in ('pol', 'zer', 'pz'):
             raise NameError("pz_type must be 'pol' or 'zer' or 'pz'")
-
         self._add_analysis(
             PoleZeroAnalysisParameters(node1, node2, node3, node4, tf_type, pz_type)
         )
 
     ##############################################
 
-    def _impl_noise(self, output_node, ref_node, src, variation, points, start_frequency, stop_frequency, points_per_summary=None):
-
+    def _impl_noise(
+        self,
+        output_node,
+        ref_node,
+        src,
+        variation,
+        points,
+        start_frequency,
+        stop_frequency,
+        points_per_summary=None,
+    ):
         """Perform a Pole-Zero analysis of the circuit.
 
         output_node, ref_node - output node pair.
@@ -583,22 +587,18 @@ class Simulation:
             .noise v(5 ,3) V1 oct 8 1.0 1.0 e6 1
 
         """
-
         # do some rudimentary parameter checking.
         # Fixme: mixin
         if variation not in ('dec', 'lin', 'oct'):
             raise NameError("variation must be 'dec' or 'lin' or 'oct'")
-
         output = f'V({output_node}, {ref_node})'
-
         self._add_analysis(
             NoiseAnalysisParameters(output, src, variation, points, start_frequency, stop_frequency, points_per_summary)
         )
 
     ##############################################
 
-    def _impl_transfer_function(self, outvar, insrc):
-
+    def _impl_transfer_function(self, outvar, insrc) -> None:
         """The python arguments to this function should be two strings, outvar and insrc.
 
         ngspice documentation as follows:
@@ -624,15 +624,13 @@ class Simulation:
         and the small signal output resistance measured across nodes 5 and 3
 
         """
-
         self._add_analysis(
             TransferFunctionAnalysisParameters(outvar, insrc)
         )
 
     ##############################################
 
-    def _impl_distortion(self, variation, points, start_frequency, stop_frequency, f2overf1=None):
-
+    def _impl_distortion(self, variation, points, start_frequency, stop_frequency, f2overf1=None) -> None:
         """Perform a distortion analysis of the circuit.
 
         variation, points, start_frequency, stop_frequency - typical ac range parameters.
@@ -666,24 +664,23 @@ class Simulation:
               .disto dec 10 1kHz 100 MEG 0.9
 
         """
-
         # do some rudimentary parameter checking.
         if variation not in ('dec', 'lin', 'oct'):
             raise NameError("variation must be 'dec' or 'lin' or 'oct'")
-
         self._add_analysis(
             DistortionAnalysisParameters(variation, points, start_frequency, stop_frequency, f2overf1)
         )
 
     ##############################################
 
-    def str_options(self, unit=True):
+    def str_options(self, unit: bool = True) -> str:
         # Fixme: use cls settings ???
         if unit:
             _str = str_spice
         else:
             _str = lambda x: str_spice(x, unit)
         netlist = TextBuffer()
+        # Fixme: wrong
         if self.options:
             for key, value in self._options.items():
                 if value is not None:
@@ -694,12 +691,12 @@ class Simulation:
 
     ##############################################
 
-    def str_netlist(self):
+    def str_netlist(self) -> str:
         return self._circuit.str(simulator=self.simulator.SIMULATOR)
 
     ##############################################
 
-    def str_simulation(self):
+    def str_simulation(self) -> str:
         lines = self.str_options()
         if self._initial_condition:
             lines += '.ic ' + join_dict(self._initial_condition)
@@ -724,15 +721,13 @@ class Simulation:
 
     ##############################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.str_netlist() + self.str_simulation()
 
     ##############################################
 
     def _run(self, analysis_method, *args, **kwargs):
-
         # Trick to execute code before/after the analysis implementation
-
         log_desk = kwargs.pop('log_desk', None)
         run = kwargs.pop('run', True)
 
@@ -759,7 +754,7 @@ class Simulation:
             self._simulation_duration = datetime.now() - self._simulation_date
             return _
 
-        ##############################################
+####################################################################################################
 
 # Register analysis wrappers and shortcuts s in Simulation
 

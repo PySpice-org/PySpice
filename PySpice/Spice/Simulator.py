@@ -28,12 +28,16 @@ __all__ = ['Simulator']
 
 ####################################################################################################
 
+from typing import TYPE_CHECKING
 import logging
 
 ####################################################################################################
 
 from ..Config import ConfigInstall
 from .Simulation import Simulation
+
+if TYPE_CHECKING:
+    from .Netlist import Circuit
 
 ####################################################################################################
 
@@ -75,8 +79,7 @@ class Simulator:
     ##############################################
 
     @classmethod
-    def factory(cls, *args, **kwargs):
-
+    def factory(cls, *args, **kwargs) -> 'Simulator':
         """Factory to instantiate a simulator.
 
         By default, it instantiates the simulator defined in :obj:`DEFAULT_SIMULATOR`, however you
@@ -126,13 +129,13 @@ class Simulator:
 
     ##############################################
 
-    def __getstate__(self):
+    def __getstate__(self) -> str:
         # Pickle: protection for cffi
         return self.__class__.__name__
 
     ##############################################
 
-    def simulation(self, circuit, **kwargs):
+    def simulation(self, circuit: 'Circuit', **kwargs) -> 'Simulation':
         """Create a new simulation for the circuit.
 
         Return a :obj:`PySpice.Spice.Simulation` instance`
@@ -144,21 +147,20 @@ class Simulator:
     ##############################################
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._AS_SIMULATOR
 
     @property
-    def version(self):
+    def version(self) -> str:
         raise NotImplementedError
 
     ##############################################
 
-    def customise(self, simulation):
+    def customise(self, simulation: Simulation) -> None:
         """Customise the simulation"""
-        pass
 
     ##############################################
 
-    def run(self, simulation):
+    def run(self, simulation: Simulation) -> None:
         """Run the simulation and return the waveforms."""
         raise NotImplementedError
