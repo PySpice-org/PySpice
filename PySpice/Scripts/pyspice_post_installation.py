@@ -31,6 +31,7 @@ import os
 import shutil
 import sys
 import tempfile
+import re
 
 import requests
 
@@ -252,8 +253,10 @@ class PySpicePostInstallation:
         print(rule)
         print(content)
         print(rule)
-        cm_path = spice64_path.joinpath('lib', 'ngspice')
-        content = content.replace('../lib/ngspice/', str(cm_path) + '/')
+        content = re.sub(r'^(\s*codemodel\s*).*[\\\/](.*)$',
+                         lambda x: "{} '{}'".format(x.group(1), spice64_path.joinpath('lib', 'ngspice', x.group(2))),
+                         content,
+                         flags=re.MULTILINE)
         print(rule)
         print(content)
         print(rule)

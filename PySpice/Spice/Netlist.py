@@ -1236,7 +1236,7 @@ class Circuit(Netlist):
                         path = path_flavour
                 real_paths.append(path)
 
-            return join_lines(real_paths, prefix='.include ') + os.linesep
+            return join_lines([f"'{p}'" for p in real_paths], prefix='.include ') + os.linesep
         else:
             return ''
 
