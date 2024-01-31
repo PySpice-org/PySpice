@@ -623,6 +623,12 @@ class NgSpiceShared:
             # elif content.startswith('Warning:'):
             else:
                 self._error_in_stderr = True
+                # Non-standard convergence trials are reported to stderr
+                # but can complete successfully
+                completed = ("completed" in content) or ("finished" in content)
+                if content.startswith("Note:") and completed:
+                    self._error_in_stderr = False
+
                 func = self._logger.error
                 if content.strip() == "Note: can't find init file.":
                     self._spinit_not_found = True
