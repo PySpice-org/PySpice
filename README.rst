@@ -48,7 +48,7 @@
 .. _CFFI: http://cffi.readthedocs.org/en/latest/
 .. _Circuit_macros: http://ece.uwaterloo.ca/~aplevich/Circuit_macros
 .. _IPython: http://ipython.org
-.. _Kicad: http://www.kicad-pcb.org
+.. _Kicad: http://www.kicad.org
 .. _Matplotlib: http://matplotlib.org
 .. _Modelica: http://www.modelica.org
 .. _Ngspice: http://ngspice.sourceforge.net
