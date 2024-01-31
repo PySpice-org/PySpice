@@ -262,28 +262,31 @@ class Plot(dict):
 
     ##############################################
 
-    def to_analysis(self):
+    def to_analysis(self, measurements={}):
 
         if self.plot_name.startswith('op'):
-            return self._to_operating_point_analysis()
+            analysis = self._to_operating_point_analysis()
         elif self.plot_name.startswith('sens'):
-            return self._to_sensitivity_analysis()
+            analysis = self._to_sensitivity_analysis()
         elif self.plot_name.startswith('dc'):
-            return self._to_dc_analysis()
+            analysis = self._to_dc_analysis()
         elif self.plot_name.startswith('ac'):
-            return self._to_ac_analysis()
+            analysis = self._to_ac_analysis()
         elif self.plot_name.startswith('tran'):
-            return self._to_transient_analysis()
+            analysis = self._to_transient_analysis()
         elif self.plot_name.startswith('disto'):
-            return self._to_distortion_analysis()
+            analysis = self._to_distortion_analysis()
         elif self.plot_name.startswith('noise'):
-            return self._to_noise_analysis()
+            analysis = self._to_noise_analysis()
         elif self.plot_name.startswith('pz'):
-            return self._to_polezero_analysis()
+            analysis = self._to_polezero_analysis()
         elif self.plot_name.startswith('tf'):
-            return self._to_transfer_function_analysis()
+            analysis = self._to_transfer_function_analysis()
         else:
             raise NotImplementedError("Unsupported plot name {}".format(self.plot_name))
+        
+        analysis.measurements = measurements
+        return analysis
 
     ##############################################
 
@@ -1189,12 +1192,29 @@ class NgSpiceShared:
         #  in the background thread and wait until the simulation is done
 
         command = 'bg_run' if background else 'run'
-        self.exec_command(command)
+        results = self.exec_command(command)
 
         if background:
             self._is_running = True
         else:
             self._logger.debug("Simulation is done")
+
+        # Parse out measurement results
+        results = results if isinstance(results, list) else results.splitlines()
+        measurements = {}
+        meas_start_index = 0
+        meas_end_index = 0
+        for line in results:
+            if line.startswith('Measurements'):
+                meas_start_index = results.index(line) + 1
+            elif meas_start_index and '=' in line:
+                meas_end_index = results.index(line) + 1
+        if meas_start_index and meas_end_index:
+            for line in results[meas_start_index:meas_end_index]:
+                # Extract each measurement result as a k,v pair
+                [k, _, v, *_] = line.split()
+                measurements[k] = float(v)
+        return measurements
 
         # time.sleep(.1) # required before to test if the simulation is running
         # while (self._ngspice_shared.ngSpice_running()):
