@@ -29,7 +29,7 @@ import os
 
 ####################################################################################################
 
-from PySpice.Unit import u_Degree, u_V, u_A, u_s, u_Hz
+from PySpice.Unit import u_c, u_v, u_a, u_s, u_hz
 
 ####################################################################################################
 
@@ -191,9 +191,9 @@ class RawFileAbc:
 
     _name_to_unit = {
         'time': u_s,
-        'voltage': u_V,
-        'current': u_A,
-        'frequency': u_Hz,
+        'voltage': u_v,
+        'current': u_a,
+        'frequency': u_hz,
     }
 
     ##############################################
@@ -232,6 +232,8 @@ class RawFileAbc:
         """
 
         line = self._read_line(header_line_iterator)
+        while not line.startswith(expected_label):
+            line = self._read_line(header_line_iterator)
         self._logger.debug(line)
         if has_value:
             # a title can have ': ' after 'title: '
@@ -258,8 +260,8 @@ class RawFileAbc:
         if pos1 != -1 and pos2 != -1:
             part1 = line[pos1+len(pattern1):pos2]
             part2 = line[pos2+len(pattern2):].strip()
-            temperature = u_Degree(float(part1))
-            nominal_temperature = u_Degree(float(part2))
+            temperature = u_c(float(part1))
+            nominal_temperature = u_c(float(part2))
         else:
             temperature = None
             nominal_temperature = None
@@ -294,7 +296,10 @@ class RawFileAbc:
         else:
             raise NotImplementedError
 
-        input_data = np.fromstring(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
+        input_data = np.frombuffer(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
+        if len(input_data) != number_of_columns*self.number_of_points:
+            self.number_of_points = len(input_data)//number_of_columns
+            input_data = input_data[:number_of_columns*self.number_of_points]
         input_data = input_data.reshape((self.number_of_points, number_of_columns))
         input_data = input_data.transpose()
         # np.savetxt('raw.txt', input_data)

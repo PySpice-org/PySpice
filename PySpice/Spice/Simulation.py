@@ -30,7 +30,7 @@ import os
 
 from ..Config import ConfigInstall
 from ..Tools.StringTools import join_list, join_dict, str_spice
-from ..Unit import Unit, as_V, as_A, as_s, as_Hz, as_Degree, u_Degree
+from ..Unit import Unit, as_v, as_a, as_s, as_Hz, as_c, u_c
 
 ####################################################################################################
 
@@ -159,10 +159,16 @@ class DCAnalysisParameters(AnalysisParameters):
     def __init__(self, **kwargs):
 
         self._parameters = []
-        for variable, value_slice in kwargs.items():
+        for variable, value in kwargs.items():
             variable_lower = variable.lower()
+
             if variable_lower[0] in ('v', 'i', 'r') or variable_lower == 'temp':
-                self._parameters += [variable, value_slice.start, value_slice.stop, value_slice.step]
+                try:
+                    iter(value)
+                    self._parameters += [variable, 'LIST'] + [val for val in value]
+                except TypeError:
+                    self._parameters += [variable, value.start, value.stop, value.step]
+
             else:
                 raise NameError('Sweep variable must be a voltage/current source, '
                                 'a resistor or the circuit temperature')
@@ -238,13 +244,19 @@ class TransientAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, step_time, end_time, start_time=0, max_time=None, use_initial_condition=False):
+    def __init__(self, step_time, end_time, start_time=0, max_time=None,
+                 use_initial_condition=False):
+
+        if use_initial_condition:
+            uic = 'uic'
+        else:
+            uic = None
 
         self._step_time = as_s(step_time)
         self._end_time = as_s(end_time)
         self._start_time = as_s(start_time)
         self._max_time = as_s(max_time, none=True)
-        self._use_initial_condition = use_initial_condition
+        self._use_initial_condition = uic
 
     ##############################################
 
@@ -276,7 +288,7 @@ class TransientAnalysisParameters(AnalysisParameters):
             self._end_time,
             self._start_time,
             self._max_time,
-            'uic' if self._use_initial_condition else None,
+            self._use_initial_condition,
         )
 
 ####################################################################################################
@@ -536,8 +548,8 @@ class CircuitSimulation:
         self._saved_nodes = set()
         self._analyses = {}
 
-        self.temperature = kwargs.get('temperature', u_Degree(27))
-        self.nominal_temperature = kwargs.get('nominal_temperature', u_Degree(27))
+        self.temperature = kwargs.get('temperature', u_c(27))
+        self.nominal_temperature = kwargs.get('nominal_temperature', u_c(27))
 
     ##############################################
 
@@ -561,7 +573,7 @@ class CircuitSimulation:
 
     @temperature.setter
     def temperature(self, value):
-        self._options['TEMP'] = as_Degree(value)
+        self._options['TEMP'] = as_c(value)
 
     ##############################################
 
@@ -571,7 +583,7 @@ class CircuitSimulation:
 
     @nominal_temperature.setter
     def nominal_temperature(self, value):
-        self._options['TNOM'] = as_Degree(value)
+        self._options['TNOM'] = as_c(value)
 
     ##############################################
 
@@ -664,7 +676,7 @@ class CircuitSimulation:
 
         """
 
-        self._saved_nodes |= set(*args)
+        self._saved_nodes.update(args)
 
     ##############################################
 
@@ -1085,24 +1097,35 @@ class CircuitSimulation:
 
     ##############################################
 
+    def save_str(self):
+        result = ""
+        if self._saved_nodes:
+            # Place 'all' first
+            saved_nodes = set(self._saved_nodes)
+            if 'all' in saved_nodes:
+                all_str = ' all'
+                saved_nodes.remove('all')
+            else:
+                all_str = ''
+            result += '.save' + all_str
+            if saved_nodes:
+                result += ' ' + join_list(saved_nodes)
+            result += os.linesep
+        return result
+
+    ##############################################
+
     def __str__(self):
 
-        netlist = self._circuit.str(simulator=self.SIMULATOR)
+        netlist = self._circuit.str(spice_sim=self.SIMULATOR)
         netlist += self.str_options()
         if self._initial_condition:
             netlist += '.ic ' + join_dict(self._initial_condition) + os.linesep
         if self._node_set:
             netlist += '.nodeset ' + join_dict(self._node_set) + os.linesep
 
-        if self._saved_nodes:
-            # Place 'all' first
-            saved_nodes = self._saved_nodes
-            if 'all' in saved_nodes:
-                all_str = 'all '
-                saved_nodes.remove('all')
-            else:
-                all_str = ''
-            netlist += '.save ' + all_str + join_list(saved_nodes) + os.linesep
+        netlist += self.save_str()
+
         for measure_parameters in self._measures:
             netlist += str(measure_parameters) + os.linesep
         for analysis_parameters in self._analyses.values():

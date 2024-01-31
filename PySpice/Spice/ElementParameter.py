@@ -24,8 +24,10 @@
 
 ####################################################################################################
 
-from ..Unit import Unit
+from ..Unit.Unit import UnitValue, PrefixedUnit
 from ..Tools.StringTools import str_spice
+from .Expressions import Expression, Symbol
+from .EBNFExpressionParser import ExpressionParser
 
 ####################################################################################################
 
@@ -49,6 +51,7 @@ class ParameterDescriptor:
 
         self._default_value = default
         self._attribute_name = None
+        self._unit = None
 
     ##############################################
 
@@ -76,7 +79,7 @@ class ParameterDescriptor:
     ##############################################
 
     def __set__(self, instance, value):
-        setattr(instance, '_' + self._attribute_name, value)
+        setattr(instance, '_' + self._attribute_name, self.validate(value))
 
     ##############################################
 
@@ -108,6 +111,27 @@ class ParameterDescriptor:
 
     def __lt__(self, other):
         return self._attribute_name < other.attribute_name
+
+    def _validate_float(self, value):
+        if self._unit is None:
+            return float(value)
+        if isinstance(value, type(self._unit)):
+            return value
+        if type(value) is str:
+            value = ExpressionParser.parse(value)
+        if isinstance(value, Symbol):
+            if type(value.value) is str:
+                return value
+            value = value.value
+        if isinstance(value, Expression):
+            return value
+        if isinstance(value, UnitValue):
+            if value.prefixed_unit.is_unit_less:
+                unit = PrefixedUnit(self._unit.unit, value.prefixed_unit.power)
+                return unit.new_value(value.value)
+            elif value.prefixed_unit.unit == self._unit.unit:
+                return value
+        return self._unit.new_value(value)
 
 ####################################################################################################
 
@@ -147,7 +171,14 @@ class PositionalElementParameter(ParameterDescriptor):
     ##############################################
 
     def to_str(self, instance):
-        return str_spice(self.__get__(instance))
+
+        if bool(self):
+            value = self.__get__(instance)
+            if isinstance(value, Expression):
+                return '{%s}' % value
+            return str_spice(value)
+        else:
+            return ''
 
     ##############################################
 
@@ -174,7 +205,9 @@ class ExpressionPositionalParameter(PositionalElementParameter):
     ##############################################
 
     def validate(self, value):
-        return str(value)
+        if isinstance(value, Expression):
+            return value
+        return ExpressionParser.parse(value)
 
 ####################################################################################################
 
@@ -192,11 +225,7 @@ class FloatPositionalParameter(PositionalElementParameter):
     ##############################################
 
     def validate(self, value):
-
-        if isinstance(value, Unit):
-            return value
-        else:
-            return Unit(value)
+        return self._validate_float(value)
 
 ####################################################################################################
 
@@ -295,7 +324,10 @@ class KeyValueParameter(ParameterDescriptor):
     def to_str(self, instance):
 
         if bool(self):
-            return '{}={}'.format(self.spice_name, self.str_value(instance))
+            value = self.str_value(instance)
+            if isinstance(value, Expression):
+                value = '{%s}' % value
+            return '{}={}'.format(self.spice_name, value)
         else:
             return ''
 
@@ -328,7 +360,9 @@ class ExpressionKeyParameter(KeyValueParameter):
     ##############################################
 
     def validate(self, value):
-        return str(value)
+        if isinstance(value, Expression):
+            return value
+        return ExpressionParser.parse(value)
 
 ####################################################################################################
 
@@ -346,7 +380,7 @@ class FloatKeyParameter(KeyValueParameter):
     ##############################################
 
     def validate(self, value):
-        return float(value)
+        return self._validate_float(value)
 
 ####################################################################################################
 
@@ -359,7 +393,7 @@ class FloatPairKeyParameter(KeyValueParameter):
     def validate(self, pair):
 
         if len(pair) == 2:
-            return (float(pair[0]), float(pair[1]))
+            return (self._validate_float(pair[0]), self._validate_float(pair[1]))
         else:
             raise ValueError()
 
@@ -379,7 +413,7 @@ class FloatTripletKeyParameter(FloatPairKeyParameter):
     def validate(self, uplet):
 
         if len(uplet) == 3:
-            return (float(uplet[0]), float(uplet[1]), float(uplet[2]))
+            return (self._validate_float(uplet[0]), self._validate_float(uplet[1]), self._validate_float(uplet[2]))
         else:
             raise ValueError()
 

@@ -1,0 +1,864 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="1804d78b-c9b9-4d25-9b12-131150c47c29" name="Default Changelist" comment="Modified RawFile reader to access directly with numpy to the file to read the raw data, and also accept unfinished simulations.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="JupyterTrust" id="c016df11-26bb-4f2f-a200-6f472eec9f5c" />
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="1ZtKK2rgvLcyPSH3NkTAGB4utwa" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/Users/chema/Workspace/PySpice/unit-test/Spice",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "Errors",
+    "two.files.diff.last.used.file": "/Users/chema/Workspace/PySpice/unit-test/Spice/mosdriver.lib",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/unit-test/Spice" />
+      <recent name="$PROJECT_DIR$/PySpice/Spice" />
+      <recent name="$PROJECT_DIR$/unit-test/Unit" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/unit-test/SpiceParser" />
+      <recent name="$PROJECT_DIR$/unit-test/Spice" />
+      <recent name="$PROJECT_DIR$/PySpice/Spice" />
+    </key>
+  </component>
+  <component name="RunManager" selected="tox.unittests">
+    <configuration name="unittests" type="Tox" factoryName="Tox">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="SDK_NAME" value="Python 3.10 (PySpice)" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <arguments>
+        <array>
+          <option value="tox.ini" />
+        </array>
+      </arguments>
+      <runOnlyEnvs>
+        <array />
+      </runOnlyEnvs>
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests Math" type="tests" factoryName="Nosetests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test/Spice" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Math&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests Probe" type="tests" factoryName="Nosetests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test/Spice" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Probe&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests Spice" type="tests" factoryName="Nosetests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test/Spice" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Spice&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests Unit" type="tests" factoryName="Nosetests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test/Unit" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Unit&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests for test_Netlist.TestCircuit.test_raw_spice" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test/Spice" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_Netlist.TestCircuit.test_raw_spice&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests for test_SpiceParser.TestSpiceParser" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test/Spice" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_SpiceParser.TestSpiceParser&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests for test_SpiceParser.TestSpiceParser.test_library" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test/Spice" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_SpiceParser.TestSpiceParser.test_library&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests for test_SpiceParser.TestSpiceParser.test_parser" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test/Spice" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_SpiceParser.TestSpiceParser.test_parser&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests for test_SpiceParser.TestSpiceParser.test_working_dir" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test/Spice" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_SpiceParser.TestSpiceParser.test_working_dir&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests in test_Expression.py" type="tests" factoryName="Nosetests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test/Spice" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Spice/test_Expressions.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Nosetests todo" type="tests" factoryName="Nosetests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit-test-todo" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test-todo&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in Math" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Math&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in Probe" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Probe&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in Spice" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Spice&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in SpiceParser" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/SpiceParser&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in Unit" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test/Unit&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in todo" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test-todo&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests" type="tests" factoryName="Unittests">
+      <module name="PySpice" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_pattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/unit-test&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python tests.Nosetests Math" />
+      <item itemvalue="Python tests.Nosetests Probe" />
+      <item itemvalue="Python tests.Nosetests Unit" />
+      <item itemvalue="Python tests.Nosetests Spice" />
+      <item itemvalue="Python tests.Nosetests todo" />
+      <item itemvalue="Python tests.Unittests in Math" />
+      <item itemvalue="Python tests.Unittests in Probe" />
+      <item itemvalue="Python tests.Unittests in Spice" />
+      <item itemvalue="Python tests.Unittests" />
+      <item itemvalue="Python tests.Unittests in SpiceParser" />
+      <item itemvalue="Python tests.Unittests in Unit" />
+      <item itemvalue="Python tests.Unittests in todo" />
+      <item itemvalue="Python tests.Nosetests in test_Expression.py" />
+      <item itemvalue="Python tests.Nosetests for test_SpiceParser.TestSpiceParser.test_parser" />
+      <item itemvalue="Python tests.Nosetests for test_SpiceParser.TestSpiceParser" />
+      <item itemvalue="Python tests.Nosetests for test_Netlist.TestCircuit.test_raw_spice" />
+      <item itemvalue="Python tests.Nosetests for test_SpiceParser.TestSpiceParser.test_library" />
+      <item itemvalue="Python tests.Nosetests for test_SpiceParser.TestSpiceParser.test_working_dir" />
+      <item itemvalue="tox.unittests" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python tests.Nosetests for test_SpiceParser.TestSpiceParser.test_working_dir" />
+        <item itemvalue="Python tests.Nosetests for test_SpiceParser.TestSpiceParser.test_library" />
+        <item itemvalue="Python tests.Nosetests for test_Netlist.TestCircuit.test_raw_spice" />
+        <item itemvalue="Python tests.Nosetests for test_SpiceParser.TestSpiceParser.test_parser" />
+        <item itemvalue="Python tests.Nosetests for test_SpiceParser.TestSpiceParser" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1804d78b-c9b9-4d25-9b12-131150c47c29" name="Default Changelist" comment="" />
+      <created>1585652882548</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1585652882548</updated>
+      <workItem from="1588073571925" duration="783000" />
+      <workItem from="1588662711278" duration="258000" />
+      <workItem from="1614700988785" duration="745000" />
+      <workItem from="1618249017920" duration="23000" />
+      <workItem from="1618249062322" duration="161000" />
+      <workItem from="1618249308196" duration="143000" />
+      <workItem from="1618900390273" duration="1713000" />
+      <workItem from="1618931044352" duration="9358000" />
+      <workItem from="1618987016648" duration="7614000" />
+      <workItem from="1619011989538" duration="10299000" />
+      <workItem from="1619342656993" duration="136000" />
+      <workItem from="1619345032275" duration="42743000" />
+      <workItem from="1619437565130" duration="8518000" />
+      <workItem from="1620151515050" duration="478000" />
+      <workItem from="1620403255297" duration="2216000" />
+      <workItem from="1621082774664" duration="5000" />
+      <workItem from="1621095856733" duration="60996000" />
+      <workItem from="1621316354644" duration="23003000" />
+      <workItem from="1621405952113" duration="11273000" />
+      <workItem from="1621445141669" duration="33462000" />
+      <workItem from="1621601229065" duration="1025000" />
+      <workItem from="1621615710008" duration="78144000" />
+      <workItem from="1622010521351" duration="54867000" />
+      <workItem from="1622175622907" duration="43978000" />
+      <workItem from="1622367172244" duration="14242000" />
+      <workItem from="1622393024787" duration="6200000" />
+      <workItem from="1622435529563" duration="2108000" />
+      <workItem from="1622463551817" duration="3733000" />
+      <workItem from="1622482539241" duration="5204000" />
+      <workItem from="1622488841966" duration="1186000" />
+      <workItem from="1622490395058" duration="607000" />
+      <workItem from="1622527222956" duration="28978000" />
+      <workItem from="1622615268994" duration="1069000" />
+      <workItem from="1622621038233" duration="5194000" />
+      <workItem from="1622809073650" duration="553000" />
+      <workItem from="1622876328435" duration="2584000" />
+      <workItem from="1622959513586" duration="5193000" />
+      <workItem from="1622995541768" duration="4719000" />
+      <workItem from="1623053413781" duration="532000" />
+      <workItem from="1623062087401" duration="350000" />
+      <workItem from="1623396769910" duration="2000" />
+      <workItem from="1636697347124" duration="402000" />
+      <workItem from="1642926450616" duration="522000" />
+      <workItem from="1642936583606" duration="1436000" />
+      <workItem from="1647256572977" duration="8000" />
+      <workItem from="1677827356207" duration="239000" />
+      <workItem from="1677827604458" duration="12568000" />
+      <workItem from="1677859881403" duration="4374000" />
+      <workItem from="1677866209061" duration="54314000" />
+      <workItem from="1678022773401" duration="2000" />
+      <workItem from="1678048137450" duration="2797000" />
+    </task>
+    <task id="LOCAL-00001" summary="EBNF Spice Grammar definition for tatsu. Still being improved.">
+      <created>1621316590920</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1621316590920</updated>
+    </task>
+    <task id="LOCAL-00002" summary="EBNF Spice Grammar definition for tatsu. Still being improved.">
+      <created>1621316929764</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1621316929764</updated>
+    </task>
+    <task id="LOCAL-00003" summary="EBNF Spice Grammar definition for tatsu. Still being improved.">
+      <created>1621317272814</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1621317272814</updated>
+    </task>
+    <task id="LOCAL-00004" summary="EBNF Spice Grammar tatsu formatted.">
+      <created>1621317474494</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1621317474494</updated>
+    </task>
+    <task id="LOCAL-00005" summary="EBNF Spice Grammar tatsu formatted.">
+      <created>1621529024027</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1621529024027</updated>
+    </task>
+    <task id="LOCAL-00006" summary="EBNF Spice Grammar tatsu formatted.">
+      <created>1621601315502</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1621601315502</updated>
+    </task>
+    <task id="LOCAL-00007" summary="EBNF Spice Grammar optimised.">
+      <created>1621854642253</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1621854642253</updated>
+    </task>
+    <task id="LOCAL-00008" summary="EBNF Spice Grammar with some corrections and improvements.">
+      <created>1621922186970</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1621922186970</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Added the mutual inductor to the EBNF Spice Grammar.">
+      <created>1621923696258</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1621923696258</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Solving issues with expressions.">
+      <created>1622109826837</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1622109826837</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Revisiting expressions recognition, as it does not work.">
+      <created>1622124559026</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1622124559026</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Corrected the expressions recognition.">
+      <created>1622361004647</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1622361004647</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Updates to use the tatsu based parser.">
+      <created>1622365436460</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1622365436460</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Added the possibility to use point as a character in model_name.">
+      <created>1622367433876</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1622367433876</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Correction on the SpiceParser and ModelWalker to avoid issues when being used with different files.">
+      <created>1622385838407</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1622385838407</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Correction on the management of the model names and the tc parameter.">
+      <created>1622397395406</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1622397395406</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Lambda expressions converted to static functions to allow their use with pickle.">
+      <created>1622402434932</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1622402434932</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Added the curly braces to an expression.">
+      <created>1622466526664</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1622466526664</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Correction on the management of included models and subcircuits.">
+      <created>1622487755158</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1622487755158</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Correction on voltage controlled source nodes detection.">
+      <created>1622489707241</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1622489707241</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Added a sort of the models and subcircuits to make the output more consistent.">
+      <created>1622489751289</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1622489751289</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Correction on the nodes of the e sources.">
+      <created>1622490875363</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1622490875363</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Updates and corrections for the voltage and current transient sources.">
+      <created>1622539484037</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1622539484037</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Updated the subcircuit and circuit statements to better manage the parameters.">
+      <created>1622545223544</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1622545223544</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Updated the subcircuit and circuit statements to better manage the parameters.">
+      <created>1622560988342</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1622560988342</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Correction on the poly for current management.">
+      <created>1622562746484</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1622562746484</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Correction on the walker as a value return was missing.">
+      <created>1622565898932</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1622565898932</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Removing the space from .title line when the title string is empty.">
+      <created>1622566122148</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1622566122148</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Correction in the table expression string and improvements in the poly management.">
+      <created>1622568968775</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1622568968775</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Modifications to avoid compatibility issues with the &quot;.save&quot; command between xyce and ngspice.">
+      <created>1622642980193</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1622642980193</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Allow the Xyce server to run in a specified directory to allow the recovery of the data.">
+      <created>1622986018906</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1622986018906</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Modified RawFile reader to access directly with numpy to the file to read the raw data, and also accept unfinished simulations.">
+      <created>1623048518199</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1623048518199</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="EBNF Spice Grammar optimised." />
+    <MESSAGE value="EBNF Spice Grammar with some corrections and improvements." />
+    <MESSAGE value="Added the mutual inductor to the EBNF Spice Grammar." />
+    <MESSAGE value="Solving issues with expressions." />
+    <MESSAGE value="Revisiting expressions recognition, as it does not work." />
+    <MESSAGE value="Corrected the expressions recognition." />
+    <MESSAGE value="Updates to use the tatsu based parser." />
+    <MESSAGE value="Added the possibility to use point as a character in model_name." />
+    <MESSAGE value="Correction on the SpiceParser and ModelWalker to avoid issues when being used with different files." />
+    <MESSAGE value="Correction on the management of the model names and the tc parameter." />
+    <MESSAGE value="Lambda expressions converted to static functions to allow their use with pickle." />
+    <MESSAGE value="Added the curly braces to an expression." />
+    <MESSAGE value="Correction on the management of included models and subcircuits." />
+    <MESSAGE value="Correction on voltage controlled source nodes detection." />
+    <MESSAGE value="Added a sort of the models and subcircuits to make the output more consistent." />
+    <MESSAGE value="Correction on the nodes of the e sources." />
+    <MESSAGE value="Updates and corrections for the voltage and current transient sources." />
+    <MESSAGE value="Updated the subcircuit and circuit statements to better manage the parameters." />
+    <MESSAGE value="Correction on the poly for current management." />
+    <MESSAGE value="Correction on the walker as a value return was missing." />
+    <MESSAGE value="Removing the space from .title line when the title string is empty." />
+    <MESSAGE value="Correction in the table expression string and improvements in the poly management." />
+    <MESSAGE value="Modifications to avoid compatibility issues with the &quot;.save&quot; command between xyce and ngspice." />
+    <MESSAGE value="Allow the Xyce server to run in a specified directory to allow the recovery of the data." />
+    <MESSAGE value="Modified RawFile reader to access directly with numpy to the file to read the raw data, and also accept unfinished simulations." />
+    <option name="LAST_COMMIT_MESSAGE" value="Modified RawFile reader to access directly with numpy to the file to read the raw data, and also accept unfinished simulations." />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Unit/Unit.py</url>
+          <line>1335</line>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/Netlist.py</url>
+          <line>451</line>
+          <option name="timeStamp" value="198" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/BasicElement.py</url>
+          <line>923</line>
+          <option name="timeStamp" value="199" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit-test/Unit/test_Units.py</url>
+          <line>22</line>
+          <option name="timeStamp" value="221" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/Library.py</url>
+          <line>106</line>
+          <option name="timeStamp" value="568" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/examples/run-examples</url>
+          <line>35</line>
+          <option name="timeStamp" value="623" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/setup.py</url>
+          <line>24</line>
+          <option name="timeStamp" value="640" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/venv/lib/python3.10/site-packages/PySpice/Spice/Netlist.py</url>
+          <line>382</line>
+          <option name="timeStamp" value="646" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/RawFile.py</url>
+          <line>242</line>
+          <option name="timeStamp" value="656" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/BasicElement.py</url>
+          <line>892</line>
+          <option name="timeStamp" value="660" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/ElementParameter.py</url>
+          <line>401</line>
+          <option name="timeStamp" value="673" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/BasicElement.py</url>
+          <line>178</line>
+          <option name="timeStamp" value="736" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/Simulation.py</url>
+          <line>672</line>
+          <option name="timeStamp" value="739" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/EBNFSpiceParser.py</url>
+          <line>1322</line>
+          <option name="timeStamp" value="743" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/EBNFSpiceParser.py</url>
+          <line>2036</line>
+          <option name="timeStamp" value="746" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/PySpice/Spice/EBNFSpiceParser.py</url>
+          <line>1781</line>
+          <option name="timeStamp" value="747" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit-test-todo/test_netlist.py</url>
+          <line>5</line>
+          <option name="timeStamp" value="748" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/unit-test/Spice/test_BasicElement.py</url>
+          <line>59</line>
+          <option name="timeStamp" value="750" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_Netlist_py.coverage" NAME="Nosetests in test_Netlist.py Coverage Results" MODIFIED="1618900615650" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_file_py.coverage" NAME="Nosetests in test_file.py Coverage Results" MODIFIED="1622559173386" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test-todo" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_WaveForm_py.coverage" NAME="Nosetests in test_WaveForm.py Coverage Results" MODIFIED="1618900635821" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Probe" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_Spice.coverage" NAME="Unittests in Spice Coverage Results" MODIFIED="1678022315164" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_transient.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_transient Coverage Results" MODIFIED="1622542613614" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_todo.coverage" NAME="Unittests in todo Coverage Results" MODIFIED="1678022330715" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser Coverage Results" MODIFIED="1622566068695" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_SpiceParser_py.coverage" NAME="Nosetests in test_SpiceParser.py Coverage Results" MODIFIED="1622557387402" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_Units_py.coverage" NAME="Nosetests in test_Units.py Coverage Results" MODIFIED="1618900630813" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Unit" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_unit_test.coverage" NAME="Nosetests in unit-test Coverage Results" MODIFIED="1622557738644" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_Unit.coverage" NAME="Unittests in Unit Coverage Results" MODIFIED="1678021623967" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_test_SpiceParser.coverage" NAME="Unittests in test_SpiceParser Coverage Results" MODIFIED="1678021582397" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_Pickle_py.coverage" NAME="Nosetests in test_Pickle.py Coverage Results" MODIFIED="1614701241355" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_Netlist_TestCircuit_test_raw_spice.coverage" NAME="Nosetests for test_Netlist.TestCircuit.test_raw_spice Coverage Results" MODIFIED="1622642178562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests.coverage" NAME="Unittests Coverage Results" MODIFIED="1678048569633" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_complete.coverage" NAME="Nosetests Math Coverage Results" MODIFIED="1618900975114" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_subcircuits.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_subcircuits Coverage Results" MODIFIED="1622545128735" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_SpiceParser.coverage" NAME="Unittests in SpiceParser Coverage Results" MODIFIED="1678022468009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PySpice$run_examples.coverage" NAME="run-examples Coverage Results" MODIFIED="1622557519472" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/examples" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_Spice.coverage" NAME="Nosetests Spice Coverage Results" MODIFIED="1678022022164" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_parser.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_parser Coverage Results" MODIFIED="1622568852814" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_Unit.coverage" NAME="Nosetests Unit Coverage Results" MODIFIED="1622566138229" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Unit" />
+    <SUITE FILE_PATH="coverage/PySpice$Unittests_in_Probe.coverage" NAME="Unittests in Probe Coverage Results" MODIFIED="1678000878760" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_working_dir.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_working_dir Coverage Results" MODIFIED="1623048438652" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_Probe.coverage" NAME="Nosetests Probe Coverage Results" MODIFIED="1622566873439" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_library.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_library Coverage Results" MODIFIED="1622980962940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_boolean.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_boolean Coverage Results" MODIFIED="1622529456336" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_todo.coverage" NAME="Nosetests todo Coverage Results" MODIFIED="1619026382892" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test-todo" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_Math.coverage" NAME="Nosetests Math Coverage Results" MODIFIED="1677999515768" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_netlist_py.coverage" NAME="Nosetests in test_netlist.py Coverage Results" MODIFIED="1622560573262" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test-todo" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_for_test_SpiceParser_TestSpiceParser_test_subcircuit.coverage" NAME="Nosetests for test_SpiceParser.TestSpiceParser.test_subcircuit Coverage Results" MODIFIED="1622542803052" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$Nosetests_in_test_Expression_py.coverage" NAME="Nosetests in test_Expression.py Coverage Results" MODIFIED="1622482692429" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit-test/Spice" />
+    <SUITE FILE_PATH="coverage/PySpice$unittests.coverage" NAME="unittests Coverage Results" MODIFIED="1678051694838" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/PySpice$pytest_in_Spice.coverage" NAME="pytest in Spice Coverage Results" MODIFIED="1642937507330" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+  </component>
+</project>

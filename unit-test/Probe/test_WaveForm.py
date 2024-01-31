@@ -58,11 +58,11 @@ class TestUnits(unittest.TestCase):
     def test(self):
 
         np_array1 = np.arange(10)
-        array1 = u_mV(np_array1)
+        array1 = u_mv(np_array1)
         np_raw_array1 = np_array1 / 1000
 
         np_array2 = np.arange(10, 20)
-        array2 = u_mV(np_array2)
+        array2 = u_mv(np_array2)
         np_raw_array2 = np_array2 / 1000
 
         print_rule()
@@ -104,7 +104,7 @@ class TestUnits(unittest.TestCase):
         self.assertEqual(waveform3.name, '')
 
         print_rule()
-        waveform4 = waveform3.convert(U_uV)
+        waveform4 = waveform3.convert(U_uv)
         logger.info('{} {}'.format(waveform4, type(waveform4)))
 
         print_rule()
@@ -114,7 +114,7 @@ class TestUnits(unittest.TestCase):
         #     result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
         #   File "PySpice/Unit/Unit.py", line 1635, in __array_ufunc__
         #     raise ValueError
-        ndarray5 = waveform1 >= 5@u_V
+        ndarray5 = waveform1 >= 5@u_v
         np_test.assert_array_equal(ndarray5, np_raw_array1 >= 5)
 
         print_rule()
@@ -124,7 +124,7 @@ class TestUnits(unittest.TestCase):
         self._test_unit_values(waveform4, np_raw_array2 * np_raw_array1)
         # Fixme: TypeError: unsupported operand type(s) for *: 'PrefixedUnit' and 'PrefixedUnit'
         # self.assertEqual(waveform4.prefixed_unit, array1.prefixed_unit * array2.prefixed_unit)
-        mV2 = u_mV(1)*u_mV(1)
+        mV2 = u_mv(1)*u_mv(1)
         self.assertEqual(waveform4.prefixed_unit.unit, mV2.unit)
         self.assertEqual(waveform4.prefixed_unit.power, mV2.power)
 
@@ -133,7 +133,7 @@ class TestUnits(unittest.TestCase):
         waveform_mean = np.mean(_)
         logger.info(repr(waveform_mean))
         self._test_unit_values(waveform_mean, np.mean(np_raw_array1 + np_raw_array2))
-        _ = u_mV(1)
+        _ = u_mv(1)
         self.assertEqual(waveform_mean.unit, _.unit)
         self.assertEqual(waveform_mean.power, _.power)
 

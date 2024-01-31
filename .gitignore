@@ -112,6 +112,25 @@ examples/c-examples/ngspice-shared/sharedspice.h
 
 resources
 
+rsync-vps.sh
+
+spice-examples/eg6.dat
+spice-examples/gnucap.cir
+spice-examples/mosfet-characterization.cir
+spice-examples/ring-modulator.cir
+spice-examples/xyce-error.cir
+spice-examples/xyce-error.cir.FD.prn
+spice-examples/xyce-raw.data
+spice-examples/xyce-test.cir
+spice-examples/xyce-test2.cir
+spice-examples/xyce-test2.csv
+
+tools/run-tox
+tools/upload-www
+
+trash/
+.idea/
+
 unit-test/test.py
 
 anaconda-recipe/conda-bld
@@ -128,3 +147,9 @@ examples/c-examples/ngspice_cb/ng_shared_test_sl_v/
 examples/c-examples/ngspice_cb/ng_shared_test_v/
 
 Spice64_dll/
+unit-test/Spice/input.cir
+unit-test/Spice/input.cir.ic
+unit-test/Spice/output.raw
+input.cir
+input.cir.ic
+output.raw

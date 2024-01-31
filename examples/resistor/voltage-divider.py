@@ -22,7 +22,8 @@ circuit.R(2, 'out', circuit.gnd, 1@u_kΩ)
 
 ####################################################################################################
 
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+simulator = circuit.simulator(simulator='ngspice-subprocess', working_directory='.',
+                              temperature=25, nominal_temperature=25)
 
 analysis = simulator.operating_point()
 for node in (analysis['in'], analysis.out): # .in is invalid !
@@ -30,7 +31,7 @@ for node in (analysis['in'], analysis.out): # .in is invalid !
 #o#
 
 # Fixme: Xyce sensitivity analysis
-analysis = simulator.dc_sensitivity('v(out)')
+analysis = simulator.dc_sensitivity('v(out)', 'R1')
 for element in analysis.elements.values():
     print(element, float(element))
 #o#
