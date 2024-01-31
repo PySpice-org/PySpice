@@ -619,7 +619,12 @@ class NgSpiceShared:
                 func = self._logger.info
             elif content.startswith('Warning:'):
                 func = self._logger.warning
-            # elif content.startswith('Warning:'):
+            elif content.startswith('Note:'):
+                func = self._logger.info
+            elif content.startswith('Trying'):
+                func = self._logger.info
+            elif content.startswith('Supplies reduced'):
+                func = self._logger.info
             else:
                 self._error_in_stderr = True
                 func = self._logger.error
