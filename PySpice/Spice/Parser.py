@@ -498,7 +498,7 @@ class Element(Statement):
                 i = parameter.position
                 self._dict_parameters[parameter.attribute_name] = self._parameters[i]
                 to_delete.append(i)
-        for i in to_delete:
+        for i in sorted(to_delete, reverse=True):
             del self._parameters[i]
 
         # self._logger.debug(os.linesep + self.__repr__())
@@ -890,7 +890,7 @@ class SpiceParser:
         # first line so they'll parse incorrectly if that line is removed.
         # For everything else, assume the first line is a TITLE line and
         # remove it.
-        if str(lines[0]).startswith(('.model', '.subckt')):
+        if str(lines[0]).lower().startswith(('.model', '.subckt')):
             start_index = 0
         else:
             start_index = 1
