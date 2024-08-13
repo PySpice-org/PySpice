@@ -32,6 +32,8 @@ Header
 
 .. code::
 
+    [Note:] No compatibility mode selected! OR [Note:] Compatibility modes selected: xyz
+
     Circuit: 230V Rectifier
 
     Doing analysis at TEMP = 25.000000 and TNOM = 25.000000
@@ -189,6 +191,14 @@ class RawFile(RawFileAbc):
         raw_data = stdout[raw_data_start:]
         header_line_iterator = iter(header_lines)
 
+        try:
+            self.note = self._read_header_field_line(header_line_iterator, 'Note')
+        except Exception as e:
+            if 'No compatibility mode selected' in str(e):
+                # Reset iterator
+                header_line_iterator = iter(header_lines)
+                self._read_header_field_line(header_line_iterator, 'No compatibility mode selected', has_value=False)
+        
         self.circuit_name = self._read_header_field_line(header_line_iterator, 'Circuit')
         self.temperature, self.nominal_temperature = self._read_temperature_line(header_line_iterator)
         self.warnings = [self._read_header_field_line(header_line_iterator, 'Warning')
