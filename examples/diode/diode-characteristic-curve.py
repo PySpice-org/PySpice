@@ -184,8 +184,8 @@ ax2.axvspan(silicon_forward_voltage_threshold, 3, facecolor='blue', alpha=.2)
 analysis = analyses[25]
 static_resistance = -analysis.out / analysis.Vinput
 dynamic_resistance = np.diff(-analysis.out) / np.diff(analysis.Vinput)
-ax2.semilogy(analysis.out, static_resistance, basey=10)
-ax2.semilogy(analysis.out[10:-1], dynamic_resistance[10:], basey=10)
+ax2.semilogy(analysis.out, static_resistance, base=10)
+ax2.semilogy(analysis.out[10:-1], dynamic_resistance[10:], base=10)
 ax2.axvline(x=0, color='black')
 ax2.axvline(x=silicon_forward_voltage_threshold, color='red')
 ax2.axhline(y=1, color='red')
