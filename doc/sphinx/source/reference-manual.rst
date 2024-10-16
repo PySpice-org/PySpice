@@ -18,6 +18,7 @@ Contents:
   :maxdepth: 2
 
   api/PySpice
+  apidoc/index
 
 Indexes
 -------

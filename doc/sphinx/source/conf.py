@@ -66,17 +66,20 @@ exec(compile(open(pyspice_path.joinpath('setup_data.py')).read(), 'setup_data.py
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.doctest',
-              'sphinx.ext.intersphinx',
-              'sphinx.ext.todo',
-              'sphinx.ext.coverage',
-              # 'sphinx.ext.pngmath',
-              'sphinx.ext.mathjax',
-              'sphinx.ext.ifconfig',
-              'sphinx.ext.viewcode',
-              'sphinxcontrib.getthecode',
-              ]
+extensions = [
+    #! 'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    # 'sphinx.ext.pngmath',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.viewcode',
+    'sphinxcontrib.getthecode',
+    'myst_parser',   # https://myst-parser.readthedocs.io
+    'autodoc2',   # https://sphinx-autodoc2.readthedocs.io
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -156,6 +159,34 @@ autodoc_default_flags = [
     'ignore-module-all',
     # 'exclude-members',
 ]
+
+####################################################################################################
+#
+# Autodoc2
+#  https://sphinx-autodoc2.readthedocs.io/en/latest/config.html
+
+# path must be relative
+autodoc2_packages = [
+    '../../../PySpice',
+]
+autodoc2_render_plugin = 'rst'
+# autodoc2_render_plugin = 'myst'
+# autodoc2_skip_module_regexes = ()
+autodoc2_hidden_objects = (
+    # 'undoc',
+    # 'dunder',
+    # 'private',
+    'inherited',
+)
+autodoc2_hidden_regexes = [
+    r'.*\._module_logger',
+    r'.*\._logger',
+]
+# autodoc2_class_docstring = 'both'
+autodoc2_class_docstring = 'merge'
+autodoc2_class_inheritance = True
+autodoc2_annotations = True
+autodoc2_sort_names = True
 
 ####################################################################################################
 #
