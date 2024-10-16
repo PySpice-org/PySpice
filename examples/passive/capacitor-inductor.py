@@ -45,9 +45,11 @@ for element_type in ('capacitor', 'inductor'):
 
     circuit = Circuit(element_type.title())
     # Fixme: compute value
-    source = circuit.PulseVoltageSource('input', 'in', circuit.gnd,
-                           initial_value=0@u_V, pulsed_value=10@u_V,
-                           pulse_width=10@u_ms, period=20@u_ms)
+    source = circuit.PulseVoltageSource(
+        'input', 'in', circuit.gnd,
+        initial_value=0@u_V, pulsed_value=10@u_V,
+        pulse_width=10@u_ms, period=20@u_ms,
+    )
     circuit.R(1, 'in', 'out', 1@u_kΩ)
     if element_type == 'capacitor':
         element = circuit.C
@@ -74,7 +76,7 @@ for element_type in ('capacitor', 'inductor'):
     if element_type == 'capacitor':
         def out_voltage(t, tau):
             # Fixme: TypeError: only length-1 arrays can be converted to Python scalars
-            return float(source.pulsed_value) * (1 -  np.exp(-t / tau))
+            return float(source.pulsed_value) * (1 - np.exp(-t / tau))
     else:
         def out_voltage(t, tau):
             return float(source.pulsed_value) * np.exp(-t / tau)
@@ -105,7 +107,7 @@ for element_type in ('capacitor', 'inductor'):
     ax.set_ylim(-11, 11)
     ax.set_xlabel('t [s]')
     ax.set_ylabel('[V]')
-    ax.legend(('Vin [V]', 'Vout [V]', 'I'), loc=(.8,.8))
+    ax.legend(('Vin [V]', 'Vout [V]', 'I'), loc=(.8, .8))
 #o#
 
 plt.tight_layout()
