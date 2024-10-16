@@ -25,12 +25,24 @@ __all__ = [
 ####################################################################################################
 
 import os
+import logging
 
-# from KiCadTools.Schema import KiCadSchema
+from typing import Callable
+
+try:
+    from KiCadRW.sexp.schema import KiCadSchema, Symbol
+except ImportError:
+    KiCadSchema = None
+
+####################################################################################################
+
+_module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
 
 class PythonDumper:
+
+    _logger = _module_logger.getChild('PythonDumper')
 
     def generic_wrapper(element):
         def wrapper(self, symbol):
@@ -42,45 +54,74 @@ class PythonDumper:
             return self.on_generic_model(element, symbol)
         return wrapper
 
+    def source(element):
+        def wrapper(self, symbol):
+            return self.on_source(element, symbol)
+        return wrapper
+
+    GROUND = 0
+
+    # SYMBOL_MAP = {
+    #     'Device:C': generic_wrapper('C'),
+    #     'Device:R': generic_wrapper('R'),
+    #     'Simulation_SPICE:D':  generic_model_wrapper('D'),
+    #     'power:GND': GROUND,
+    #     'spice-ngspice:0': GROUND,
+    #     'spice-ngspice:C': generic_wrapper('C'),
+    #     'spice-ngspice:CHOKE': None,
+    #     'spice-ngspice:CURRENT_MEASURE': None,
+    #     'spice-ngspice:Csmall': generic_wrapper('C'),
+    #     'spice-ngspice:DIODE':  generic_model_wrapper('D'),
+    #     'spice-ngspice:INDUCTOR': generic_wrapper('L'),
+    #     'spice-ngspice:ISOURCE': generic_wrapper('I'),
+    #     'spice-ngspice:ISRC_ICTL': None,
+    #     'spice-ngspice:ISRC_VCTL': None,
+    #     'spice-ngspice:NMOS': None,
+    #     'spice-ngspice:OPAMP': None,
+    #     'spice-ngspice:PMOS': None,
+    #     'spice-ngspice:QNPN': None,
+    #     'spice-ngspice:QPNP': None,
+    #     'spice-ngspice:R': generic_wrapper('R'),
+    #     'spice-ngspice:Rsmall': generic_wrapper('R'),
+    #     'spice-ngspice:SWITCH': None,
+    #     'spice-ngspice:TOGGLE': None,
+    #     'spice-ngspice:VSOURCE': generic_wrapper('V'),
+    #     'spice-ngspice:VSRC_ICTL': None,
+    #     'spice-ngspice:VSRC_VCTL': None,
+    #     'spice-ngspice:Vsrc': generic_wrapper('V'),
+    #     'spice-ngspice:ZENOR': None,
+    # }
+
     SYMBOL_MAP = {
-        'spice-ngspice:0': None,
-        'spice-ngspice:C': generic_wrapper('C'),
-        'spice-ngspice:CHOKE': None,
-        'spice-ngspice:CURRENT_MEASURE': None,
-        'spice-ngspice:Csmall': generic_wrapper('C'),
-        'spice-ngspice:DIODE':  generic_model_wrapper('D'),
-        'spice-ngspice:INDUCTOR': generic_wrapper('L'),
-        'spice-ngspice:ISOURCE': generic_wrapper('I'),
-        'spice-ngspice:ISRC_ICTL': None,
-        'spice-ngspice:ISRC_VCTL': None,
-        'spice-ngspice:NMOS': None,
-        'spice-ngspice:OPAMP': None,
-        'spice-ngspice:PMOS': None,
-        'spice-ngspice:QNPN': None,
-        'spice-ngspice:QPNP': None,
-        'spice-ngspice:R': generic_wrapper('R'),
-        'spice-ngspice:Rsmall': generic_wrapper('R'),
-        'spice-ngspice:SWITCH': None,
-        'spice-ngspice:TOGGLE': None,
-        'spice-ngspice:VSOURCE': generic_wrapper('V'),
-        'spice-ngspice:VSRC_ICTL': None,
-        'spice-ngspice:VSRC_VCTL': None,
-        'spice-ngspice:Vsrc': generic_wrapper('V'),
-        'spice-ngspice:ZENOR': None,
+        'R': generic_wrapper('R'),
+        'L': generic_wrapper('L'),
+        'C': generic_wrapper('C'),
+        'D': generic_model_wrapper('D'),
+        'GND': GROUND,
+        'VDC': source('V'),
+        'VPULSE': source('V'),
     }
 
     ##############################################
 
-    def __init__(self, kicad_schema, use_pyspice_unit=False):
-
+    def __init__(self, kicad_schema: KiCadSchema, use_pyspice_unit=False):
         self._use_pyspice_unit = use_pyspice_unit
         self._code = []
 
         for symbol in kicad_schema.symbols_by_reference:
-            handler = self.SYMBOL_MAP.get(symbol.lib_name, None)
-            if handler is not None:
+            self._logger.info(f"Symbol {symbol.lib_name} {symbol.reference}")
+            handler = self.find_symbol(symbol)
+            if handler is None:
+                self._logger.warning(f"any correspondance for {symbol.lib_name} {symbol.reference}")
+            elif handler != self.GROUND:
                 _ = handler(self, symbol)
                 self._code.append(_)
+
+    ##############################################
+
+    def find_symbol(self, symbol: Symbol) -> Callable:
+        lib, name = symbol.lib_name.split(':')
+        return self.SYMBOL_MAP.get(name, None)
 
     ##############################################
 
@@ -92,7 +133,7 @@ class PythonDumper:
     def _pins(self, symbol):
         pins = []
         for pin in symbol.pins:
-            _id = pin.net_id.id
+            _id = pin.net.id
             if _id == 0:
                 _id = 'circuit.gnd'
             pins.append(_id)
@@ -144,7 +185,18 @@ class PythonDumper:
 
     def on_generic_model(self, element, symbol):
         # Fixme: check XD
-        reference = symbol.reference[len(element)+1:]
+        reference = symbol.reference[len(element):]   # +1
         args = [reference, symbol.value, *self._pins(symbol)]
+        args_str = self._str_args(args)
+        return f"circuit.{element}({args_str})"
+
+    ##############################################
+
+    def on_source(self, element, symbol):
+        reference = symbol.reference[len(element):]
+        value = self._unit_value(element, symbol)
+        if symbol.reference[0] in ('V',):
+            value += '@u_V'
+        args = [reference, *self._pins(symbol), value]
         args_str = self._str_args(args)
         return f"circuit.{element}({args_str})"

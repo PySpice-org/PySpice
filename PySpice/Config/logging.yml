@@ -49,3 +49,8 @@ loggers:
     # level: DEBUG
     level: INFO
     # level: WARNING
+
+  KiCadRW:
+    # level: DEBUG
+    level: INFO
+    # level: WARNING

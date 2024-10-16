@@ -1,16 +1,26 @@
 ####################################################################################################
 
+import PySpice.Logging.Logging as Logging
+logger = Logging.setup_logging()
+
+####################################################################################################
+
 from pathlib import Path
 
-from KiCadRW.Schema import KiCadSchema
-from KiCadRW.Drawings.CircuitMacros import CircuitMacrosDumper
+from KiCadRW.sexp.schema import KiCadSchema
+from KiCadRW.drawings.CircuitMacros import CircuitMacrosDumper
 from PySpice.KiCad import PythonDumper
 
 ####################################################################################################
 
+# schema_path = Path(
+#     'examples', 'power-supplies', 'kicad', 'capacitive-half-wave-rectification-pre-zener',
+#     'capacitive-half-wave-rectification-pre-zener.kicad_sch'
+# )
+
 schema_path = Path(
-    'examples', 'power-supplies', 'kicad', 'capacitive-half-wave-rectification-pre-zener',
-    'capacitive-half-wave-rectification-pre-zener.kicad_sch'
+    'kicad-schema',
+    'charge-pump', 'charge-pump.kicad_sch'
 )
 
 kicad_schema = KiCadSchema(schema_path)
