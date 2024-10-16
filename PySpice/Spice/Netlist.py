@@ -624,12 +624,12 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def include(self, path: Union[Path, str, 'Library.SubCircuit'], warn: bool = True) -> None:
+    def include(self, path: Union[Path, str, 'Library.SubCircuit', 'Library.Model'], warn: bool = True) -> None:
         """Include a file."""
         # Fixme: str(path) ?
         # Fixme: circular import...
         from . import Library
-        if isinstance(path, Library.Subcircuit):
+        if isinstance(path, (Library.Subcircuit, Library.Model)):
             path = path.path
         path = Path(path).resolve()
         if path not in self._includes:
