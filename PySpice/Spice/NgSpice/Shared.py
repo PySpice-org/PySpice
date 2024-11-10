@@ -620,7 +620,8 @@ class NgSpiceShared:
             self._stderr.append(content)
             if content.startswith('Warning:'):
                 func = self._logger.warning
-            # elif content.startswith('Warning:'):
+            elif content.startswith('Using'): # Ignore "Using ... as Direct Linear Solver" messages
+                func = self._logger.debug 
             else:
                 self._error_in_stderr = True
                 func = self._logger.error
