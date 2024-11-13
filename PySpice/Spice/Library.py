@@ -22,11 +22,13 @@
 
 import logging
 import re
+import sys
+from collections import OrderedDict
 
 ####################################################################################################
 
 from ..Tools.File import Directory
-from .Parser import SpiceParser
+from .EBNFSpiceParser import SpiceParser
 
 ####################################################################################################
 
@@ -62,36 +64,36 @@ class SpiceLibrary:
         '.mod@xyce',
     )
 
+    def _add_parsed(self, parsed):
+        for name, subcircuit in parsed.subcircuits.items():
+            self._subcircuits[name] = subcircuit
+        for name, model in parsed.models.items():
+            self._models[name] = model
+
     ##############################################
 
-    def __init__(self, root_path, recurse=False, section=None):
+    def __init__(self, root_path=None, recurse=False, section=None):
 
         self._directory = Directory(root_path).expand_vars_and_user()
 
-        self._subcircuits = {}
-        self._models = {}
+        self._subcircuits = OrderedDict()
+        self._models = OrderedDict()
+
+        if root_path is None:
+            self._directory=None
+            return
 
         for path in self._directory.iter_file():
             extension = path.extension.lower()
             if extension in self.EXTENSIONS:
                 self._logger.debug("Parse {}".format(path))
                 try:
-                    spice_parser = SpiceParser(path=path, recurse=recurse, section=section)
-                    for lib in spice_parser.incl_libs:
-                        self._subcircuits.update(lib._subcircuits)
-                        self._models.update(lib._models)
+                    parsed = SpiceParser.parse(path=path)
+                    self._add_parsed(parsed)
                 except Exception as e:
+                    tb = sys.exc_info()[2]
                     # Parse problem with this file, so skip it and keep going.
-                    self._logger.warn("Problem parsing {path} - {e}".format(**locals()))
-                    continue
-                if spice_parser.is_only_subcircuit():
-                    for subcircuit in spice_parser.subcircuits:
-                        name = self._suffix_name(subcircuit.name, extension)
-                        self._subcircuits[name] = path
-                elif spice_parser.is_only_model():
-                    for model in spice_parser.models:
-                        name = self._suffix_name(model.name, extension)
-                        self._models[name] = path
+                    raise RuntimeError("Problem parsing {}".format(e)).with_traceback(tb)
 
     ##############################################
 
@@ -148,3 +150,7 @@ class SpiceLibrary:
             if re.search(s, name):
                 matches[name] = mdl_subckt
         return matches
+
+    def insert(self, raw):
+        parsed = SpiceParser.parse(source=raw)
+        self._add_parsed(parsed)

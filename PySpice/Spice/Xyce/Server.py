@@ -71,10 +71,13 @@ class XyceServer:
     def __init__(self, **kwargs):
 
         self._xyce_command = kwargs.get('xyce_command') or self.XYCE_COMMAND
+        self._working_directory = kwargs.get('working_directory')
+        if self._working_directory is not None:
+            self._working_directory = os.path.abspath(self._working_directory)
 
     ##############################################
 
-    def _parse_stdout(self, stdout):
+    def _parse_stdout(self, stdout, spice_netlist):
 
         """Parse stdout for errors."""
 
@@ -97,9 +100,11 @@ class XyceServer:
                 simulation_failed = True
                 self._logger.error(os.linesep + line.decode('utf-8'))
         if error_found:
-            raise NameError("Errors was found by Xyce")
+            raise NameError("Errors was found by Xyce\n{}\n{}".format(
+                stdout.decode('utf-8'), spice_netlist))
         elif simulation_failed:
-            raise NameError("Xyce simulation failed")
+            raise NameError("Xyce simulation failed\n{}\n{}".format(
+                stdout.decode('utf-8'), spice_netlist))
 
     ##############################################
 
@@ -112,11 +117,17 @@ class XyceServer:
 
         self._logger.debug('Start the xyce subprocess')
 
-        tmp_dir = tempfile.mkdtemp()
-        input_filename = os.path.join(tmp_dir, 'input.cir')
-        output_filename = os.path.join(tmp_dir, 'output.raw')
+        wd = self._working_directory
+        if wd is None:
+            wd = tempfile.mkdtemp()
+        else:
+            os.makedirs(wd, exist_ok=True)
+        input_filename = os.path.join(wd, 'input.cir')
+        output_filename = os.path.join(wd, 'output.raw')
+
+        spice_netlist = str(spice_input)
         with open(input_filename, 'w') as f:
-            f.write(str(spice_input))
+            f.write(spice_netlist)
 
         command = (self._xyce_command, '-r', output_filename, input_filename)
         self._logger.info('Run {}'.format(' '.join(command)))
@@ -128,13 +139,14 @@ class XyceServer:
         )
         stdout, stderr = process.communicate()
 
-        self._parse_stdout(stdout)
+        self._parse_stdout(stdout, spice_netlist)
 
         with open(output_filename, 'rb') as f:
             output = f.read()
         # self._logger.debug(output)
 
         raw_file = RawFile(output)
-        shutil.rmtree(tmp_dir)
+        if self._working_directory is None:
+            shutil.rmtree(wd)
 
         return raw_file

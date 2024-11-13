@@ -1,0 +1,3 @@
+* Diode lib
+
+.model diode D (is=1.038e-15 n=1 tt=20e-9 cjo=5e-12 rs=0.50 bv=130)

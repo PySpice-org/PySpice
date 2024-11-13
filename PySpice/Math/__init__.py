@@ -38,9 +38,9 @@ def even(x):
 ####################################################################################################
 
 def rms_to_amplitude(x):
-    """Return :math:`x \sqrt{2}`"""
+    """Return :math:`x \\sqrt{2}`"""
     return x * math.sqrt(2)
 
 def amplitude_to_rms(x):
-    """Return :math:`x / \sqrt{2}`"""
+    """Return :math:`x / \\sqrt{2}`"""
     return x / math.sqrt(2)

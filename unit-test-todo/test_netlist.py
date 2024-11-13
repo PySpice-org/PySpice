@@ -1,5 +1,5 @@
-from PySpice.Netlist import SubCircuit, Circuit
-from PySpice.Units import *
+from PySpice.Spice.Netlist import SubCircuit, Circuit
+from PySpice.Unit import *
 
 subcircuit_1N4148 = SubCircuit('1N4148', 1, 2)
 subcircuit_1N4148.R('1', 1, 2, 5.827E+9)
@@ -23,9 +23,9 @@ circuit.X('D', '1N4148', 'in', 'out')
 circuit.C('load', 'out', circuit.gnd, micro(100))
 circuit.R('load', 'out', circuit.gnd, kilo(1), ac='1k')
 
-circuit.Cload.plus.add_current_probe(circuit)
+circuit['Cload'].plus.add_current_probe(circuit)
 
-simulation = circuit.simulation(temperature=25, nominal_temperature=25, pipe=True)
+simulation = circuit.simulator(temperature=25, nominal_temperature=25, pipe=True)
 simulation.options(filetype='binary')
 simulation.save('V(in)', 'V(out)')
 simulation.tran(step_time, end_time)
@@ -33,7 +33,7 @@ simulation.tran(step_time, end_time)
 print(circuit.nodes)
 for node in circuit.nodes:
     print(repr(node), ':', ' '.join(element.name for element in node.elements))
-print(circuit.Cload.plus)
+print(circuit['Cload'].plus)
 # print repr(circuit.Cload)
 # # print circuit.1N4148
 # print subcircuit_1N4148['1N4148']

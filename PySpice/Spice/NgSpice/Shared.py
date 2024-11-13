@@ -101,7 +101,7 @@ from PySpice.Probe.WaveForm import (
     WaveForm,
 )
 from PySpice.Tools.EnumFactory import EnumFactory
-from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F, u_Degree
+from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F, u_celsius
 
 from .SimulationType import SIMULATION_TYPE
 

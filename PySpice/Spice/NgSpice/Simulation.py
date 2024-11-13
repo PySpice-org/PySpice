@@ -24,12 +24,14 @@
 ####################################################################################################
 
 import logging
+import os
 
 ####################################################################################################
 
 from ..Simulation import CircuitSimulator
 from .Server import SpiceServer
 from .Shared import NgSpiceShared
+from PySpice.Tools.StringTools import join_list
 
 ####################################################################################################
 
@@ -66,6 +68,24 @@ class NgSpiceSubprocessCircuitSimulator(NgSpiceCircuitSimulator):
         # Fixme: to func ?
         server_kwargs = {x:kwargs[x] for x in ('spice_command',) if x in kwargs}
         self._spice_server = SpiceServer(**server_kwargs)
+
+    ##############################################
+
+    def save_str(self):
+        result = ""
+        if self._saved_nodes:
+            # Place 'all' first
+            saved_nodes = set(self._saved_nodes)
+            if 'all' in saved_nodes:
+                all_str = ' all'
+                saved_nodes.remove('all')
+            else:
+                all_str = ''
+            result += '.save' + all_str
+            if saved_nodes:
+                result += ' ' + join_list(saved_nodes)
+            result += os.linesep
+        return result
 
     ##############################################
 

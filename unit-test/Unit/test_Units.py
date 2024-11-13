@@ -155,7 +155,7 @@ class TestUnits(unittest.TestCase):
         self.assertEqual(str(u_MHz(123.4)), '123.4 MHz')
 
         self.assertEqual(kilo(1).str_spice(), '1k')
-        self.assertEqual(u_MHz(123.4).str_spice(), '123.4MegHz')
+        self.assertEqual(u_MHz(123.4).str_spice(), '123.4meghz')
 
     ##############################################
 
@@ -180,7 +180,7 @@ class TestUnits(unittest.TestCase):
         self._test_canonise(kilo(.100), '100.0')
         self._test_canonise(kilo(.999), '999.0')
         self._test_canonise(kilo(1), '1k') # Fixme: .0
-        self._test_canonise(kilo(1000), '1.0Meg')
+        self._test_canonise(kilo(1000), '1.0meg')
 
     ##############################################
 

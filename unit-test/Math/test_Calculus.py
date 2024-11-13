@@ -36,6 +36,8 @@ from PySpice.Math.Calculus import compute_exact_finite_difference_coefficients, 
 
 # From Generation of Finite Difference Formulas on Arbitrary Space Grids
 #   Bengt Fornberg, Mathematics of computation, volume 51, number 184, october 1988
+from PySpice.Probe.WaveForm import WaveForm
+from PySpice.Unit import u_s
 
 centred_coefficients = {
     # on a grid -4,...,4
@@ -172,6 +174,32 @@ class TestFiniteDifference(unittest.TestCase):
         np.testing.assert_array_almost_equal(dy2, true_dy2, decimal=1)
 
 ####################################################################################################
+
+class TestUFunc(unittest.TestCase):
+
+    ##############################################
+
+    def test_ufunc(self):
+        waveform_a = WaveForm("A", u_s(1).prefixed_unit, (1, 1))
+        waveform_a[0] = 2
+        waveform_b = WaveForm("B", u_s(1).prefixed_unit, (1, 1))
+        waveform_b[0] = 3
+        waveform_result = waveform_a*waveform_b
+        self.assertEqual(waveform_result[0, 0], 6)
+        self.assertEqual(waveform_result.prefixed_unit.unit, (u_s(1)*u_s(1)).unit)
+        self.assertEqual(waveform_result.prefixed_unit.power, (u_s(1)*u_s(1)).power)
+
+    def test_mean(self):
+        waveform_a = WaveForm("A", u_s(1).prefixed_unit, (1, 1))
+        waveform_a[0] = 2
+        waveform_b = WaveForm("B", u_s(1).prefixed_unit, (1, 1))
+        waveform_b[0] = 3
+        waveform_result = waveform_a*waveform_b
+        waveform_mean = np.mean(waveform_result)
+        self.assertEqual(waveform_mean.value, 6)
+        self.assertEqual(waveform_mean.unit, waveform_result.unit)
+        self.assertEqual(waveform_mean.power, waveform_result.power)
+
 
 if __name__ == '__main__':
 

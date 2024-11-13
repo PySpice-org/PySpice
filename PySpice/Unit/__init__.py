@@ -66,13 +66,13 @@ Some examples of usage:
   resistances = range(1, 11)@u_kΩ  # using Python 3.5 syntax
 
   capacitance = u_uF(200)
-  inductance = u_mH(1)
-  temperature = u_Degree(25)
+  inductance = u_mh(1)
+  temperature = u_degree(25)
 
-  voltage = resistance1 * u_mA(1) # compute unit
+  voltage = resistance1 * u_ma(1) # compute unit
 
   frequency = u_ms(20).frequency
-  period = u_Hz(50).period
+  period = u_hz(50).period
   pulsation = frequency.pulsation
   pulsation = period.pulsation
 
@@ -138,25 +138,12 @@ class UnitValueShorcut:
 
 ####################################################################################################
 
-def _to_ascii(name):
-    ascii_name = name
-    for args in (
-            ('μ', 'u'),
-            ('Ω', 'Ohm'),
-            ('°C', 'Degree'),
-    ):
-        ascii_name = ascii_name.replace(*args)
-    return ascii_name
-
 def define_shortcut(name, shortcut) :
     # ° is illegal in Python 3.5
     #  see https://docs.python.org/3/reference/lexical_analysis.html#identifiers
     #      https://www.python.org/dev/peps/pep-3131/
     if '°' not in name:
         globals()[name] = shortcut
-    ascii_name = _to_ascii(name)
-    if ascii_name != name:
-        globals()[ascii_name] = shortcut
 
 ####################################################################################################
 
@@ -198,17 +185,23 @@ class PeriodValues(_Unit.UnitValues): # , _Unit.PeriodMixin
 def _build_unit_type_shortcut(unit):
     name = 'U_' + unit.unit_suffix
     define_shortcut(name, unit)
+    if unit.spice_suffix and unit.spice_suffix != unit.unit_suffix:
+        name = 'U_' + unit.spice_suffix
+        define_shortcut(name, unit)
 
 def _build_as_unit_shortcut(unit):
     name = 'as_' + unit.unit_suffix
     shortcut = unit.validate
     define_shortcut(name, shortcut)
+    if unit.spice_suffix and unit.spice_suffix != unit.unit_suffix:
+        name = 'as_' + unit.spice_suffix
+        define_shortcut(name, shortcut)
+
 
 def _exec_body(ns, unit_prefix):
     ns['POWER'] = unit_prefix
 
 def _build_unit_prefix_shortcut(unit, unit_prefix):
-    name = 'u_' + str(unit_prefix) + unit.unit_suffix
     if unit.__class__ == _SiUnits.Hertz:
         value_ctor = FrequencyValue
         values_ctor = FrequencyValues
@@ -220,9 +213,18 @@ def _build_unit_prefix_shortcut(unit, unit_prefix):
         values_ctor = _Unit.UnitValues
     prefixed_unit = _Unit.PrefixedUnit(unit, unit_prefix, value_ctor, values_ctor)
     _Unit.PrefixedUnit.register(prefixed_unit)
-    define_shortcut('U' + name[1:], prefixed_unit)
+    suffixes = [unit.unit_suffix]
+    if unit.spice_suffix and unit.spice_suffix != unit.unit_suffix:
+        suffixes.append(unit.spice_suffix)
+    prefixes = [unit_prefix.prefix]
     shortcut = UnitValueShorcut(prefixed_unit)
-    define_shortcut(name, shortcut)
+    if unit_prefix.spice_prefix and unit_prefix.spice_prefix != unit_prefix.prefix:
+        prefixes.append(unit_prefix.spice_prefix)
+    for suffix in suffixes:
+        for prefix in prefixes:
+            name = 'u_' + prefix + suffix
+            define_shortcut('U' + name[1:], prefixed_unit)
+            define_shortcut(name, shortcut)
 
 def _build_unit_shortcut(unit):
     _build_as_unit_shortcut(unit)
@@ -233,7 +235,7 @@ def _build_unit_shortcut(unit):
 
 for unit in _Unit.UnitMetaclass.unit_iter():
     if unit.unit_suffix and unit.__class__ not in (_SiUnits.Kilogram,):
-        # Fixme: kilogram
+        # Fixme: kilogram and Meter (it can be mixed with mili)
         _build_unit_shortcut(unit)
 
 ####################################################################################################

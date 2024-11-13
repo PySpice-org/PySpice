@@ -32,23 +32,18 @@ import os
 
 ####################################################################################################
 
-from PySpice.Unit.Unit import UnitValue
-
-####################################################################################################
-
 def str_spice(obj, unit=True):
+    from ..Unit.Unit import UnitValue
+    from ..Spice.Expressions import Expression, Symbol
 
     # Fixme: right place ???
 
     """Convert an object to a Spice compatible string."""
 
-    if isinstance(obj, UnitValue):
-        if unit:
-            return obj.str_spice()
-        else: # Fixme: ok ???
-            return obj.str(spice=False, space=False, unit=False)
+    if hasattr(obj, 'str_spice'):
+        return obj.str_spice(unit)
     else:
-        return str(obj)
+        return str(obj).lower()
 
 ####################################################################################################
 
@@ -79,6 +74,7 @@ def join_list(items):
 ####################################################################################################
 
 def join_dict(d):
-    return ' '.join(["{}={}".format(key, str_spice(value))
-                     for key, value in sorted(d.items())
+    return ' '.join(["{}={}".format(key[:-1] if key.endswith('_') else key, str_spice(value))
+                     for key, value in d.items()
                      if value is not None])
+
