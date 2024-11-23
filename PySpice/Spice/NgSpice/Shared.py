@@ -440,8 +440,6 @@ class NgSpiceShared:
                 raise NotImplementedError
             cls.LIBRARY_PATH = str(path)
 
-
-
     ##############################################
 
     @classmethod
@@ -523,7 +521,6 @@ class NgSpiceShared:
             # https://sourceforge.net/p/ngspice/discussion/133842/thread/1cece652/#4e32/5ab8/9027
             # When environment variable SPICE_LIB_DIR is empty, ngspice looks in C:\Spice64\share\ngspice\scripts
             # Else it tries %SPICE_LIB_DIR%\scripts\spinit
-
             if 'SPICE_LIB_DIR' not in os.environ:
                 _ = str(Path(self.NGSPICE_PATH).joinpath('share', 'ngspice'))
                 os.environ['SPICE_LIB_DIR'] = _
@@ -635,7 +632,7 @@ class NgSpiceShared:
             elif content.startswith('Warning:'):
                 func = self._logger.warning
             elif content.startswith('Using'): # Ignore "Using ... as Direct Linear Solver" messages
-                func = self._logger.debug 
+                func = self._logger.debug
             else:
                 self._error_in_stderr = True
                 func = self._logger.error
