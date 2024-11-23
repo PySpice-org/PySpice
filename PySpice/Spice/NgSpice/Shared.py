@@ -416,10 +416,21 @@ class NgSpiceShared:
             cls.LIBRARY_PATH = _
         else:
             if ConfigInstall.OS.on_windows:
-                ngspice_path = Path(__file__).parent.joinpath('Spice64_dll')
-                cls.NGSPICE_PATH = ngspice_path
-                # path = ngspice_path.joinpath('dll-vs', 'ngspice-{version}{id}.dll')
-                path = ngspice_path.joinpath('dll-vs', 'ngspice{}.dll')
+                # Check for MSYSTEM environment first
+                msystem = os.environ.get('MSYSTEM')
+                mingw_prefix = os.environ.get('MINGW_PREFIX')
+
+                if msystem and mingw_prefix:
+                    # Use MINGW paths
+                    path = str(Path(mingw_prefix) / 'bin' / 'libngspice-0{}.dll')
+                    if 'SPICE_LIB_DIR' not in os.environ:
+                        os.environ['SPICE_LIB_DIR'] = str(Path(mingw_prefix) / 'share' / 'ngspice' / 'scripts')
+                else:
+                    # Fall back to original Windows paths
+                    ngspice_path = Path(__file__).parent.joinpath('Spice64_dll')
+                    cls.NGSPICE_PATH = ngspice_path
+                    # path = ngspice_path.joinpath('dll-vs', 'ngspice-{version}{id}.dll')
+                    path = str(ngspice_path.joinpath('dll-vs', 'ngspice{}.dll'))
 
             elif ConfigInstall.OS.on_osx:
                 path = 'libngspice{}.dylib'
