@@ -708,6 +708,7 @@ class NgSpiceShared:
         self = ffi.from_handle(user_data)
         self._logger.debug(f'ngspice_id-{ngspice_id} background_thread_running {is_running}')
         self._is_running = is_running
+        return 0
 
     ##############################################
 
