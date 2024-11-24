@@ -58,7 +58,7 @@ while |Xyce|_ is a SPICE compatible simulator developed by the `Sandia National 
 
 .. rst-class:: small-text
 
-    (*) PySpice is licensed under GPLv3 therms.
+    (*) PySpice is licensed under GPLv3 terms.
 
 PySpice implements a Ngspice binding and provides an oriented object API on top of SPICE, the
 simulation output is converted to |Numpy|_ arrays for convenience.
