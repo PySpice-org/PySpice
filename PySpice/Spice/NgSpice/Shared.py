@@ -633,6 +633,10 @@ class NgSpiceShared:
                 func = self._logger.warning
             elif content.startswith('Using'): # Ignore "Using ... as Direct Linear Solver" messages
                 func = self._logger.debug
+            elif content.startswith('doAnalyses:'): 
+                func = self._logger.debug
+            elif content.startswith('run simulation interrupted'): 
+                func = self._logger.debug
             else:
                 self._error_in_stderr = True
                 func = self._logger.error
