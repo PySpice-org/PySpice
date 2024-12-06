@@ -90,7 +90,7 @@ import re
 import numpy as np
 
 from cffi import FFI
-
+import warnings
 ####################################################################################################
 
 from PySpice.Config import ConfigInstall
@@ -621,6 +621,9 @@ class NgSpiceShared:
             if content.startswith('Warning:'):
                 func = self._logger.warning
             # elif content.startswith('Warning:'):
+            elif content.startswith('Error: Using SPARSE 1.3') or content.startswith('Error: bad set form'):
+                func = lambda x: None
+
             else:
                 self._error_in_stderr = True
                 func = self._logger.error
@@ -635,6 +638,7 @@ class NgSpiceShared:
                 self._error_in_stdout = True
             # if self._error_in_stdout:
             #     self._logger.warning(content)
+
 
         # Fixme: ???
         return self.send_char(message, ngspice_id)
@@ -848,7 +852,8 @@ class NgSpiceShared:
             raise NameError("ngSpice_Command '{}' returned {}".format(command, rc))
 
         if self._error_in_stdout or self._error_in_stderr:
-            raise NgSpiceCommandError("Command '{}' failed".format(command))
+            # raise NgSpiceCommandError("Command '{}' failed".format(command))
+            warnings.warn('NgSpiceCommandError: Command {} warning'.format(command))
 
         if join_lines:
             return self.stdout
@@ -1167,7 +1172,8 @@ class NgSpiceShared:
         # Fixme: https://sourceforge.net/p/ngspice/bugs/496/
         if self._error_in_stdout:
             self._logger.error('\n' + self.stdout)
-            raise NgSpiceCircuitError('')
+            # raise NgSpiceCircuitError('')
+            warnings.warn('NgSpiceCircuitError')
 
         # for line in circuit_lines:
         #     rc = self._ngspice_shared.ngSpice_Command(('circbyline ' + line).encode('utf8'))
