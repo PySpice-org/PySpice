@@ -1,0 +1,76 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+eqnstr.\+Eqn\+Str\+Strategy Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy}\index{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy@{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy}}
+Inheritance diagram for Py\+Spice.\+Spice.\+Open\+SPICE.\+eqnstr.\+Eqn\+Str\+Strategy\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.386364cm]{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy_aa758bb531654f0ecde1a7ac354093f83}{gen\+\_\+eqn\+\_\+from\+\_\+branch}} (self, \+\_\+b, \+\_\+n)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy_ad807f82bee170ec992bc45045d370e22}{gen\+\_\+eqns}} (self, branch\+\_\+dicts, nodes)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy_a9825e3b57fefe5948f905bdb7603fc95}{gen\+\_\+kcl\+\_\+eqns}} (self, branch\+\_\+dicts, nodes)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Abstract class that represents a simulations strategy (e.g. operating
+point, transient, etc.). Class contains methods for generating
+equations for the given strategy.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy_aa758bb531654f0ecde1a7ac354093f83}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy_aa758bb531654f0ecde1a7ac354093f83}} 
+\index{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy@{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy}!gen\_eqn\_from\_branch@{gen\_eqn\_from\_branch}}
+\index{gen\_eqn\_from\_branch@{gen\_eqn\_from\_branch}!PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy@{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy}}
+\doxysubsubsection{\texorpdfstring{gen\_eqn\_from\_branch()}{gen\_eqn\_from\_branch()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+eqnstr.\+Eqn\+Str\+Strategy.\+gen\+\_\+eqn\+\_\+from\+\_\+branch (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{\+\_\+b,  }\item[{}]{\+\_\+n }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Generate formatted equation string for the given circuit branch.
+
+@param _b: Branch dictionary
+@param _n: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ 
+
+Reimplemented in \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrOpPtStrategy_a8ffcd2311ae2eb7d682d229d4ab1b8a3}{Py\+Spice.\+Spice.\+Open\+SPICE.\+eqnstr.\+Eqn\+Str\+Op\+Pt\+Strategy}}, and \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrTransientStrategy_a14658a496eebd4540f74e0fcf7a4c778}{Py\+Spice.\+Spice.\+Open\+SPICE.\+eqnstr.\+Eqn\+Str\+Transient\+Strategy}}.
+
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy_ad807f82bee170ec992bc45045d370e22}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy_ad807f82bee170ec992bc45045d370e22}} 
+\index{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy@{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy}!gen\_eqns@{gen\_eqns}}
+\index{gen\_eqns@{gen\_eqns}!PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy@{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy}}
+\doxysubsubsection{\texorpdfstring{gen\_eqns()}{gen\_eqns()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+eqnstr.\+Eqn\+Str\+Strategy.\+gen\+\_\+eqns (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{branch\+\_\+dicts,  }\item[{}]{nodes }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Generate list of formatted equation strings. First portion of list is
+branch equations given by underlying Component classes. The second
+portion of list is KCL equations. KCL equations each represent all of
+the currents flowing into/out of a given node. So, there should be
+one KCL equation for each node and one branch equation for each branch.
+
+@param branch_dicts: List of branch dictionaries
+@param nodes: List of node numbers.
+@return: List of formatted equation strings.
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy_a9825e3b57fefe5948f905bdb7603fc95}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1eqnstr_1_1EqnStrStrategy_a9825e3b57fefe5948f905bdb7603fc95}} 
+\index{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy@{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy}!gen\_kcl\_eqns@{gen\_kcl\_eqns}}
+\index{gen\_kcl\_eqns@{gen\_kcl\_eqns}!PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy@{PySpice.Spice.OpenSPICE.eqnstr.EqnStrStrategy}}
+\doxysubsubsection{\texorpdfstring{gen\_kcl\_eqns()}{gen\_kcl\_eqns()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+eqnstr.\+Eqn\+Str\+Strategy.\+gen\+\_\+kcl\+\_\+eqns (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{branch\+\_\+dicts,  }\item[{}]{nodes }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Generate list of formatted equation strings for KCL equations.
+
+@param branch_dicts: List of branch dictionaries
+@param nodes: List of node numbers.
+@return: List of formatted equation strings.
+\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+eqnstr.\+py\end{DoxyCompactItemize}

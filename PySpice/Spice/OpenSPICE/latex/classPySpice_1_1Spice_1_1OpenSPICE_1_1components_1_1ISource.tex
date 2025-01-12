@@ -1,0 +1,60 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1ISource}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+ISource Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1ISource}\index{PySpice.Spice.OpenSPICE.components.ISource@{PySpice.Spice.OpenSPICE.components.ISource}}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1ISource_a045e7e1c272fa2f0c1bd873316cb8a55}{op\+\_\+pt\+\_\+eqn}} (branch, node)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1ISource_a4806826ab24c1ce0971ca6977b00352f}{trans\+\_\+eqn}} (branch, node)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Class that represents a current source. Class contains
+methods for formatting equation strings for use in the final system
+of equations solved at each simulation timestep.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1ISource_a045e7e1c272fa2f0c1bd873316cb8a55}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1ISource_a045e7e1c272fa2f0c1bd873316cb8a55}} 
+\index{PySpice.Spice.OpenSPICE.components.ISource@{PySpice.Spice.OpenSPICE.components.ISource}!op\_pt\_eqn@{op\_pt\_eqn}}
+\index{op\_pt\_eqn@{op\_pt\_eqn}!PySpice.Spice.OpenSPICE.components.ISource@{PySpice.Spice.OpenSPICE.components.ISource}}
+\doxysubsubsection{\texorpdfstring{op\_pt\_eqn()}{op\_pt\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+ISource.\+op\+\_\+pt\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Generate op point equation for current source.
+
+Equation format: ((x[branch current]) - (current value))
+
+In other words, the branch current must be the source's current
+value.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1ISource_a4806826ab24c1ce0971ca6977b00352f}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1ISource_a4806826ab24c1ce0971ca6977b00352f}} 
+\index{PySpice.Spice.OpenSPICE.components.ISource@{PySpice.Spice.OpenSPICE.components.ISource}!trans\_eqn@{trans\_eqn}}
+\index{trans\_eqn@{trans\_eqn}!PySpice.Spice.OpenSPICE.components.ISource@{PySpice.Spice.OpenSPICE.components.ISource}}
+\doxysubsubsection{\texorpdfstring{trans\_eqn()}{trans\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+ISource.\+trans\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Generate op point equation for current source.
+
+Equation format: ((x[branch current]) - (current value))
+
+In other words, the branch current must be the source's current
+value.
+
+Note: Equation is the same as op point case.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+components.\+py\end{DoxyCompactItemize}

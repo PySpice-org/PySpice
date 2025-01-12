@@ -1,0 +1,80 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Component Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component}\index{PySpice.Spice.OpenSPICE.components.Component@{PySpice.Spice.OpenSPICE.components.Component}}
+Inheritance diagram for Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Component\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component}
+\end{center}
+\end{figure}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component_a39d990fbc97e25fd5d6ee640b4479bdb}{op\+\_\+pt\+\_\+eqn}} (branch, node)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component_a48e5b75381d3291d5ebda2cd2c817f4c}{trans\+\_\+eqn}} (branch, node)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Abstract class that represents an electrical component. Class contains
+methods for formatting equation strings for use in the final system
+of equations solved at each simulation timestep.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component_a39d990fbc97e25fd5d6ee640b4479bdb}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component_a39d990fbc97e25fd5d6ee640b4479bdb}} 
+\index{PySpice.Spice.OpenSPICE.components.Component@{PySpice.Spice.OpenSPICE.components.Component}!op\_pt\_eqn@{op\_pt\_eqn}}
+\index{op\_pt\_eqn@{op\_pt\_eqn}!PySpice.Spice.OpenSPICE.components.Component@{PySpice.Spice.OpenSPICE.components.Component}}
+\doxysubsubsection{\texorpdfstring{op\_pt\_eqn()}{op\_pt\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Component.\+op\+\_\+pt\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Return an equation string for the component. The equation string is
+the left hand side of f(x) = 0, where x is an array. The initial
+elements of the array are the node voltages. The latter portion of the
+array is a list of the branch currents in the circuit. A system of
+these equation strings is solved at each timestep so we can acquire the
+voltages and currents.
+
+f(x) usually represents the IV characteristic of a component.
+For instance, if g(I) = V for the component of interest,
+f(x) = g(I) - V = 0 is a valid equation string. It would usually be
+represented in the form g(I) - V. Similarly, h(V) = I -->
+f(x) = h(V) - I = 0 would also work. It is usually just some condition
+that must hold by definition for this component.
+
+As of now, only components with two terminals are considered.
+
+op_pt_eqn in particular focuses only on operating point simulations.
+So, users are advised to avoid using any x_prev expressions.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ 
+
+Reimplemented in \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor_af2854856cb75351027800ff8fe2b226f}{Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Resistor}}.
+
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component_a48e5b75381d3291d5ebda2cd2c817f4c}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component_a48e5b75381d3291d5ebda2cd2c817f4c}} 
+\index{PySpice.Spice.OpenSPICE.components.Component@{PySpice.Spice.OpenSPICE.components.Component}!trans\_eqn@{trans\_eqn}}
+\index{trans\_eqn@{trans\_eqn}!PySpice.Spice.OpenSPICE.components.Component@{PySpice.Spice.OpenSPICE.components.Component}}
+\doxysubsubsection{\texorpdfstring{trans\_eqn()}{trans\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Component.\+trans\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Same as op_pt_eqn except for transient simulations. Feel free
+to use x_prev in these.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ 
+
+Reimplemented in \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor_ae51955bca73419e44e93ca3d0c9ce027}{Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Resistor}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+components.\+py\end{DoxyCompactItemize}

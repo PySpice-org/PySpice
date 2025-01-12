@@ -1,0 +1,43 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1Server_1_1OpenSPICEServer}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+Server.\+Open\+SPICEServer Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1Server_1_1OpenSPICEServer}\index{PySpice.Spice.OpenSPICE.Server.OpenSPICEServer@{PySpice.Spice.OpenSPICE.Server.OpenSPICEServer}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1Server_1_1OpenSPICEServer_ac6249afc8682cc156b9f47321ae3789d}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1Server_1_1OpenSPICEServer_ac6249afc8682cc156b9f47321ae3789d}} 
+def {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self, $\ast$$\ast$kwargs)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1Server_1_1OpenSPICEServer_a9b32d3efb2d703078900bab456442923}{\+\_\+\+\_\+call\+\_\+\+\_\+}} (self, spice\+\_\+input)
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1Server_1_1OpenSPICEServer_a672788a58688ec90b2a61452106fb845}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1Server_1_1OpenSPICEServer_a672788a58688ec90b2a61452106fb845}} 
+string {\bfseries Open\+SPICE\+\_\+\+COMMAND} = \textquotesingle{}python3 -\/m Open\+SPICE\textquotesingle{}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}This class wraps the execution of OpenSPICE and convert the output to a Python data structure.
+
+Example of usage::
+
+  spice_server = OpenSPICEServer()
+  raw_file = spice_server(spice_input)
+
+It returns a :obj:`PySpice.Spice.RawFile` instance.\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1Server_1_1OpenSPICEServer_a9b32d3efb2d703078900bab456442923}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1Server_1_1OpenSPICEServer_a9b32d3efb2d703078900bab456442923}} 
+\index{PySpice.Spice.OpenSPICE.Server.OpenSPICEServer@{PySpice.Spice.OpenSPICE.Server.OpenSPICEServer}!\_\_call\_\_@{\_\_call\_\_}}
+\index{\_\_call\_\_@{\_\_call\_\_}!PySpice.Spice.OpenSPICE.Server.OpenSPICEServer@{PySpice.Spice.OpenSPICE.Server.OpenSPICEServer}}
+\doxysubsubsection{\texorpdfstring{\_\_call\_\_()}{\_\_call\_\_()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+Server.\+Open\+SPICEServer.\+\_\+\+\_\+call\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{spice\+\_\+input }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Run SPICE in server mode as a subprocess for the given input and return a
+:obj:`PySpice.RawFile.RawFile` instance.\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Server.\+py\end{DoxyCompactItemize}

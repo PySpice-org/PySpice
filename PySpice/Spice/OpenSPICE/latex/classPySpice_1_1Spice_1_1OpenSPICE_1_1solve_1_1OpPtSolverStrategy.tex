@@ -1,0 +1,66 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Op\+Pt\+Solver\+Strategy Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy}\index{PySpice.Spice.OpenSPICE.solve.OpPtSolverStrategy@{PySpice.Spice.OpenSPICE.solve.OpPtSolverStrategy}}
+Inheritance diagram for Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Op\+Pt\+Solver\+Strategy\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_acf61620112226d8dd1d6057f1da87ea0}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, eqns, nodes)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_a7046e1818f18afb2e7bc32ecf07c664d}{solve\+\_\+eqns}} (self)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_a0f519c747f41e6e1a9cbd1370f6248ac}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_a0f519c747f41e6e1a9cbd1370f6248ac}} 
+{\bfseries eqns}
+\item 
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_a2b6c73f946853db959352cf13cc6775a}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_a2b6c73f946853db959352cf13cc6775a}} 
+{\bfseries nodes}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Operating point solver strategy subclass
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_acf61620112226d8dd1d6057f1da87ea0}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_acf61620112226d8dd1d6057f1da87ea0}} 
+\index{PySpice.Spice.OpenSPICE.solve.OpPtSolverStrategy@{PySpice.Spice.OpenSPICE.solve.OpPtSolverStrategy}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!PySpice.Spice.OpenSPICE.solve.OpPtSolverStrategy@{PySpice.Spice.OpenSPICE.solve.OpPtSolverStrategy}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Op\+Pt\+Solver\+Strategy.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{eqns,  }\item[{}]{nodes }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initializer function.
+
+@param eqns: list of equation strings containing x[*] list entries
+@param nodes: list of nodes
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_a7046e1818f18afb2e7bc32ecf07c664d}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_a7046e1818f18afb2e7bc32ecf07c664d}} 
+\index{PySpice.Spice.OpenSPICE.solve.OpPtSolverStrategy@{PySpice.Spice.OpenSPICE.solve.OpPtSolverStrategy}!solve\_eqns@{solve\_eqns}}
+\index{solve\_eqns@{solve\_eqns}!PySpice.Spice.OpenSPICE.solve.OpPtSolverStrategy@{PySpice.Spice.OpenSPICE.solve.OpPtSolverStrategy}}
+\doxysubsubsection{\texorpdfstring{solve\_eqns()}{solve\_eqns()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Op\+Pt\+Solver\+Strategy.\+solve\+\_\+eqns (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Solve equations.
+
+@return: solution array; first entries are node voltages; the latter
+entries are branch currents
+\end{DoxyVerb}
+ 
+
+Reimplemented from \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1SolverStrategy_a1adde88d9b0006e96ce7fcfad14b8be5}{Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Solver\+Strategy}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+solve.\+py\end{DoxyCompactItemize}

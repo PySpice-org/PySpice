@@ -62,7 +62,7 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-thevenin_circuit = Circuit('Thévenin Representation')
+thevenin_circuit = Circuit('Thevenin Representation')
 
 thevenin_circuit.V('input', 1, thevenin_circuit.gnd, 10@u_V)
 thevenin_circuit.R('generator', 1, 'load', 10@u_Ω)

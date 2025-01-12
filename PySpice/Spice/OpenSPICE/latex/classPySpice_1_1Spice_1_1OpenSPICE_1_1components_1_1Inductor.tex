@@ -1,0 +1,68 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Inductor}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Inductor Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Inductor}\index{PySpice.Spice.OpenSPICE.components.Inductor@{PySpice.Spice.OpenSPICE.components.Inductor}}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Inductor_ad06a129aab82f87f4c3ee9f0ab1b3cbb}{op\+\_\+pt\+\_\+eqn}} (branch, node)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Inductor_ac341a3ff55622d333f6c98f3882c7845}{trans\+\_\+eqn}} (branch, node)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Class that represents an inductor. Class contains
+methods for formatting equation strings for use in the final system
+of equations solved at each simulation timestep.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Inductor_ad06a129aab82f87f4c3ee9f0ab1b3cbb}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Inductor_ad06a129aab82f87f4c3ee9f0ab1b3cbb}} 
+\index{PySpice.Spice.OpenSPICE.components.Inductor@{PySpice.Spice.OpenSPICE.components.Inductor}!op\_pt\_eqn@{op\_pt\_eqn}}
+\index{op\_pt\_eqn@{op\_pt\_eqn}!PySpice.Spice.OpenSPICE.components.Inductor@{PySpice.Spice.OpenSPICE.components.Inductor}}
+\doxysubsubsection{\texorpdfstring{op\_pt\_eqn()}{op\_pt\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Inductor.\+op\+\_\+pt\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Generate op point equation for inductor.
+
+Equation format: (((x[node_plus index]) - (x[node_minus index])) -
+                   (0.00))
+
+Note: At steady state, inductors act as short circuits. Therefore,
+the branch voltage drop must be 0.00.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Inductor_ac341a3ff55622d333f6c98f3882c7845}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Inductor_ac341a3ff55622d333f6c98f3882c7845}} 
+\index{PySpice.Spice.OpenSPICE.components.Inductor@{PySpice.Spice.OpenSPICE.components.Inductor}!trans\_eqn@{trans\_eqn}}
+\index{trans\_eqn@{trans\_eqn}!PySpice.Spice.OpenSPICE.components.Inductor@{PySpice.Spice.OpenSPICE.components.Inductor}}
+\doxysubsubsection{\texorpdfstring{trans\_eqn()}{trans\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Inductor.\+trans\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Generate transient equation for the inductor.
+
+There are two cases. The first case is t = 0.00, the simulation start
+point. Here, the equation string is as follows:
+
+"((x[branch current])-(initial current value))"
+
+This is the initial condition. The second case is t != 0.00, or the
+"else" case:
+
+"((((x[node_plus index])-(x[node_minus index]))*dt)-
+   ((inductance value)*((di))))"
+
+This is a rearrangement of the differential equation V = Ldi/dt -->
+Vdt - Ldi = 0.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+components.\+py\end{DoxyCompactItemize}

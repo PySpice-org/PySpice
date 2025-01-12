@@ -1,0 +1,69 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Transient\+Solver\+Strategy Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy}\index{PySpice.Spice.OpenSPICE.solve.TransientSolverStrategy@{PySpice.Spice.OpenSPICE.solve.TransientSolverStrategy}}
+Inheritance diagram for Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Transient\+Solver\+Strategy\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_ad7d38403a82dec88ba02bc10d3a8257f}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, eqns, ctrl, nodes)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_a369e30252265706d3adbfcf91613c963}{solve\+\_\+eqns}} (self)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_a291a6bd276ef841551ceea201bcfdf73}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_a291a6bd276ef841551ceea201bcfdf73}} 
+{\bfseries eqns}
+\item 
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_ae90d3563ec4f46915c502c4a5644b3d5}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_ae90d3563ec4f46915c502c4a5644b3d5}} 
+{\bfseries ctrl}
+\item 
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_ae4a7470da0001d15f4fccf0e269eef71}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_ae4a7470da0001d15f4fccf0e269eef71}} 
+{\bfseries nodes}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Transient solver strategy subclass
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_ad7d38403a82dec88ba02bc10d3a8257f}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_ad7d38403a82dec88ba02bc10d3a8257f}} 
+\index{PySpice.Spice.OpenSPICE.solve.TransientSolverStrategy@{PySpice.Spice.OpenSPICE.solve.TransientSolverStrategy}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!PySpice.Spice.OpenSPICE.solve.TransientSolverStrategy@{PySpice.Spice.OpenSPICE.solve.TransientSolverStrategy}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Transient\+Solver\+Strategy.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{eqns,  }\item[{}]{ctrl,  }\item[{}]{nodes }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initializer function.
+
+@param eqns: list of equation strings containing x[*] list entries
+@param nodes: list of nodes
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_a369e30252265706d3adbfcf91613c963}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_a369e30252265706d3adbfcf91613c963}} 
+\index{PySpice.Spice.OpenSPICE.solve.TransientSolverStrategy@{PySpice.Spice.OpenSPICE.solve.TransientSolverStrategy}!solve\_eqns@{solve\_eqns}}
+\index{solve\_eqns@{solve\_eqns}!PySpice.Spice.OpenSPICE.solve.TransientSolverStrategy@{PySpice.Spice.OpenSPICE.solve.TransientSolverStrategy}}
+\doxysubsubsection{\texorpdfstring{solve\_eqns()}{solve\_eqns()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Transient\+Solver\+Strategy.\+solve\+\_\+eqns (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Solve equations.
+
+@return: solution array; first entries are node voltages; the latter
+entries are branch currents
+\end{DoxyVerb}
+ 
+
+Reimplemented from \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1SolverStrategy_a1adde88d9b0006e96ce7fcfad14b8be5}{Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Solver\+Strategy}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+solve.\+py\end{DoxyCompactItemize}

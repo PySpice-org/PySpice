@@ -1,0 +1,7 @@
+V1 1 0 1
+R1 1 2 1
+C1 2 0 1 ic=1
+
+.control
+    .tran 1 100 0 1 uic
+.end

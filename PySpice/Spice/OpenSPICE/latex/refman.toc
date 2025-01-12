@@ -1,0 +1,183 @@
+\@ifundefined {etoctocstyle}{\let \etoc@startlocaltoc \@gobble \let \etoc@settocdepth \@gobble \let \etoc@depthtag \@gobble \let \etoc@setlocaltop \@gobble }{}
+\contentsline {chapter}{\numberline {1}Hierarchical Index}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Class Hierarchy}{1}{section.1.1}%
+\contentsline {chapter}{\numberline {2}Class Index}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Class List}{3}{section.2.1}%
+\contentsline {chapter}{\numberline {3}Class Documentation}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Behav\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}ISource\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{5}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Detailed Description}{5}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Member Function Documentation}{5}{subsection.3.1.2}%
+\contentsline {subsubsection}{\numberline {3.1.2.1}gen\_txt\_str()}{6}{subsubsection.3.1.2.1}%
+\contentsline {section}{\numberline {3.2}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Behav\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}VSource\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{6}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Detailed Description}{6}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Member Function Documentation}{6}{subsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.2.1}gen\_txt\_str()}{7}{subsubsection.3.2.2.1}%
+\contentsline {section}{\numberline {3.3}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}components.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Capacitor Class Reference}{7}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Detailed Description}{7}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Member Function Documentation}{7}{subsection.3.3.2}%
+\contentsline {subsubsection}{\numberline {3.3.2.1}op\_pt\_eqn()}{7}{subsubsection.3.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.3.2.2}trans\_eqn()}{8}{subsubsection.3.3.2.2}%
+\contentsline {section}{\numberline {3.4}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Capacitor\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{8}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Detailed Description}{9}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Member Function Documentation}{9}{subsection.3.4.2}%
+\contentsline {subsubsection}{\numberline {3.4.2.1}gen\_txt\_str()}{9}{subsubsection.3.4.2.1}%
+\contentsline {section}{\numberline {3.5}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}CCCSSource\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{9}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Detailed Description}{10}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Member Function Documentation}{10}{subsection.3.5.2}%
+\contentsline {subsubsection}{\numberline {3.5.2.1}gen\_txt\_str()}{10}{subsubsection.3.5.2.1}%
+\contentsline {section}{\numberline {3.6}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}CCVSSource\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{10}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Detailed Description}{11}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Member Function Documentation}{11}{subsection.3.6.2}%
+\contentsline {subsubsection}{\numberline {3.6.2.1}gen\_txt\_str()}{11}{subsubsection.3.6.2.1}%
+\contentsline {section}{\numberline {3.7}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}components.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Component Class Reference}{11}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}Detailed Description}{11}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.2}Member Function Documentation}{12}{subsection.3.7.2}%
+\contentsline {subsubsection}{\numberline {3.7.2.1}op\_pt\_eqn()}{12}{subsubsection.3.7.2.1}%
+\contentsline {subsubsection}{\numberline {3.7.2.2}trans\_eqn()}{12}{subsubsection.3.7.2.2}%
+\contentsline {section}{\numberline {3.8}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}eqnstr.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Eqn\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Str\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Op\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Pt\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Strategy Class Reference}{13}{section.3.8}%
+\contentsline {subsection}{\numberline {3.8.1}Detailed Description}{13}{subsection.3.8.1}%
+\contentsline {subsection}{\numberline {3.8.2}Constructor \& Destructor Documentation}{13}{subsection.3.8.2}%
+\contentsline {subsubsection}{\numberline {3.8.2.1}\_\_init\_\_()}{13}{subsubsection.3.8.2.1}%
+\contentsline {subsection}{\numberline {3.8.3}Member Function Documentation}{13}{subsection.3.8.3}%
+\contentsline {subsubsection}{\numberline {3.8.3.1}gen\_eqn\_from\_branch()}{14}{subsubsection.3.8.3.1}%
+\contentsline {section}{\numberline {3.9}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}eqnstr.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Eqn\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Str\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Strategy Class Reference}{14}{section.3.9}%
+\contentsline {subsection}{\numberline {3.9.1}Detailed Description}{14}{subsection.3.9.1}%
+\contentsline {subsection}{\numberline {3.9.2}Member Function Documentation}{14}{subsection.3.9.2}%
+\contentsline {subsubsection}{\numberline {3.9.2.1}gen\_eqn\_from\_branch()}{15}{subsubsection.3.9.2.1}%
+\contentsline {subsubsection}{\numberline {3.9.2.2}gen\_eqns()}{15}{subsubsection.3.9.2.2}%
+\contentsline {subsubsection}{\numberline {3.9.2.3}gen\_kcl\_eqns()}{15}{subsubsection.3.9.2.3}%
+\contentsline {section}{\numberline {3.10}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}eqnstr.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Eqn\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Str\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Transient\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Strategy Class Reference}{16}{section.3.10}%
+\contentsline {subsection}{\numberline {3.10.1}Detailed Description}{16}{subsection.3.10.1}%
+\contentsline {subsection}{\numberline {3.10.2}Constructor \& Destructor Documentation}{16}{subsection.3.10.2}%
+\contentsline {subsubsection}{\numberline {3.10.2.1}\_\_init\_\_()}{16}{subsubsection.3.10.2.1}%
+\contentsline {subsection}{\numberline {3.10.3}Member Function Documentation}{16}{subsection.3.10.3}%
+\contentsline {subsubsection}{\numberline {3.10.3.1}gen\_eqn\_from\_branch()}{17}{subsubsection.3.10.3.1}%
+\contentsline {section}{\numberline {3.11}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Ext\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}ISource\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{17}{section.3.11}%
+\contentsline {subsection}{\numberline {3.11.1}Detailed Description}{17}{subsection.3.11.1}%
+\contentsline {subsection}{\numberline {3.11.2}Member Function Documentation}{17}{subsection.3.11.2}%
+\contentsline {subsubsection}{\numberline {3.11.2.1}gen\_txt\_str()}{18}{subsubsection.3.11.2.1}%
+\contentsline {section}{\numberline {3.12}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Ext\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}VSource\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{18}{section.3.12}%
+\contentsline {subsection}{\numberline {3.12.1}Detailed Description}{18}{subsection.3.12.1}%
+\contentsline {subsection}{\numberline {3.12.2}Member Function Documentation}{18}{subsection.3.12.2}%
+\contentsline {subsubsection}{\numberline {3.12.2.1}gen\_txt\_str()}{19}{subsubsection.3.12.2.1}%
+\contentsline {section}{\numberline {3.13}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}components.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Inductor Class Reference}{19}{section.3.13}%
+\contentsline {subsection}{\numberline {3.13.1}Detailed Description}{19}{subsection.3.13.1}%
+\contentsline {subsection}{\numberline {3.13.2}Member Function Documentation}{19}{subsection.3.13.2}%
+\contentsline {subsubsection}{\numberline {3.13.2.1}op\_pt\_eqn()}{19}{subsubsection.3.13.2.1}%
+\contentsline {subsubsection}{\numberline {3.13.2.2}trans\_eqn()}{20}{subsubsection.3.13.2.2}%
+\contentsline {section}{\numberline {3.14}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Inductor\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{20}{section.3.14}%
+\contentsline {subsection}{\numberline {3.14.1}Detailed Description}{21}{subsection.3.14.1}%
+\contentsline {subsection}{\numberline {3.14.2}Member Function Documentation}{21}{subsection.3.14.2}%
+\contentsline {subsubsection}{\numberline {3.14.2.1}gen\_txt\_str()}{21}{subsubsection.3.14.2.1}%
+\contentsline {section}{\numberline {3.15}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}components.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}ISource Class Reference}{21}{section.3.15}%
+\contentsline {subsection}{\numberline {3.15.1}Detailed Description}{21}{subsection.3.15.1}%
+\contentsline {subsection}{\numberline {3.15.2}Member Function Documentation}{21}{subsection.3.15.2}%
+\contentsline {subsubsection}{\numberline {3.15.2.1}op\_pt\_eqn()}{22}{subsubsection.3.15.2.1}%
+\contentsline {subsubsection}{\numberline {3.15.2.2}trans\_eqn()}{22}{subsubsection.3.15.2.2}%
+\contentsline {section}{\numberline {3.16}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}ISource\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{22}{section.3.16}%
+\contentsline {subsection}{\numberline {3.16.1}Detailed Description}{23}{subsection.3.16.1}%
+\contentsline {subsection}{\numberline {3.16.2}Member Function Documentation}{23}{subsection.3.16.2}%
+\contentsline {subsubsection}{\numberline {3.16.2.1}gen\_txt\_str()}{23}{subsubsection.3.16.2.1}%
+\contentsline {section}{\numberline {3.17}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Shared.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICECircuit\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Error Class Reference}{23}{section.3.17}%
+\contentsline {section}{\numberline {3.18}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Simulation.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICECircuit\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Simulator Class Reference}{24}{section.3.18}%
+\contentsline {section}{\numberline {3.19}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Shared.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICECommand\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Error Class Reference}{24}{section.3.19}%
+\contentsline {section}{\numberline {3.20}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Server.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICEServer Class Reference}{24}{section.3.20}%
+\contentsline {subsection}{\numberline {3.20.1}Detailed Description}{25}{subsection.3.20.1}%
+\contentsline {subsection}{\numberline {3.20.2}Member Function Documentation}{25}{subsection.3.20.2}%
+\contentsline {subsubsection}{\numberline {3.20.2.1}\_\_call\_\_()}{25}{subsubsection.3.20.2.1}%
+\contentsline {section}{\numberline {3.21}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Shared.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICEShared Class Reference}{25}{section.3.21}%
+\contentsline {subsection}{\numberline {3.21.1}Constructor \& Destructor Documentation}{26}{subsection.3.21.1}%
+\contentsline {subsubsection}{\numberline {3.21.1.1}\_\_init\_\_()}{27}{subsubsection.3.21.1.1}%
+\contentsline {subsection}{\numberline {3.21.2}Member Function Documentation}{27}{subsection.3.21.2}%
+\contentsline {subsubsection}{\numberline {3.21.2.1}alter\_device()}{27}{subsubsection.3.21.2.1}%
+\contentsline {subsubsection}{\numberline {3.21.2.2}alter\_model()}{27}{subsubsection.3.21.2.2}%
+\contentsline {subsubsection}{\numberline {3.21.2.3}delete()}{27}{subsubsection.3.21.2.3}%
+\contentsline {subsubsection}{\numberline {3.21.2.4}destroy()}{28}{subsubsection.3.21.2.4}%
+\contentsline {subsubsection}{\numberline {3.21.2.5}device\_help()}{28}{subsubsection.3.21.2.5}%
+\contentsline {subsubsection}{\numberline {3.21.2.6}exec\_command()}{28}{subsubsection.3.21.2.6}%
+\contentsline {subsubsection}{\numberline {3.21.2.7}get\_isrc\_data()}{28}{subsubsection.3.21.2.7}%
+\contentsline {subsubsection}{\numberline {3.21.2.8}get\_vsrc\_data()}{29}{subsubsection.3.21.2.8}%
+\contentsline {subsubsection}{\numberline {3.21.2.9}halt()}{29}{subsubsection.3.21.2.9}%
+\contentsline {subsubsection}{\numberline {3.21.2.10}has\_cider()}{29}{subsubsection.3.21.2.10}%
+\contentsline {subsubsection}{\numberline {3.21.2.11}has\_xspice()}{29}{subsubsection.3.21.2.11}%
+\contentsline {subsubsection}{\numberline {3.21.2.12}last\_plot()}{29}{subsubsection.3.21.2.12}%
+\contentsline {subsubsection}{\numberline {3.21.2.13}load\_circuit()}{30}{subsubsection.3.21.2.13}%
+\contentsline {subsubsection}{\numberline {3.21.2.14}new\_instance()}{30}{subsubsection.3.21.2.14}%
+\contentsline {subsubsection}{\numberline {3.21.2.15}option()}{30}{subsubsection.3.21.2.15}%
+\contentsline {subsubsection}{\numberline {3.21.2.16}plot()}{30}{subsubsection.3.21.2.16}%
+\contentsline {subsubsection}{\numberline {3.21.2.17}plot\_names()}{31}{subsubsection.3.21.2.17}%
+\contentsline {subsubsection}{\numberline {3.21.2.18}remove\_circuit()}{31}{subsubsection.3.21.2.18}%
+\contentsline {subsubsection}{\numberline {3.21.2.19}reset()}{31}{subsubsection.3.21.2.19}%
+\contentsline {subsubsection}{\numberline {3.21.2.20}ressource\_usage()}{31}{subsubsection.3.21.2.20}%
+\contentsline {subsubsection}{\numberline {3.21.2.21}resume()}{32}{subsubsection.3.21.2.21}%
+\contentsline {subsubsection}{\numberline {3.21.2.22}run()}{32}{subsubsection.3.21.2.22}%
+\contentsline {subsubsection}{\numberline {3.21.2.23}send\_char()}{32}{subsubsection.3.21.2.23}%
+\contentsline {subsubsection}{\numberline {3.21.2.24}send\_data()}{32}{subsubsection.3.21.2.24}%
+\contentsline {subsubsection}{\numberline {3.21.2.25}send\_init\_data()}{33}{subsubsection.3.21.2.25}%
+\contentsline {subsubsection}{\numberline {3.21.2.26}send\_stat()}{33}{subsubsection.3.21.2.26}%
+\contentsline {subsubsection}{\numberline {3.21.2.27}set()}{33}{subsubsection.3.21.2.27}%
+\contentsline {subsubsection}{\numberline {3.21.2.28}set\_circuit()}{33}{subsubsection.3.21.2.28}%
+\contentsline {subsubsection}{\numberline {3.21.2.29}source()}{34}{subsubsection.3.21.2.29}%
+\contentsline {subsubsection}{\numberline {3.21.2.30}status()}{34}{subsubsection.3.21.2.30}%
+\contentsline {subsubsection}{\numberline {3.21.2.31}step()}{34}{subsubsection.3.21.2.31}%
+\contentsline {subsubsection}{\numberline {3.21.2.32}stop()}{34}{subsubsection.3.21.2.32}%
+\contentsline {subsubsection}{\numberline {3.21.2.33}trace()}{35}{subsubsection.3.21.2.33}%
+\contentsline {subsubsection}{\numberline {3.21.2.34}unset()}{35}{subsubsection.3.21.2.34}%
+\contentsline {subsubsection}{\numberline {3.21.2.35}where()}{35}{subsubsection.3.21.2.35}%
+\contentsline {section}{\numberline {3.22}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}solve.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Op\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Pt\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Solver\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Strategy Class Reference}{35}{section.3.22}%
+\contentsline {subsection}{\numberline {3.22.1}Detailed Description}{36}{subsection.3.22.1}%
+\contentsline {subsection}{\numberline {3.22.2}Constructor \& Destructor Documentation}{36}{subsection.3.22.2}%
+\contentsline {subsubsection}{\numberline {3.22.2.1}\_\_init\_\_()}{36}{subsubsection.3.22.2.1}%
+\contentsline {subsection}{\numberline {3.22.3}Member Function Documentation}{36}{subsection.3.22.3}%
+\contentsline {subsubsection}{\numberline {3.22.3.1}solve\_eqns()}{36}{subsubsection.3.22.3.1}%
+\contentsline {section}{\numberline {3.23}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Shared.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Plot Class Reference}{37}{section.3.23}%
+\contentsline {subsection}{\numberline {3.23.1}Detailed Description}{37}{subsection.3.23.1}%
+\contentsline {section}{\numberline {3.24}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Raw\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}File.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Raw\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}File Class Reference}{37}{section.3.24}%
+\contentsline {subsection}{\numberline {3.24.1}Detailed Description}{38}{subsection.3.24.1}%
+\contentsline {subsection}{\numberline {3.24.2}Member Function Documentation}{38}{subsection.3.24.2}%
+\contentsline {subsubsection}{\numberline {3.24.2.1}fix\_case()}{38}{subsubsection.3.24.2.1}%
+\contentsline {section}{\numberline {3.25}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}components.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Resistor Class Reference}{39}{section.3.25}%
+\contentsline {subsection}{\numberline {3.25.1}Detailed Description}{39}{subsection.3.25.1}%
+\contentsline {subsection}{\numberline {3.25.2}Member Function Documentation}{39}{subsection.3.25.2}%
+\contentsline {subsubsection}{\numberline {3.25.2.1}op\_pt\_eqn()}{39}{subsubsection.3.25.2.1}%
+\contentsline {subsubsection}{\numberline {3.25.2.2}trans\_eqn()}{40}{subsubsection.3.25.2.2}%
+\contentsline {section}{\numberline {3.26}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Resistor\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{40}{section.3.26}%
+\contentsline {subsection}{\numberline {3.26.1}Detailed Description}{40}{subsection.3.26.1}%
+\contentsline {subsection}{\numberline {3.26.2}Member Function Documentation}{41}{subsection.3.26.2}%
+\contentsline {subsubsection}{\numberline {3.26.2.1}gen\_txt\_str()}{41}{subsubsection.3.26.2.1}%
+\contentsline {section}{\numberline {3.27}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}solve.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Solver\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Strategy Class Reference}{41}{section.3.27}%
+\contentsline {subsection}{\numberline {3.27.1}Detailed Description}{41}{subsection.3.27.1}%
+\contentsline {subsection}{\numberline {3.27.2}Member Function Documentation}{41}{subsection.3.27.2}%
+\contentsline {subsubsection}{\numberline {3.27.2.1}solve\_eqns()}{42}{subsubsection.3.27.2.1}%
+\contentsline {section}{\numberline {3.28}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{42}{section.3.28}%
+\contentsline {subsection}{\numberline {3.28.1}Detailed Description}{43}{subsection.3.28.1}%
+\contentsline {subsection}{\numberline {3.28.2}Member Function Documentation}{43}{subsection.3.28.2}%
+\contentsline {subsubsection}{\numberline {3.28.2.1}gen\_txt\_str()}{43}{subsubsection.3.28.2.1}%
+\contentsline {section}{\numberline {3.29}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}solve.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Transient\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Solver\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Strategy Class Reference}{43}{section.3.29}%
+\contentsline {subsection}{\numberline {3.29.1}Detailed Description}{44}{subsection.3.29.1}%
+\contentsline {subsection}{\numberline {3.29.2}Constructor \& Destructor Documentation}{44}{subsection.3.29.2}%
+\contentsline {subsubsection}{\numberline {3.29.2.1}\_\_init\_\_()}{44}{subsubsection.3.29.2.1}%
+\contentsline {subsection}{\numberline {3.29.3}Member Function Documentation}{44}{subsection.3.29.3}%
+\contentsline {subsubsection}{\numberline {3.29.3.1}solve\_eqns()}{44}{subsubsection.3.29.3.1}%
+\contentsline {section}{\numberline {3.30}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Raw\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}File.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Variable Class Reference}{45}{section.3.30}%
+\contentsline {section}{\numberline {3.31}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}VCCSSource\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{45}{section.3.31}%
+\contentsline {subsection}{\numberline {3.31.1}Detailed Description}{46}{subsection.3.31.1}%
+\contentsline {subsection}{\numberline {3.31.2}Member Function Documentation}{46}{subsection.3.31.2}%
+\contentsline {subsubsection}{\numberline {3.31.2.1}gen\_txt\_str()}{46}{subsubsection.3.31.2.1}%
+\contentsline {section}{\numberline {3.32}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}VCVSSource\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{46}{section.3.32}%
+\contentsline {subsection}{\numberline {3.32.1}Detailed Description}{47}{subsection.3.32.1}%
+\contentsline {subsection}{\numberline {3.32.2}Member Function Documentation}{47}{subsection.3.32.2}%
+\contentsline {subsubsection}{\numberline {3.32.2.1}gen\_txt\_str()}{47}{subsubsection.3.32.2.1}%
+\contentsline {section}{\numberline {3.33}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Shared.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Vector Class Reference}{47}{section.3.33}%
+\contentsline {subsection}{\numberline {3.33.1}Detailed Description}{47}{subsection.3.33.1}%
+\contentsline {subsection}{\numberline {3.33.2}Member Function Documentation}{48}{subsection.3.33.2}%
+\contentsline {subsubsection}{\numberline {3.33.2.1}to\_waveform()}{48}{subsubsection.3.33.2.1}%
+\contentsline {section}{\numberline {3.34}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}components.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}VSource Class Reference}{48}{section.3.34}%
+\contentsline {subsection}{\numberline {3.34.1}Detailed Description}{48}{subsection.3.34.1}%
+\contentsline {subsection}{\numberline {3.34.2}Member Function Documentation}{48}{subsection.3.34.2}%
+\contentsline {subsubsection}{\numberline {3.34.2.1}op\_pt\_eqn()}{48}{subsubsection.3.34.2.1}%
+\contentsline {subsubsection}{\numberline {3.34.2.2}trans\_eqn()}{49}{subsubsection.3.34.2.2}%
+\contentsline {section}{\numberline {3.35}Py\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Spice.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Open\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}SPICE.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}netlist.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}VSource\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Text\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Fmt Class Reference}{49}{section.3.35}%
+\contentsline {subsection}{\numberline {3.35.1}Detailed Description}{49}{subsection.3.35.1}%
+\contentsline {subsection}{\numberline {3.35.2}Member Function Documentation}{50}{subsection.3.35.2}%
+\contentsline {subsubsection}{\numberline {3.35.2.1}gen\_txt\_str()}{50}{subsubsection.3.35.2.1}%

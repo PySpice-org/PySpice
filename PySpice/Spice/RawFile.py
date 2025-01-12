@@ -35,6 +35,7 @@ from PySpice.Unit import u_Degree, u_V, u_A, u_s, u_Hz
 
 import logging
 import numpy as np
+import struct
 
 ####################################################################################################
 
@@ -297,7 +298,6 @@ class RawFileAbc:
         input_data = np.fromstring(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
         input_data = input_data.reshape((self.number_of_points, number_of_columns))
         input_data = input_data.transpose()
-        # np.savetxt('raw.txt', input_data)
         if self.flags == 'complex':
             raw_data = input_data
             input_data = np.array(raw_data[0::2], dtype='complex128')

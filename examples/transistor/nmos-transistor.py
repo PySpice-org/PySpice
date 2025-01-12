@@ -58,7 +58,7 @@ ax.grid()
 ax.set_xlabel('Vgs [V]')
 ax.set_ylabel('Id [mA]')
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()
 
 #f# save_figure('figure', 'transistor-nmos-plot.png')

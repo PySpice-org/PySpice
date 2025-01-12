@@ -1,0 +1,72 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Resistor Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor}\index{PySpice.Spice.OpenSPICE.components.Resistor@{PySpice.Spice.OpenSPICE.components.Resistor}}
+Inheritance diagram for Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Resistor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor}
+\end{center}
+\end{figure}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor_af2854856cb75351027800ff8fe2b226f}{op\+\_\+pt\+\_\+eqn}} (branch, node)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor_ae51955bca73419e44e93ca3d0c9ce027}{trans\+\_\+eqn}} (branch, node)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Class that represents a resistor. Class contains
+methods for formatting equation strings for use in the final system
+of equations solved at each simulation timestep.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor_af2854856cb75351027800ff8fe2b226f}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor_af2854856cb75351027800ff8fe2b226f}} 
+\index{PySpice.Spice.OpenSPICE.components.Resistor@{PySpice.Spice.OpenSPICE.components.Resistor}!op\_pt\_eqn@{op\_pt\_eqn}}
+\index{op\_pt\_eqn@{op\_pt\_eqn}!PySpice.Spice.OpenSPICE.components.Resistor@{PySpice.Spice.OpenSPICE.components.Resistor}}
+\doxysubsubsection{\texorpdfstring{op\_pt\_eqn()}{op\_pt\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Resistor.\+op\+\_\+pt\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Generate op point equation for resistor.
+
+Equation format: ((x[node_plus voltage index] -
+                  (x[node_minus voltage index])) -
+                  ((x[branch current])*(resistance)))
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ 
+
+Reimplemented from \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component_a39d990fbc97e25fd5d6ee640b4479bdb}{Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Component}}.
+
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor_ae51955bca73419e44e93ca3d0c9ce027}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Resistor_ae51955bca73419e44e93ca3d0c9ce027}} 
+\index{PySpice.Spice.OpenSPICE.components.Resistor@{PySpice.Spice.OpenSPICE.components.Resistor}!trans\_eqn@{trans\_eqn}}
+\index{trans\_eqn@{trans\_eqn}!PySpice.Spice.OpenSPICE.components.Resistor@{PySpice.Spice.OpenSPICE.components.Resistor}}
+\doxysubsubsection{\texorpdfstring{trans\_eqn()}{trans\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Resistor.\+trans\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Generate transient equation for resistor.
+
+Equation format: ((x[node_plus voltage index] -
+                  (x[node_minus voltage index])) -
+                  ((x[branch current])*(resistance)))
+
+Note: Equation is the same as op point case.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ 
+
+Reimplemented from \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Component_a48e5b75381d3291d5ebda2cd2c817f4c}{Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Component}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+components.\+py\end{DoxyCompactItemize}

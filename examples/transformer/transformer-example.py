@@ -37,6 +37,7 @@ ac_line = circuit.AcLine('input', 'input', circuit.gnd, rms_voltage=230@u_V, fre
 circuit.subcircuit(Transformer(turn_ratio=10))
 circuit.X('transformer', 'Transformer', 'input', circuit.gnd, 'output', circuit.gnd)
 circuit.R('load', 'output', circuit.gnd, 1@u_kΩ)
+print(circuit)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*3)

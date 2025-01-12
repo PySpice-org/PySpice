@@ -109,6 +109,7 @@ class NgSpiceSharedCircuitSimulator(NgSpiceCircuitSimulator):
     ##############################################
 
     def _run(self, analysis_method, *args, **kwargs):
+        background = kwargs.pop('background', False)
 
         super()._run(analysis_method, *args, **kwargs)
 
@@ -116,12 +117,15 @@ class NgSpiceSharedCircuitSimulator(NgSpiceCircuitSimulator):
         # load circuit and simulation
         # Fixme: Error: circuit not parsed.
         self._ngspice_shared.load_circuit(str(self))
-        self._ngspice_shared.run()
+        self._ngspice_shared.run(background=background)
         self._logger.debug(str(self._ngspice_shared.plot_names))
-        self.reset_analysis()
+        if not background:
+            self.reset_analysis()
 
-        plot_name = self._ngspice_shared.last_plot
-        if plot_name == 'const':
-            raise NameError('Simulation failed')
+            plot_name = self._ngspice_shared.last_plot
+            if plot_name == 'const':
+                raise NameError('Simulation failed')
+        else:
+            return True #Nothing to show yet!
 
         return self._ngspice_shared.plot(self, plot_name).to_analysis()

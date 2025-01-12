@@ -21,6 +21,8 @@ class OsFactory:
             self._name = 'windows'
         elif sys.platform.startswith('darwin'):
             self._name = 'osx'
+        elif sys.platform.startswith('freebsd'):
+            self._name = 'freebsd'
 
     ##############################################
 
@@ -39,6 +41,10 @@ class OsFactory:
     @property
     def on_osx(self):
         return self._name == 'osx'
+
+    @property
+    def on_freebsd(self):
+        return self._name == 'freebsd'
 
 OS = OsFactory()
 

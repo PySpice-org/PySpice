@@ -44,10 +44,10 @@ for element_type in ('capacitor', 'inductor'):
 
     circuit = Circuit(element_type.title())
     # Fixme: compute value
-    source = circuit.PulseVoltageSource('input', 'in', circuit.gnd,
+    source = circuit.PulseVoltageSource('input', 'in_node', circuit.gnd,
                            initial_value=0@u_V, pulsed_value=10@u_V,
                            pulse_width=10@u_ms, period=20@u_ms)
-    circuit.R(1, 'in', 'out', 1@u_kΩ)
+    circuit.R(1, 'in_node', 'out', 1@u_kΩ)
     if element_type == 'capacitor':
         element = circuit.C
         value = 1@u_uF
@@ -96,10 +96,10 @@ for element_type in ('capacitor', 'inductor'):
     ax.set_title(title)
     ax.grid()
     current_scale = 1000
-    ax.plot(analysis['in'])
+    ax.plot(analysis['in_node'])
     ax.plot(analysis['out'])
     # Fixme: resistor current, scale
-    ax.plot(((analysis['in'] - analysis.out)/circuit['R1'].resistance) * current_scale)
+    ax.plot(((analysis['in_node'] - analysis.out)/circuit['R1'].resistance) * current_scale)
     ax.axvline(x=float(tau), color='red')
     ax.set_ylim(-11, 11)
     ax.set_xlabel('t [s]')

@@ -1,0 +1,62 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1VSource}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+VSource Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1VSource}\index{PySpice.Spice.OpenSPICE.components.VSource@{PySpice.Spice.OpenSPICE.components.VSource}}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1VSource_a162e750ddd6488d6b4bbb9742f1a73c5}{op\+\_\+pt\+\_\+eqn}} (branch, node)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1VSource_af80cad45c7e98c2138ddee60d9a97456}{trans\+\_\+eqn}} (branch, node)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Class that represents a voltage source. Class contains
+methods for formatting equation strings for use in the final system
+of equations solved at each simulation timestep.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1VSource_a162e750ddd6488d6b4bbb9742f1a73c5}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1VSource_a162e750ddd6488d6b4bbb9742f1a73c5}} 
+\index{PySpice.Spice.OpenSPICE.components.VSource@{PySpice.Spice.OpenSPICE.components.VSource}!op\_pt\_eqn@{op\_pt\_eqn}}
+\index{op\_pt\_eqn@{op\_pt\_eqn}!PySpice.Spice.OpenSPICE.components.VSource@{PySpice.Spice.OpenSPICE.components.VSource}}
+\doxysubsubsection{\texorpdfstring{op\_pt\_eqn()}{op\_pt\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+VSource.\+op\+\_\+pt\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Generate op point equation for voltage source.
+
+Equation format: (((x[node_plus index]) - (x[node_minus index])) -
+                   (voltage value))
+
+In other words, the branch voltage drop must be the source's voltage
+value.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1VSource_af80cad45c7e98c2138ddee60d9a97456}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1VSource_af80cad45c7e98c2138ddee60d9a97456}} 
+\index{PySpice.Spice.OpenSPICE.components.VSource@{PySpice.Spice.OpenSPICE.components.VSource}!trans\_eqn@{trans\_eqn}}
+\index{trans\_eqn@{trans\_eqn}!PySpice.Spice.OpenSPICE.components.VSource@{PySpice.Spice.OpenSPICE.components.VSource}}
+\doxysubsubsection{\texorpdfstring{trans\_eqn()}{trans\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+VSource.\+trans\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Generate op point equation for voltage source.
+
+Equation format: (((x[node_plus index]) - (x[node_minus index])) -
+                   (voltage value))
+
+In other words, the branch voltage drop must be the source's voltage
+value.
+
+Note: Equation is the same as op point case.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+components.\+py\end{DoxyCompactItemize}

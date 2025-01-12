@@ -1,0 +1,67 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Capacitor}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Capacitor Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Capacitor}\index{PySpice.Spice.OpenSPICE.components.Capacitor@{PySpice.Spice.OpenSPICE.components.Capacitor}}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Capacitor_aaf9b507f017790399af275a3cf19d2c6}{op\+\_\+pt\+\_\+eqn}} (branch, node)
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Capacitor_a64077c9e67f757235858299bd3d97c0e}{trans\+\_\+eqn}} (branch, node)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Class that represents a capacitor. Class contains
+methods for formatting equation strings for use in the final system
+of equations solved at each simulation timestep.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Capacitor_aaf9b507f017790399af275a3cf19d2c6}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Capacitor_aaf9b507f017790399af275a3cf19d2c6}} 
+\index{PySpice.Spice.OpenSPICE.components.Capacitor@{PySpice.Spice.OpenSPICE.components.Capacitor}!op\_pt\_eqn@{op\_pt\_eqn}}
+\index{op\_pt\_eqn@{op\_pt\_eqn}!PySpice.Spice.OpenSPICE.components.Capacitor@{PySpice.Spice.OpenSPICE.components.Capacitor}}
+\doxysubsubsection{\texorpdfstring{op\_pt\_eqn()}{op\_pt\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Capacitor.\+op\+\_\+pt\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Generate op point equation for capacitor.
+
+Equation format: ((x[branch current]) - (0.00))
+
+Note: At steady state, capacitors act as open circuits. Therefore,
+the current must be 0.00.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Capacitor_a64077c9e67f757235858299bd3d97c0e}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1components_1_1Capacitor_a64077c9e67f757235858299bd3d97c0e}} 
+\index{PySpice.Spice.OpenSPICE.components.Capacitor@{PySpice.Spice.OpenSPICE.components.Capacitor}!trans\_eqn@{trans\_eqn}}
+\index{trans\_eqn@{trans\_eqn}!PySpice.Spice.OpenSPICE.components.Capacitor@{PySpice.Spice.OpenSPICE.components.Capacitor}}
+\doxysubsubsection{\texorpdfstring{trans\_eqn()}{trans\_eqn()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+components.\+Capacitor.\+trans\+\_\+eqn (\begin{DoxyParamCaption}\item[{}]{branch,  }\item[{}]{node }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Generate transient equation for the capacitor.
+
+There are two cases. The first case is t = 0.00, the simulation start
+point. Here, the equation string is as follows:
+
+"(((x[node_plus index])-(x[node_minus index]))-(initial voltage))"
+
+This is the initial condition. The second case is t != 0.00, or the
+"else" case:
+
+"(((x[branch current])*dt)-((capacitance value)*
+    ((dv[node_plus index])-(dv[node_minus index]))))"
+
+This is a rearrangement of the differential equation I = CdV/dt -->
+Idt - CdV = 0.
+
+@param branch: Branch dictionary for the component's branch.
+@param node: List of node numbers.
+@return: Formatted equation string.
+\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+components.\+py\end{DoxyCompactItemize}

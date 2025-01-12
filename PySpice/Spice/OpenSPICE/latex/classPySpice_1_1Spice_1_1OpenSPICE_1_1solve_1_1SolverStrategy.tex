@@ -1,0 +1,42 @@
+\hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1SolverStrategy}{}\doxysection{Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Solver\+Strategy Class Reference}
+\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1SolverStrategy}\index{PySpice.Spice.OpenSPICE.solve.SolverStrategy@{PySpice.Spice.OpenSPICE.solve.SolverStrategy}}
+Inheritance diagram for Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Solver\+Strategy\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.413793cm]{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1SolverStrategy}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1SolverStrategy_a1adde88d9b0006e96ce7fcfad14b8be5}{solve\+\_\+eqns}} (self)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Abstract class used to implement a "strategy" for solving system of
+equations for given simulation type.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1SolverStrategy_a1adde88d9b0006e96ce7fcfad14b8be5}\label{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1SolverStrategy_a1adde88d9b0006e96ce7fcfad14b8be5}} 
+\index{PySpice.Spice.OpenSPICE.solve.SolverStrategy@{PySpice.Spice.OpenSPICE.solve.SolverStrategy}!solve\_eqns@{solve\_eqns}}
+\index{solve\_eqns@{solve\_eqns}!PySpice.Spice.OpenSPICE.solve.SolverStrategy@{PySpice.Spice.OpenSPICE.solve.SolverStrategy}}
+\doxysubsubsection{\texorpdfstring{solve\_eqns()}{solve\_eqns()}}
+{\footnotesize\ttfamily def Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Solver\+Strategy.\+solve\+\_\+eqns (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Implement this function in subclasses to solve equations. Should
+call send_data if defined to relay data back to PySpice.
+
+@return: solution for equations 
+\end{DoxyVerb}
+ 
+
+Reimplemented in \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1OpPtSolverStrategy_a7046e1818f18afb2e7bc32ecf07c664d}{Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Op\+Pt\+Solver\+Strategy}}, and \mbox{\hyperlink{classPySpice_1_1Spice_1_1OpenSPICE_1_1solve_1_1TransientSolverStrategy_a369e30252265706d3adbfcf91613c963}{Py\+Spice.\+Spice.\+Open\+SPICE.\+solve.\+Transient\+Solver\+Strategy}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+solve.\+py\end{DoxyCompactItemize}

@@ -94,6 +94,6 @@ ax.axhline(y=-rms_mono, color='blue')
 ax.axhline(y=rms_tri, color='blue')
 ax.axhline(y=-rms_tri, color='blue')
 
-plt.show()
+# plt.show()
 
 #f# save_figure('figure', 'three-phase.png')

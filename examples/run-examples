@@ -33,11 +33,20 @@ import sys
 
 examples_path = Path(__file__).resolve().parent
 
+excluded_topics = [".travis", "transformer", "diode", "relay",
+                   "transmission-lines", "switched-power-supplies", "filter",
+                   "transistor", "ngspice-shared", "power-supplies",
+                   "spice-parser", "operational-amplifier"]
+
+print("Running examples!")
 for topic in os.listdir(examples_path):
-    python_files = glob.glob(str(examples_path.joinpath(topic, '*.py')))
-    for file_name in python_files:
-        if file_name.islower():
+    if topic not in excluded_topics:
+        print("Topic = " + topic)
+        python_files = glob.glob(str(examples_path.joinpath(topic, '*.py')))
+        for file_name in python_files:
             print('Run {}'.format(file_name))
-            subprocess.call(('python', file_name))
-            print('To continue press Enter')
+            c = subprocess.call(('python3', file_name))
+            assert c == 0
+            # Only checks passing. Does not check results.
+            print('Test passed. To continue press Enter...')
             rc = sys.stdin.readline().strip()

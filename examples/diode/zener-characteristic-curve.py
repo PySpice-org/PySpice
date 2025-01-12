@@ -36,6 +36,7 @@ circuit.V('input', 'in', circuit.gnd, 10@u_V)
 circuit.R(1, 'in', 'out', 1@u_Ω) # not required for simulation
 # circuit.X('D1', '1N4148', 'out', circuit.gnd)
 circuit.X('DZ1', 'd1n5919brl', 'out', circuit.gnd)
+print(circuit)
 
 simulator = circuit.simulator(temperature=25, nominal_temperature=25)
 analysis = simulator.dc(Vinput=slice(-10, 2, .05)) # 10mV
