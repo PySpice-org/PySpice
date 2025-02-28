@@ -84,7 +84,7 @@ import os
 from ..Netlist import Node
 from ..StringTools import remove_multi_space
 from . import Ast
-from . import ElementData
+from .ElementData import ElementData
 from .Ast import AstNode
 from .Parser import SpiceParser
 from .SpiceSyntax import ElementLetters
@@ -314,7 +314,6 @@ class Element(Command):
         self._nodes = []
         number_of_pins = 0
         from PySpice.Spice.Element import ElementParameterMetaClass
-        from PySpice.Spice.Parser.ElementData import ElementData
         elements = {}
         for letter, classes in ElementParameterMetaClass._classes.items():
             element_data = ElementData(letter, classes)
