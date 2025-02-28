@@ -313,7 +313,15 @@ class Element(Command):
         # Read nodes
         self._nodes = []
         number_of_pins = 0
-        data = ElementData.elements[self._letter]
+        from PySpice.Spice.Element import ElementParameterMetaClass
+        from PySpice.Spice.Parser.ElementData import ElementData
+        elements = {}
+        for letter, classes in ElementParameterMetaClass._classes.items():
+            element_data = ElementData(letter, classes)
+            elements[letter] = element_data
+            elements[letter.lower()] = element_data
+        # data = ElementData.elements[self._letter]
+        data = elements[self._letter]
         if not data.has_variable_number_of_pins:
             number_of_pins = data.number_of_pins
         else:   # Q or X

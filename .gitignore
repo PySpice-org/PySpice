@@ -177,3 +177,5 @@ examples/p.diff
 examples/spice-library-backup/
 examples/spice-library/db.pickle
 test.cir
+
+.venv/*
