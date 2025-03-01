@@ -119,11 +119,8 @@ class NgSpiceSharedSimulator(NgSpiceSimulator):
         self._ngspice_shared.load_circuit(str(simulation))
         self._ngspice_shared.run(background=background)
         self._logger.debug(str(self._ngspice_shared.plot_names))
-<<<<<<< HEAD:PySpice/Spice/NgSpice/Simulator.py
-=======
         if not background:
             self.reset_analysis()
->>>>>>> 7f9b8a6 (Bumping NgSpice version):PySpice/Spice/NgSpice/Simulation.py
 
             plot_name = self._ngspice_shared.last_plot
             if plot_name == 'const':
