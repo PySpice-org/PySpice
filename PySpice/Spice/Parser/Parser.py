@@ -228,7 +228,12 @@ class SpiceParser:
 
     def t_ID(self, t):
         # Fixme:
-        r'''(?i:[a-z0-9_+\-]+(\.[a-z0-9_+\-]+)*)'''
+        r'''
+        (?i:
+            [a-z_0-9]+
+            (?:\.[a-z_0-9.]+)?
+            (?:(?<=[a-z0-9_])[+\-](?![a-z0-9_.]))?  
+        )'''
         # t.value = Id(t.value)
         return t
 
