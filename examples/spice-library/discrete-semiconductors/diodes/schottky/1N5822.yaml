@@ -1,0 +1,8 @@
+path: 1N5822.lib
+date: '2025-03-02T21:57:43.952971'
+digest: 1e33a914cf68f96c4d3c065b7f5954fcb4c21d84
+description: ''
+subcircuits:
+- name: 1N5822
+  description: ''
+  nodes: []
