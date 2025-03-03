@@ -1,0 +1,8 @@
+path: generic_opamp.lib
+date: '2025-03-03T16:25:39.919192'
+digest: 943aafc69db4fb676ec22d6d03c864b2f5da80ed
+description: ''
+subcircuits:
+- name: genopa1
+  description: ''
+  nodes: []
