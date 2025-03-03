@@ -26,6 +26,7 @@ circuit = Circuit('Buck Converter')
 
 circuit.include(spice_library['1N5822']) # Schottky diode
 circuit.include(spice_library['irf150'])
+circuit.include(spice_library['genopa1'])
 
 # From Microchip WebSeminars - Buck Converter Design Example
 

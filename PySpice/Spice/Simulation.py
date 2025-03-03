@@ -738,6 +738,10 @@ class Simulation:
 
         if 'probes' in kwargs:
             self.save(* kwargs.pop('probes'))
+        
+        if 'background' in kwargs:
+            background = kwargs.pop('background')
+            self.background = background
 
         # Execute analysis implementation
         analysis_method(self, *args, **kwargs)

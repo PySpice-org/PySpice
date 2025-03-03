@@ -117,7 +117,7 @@ class NgSpiceSharedSimulator(NgSpiceSimulator):
         # load circuit and simulation
         # Fixme: Error: circuit not parsed.
         self._ngspice_shared.load_circuit(str(simulation))
-        background = False
+        background = simulation.background if hasattr(simulation, 'background') else False
         self._ngspice_shared.run(background=background)
         self._logger.debug(str(self._ngspice_shared.plot_names))
         if not background:
