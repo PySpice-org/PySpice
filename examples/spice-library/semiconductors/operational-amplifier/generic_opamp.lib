@@ -1,6 +1,6 @@
 * generic OpAmp model
 * gain, phase, offset, limits to power supply
-.subckt genopa1 inp inn vcc vee out params: POLE=20 GAIN=20k VOFF=10m ROUT=10
+.subckt genopa1 in+ in- vcc vee out params: POLE=20 GAIN=20k VOFF=10m ROUT=10
 Voff inp inoff dc {VOFF}
 G10 0 int inoff inn 100u
 R1 int 0 {GAIN/100u}

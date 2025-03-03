@@ -228,11 +228,7 @@ class SpiceParser:
 
     def t_ID(self, t):
         # Fixme:
-        r'''
-        (?i:
-            [a-z_0-9]+
-            (\.[a-z_0-9.]+) ?
-        )'''
+        r'''(?i:[a-z0-9_+\-]+(\.[a-z0-9_+\-]+)*)'''
         # t.value = Id(t.value)
         return t
 
@@ -270,16 +266,7 @@ class SpiceParser:
         '''
         return self._command(p, Command)
 
-    # --------------------------------------------------------------------------------------
-    # CHANGED: Added this rule to handle patterns like "params:" in a .subckt line.
-    # Example: .subckt genopa1 in+ in- vcc vee out params: POLE=20 ...
-    def p_id_colon(self, p):
-        '''expression : ID COLON
-        '''
-        # Treat "params:" (or any ID followed by a colon) as a single expression.
-        p[0] = Id(p[1] + ':')
-    # ---
-    
+   
     # Fixme: could be merged with command
     def p_dot_command(self, p):
         '''command : DOT_COMMAND expression_list_space
@@ -313,7 +300,17 @@ class SpiceParser:
         '''expression : ID
         '''
         p[0] = Id(p[1])
-
+    
+    # --------------------------------------------------------------------------------------
+    # CHANGED: Added this rule to handle patterns like "params:" in a .subckt line.
+    # Example: .subckt genopa1 in+ in- vcc vee out params: POLE=20 ...
+    def p_id_colon(self, p):
+        '''expression : ID COLON
+        '''
+        # Treat "params:" (or any ID followed by a colon) as a single expression.
+        p[0] = Id(p[1] + ':')
+    # ---
+    
     def p_uminus(self, p):
         '''expression : MINUS expression %prec UMINUS'''
         # %prec UMINUS overrides the default rule precedence-setting it to that of UMINUS in the precedence specifier.
