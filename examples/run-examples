@@ -36,7 +36,7 @@ examples_path = Path(__file__).resolve().parent
 for topic in os.listdir(examples_path):
     python_files = glob.glob(str(examples_path.joinpath(topic, '*.py')))
     for file_name in python_files:
-        if file_name.islower():
+        # if file_name.islower():
             print('Run {}'.format(file_name))
             subprocess.call(('python', file_name))
             print('To continue press Enter')

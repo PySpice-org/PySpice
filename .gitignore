@@ -180,4 +180,4 @@ test.cir
 
 .venv/*
 *.vscode/*
-example/spice-library/*.yaml
+examples/spice-library/**/*.yaml
