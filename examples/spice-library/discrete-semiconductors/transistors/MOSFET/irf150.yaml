@@ -1,8 +1,0 @@
-path: irf150.lib
-date: '2025-03-02T21:57:43.952971'
-digest: fba6d4de74dfd6e8c1f6abfd9dc5022e6d99b110
-description: ''
-subcircuits:
-- name: irf150
-  description: ''
-  nodes: []
