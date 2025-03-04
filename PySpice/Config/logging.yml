@@ -46,6 +46,6 @@ root:
 loggers:
 
   PySpice:
-    # level: DEBUG
-    level: INFO
+    level: DEBUG
+    # level: INFO
     # level: WARNING
