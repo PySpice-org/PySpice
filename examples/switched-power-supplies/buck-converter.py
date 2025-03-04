@@ -90,27 +90,41 @@ circuit.R('gate', 'gate', 'clock', 1@u_Ω)
 circuit.PulseVoltageSource('pulse', 'clock', circuit.gnd, 0@u_V, 2.*Vin, duty_cycle, period)
 
 circuit.X('D', '1N5822', circuit.gnd, 'source')
-circuit.L(1, 'source', 1, L)
+inductor = circuit.L(1, 'source', 1, L)
+# add a series resistor to model the ESR of the inductor. It helps convergence
+inductor.pins[0].add_esr(circuit, value = 10@u_mOhm)
+inductor.pins[0].add_current_probe(circuit, name = 'inductor_current')
+
 circuit.R('L', 1, 'out', RL)
 circuit.C(1, 'out', circuit.gnd, Cout) # , initial_condition=0@u_V
 circuit.R('load', 'out', circuit.gnd, Rload)
 
 simulator = Simulator.factory()
 simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
-analysis = simulation.transient(step_time=period/300, end_time=period*150)
 
-figure, ax = plt.subplots(figsize=(20, 10))
+# I noticed that sometimes tmax is not calculated correctly. it's better to specify it manually using max_time
+# for convergence issues, it's better to use a smaller timestep
+# Also, sometimes you may use UIC to assist covnergence. 
+analysis = simulation.transient(step_time=period/300, end_time=period*150, start_time=0@u_ms, max_time=1@u_ns, use_initial_condition=True)
 
-ax.plot(analysis.out)
-ax.plot(analysis['source'])
+figure, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10), sharex=True)
+
+ax1.plot(analysis.out)
+ax1.plot(analysis['source'])
 # ax.plot(analysis['source'] - analysis['out'])
 # ax.plot(analysis['gate'])
-ax.axhline(y=float(Vout), color='red')
-ax.legend(('Vout [V]', 'Vsource [V]'), loc=(.8,.8))
-ax.grid()
-ax.set_xlabel('t [s]')
-ax.set_ylabel('[V]')
+ax1.axhline(y=float(Vout), color='red')
+ax1.legend(('Vout [V]', 'Vsource [V]'), loc=(.8,.8))
+ax1.grid()
+ax1.set_xlabel('t [s]')
+ax1.set_ylabel('[V]')
 
+
+ax2.plot(analysis.branches['vinductor_current'], label='L2 [A]')
+ax2.legend(('Inductor current [A]',), loc=(.8,.8))
+ax2.grid()
+ax2.set_xlabel('t [s]')
+ax2.set_ylabel('[A]')
 plt.tight_layout()
 plt.show()
 
