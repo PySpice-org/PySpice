@@ -229,10 +229,13 @@ class SpiceParser:
     def t_ID(self, t):
         # Fixme:
         r'''
-        (?i:
-            [a-z_0-9]+
-            (?:\.[a-z_0-9.]+)?
-            (?:(?<=[a-z0-9_])[+\-](?![a-z0-9_.]))?  
+        (?i:                            # case-insensitive
+            (?:[+\-](?=[a-z_]))?        # optional + or - at the start, only if followed by letter/underscore
+            [a-z0-9_]+                  # one or more letters/digits/underscores
+            (?:\.[a-z0-9_]+)?           # optionally a dot, followed by one or more letters/digits/underscores
+            (?:(?<=[a-z0-9])[+\-]       # optionally a plus or minus if it's right after a letter/digit
+            (?![a-z0-9.])            # and not followed by letter/digit/dot
+            )?
         )'''
         # t.value = Id(t.value)
         return t
