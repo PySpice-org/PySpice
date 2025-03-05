@@ -653,10 +653,10 @@ class NgSpiceShared:
         else:
             self._stdout.append(content)
             # Fixme: Ngspice writes error on stdout and stderr ...
-            if 'error' in content.lower():
-                self._error_in_stdout = True
-            # if self._error_in_stdout:
-            #     self._logger.warning(content)
+            # if 'error' in content.lower():
+            #     self._error_in_stdout = True
+            if self._error_in_stdout:
+                self._logger.warning(content)
 
         # Fixme: ???
         return self.send_char(message, ngspice_id)
