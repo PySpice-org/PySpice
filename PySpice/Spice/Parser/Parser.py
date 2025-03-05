@@ -230,7 +230,7 @@ class SpiceParser:
         # Fixme:
         r'''
         (?i:                            # case-insensitive
-            (?:[+\-](?=[a-z_]))?        # optional + or - at the start, only if followed by letter/underscore
+            (?:[+\-\%](?=[a-z_]))?        # optional +, - or % at the start, only if followed by letter/underscore
             [a-z0-9_]+                  # one or more letters/digits/underscores
             (?:\.[a-z0-9_]+)?           # optionally a dot, followed by one or more letters/digits/underscores
             (?:(?<=[a-z0-9])[+\-]       # optionally a plus or minus if it's right after a letter/digit
