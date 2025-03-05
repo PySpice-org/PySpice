@@ -313,8 +313,7 @@ class SpiceParser:
         '''expression : ID COLON
         '''
         # Treat "params:" (or any ID followed by a colon) as a single expression.
-        # p[0] = Id(p[1] + ':')
-        p[0] = None
+        p[0] = Id(p[1] + ':')
     # ---
     
     def p_uminus(self, p):
@@ -377,16 +376,13 @@ class SpiceParser:
 
     def p_expression_list_space(self, p):
         '''expression_list_space : expression
-                                | expression_list_space expression
+                                 | expression_list_space expression
         '''
         if len(p) == 3:
-            # Only append if p[2] is not None.
-            if p[2] is not None:
-                p[1].append(p[2])
+            p[1].append(p[2])
             p[0] = p[1]
         else:
-            p[0] = SpaceList(p[1]) if p[1] is not None else SpaceList()
-
+            p[0] = SpaceList(p[1])
 
     def p_expression_list_comma(self, p):
         '''expression_list_comma : expression
