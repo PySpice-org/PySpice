@@ -635,6 +635,8 @@ class NgSpiceShared:
                 func = self._logger.debug
             elif content.startswith('doAnalyses:'): 
                 func = self._logger.debug
+                if 'timestep too small' in content.lower():
+                    self._logger.warning(content)
             elif content.startswith('run simulation interrupted'): 
                 func = self._logger.debug
             elif content.startswith('Note:'):
@@ -642,7 +644,9 @@ class NgSpiceShared:
             elif content.startswith('Trying'):
                 func = self._logger.info
             elif content.startswith('Supplies reduced'):
-                func = self._logger.info                
+                func = self._logger.info
+            elif content.startswith('run simulation(s) aborted'):
+                func = self._logger.error               
             else:
                 self._error_in_stderr = True
                 func = self._logger.error

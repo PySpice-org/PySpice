@@ -30,10 +30,10 @@ circuit.V('dd', 'vdd', circuit.gnd, 5@u_V)
 circuit.V('ss', 'vss', circuit.gnd, -5@u_V)
 # a6 in vdd vss out varlimit
 circuit.A('cl', 'in', 'vdd', 'vss', 'out', model='varlimit')
-# or you can use the following for diffrential inputs
+# or you can use the following for diffrential inputs. 
 # circuit.A('cl', '%vd(in, gnd)', '%vd(vdd, gnd)', '%vd(vss, gnd)', '%vd(out, gnd)', model='varlimit')
-
-circuit.model('varlimit', 'climit', in_offset=0.0, gain=1.0, upper_delta=0.0, lower_delta=0.0, limit_range=0.1, fraction=False)
+# look at the xspice manual for more information about controlling the limit
+circuit.model('varlimit', 'climit', in_offset=0.0, gain=1.0, upper_delta=0.0, lower_delta=0.0, limit_range=2, fraction=False)
 # print(circuit)
 
 simulator = Simulator.factory()
