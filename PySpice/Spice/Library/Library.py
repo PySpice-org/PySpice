@@ -169,7 +169,10 @@ class SpiceLibrary:
         for path in PathTools.walk(self._path):
             _ = path.suffix.lower()
             if _ in self.EXTENSIONS:
-                self._handle_library(path)
+                try:
+                    self._handle_library(path)
+                except:
+                    self._logger.warning(f"Failed to parse {path}")
 
     ##############################################
 
