@@ -70,7 +70,10 @@ class SpiceLibrary:
 
     ##############################################
 
-    def __init__(self, root_path: str | Path, scan: bool = False) -> None:
+    def __init__(self, root_path: str | Path, scan: bool = False, recurse: bool = False) -> None:
+        # recurse will be removed in the future maybe. it's here because skidl uses it
+        if recurse:
+            scan = recurse
         self._path = PathTools.expand_path(root_path)
         if not self._path.exists():
             self._path.mkdir(parents=True)
