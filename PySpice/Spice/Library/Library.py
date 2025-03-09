@@ -78,6 +78,8 @@ class SpiceLibrary:
         if not self._path.exists():
             self._path.mkdir(parents=True)
             self._logger.info(f"Created {self._path}")
+        elif self._path.is_file():
+            self._path = self._path.parent
         self._subcircuits = {}
         self._models = {}
         if not scan:
