@@ -32,7 +32,7 @@ from typing import Iterator
 import hashlib
 import logging
 import os
-
+import re
 import yaml
 
 from PySpice.Spice.Parser import SpiceFile, ParseError
@@ -183,8 +183,39 @@ class Subcircuit(Mixin):
         for index, node_str in enumerate(nodes):
             internal_node = None
             name = None
+            if isinstance(node_str, dict):
+                # if we are hear we probably have read the yaml file
+                internal_node = node_str['internal_node']
+                node_str = node_str['name']            
+            if isinstance(node_str, str):
+                node_str = node_str.strip()
+                # make sure the node is a valid spice node identifier
+                reg_ex = r'''
+                    (?i:                            # case-insensitive
+                        (?:[+\-\%](?=[a-z_]))?      # optional +, - or % at the start, only if followed by letter/underscore
+                        [a-z0-9_]+                 # one or more letters/digits/underscores
+                        (?:\.[a-z0-9_]+)?          # optionally a dot, followed by one or more letters/digits/underscores
+                        (?:(?<=[a-z0-9])[+\-]      # optionally a plus or minus if it's right after a letter/digit
+                        (?![a-z0-9.])             # and not followed by letter/digit/dot
+                        )?
+                    )(?!:)                         # negative lookahead: do not allow a colon immediately after
+                '''
+                # Using VERBOSE to ignore whitespace/comments in the regex
+                pattern = re.compile(reg_ex, re.VERBOSE)
+                match = pattern.fullmatch(node_str)
+                if match:
+                    name = match.group(0)
+                    if not internal_node: 
+                        internal_node = index + 1
+                    # continue
+                else:
+                    self._logger.warning(f"Invalid pin format {node_str} for {self.name}")
+                    # self._valid = False
+                    # return 
+                    continue
             if isinstance(node_str, int):
                 internal_node = node_str
+                name = f'{internal_node}'
             else:
                 node_str = node_str.strip()
                 i = node_str.find(' ')
@@ -232,7 +263,7 @@ class Subcircuit(Mixin):
 
     def to_yaml(self) -> dict:
         _ = super().to_yaml()
-        _.update({'nodes': self._nodes})
+        _.update({'nodes': [{'index': _.index, 'name': _.name, 'internal_node': _.internal_node} for _ in self._nodes]})
         return _
 
     ##############################################
