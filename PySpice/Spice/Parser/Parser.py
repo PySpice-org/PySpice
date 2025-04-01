@@ -231,10 +231,10 @@ class SpiceParser:
         r'''
         (?i:                            # case-insensitive
             (?:[+\-\%](?=[a-z_]))?        # optional +, - or % at the start, only if followed by letter/underscore
-            [a-z0-9_]+                  # one or more letters/digits/underscores
-            (?:\.[a-z0-9_]+)?           # optionally a dot, followed by one or more letters/digits/underscores
+            [a-z0-9_][-a-z0-9_]*          # start with letter/digit/underscore, then allow hyphens and other chars
+            (?:\.[a-z0-9_][-a-z0-9_]*)?   # optionally a dot, followed by more characters including hyphens
             (?:(?<=[a-z0-9])[+\-]       # optionally a plus or minus if it's right after a letter/digit
-            (?![a-z0-9.])            # and not followed by letter/digit/dot
+            (?![a-z0-9.-])            # and not followed by letter/digit/dot/hyphen
             )?
         )'''
         # t.value = Id(t.value)
