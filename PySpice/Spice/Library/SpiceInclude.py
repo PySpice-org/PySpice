@@ -432,7 +432,7 @@ class SpiceInclude:
             if self._subcircuits:
                 data['subcircuits'] = [_.to_yaml() for _ in self.subcircuits]
             if self._inner_includes:
-                data['inner_includes'] = self._inner_includes
+                data['inner_includes'] = [str(_) for _ in self._inner_includes]
             if self._inner_libraries:
                 data['inner_libraries'] = self._inner_libraries
             # data['recursive_digest'] = self.recursive_digest
