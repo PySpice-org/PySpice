@@ -457,7 +457,7 @@ class SpiceInclude:
         if 'subcircuits' in data:
             subcircuits = [Subcircuit.from_yaml(self, _) for _ in data['subcircuits']]
             self._subcircuits = {_.name: _ for _ in subcircuits}
-        if 'inner_libraries' in data:
+        if 'inner_includes' in data:
             self._inner_includes = data['inner_includes']
         if 'inner_libraries' in data:
             self._inner_libraries = data['inner_libraries']
