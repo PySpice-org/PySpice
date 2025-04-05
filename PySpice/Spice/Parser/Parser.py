@@ -246,6 +246,7 @@ class SpiceParser:
             t.value = Number(value, unit, extra_unit)
         return t
     def t_ID(self, t):
+        # Fixme:
         r'''
         (?i:
             [a-z_0-9]+
@@ -266,6 +267,7 @@ class SpiceParser:
             (?![a-z0-9.-])            # and not followed by letter/digit/dot/hyphen
             )?
         )'''
+
         # t.value = Id(t.value)
         return t
 
