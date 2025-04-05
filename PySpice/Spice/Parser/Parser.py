@@ -167,7 +167,7 @@ class SpiceParser:
     t_LEFT_BRACE = r'\{'
     t_RIGHT_BRACE = r'\}'
 
-    t_QUOTE = r"'"
+    t_QUOTE = r'[\'"]'
     t_SET = r'='
 
     t_BRANCH = r'\#branch'
@@ -175,7 +175,7 @@ class SpiceParser:
 
     t_TILDE = r'~'
 
-    t_STRING = r'"((\\")|[^"])*"'
+    # t_STRING = r'"((\\")|[^"])*"'
 
     t_DOT_COMMAND = r'\.(?i:[a-z]+)'
 
@@ -237,6 +237,11 @@ class SpiceParser:
             (?![a-z0-9.-])            # and not followed by letter/digit/dot/hyphen
             )?
         )'''
+        # r'''
+        # (?i:
+        #     [a-z_0-9]+
+        #     (\.[a-z_0-9.]+) ?
+        # )'''
         # t.value = Id(t.value)
         return t
 
