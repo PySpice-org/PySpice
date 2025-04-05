@@ -70,6 +70,13 @@ class SpiceParser:
 
     ##############################################
 
+        # Declare an INCLUSIVE state called PARAM
+    states = (
+        ('NODES', 'inclusive'),
+    )
+
+    ###############################################
+
     # When building the master regular expression, rules are added in the following order:
     #   - All tokens defined by functions are added in the same order as they appear in the lexer file.
     #   - Tokens defined by strings are added next by sorting them in order of decreasing regular
@@ -127,6 +134,18 @@ class SpiceParser:
         # token.lexer.skip(1)
         raise NameError('Lexer error')
 
+
+    def t_DOT_COMMAND(self, t):
+        r'\.(?i:[a-z]+)'
+        # Switch to the PARAM state on seeing a dot command
+        t.lexer.begin('NODES')
+        return t
+    
+    def t_NODES_SET(self, t):
+        r'='
+        # Switch back to the DEFAULT state on seeing a =
+        t.lexer.begin('INITIAL')
+        return t
     ##############################################
 
     t_ignore = ' \t'
@@ -177,13 +196,14 @@ class SpiceParser:
 
     # t_STRING = r'"((\\")|[^"])*"'
 
-    t_DOT_COMMAND = r'\.(?i:[a-z]+)'
+    # t_DOT_COMMAND = r'\.(?i:[a-z]+)'
 
     # Note:
     #      If ID > NUMBER, then it breaks float and yield A - B
     #      If NUMBER < ID, then 2N2222A is split in two NUMBER tokens: Number 2 n, Number 2222 None a
     #   Solution: use [a-z0-9]* for EXTRA_UNIT
 
+    
     def t_NUMBER(self, t):
         # Fixme: CONTEXTUAL SYNTAX !!! in_offset=[0.1 -0.2]
         r'''
@@ -225,8 +245,17 @@ class SpiceParser:
         else:
             t.value = Number(value, unit, extra_unit)
         return t
-
     def t_ID(self, t):
+        r'''
+        (?i:
+            [a-z_0-9]+
+            (\.[a-z_0-9.]+) ?
+        )'''
+        # t.value = Id(t.value)
+        return t
+    
+
+    def t_NODES_ID(self, t):
         # Fixme:
         r'''
         (?i:                            # case-insensitive
@@ -237,13 +266,9 @@ class SpiceParser:
             (?![a-z0-9.-])            # and not followed by letter/digit/dot/hyphen
             )?
         )'''
-        # r'''
-        # (?i:
-        #     [a-z_0-9]+
-        #     (\.[a-z_0-9.]+) ?
-        # )'''
         # t.value = Id(t.value)
         return t
+
 
     ##############################################
     #
