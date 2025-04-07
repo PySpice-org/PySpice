@@ -82,6 +82,7 @@ class SpiceLibrary:
             self._path = self._path.parent
         self._subcircuits = {}
         self._models = {}
+        self._recurse = recurse
         if not scan:
             if self.has_db_path:
                 self.load()
@@ -182,7 +183,7 @@ class SpiceLibrary:
     ##############################################
 
     def _handle_library(self, path: Path) -> None:
-        spice_include = SpiceInclude(path)
+        spice_include = SpiceInclude(path, recurse=self._recurse)
         # Fixme: check overwrite
         self._models.update({_.name: path for _ in spice_include.models})
         self._subcircuits.update({_.name: path for _ in spice_include.subcircuits})
@@ -209,7 +210,7 @@ class SpiceLibrary:
             # self._logger.warn('Library {} not found in {}'.format(name, self._path))
             raise KeyError(name)
         # Fixme: lazy ???
-        return SpiceInclude(path)[name]
+        return SpiceInclude(path, recurse=self._recurse)[name]
 
     ##############################################
 

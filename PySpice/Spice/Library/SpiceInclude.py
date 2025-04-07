@@ -289,7 +289,7 @@ class SpiceInclude:
 
     ##############################################
 
-    def __init__(self, path: str | Path, rewrite_yaml: bool = False) -> None:
+    def __init__(self, path: str | Path, rewrite_yaml: bool = False, recurse: bool = False) -> None:
         self._path = Path(path)   # .resolve()
         self._extension = None
 
@@ -300,6 +300,7 @@ class SpiceInclude:
         self._subcircuits = {}
         self._digest = None
         self._recursive_digest = None
+        self._recurse = recurse
 
         # Fixme: check still valid !
         if not rewrite_yaml and self.has_yaml:
@@ -308,8 +309,56 @@ class SpiceInclude:
         else:
             self.parse()
             self.write_yaml()
+            if self._recurse:
+                self._process_inner_includes()
 
     ##############################################
+
+    def _process_inner_includes(self) -> None:
+        """Process inner includes recursively and add their models and subcircuits.
+        
+        This method processes all inner includes detected during parsing and 
+        adds their models and subcircuits to this SpiceInclude instance.
+        """
+        processed_paths = set()  # Track processed paths to avoid circular includes
+        processed_paths.add(str(self._path.resolve()))
+        
+        # Create a list to store inner include instances
+        includes = []
+        
+        # Process each inner include path
+        for path_str in self._inner_includes:
+            try:
+                path = Path(path_str)
+                # Skip if we've already processed this path
+                if str(path.resolve()) in processed_paths:
+                    continue
+                
+                self._logger.info(f"Processing inner include {path}")
+                include = SpiceInclude(path, recurse=self._recurse)
+                includes.append(include)
+                processed_paths.add(str(path.resolve()))
+                
+                # Add models from this include
+                for model in include.models:
+                    if model.name in self._models:
+                        self._logger.warning(f"Duplicate model {model.name} from {path}, ignoring")
+                    else:
+                        self._models[model.name] = model
+                
+                # Add subcircuits from this include
+                for subcircuit in include.subcircuits:
+                    if subcircuit.name in self._subcircuits:
+                        self._logger.warning(f"Duplicate subcircuit {subcircuit.name} from {path}, ignoring")
+                    else:
+                        self._subcircuits[subcircuit.name] = subcircuit
+                
+            except Exception as e:
+                self._logger.error(f"Failed to process inner include {path_str}: {str(e)}")
+        
+        # Replace the path strings with actual SpiceInclude instances 
+        # so they can be used for recursive digest computation
+        self._inner_includes = includes
 
     # def dump(self) -> None:
     #     print(self._path)
@@ -397,7 +446,14 @@ class SpiceInclude:
         except ParseError as exception:
             # Parse problem with this file, so skip it and keep going.
             self._logger.warn(f"Parse error in Spice library {self._path}{NEWLINE}{exception}")
-        self._inner_includes = [Path(str(_)) for _ in spice_file.includes]
+        # Convert include paths to absolute paths if they are relative
+        self._inner_includes = []
+        for include_path in spice_file.includes:
+            path = Path(str(include_path))
+            # If path is not absolute, make it absolute using self.path's parent directory
+            if not path.is_absolute():
+                path = self._path.parent / path
+            self._inner_includes.append(path)
         self._inner_libraries = [Path(str(_)) for _ in spice_file.libraries]
         for subcircuit in spice_file.subcircuits:
             # name = self._suffix_name(subcircuit.name)
