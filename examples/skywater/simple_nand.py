@@ -6,7 +6,7 @@ from PySpice.Unit import *
 
 # libraries_path = "/home/asepahvand/repos/skywater-pdk/libraries/sky130_fd_pr/latest/models/sky130.lib_custom.spice"
 libraries_path = "/home/asepahvand/repos/spice_libraries/generic_format.lib"
-spice_library = SpiceLibrary(libraries_path, recurse=False)
+spice_library = SpiceLibrary(libraries_path, recurse=True)
 
 ####################################################################################################
 
