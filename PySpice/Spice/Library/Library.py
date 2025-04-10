@@ -201,16 +201,63 @@ class SpiceLibrary:
     def __getitem__(self, name: str) -> Subcircuit | Model:
         if not self:
             self._logger.warning("Empty library")
+        
+        # First, check if the requested item exists directly
+        path = None
         if name in self._subcircuits:
             path = self._subcircuits[name]
         elif name in self._models:
             path = self._models[name]
         else:
-            # print('Library {} not found in {}'.format(name, self._path))
-            # self._logger.warn('Library {} not found in {}'.format(name, self._path))
+            # Item not found directly - warn and raise KeyError
+            available = list(self._subcircuits.keys()) + list(self._models.keys())
+            available_str = ", ".join(available[:10])
+            if len(available) > 10:
+                available_str += f", ... ({len(available)-10} more)"
+            self._logger.warning(f"Library item '{name}' not found in {self._path}. Available: {available_str}")
             raise KeyError(name)
-        # Fixme: lazy ???
-        return SpiceInclude(path, recurse=self._recurse)[name]
+        
+        # Create SpiceInclude with recursion enabled if requested
+        spice_include = SpiceInclude(path, recurse=self._recurse)
+        
+        try:
+            # Try to get the item directly from this SpiceInclude
+            return spice_include[name]
+        except KeyError:
+            # Item exists in index but not in the file - search in parent directory
+            self._logger.info(f"Item '{name}' referenced in {path} but not found there. Searching in sibling files...")
+            
+            # Try to find the component in sibling library files
+            original_path = Path(path)
+            parent_dir = original_path.parent
+            
+            # Try looking for the item in other library files in the same directory
+            for lib_ext in self.EXTENSIONS:
+                for sibling_file in parent_dir.glob(f"*{lib_ext}"):
+                    if sibling_file == original_path:
+                        continue  # Skip the original file
+                        
+                    try:
+                        self._logger.info(f"Checking {sibling_file} for {name}")
+                        sibling_include = SpiceInclude(sibling_file, recurse=self._recurse)
+                        # Check if this file contains our item
+                        for subckt in sibling_include.subcircuits:
+                            if subckt.name == name:
+                                return subckt
+                        for model in sibling_include.models:
+                            if model.name == name:
+                                return model
+                    except Exception as e:
+                        self._logger.warning(f"Error checking {sibling_file}: {e}")
+            
+            # If we still can't find it, try one last method - force reparse everything
+            try:
+                self._logger.info(f"Attempting one last search with forced reparse for {name}")
+                reparse_include = SpiceInclude(path, rewrite_yaml=True, recurse=True)
+                return reparse_include[name]
+            except KeyError:
+                # Detailed error message when all recovery attempts fail
+                raise KeyError(f"'{name}' referenced in library index but not found in any source file. Check your include hierarchy.")
 
     ##############################################
 

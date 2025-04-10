@@ -330,26 +330,38 @@ class SpiceInclude:
         for path_str in self._inner_includes:
             try:
                 path = Path(path_str)
+                # Ensure path is absolute by resolving it relative to parent directory if needed
+                if not path.is_absolute():
+                    path = (self._path.parent / path).resolve()
+                else:
+                    path = path.resolve()
+                
                 # Skip if we've already processed this path
-                if str(path.resolve()) in processed_paths:
+                if str(path) in processed_paths:
+                    self._logger.info(f"Skipping already processed include: {path}")
+                    continue
+                
+                # Check if file exists
+                if not path.exists():
+                    self._logger.warning(f"Include file not found: {path}")
                     continue
                 
                 self._logger.info(f"Processing inner include {path}")
                 include = SpiceInclude(path, recurse=self._recurse)
                 includes.append(include)
-                processed_paths.add(str(path.resolve()))
+                processed_paths.add(str(path))
                 
                 # Add models from this include
                 for model in include.models:
                     if model.name in self._models:
-                        self._logger.warning(f"Duplicate model {model.name} from {path}, ignoring")
+                        self._logger.warning(f"Duplicate model {model.name} from {path}, keeping original")
                     else:
                         self._models[model.name] = model
                 
                 # Add subcircuits from this include
                 for subcircuit in include.subcircuits:
                     if subcircuit.name in self._subcircuits:
-                        self._logger.warning(f"Duplicate subcircuit {subcircuit.name} from {path}, ignoring")
+                        self._logger.warning(f"Duplicate subcircuit {subcircuit.name} from {path}, keeping original")
                     else:
                         self._subcircuits[subcircuit.name] = subcircuit
                 
@@ -357,7 +369,7 @@ class SpiceInclude:
                 self._logger.error(f"Failed to process inner include {path_str}: {str(e)}")
         
         # Replace the path strings with actual SpiceInclude instances 
-        # so they can be used for recursive digest computation
+        # for recursive digest computation
         self._inner_includes = includes
 
     # def dump(self) -> None:
