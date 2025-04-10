@@ -1113,6 +1113,8 @@ class SpiceSource:
                     raise NotImplementedError
                 case Include():
                     self._includes.append(obj.path)
+                case Library():
+                    self._libs.append(obj)
                 case Control():
                     state_stack.append(SpiceStates.CONTROL)
                     control.append(obj)

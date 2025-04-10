@@ -458,6 +458,7 @@ class SpiceInclude:
         except ParseError as exception:
             # Parse problem with this file, so skip it and keep going.
             self._logger.warn(f"Parse error in Spice library {self._path}{NEWLINE}{exception}")
+        
         # Convert include paths to absolute paths if they are relative
         self._inner_includes = []
         for include_path in spice_file.includes:
@@ -466,7 +467,16 @@ class SpiceInclude:
             if not path.is_absolute():
                 path = self._path.parent / path
             self._inner_includes.append(path)
-        self._inner_libraries = [Path(str(_)) for _ in spice_file.libraries]
+        
+        # Process library files separately
+        # self._inner_libraries = []
+        # for lib in spice_file.libraries:
+        #     path = Path(str(lib.path))
+        #     # If path is not absolute, make it absolute using self.path's parent directory
+        #     if not path.is_absolute():
+        #         path = self._path.parent / path
+        #     self._inner_libraries.append(path)
+        
         for subcircuit in spice_file.subcircuits:
             # name = self._suffix_name(subcircuit.name)
             _ = Subcircuit(self, subcircuit.name, subcircuit.nodes)
@@ -490,7 +500,7 @@ class SpiceInclude:
         with open(self.yaml_path, 'w', encoding='utf8') as fh:
             data = {
                 # 'path': str(self._path),
-                'path': self._path.name,
+                'path': str(self.path),
                 'date': self.mtime.isoformat(),
                 'digest': self.digest,
                 'description': self._description,

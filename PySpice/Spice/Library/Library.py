@@ -185,8 +185,8 @@ class SpiceLibrary:
     def _handle_library(self, path: Path) -> None:
         spice_include = SpiceInclude(path, recurse=self._recurse)
         # Fixme: check overwrite
-        self._models.update({_.name: path for _ in spice_include.models})
-        self._subcircuits.update({_.name: path for _ in spice_include.subcircuits})
+        self._models.update({_.name: str(_.path) for _ in spice_include.models})
+        self._subcircuits.update({_.name: str(_.path) for _ in spice_include.subcircuits})
 
     ##############################################
 
