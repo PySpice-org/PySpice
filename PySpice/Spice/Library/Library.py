@@ -78,8 +78,8 @@ class SpiceLibrary:
         if not self._path.exists():
             self._path.mkdir(parents=True)
             self._logger.info(f"Created {self._path}")
-        elif self._path.is_file():
-            self._path = self._path.parent
+        # elif self._path.is_file():
+        #     self._path = self._path.parent
         self._subcircuits = {}
         self._models = {}
         self._recurse = recurse
@@ -97,6 +97,9 @@ class SpiceLibrary:
 
     @property
     def db_path(self) -> Path:
+        if self._path.is_file():
+            # If the db path is for a file, use the file's parent directory
+            return self._path.parent.joinpath('db.pickle')
         return self._path.joinpath('db.pickle')
 
     @property
@@ -171,14 +174,28 @@ class SpiceLibrary:
     ##############################################
 
     def scan(self) -> None:
+        
         self._logger.info(f"Scan {self._path}...")
+        
+        # Handle the case where self._path is a file, not a directory
+        if self._path.is_file():
+            # Check if the file has a valid extension
+            _ = self._path.suffix.lower()
+            if _ in self.EXTENSIONS:
+                try:
+                    self._handle_library(self._path)
+                except Exception as e:
+                    self._logger.warning(f"Failed to parse {self._path}: {e}")
+            return
+                
+        # Handle the case where self._path is a directory
         for path in PathTools.walk(self._path):
             _ = path.suffix.lower()
             if _ in self.EXTENSIONS:
                 try:
                     self._handle_library(path)
-                except:
-                    self._logger.warning(f"Failed to parse {path}")
+                except Exception as e:
+                    self._logger.warning(f"Failed to parse {path}: {e}")
 
     ##############################################
 
