@@ -4,10 +4,10 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = "/home/asepahvand/repos/skywater-pdk/libraries/sky130_fd_pr/latest/models/sky130.lib_custom.spice"
+libraries_path = "/home/asepahvand/repos/skywater-pdk/libraries/sky130_fd_pr/latest/models/sky130.lib.spice"
 # libraries_path = '/home/asepahvand/repos/skywater-pdk/libraries/sky130_fd_pr/latest/cells/res_high_po/sky130_fd_pr__res_high_po.model.spice'
 # libraries_path = "/home/asepahvand/repos/spice_libraries/"
-spice_lib = SpiceLibrary(libraries_path, recurse=True)
+spice_lib = SpiceLibrary(libraries_path, recurse=True, section="tt")
 
 ####################################################################################################
 

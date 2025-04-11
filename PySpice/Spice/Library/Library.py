@@ -83,6 +83,7 @@ class SpiceLibrary:
         self._subcircuits = {}
         self._models = {}
         self._recurse = recurse
+        self._section = section
         if not scan:
             if self.has_db_path:
                 self.load()
@@ -200,7 +201,7 @@ class SpiceLibrary:
     ##############################################
 
     def _handle_library(self, path: Path) -> None:
-        spice_include = SpiceInclude(path, recurse=self._recurse)
+        spice_include = SpiceInclude(path, recurse=self._recurse, section=self._section)
         # Fixme: check overwrite
         self._models.update({_.name: str(_.path) for _ in spice_include.models})
         self._subcircuits.update({_.name: str(_.path) for _ in spice_include.subcircuits})

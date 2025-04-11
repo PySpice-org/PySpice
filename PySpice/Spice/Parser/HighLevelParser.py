@@ -1021,6 +1021,8 @@ class SpiceSource:
         self.reset()
         last_line = None
         last_command = None
+        we_are_in_lib = False
+        libname = None
         for line_number, line in generator:
             # print(f'>>>{line_number}///{line.rstrip()}')
             ### line = line.strip()
@@ -1055,6 +1057,14 @@ class SpiceSource:
                 last_line.append(line_number, '', comment)
             else:
                 last_line = SpiceLine(line_number, line_number, command, comment)
+                if command.startswith('.lib'):
+                    libname = command.split('lib')[1].strip().lower()
+                    we_are_in_lib = True
+                elif command.startswith('.endl'):
+                    we_are_in_lib = False
+                    libname = None
+                if self._section and libname != self._section.lower() and we_are_in_lib:
+                    continue
                 self._lines.append(last_line)
                 if command:
                     last_command = last_line
@@ -1278,7 +1288,8 @@ class SpiceFile(SpiceSource):
 
     ##############################################
 
-    def __init__(self, path: str | Path) -> None:
+    def __init__(self, path: str | Path, section: str) -> None:
         super().__init__()
         self._path = Path(path)
+        self._section = section
         self.parse_file(path)

@@ -289,7 +289,7 @@ class SpiceInclude:
 
     ##############################################
 
-    def __init__(self, path: str | Path, rewrite_yaml: bool = False, recurse: bool = False) -> None:
+    def __init__(self, path: str | Path, rewrite_yaml: bool = False, recurse: bool = False, section: str | None = None) -> None:
         self._path = Path(path)   # .resolve()
         self._extension = None
 
@@ -301,6 +301,7 @@ class SpiceInclude:
         self._digest = None
         self._recursive_digest = None
         self._recurse = recurse
+        self._section = section
 
         # Fixme: check still valid !
         if not rewrite_yaml and self.has_yaml:
@@ -454,7 +455,7 @@ class SpiceInclude:
     def parse(self) -> None:
         self._logger.info(f"Parse {self._path}")
         try:
-            spice_file = SpiceFile(self._path)
+            spice_file = SpiceFile(self._path, self._section)
         except ParseError as exception:
             # Parse problem with this file, so skip it and keep going.
             self._logger.warn(f"Parse error in Spice library {self._path}{NEWLINE}{exception}")
