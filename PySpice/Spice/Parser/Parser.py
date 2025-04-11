@@ -259,14 +259,14 @@ class SpiceParser:
     def t_NODES_ID(self, t):
         # Fixme:
         r'''
-        (?i:                            # case-insensitive
-            (?:[+\-\%](?=[a-z_]))?        # optional +, - or % at the start, only if followed by letter/underscore
-            [a-z0-9_][-a-z0-9_]*          # start with letter/digit/underscore, then allow hyphens and other chars
-            (?:\.[a-z0-9_][-a-z0-9_]*)?   # optionally a dot, followed by more characters including hyphens
-            (?:(?<=[a-z0-9])[+\-]       # optionally a plus or minus if it's right after a letter/digit
-            (?![a-z0-9.-])            # and not followed by letter/digit/dot/hyphen
-            )?
+        (?i:
+            (?:[+\-\%](?=[a-z_]))?
+            [a-z0-9_][-a-z0-9_]*
+            (?:\.[a-z0-9_][-a-z0-9_]*)?
+            (?:(?<=[a-z0-9])[+\-](?![a-z0-9.-]))?
+            :?
         )'''
+
 
         # t.value = Id(t.value)
         return t
@@ -344,12 +344,13 @@ class SpiceParser:
     # --------------------------------------------------------------------------------------
     # CHANGED: Added this rule to handle patterns like "params:" in a .subckt line.
     # Example: .subckt genopa1 in+ in- vcc vee out params: POLE=20 ...
-    def p_id_colon(self, p):
-        '''expression : ID COLON
-        '''
-        # Treat "params:" (or any ID followed by a colon) as a single expression.
-        p[0] = Id(p[1] + ':')
-    # ---
+    # def p_NODES_id_colon(self, p):
+    #     '''expression : ID COLON
+    #     '''
+    #     # Treat "params:" (or any ID followed by a colon) as a single expression.
+    #     p[0] = Id(p[1] + ':')
+        
+    # # ---
     
     def p_uminus(self, p):
         '''expression : MINUS expression %prec UMINUS'''
