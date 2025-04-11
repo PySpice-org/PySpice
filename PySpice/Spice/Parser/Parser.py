@@ -266,8 +266,6 @@ class SpiceParser:
             (?:(?<=[a-z0-9])[+\-](?![a-z0-9.-]))?
             :?
         )'''
-
-
         # t.value = Id(t.value)
         return t
 
