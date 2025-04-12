@@ -629,7 +629,7 @@ class Circuit(Netlist):
         # Fixme: str(path) ?
         # Fixme: circular import...
         from . import Library
-        if isinstance(path, Library.Subcircuit):
+        if isinstance(path, Library.Subcircuit) or isinstance(path, Library.Model):
             path = path.path
         path = Path(path).resolve()
         if path not in self._includes:
