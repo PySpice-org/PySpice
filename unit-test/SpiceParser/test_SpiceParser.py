@@ -27,7 +27,7 @@ import unittest
 ####################################################################################################
 
 from PySpice.Spice.Netlist import Circuit
-from PySpice.Spice.Parser import SpiceParser
+from PySpice.Spice.Parser.Parser import SpiceParser
 
 ####################################################################################################
 
