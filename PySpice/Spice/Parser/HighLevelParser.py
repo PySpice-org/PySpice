@@ -996,6 +996,7 @@ class SpiceSource:
         self._subcircuits = []
         self._circuit = Netlist()
         self._control = []
+        self._section = None
 
     ##############################################
 
@@ -1288,7 +1289,7 @@ class SpiceFile(SpiceSource):
 
     ##############################################
 
-    def __init__(self, path: str | Path, section: str) -> None:
+    def __init__(self, path: str | Path, section: str=None) -> None:
         super().__init__()
         self._path = Path(path)
         self._section = section

@@ -1,5 +1,4 @@
 ####################################################################################################
-
 from pathlib import Path
 
 from KiCadRW.Schema import KiCadSchema

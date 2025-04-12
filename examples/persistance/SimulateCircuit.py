@@ -12,7 +12,7 @@ from PySpice.Doc.ExampleTools import find_libraries
 libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
-1/0
+# 1/0
 
 ####################################################################################################
 

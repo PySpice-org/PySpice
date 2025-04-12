@@ -45,13 +45,14 @@ class BasicOperationalAmplifier(SubCircuit): # SubCircuitFactory
 
     NODES = ('non_inverting_input', 'inverting_input', 'output')
 
-    # Comment: R doesn't know its name, R prefix is redundant
-    Rinput = R('non_inverting_input', 'inverting_input', 10@u_MΩ)
+    def __init__(self):
+        # Comment: R doesn't know its name, R prefix is redundant
+        Rinput = self.R('non_inverting_input', 'inverting_input', 10@u_MΩ)
 
-    gain = VCVS('non_inverting_input', 'inverting_input', 1, self.gnd, kilo(100))
-    RP1 = R(1, 2, 1@u_kΩ)
-    CP1 = C(2, self.gnd, 1.591@u_uF)
+        gain = self.VCVS('non_inverting_input', 'inverting_input', 1, self.gnd, kilo(100))
+        RP1 = self.R(1, 2, 1@u_kΩ)
+        CP1 = self.C(2, self.gnd, 1.591@u_uF)
 
-    # Comment: buffer is a Python name
-    buffer = VCVS(2, self.gnd, 3, self.gnd, 1)
-    Rout = R(3, 'output', 10@u_Ω)
+        # Comment: buffer is a Python name
+        buffer = self.VCVS(2, self.gnd, 3, self.gnd, 1)
+        Rout = self.R(3, 'output', 10@u_Ω)
