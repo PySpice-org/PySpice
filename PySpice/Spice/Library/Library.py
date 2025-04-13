@@ -87,6 +87,10 @@ class SpiceLibrary:
         if not scan:
             if self.has_db_path:
                 self.load()
+                '''Check if the library has the our path in the subcircuits.'''
+                paths = {Path(sub_path) for sub_path in self._subcircuits.values()}
+                if self._path not in paths:
+                    scan = True 
             else:
                 self._logger.info("Initialize library...")
                 scan = True
