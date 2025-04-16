@@ -1015,7 +1015,7 @@ class SpiceSource:
 
     ##############################################
 
-    def read(self, generator: Generator[tuple[int, str], None, None], title_line: bool=True) -> None:
+    def read(self, generator: Generator[tuple[int, str], None, None], title_line: bool=True, section: str=None ) -> None:
         """Preprocess lines. This method merges continuation lines and split command and comment.
 
         """
@@ -1023,6 +1023,7 @@ class SpiceSource:
         last_line = None
         last_command = None
         we_are_in_lib = False
+        self._section = section
         libname = None
         for line_number, line in generator:
             # print(f'>>>{line_number}///{line.rstrip()}')
@@ -1177,10 +1178,10 @@ class SpiceSource:
 
     ##############################################
 
-    def parse_file(self, path: str | Path) -> None:
+    def parse_file(self, path: str | Path, section: str=None) -> None:
         with open(path, 'r', encoding='utf-8') as fh:
             generator = enumerate(fh.readlines())
-            self.read(generator, title_line=True)
+            self.read(generator, title_line=True, section=section)
             self._parse()
 
     ##############################################
@@ -1292,5 +1293,4 @@ class SpiceFile(SpiceSource):
     def __init__(self, path: str | Path, section: str=None) -> None:
         super().__init__()
         self._path = Path(path)
-        self._section = section
-        self.parse_file(path)
+        self.parse_file(path, section)
