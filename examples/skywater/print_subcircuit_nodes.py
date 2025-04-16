@@ -4,7 +4,7 @@ from PySpice.Unit import *
 
 ####################################################################################################
 
-libraries_path = "../../../skywater-pdk/libraries/sky130_fd_pr/latest/models/sky130.lib.spice"
+libraries_path = "../skywater-pdk/libraries/sky130_fd_pr/latest/models/sky130.lib.spice"
 
 spice_lib = SpiceLibrary(libraries_path, recurse=True, section="tt")
 
