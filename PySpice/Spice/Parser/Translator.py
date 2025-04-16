@@ -79,7 +79,16 @@ class Builder(Translator):
             _ = spice_code.title
         self._circuit = Circuit(_)
         self._ground = ground
+        
+        # for obj in spice_code.obj_lines:
+        #     self.handle(obj)
+        for obj in spice_code._titles:
+            self.handle(obj)        
         for obj in spice_code.circuit:
+            self.handle(obj)
+        for obj in spice_code.includes:
+            self.handle_Include(obj)
+        for obj in spice_code.models:
             self.handle(obj)
         for obj in spice_code._subcircuits:
             self.handle(obj)
@@ -183,7 +192,7 @@ class Builder(Translator):
     ##############################################
 
     def handle_Include(self, obj: Include) -> None:
-        self._circuit.include(obj.path)
+        self._circuit.include(obj)
 
     ##############################################
 
