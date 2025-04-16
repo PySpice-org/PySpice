@@ -72,7 +72,12 @@ class Builder(Translator):
         Use the *ground* parameter to specify the node which must be translated to 0 (SPICE ground node).
 
         """
-        self._circuit = Circuit(spice_code.title)
+        # Remove '.title' from spice_code.title if present
+        if spice_code.title and spice_code.title.startswith('.title'):
+            _ = spice_code.title[6:]
+        else:
+            _ = spice_code.title
+        self._circuit = Circuit(_)
         self._ground = ground
 
         for obj in spice_code.obj_lines:
@@ -151,7 +156,8 @@ class Builder(Translator):
     ##############################################
 
     def handle_EndSubcircuit(self, obj: EndSubcircuit) -> None:
-        raise NotImplementedError
+        # raise NotImplementedError
+        pass
 
     ##############################################
 
@@ -262,7 +268,10 @@ class Builder(Translator):
 
     def handle_Subcircuit(self, obj: Subcircuit, ground=Node.SPICE_GROUND_NUMBER) -> None:
         subcircuit = SubCircuit(obj._name, *obj._nodes)
-        SpiceParser._build_circuit(subcircuit, obj._statements, ground)
+        for element in obj._items:
+            subcircuit._add_element(element)
+        # SpiceParser._build_circuit(subcircuit, obj._statements, ground)
+        self._circuit.subcircuit(subcircuit)        
         return subcircuit
 
     ##############################################
