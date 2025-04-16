@@ -17,14 +17,17 @@ class ParallelResistor2(SubCircuit):
         self.R(2, 'n1', 'n2', R2)
 
 circuit = Circuit('Test')
+circuit.R('1', 'input', 'n1', 1@u_Ω)
 circuit.subcircuit(ParallelResistor2('pr1', R2=2@u_Ω))
 circuit.X('1', 'pr1', 1, circuit.gnd)
 circuit.subcircuit(ParallelResistor2('pr2', R2=3@u_Ω))
 circuit.X('2', 'pr2', 1, circuit.gnd)
 
 source = str(circuit)
-circuit_builder = Builder()
+print(circuit)
+
 parser = SpiceSource(source=source)
+circuit_builder = Builder()
 bootstrap_circuit = circuit_builder.translate(spice_code=parser)
 bootstrap_source = str(bootstrap_circuit)
 

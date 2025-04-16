@@ -74,13 +74,14 @@ class Builder(Translator):
         """
         # Remove '.title' from spice_code.title if present
         if spice_code.title and spice_code.title.startswith('.title'):
-            _ = spice_code.title[6:]
+            _ = str(spice_code.title[6:]).strip()
         else:
             _ = spice_code.title
         self._circuit = Circuit(_)
         self._ground = ground
-
-        for obj in spice_code.obj_lines:
+        for obj in spice_code.circuit:
+            self.handle(obj)
+        for obj in spice_code._subcircuits:
             self.handle(obj)
 
         return self._circuit
@@ -268,9 +269,14 @@ class Builder(Translator):
 
     def handle_Subcircuit(self, obj: Subcircuit, ground=Node.SPICE_GROUND_NUMBER) -> None:
         subcircuit = SubCircuit(obj._name, *obj._nodes)
-        for element in obj._items:
-            subcircuit._add_element(element)
-        # SpiceParser._build_circuit(subcircuit, obj._statements, ground)
+        # Add all elements from obj._items to the subcircuit
+        for item in obj._items:
+            # Create a temporary Builder to handle each item in context of the subcircuit
+            temp_builder = Builder()
+            temp_builder._circuit = subcircuit
+            temp_builder._ground = ground
+            temp_builder.handle(item)
+        # Original SpiceParser._build_circuit(subcircuit, obj._statements, ground)
         self._circuit.subcircuit(subcircuit)        
         return subcircuit
 
