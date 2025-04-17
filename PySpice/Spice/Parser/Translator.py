@@ -182,7 +182,7 @@ class Builder(Translator):
     ##############################################
 
     def handle_Include(self, obj: Include) -> None:
-        self._circuit.include(obj)
+        self._circuit.include(obj.path)
 
     ##############################################
 
