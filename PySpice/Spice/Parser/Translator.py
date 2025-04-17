@@ -74,6 +74,7 @@ class Builder(Translator):
         """
         self._circuit = Circuit(spice_code.title)
         self._ground = ground
+        
         for obj in spice_code.obj_lines:
             self.handle(obj)
 
