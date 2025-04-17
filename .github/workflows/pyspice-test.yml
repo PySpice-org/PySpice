@@ -6,12 +6,9 @@ name: Pyspice Test
 # Trigger the workflow on
 on:
   push:
-    branches:
-      - master
-      - devel
+    branches:  "*" 
   pull_request:
-    branches:
-      - master
+    branches: [ "*" ]
   # page_build:
   # release:
   #   types: # This configuration does not affect the page_build event above

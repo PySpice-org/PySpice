@@ -211,7 +211,7 @@ class Pin(PinDefinition):
 
     ##############################################
 
-    def add_current_probe(self, circuit):
+    def add_current_probe(self, circuit, name=None):
         """Add a current probe between the node and the pin.
 
         The ammeter is named *ElementName_PinName*.
@@ -221,8 +221,29 @@ class Pin(PinDefinition):
         # Fixme: add it to a list
         if self.connected:
             node = self._node
-            self._node = '_'.join((self._element.name, self._name))
-            circuit.V(self._node, node, self._node, '0')
+            self._node = '_'.join((self._element.name, str(node), str(self.position) ))
+            if name is None:
+                name = self._node
+            circuit.V(name, node, self._node, '0')
+        else:
+            raise NameError("Dangling pin")
+    
+    def add_esr(self, circuit, name= None, value=1e-3):
+
+        """Add a series resistance between the node and the pin.
+
+        The ammeter is named *ElementName_PinName*.
+
+        """
+
+        # Fixme: require a reference to circuit
+        # Fixme: add it to a list
+        if self.connected:
+            node = self._node
+            self._node = '_'.join((self._element.name, str(self._node), str(self.position)))
+            if name is None:
+                name = self._node
+            return circuit.R(name, node, self._node, value)
         else:
             raise NameError("Dangling pin")
 

@@ -124,7 +124,7 @@ R2 out 0 1kOhm
         # for pin in circuit.out:
         #     print(pin)
 
-        self.assertEqual(circuit.out.pins, set((circuit.R1.minus, circuit.R2.plus)))
+        self.assertEqual(set(circuit.out.pins), set((circuit.R1.minus, circuit.R2.plus)))
 
         self.assertEqual(circuit.R1.resistance, 9@u_kΩ)
         self.assertEqual(circuit['R2'].resistance, 1@u_kΩ)

@@ -1,7 +1,7 @@
 ####################################################################################################
 
 import matplotlib.pyplot as plt
-
+import time
 ####################################################################################################
 
 import PySpice.Logging.Logging as Logging
@@ -12,6 +12,9 @@ logger = Logging.setup_logging()
 from PySpice.Doc.ExampleTools import find_libraries
 from PySpice import SpiceLibrary, Circuit, Simulator, plot
 from PySpice.Unit import *
+
+from PySpice.Spice.NgSpice.Shared import NgSpiceShared
+ngspice = NgSpiceShared.new_instance()
 
 ####################################################################################################
 
@@ -99,33 +102,69 @@ circuit.R('L', 1, 'out', RL)
 circuit.C(1, 'out', circuit.gnd, Cout) # , initial_condition=0@u_V
 circuit.R('load', 'out', circuit.gnd, Rload)
 
-simulator = Simulator.factory()
-simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+####################################################################################################
 
-# I noticed that sometimes tmax is not calculated correctly. it's better to specify it manually using max_time
-# for convergence issues, it's better to use a smaller timestep
-# Also, sometimes you may use UIC to assist covnergence. 
-analysis = simulation.transient(step_time=period/300, end_time=period*150, start_time=0@u_ms, max_time=1@u_ns, use_initial_condition=True)
+end_time = 500e-6
+circ_str = str(circuit)
+options = f'.options TEMP = 25C \n'
+options += '.options TNOM = 25C \n'
+options += '.options NOINIT \n'
+options += '.options RSHUNT = 1e12 \n'
+# options += '.ic v(opamp_out) = 0\n'
+options += f'.tran 1us {end_time} 0 1ns uic\n'
+options += '.end'
 
-figure, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10), sharex=True)
+circ_str += options 
 
-ax1.plot(analysis.out)
-ax1.plot(analysis['source'])
-# ax.plot(analysis['source'] - analysis['out'])
-# ax.plot(analysis['gate'])
-ax1.axhline(y=float(Vout), color='red')
-ax1.legend(('Vout [V]', 'Vsource [V]'), loc=(.8,.8))
-ax1.grid()
-ax1.set_xlabel('t [s]')
-ax1.set_ylabel('[V]')
+ngspice.load_circuit(circ_str)
+print('Loaded circuit:')
+# print(ngspice.listing())
 
+live = True
+ngspice.run(background=live)
+print('Plots:', ngspice.plot_names)
+figure, (ax1, ax2) = plt.subplots(2, 1, figsize=(20, 10), sharex=True)
+def update_plots(ax1, ax2, sim_time, analysis):
+    ax1.clear()
+    ax1.plot(sim_time * 1e6, analysis.out, label='Vout [V]')
+    ax1.plot(sim_time * 1e6, analysis['source'], label='Vsource [V]')
+    ax1.legend(loc='upper right')
+    ax1.grid()
+    ax1.set_ylabel('[V]')
+    ax1.set_xlabel('t [us]')
 
-ax2.plot(analysis.branches['vinductor_current'], label='L2 [A]')
-ax2.legend(('Inductor current [A]',), loc=(.8,.8))
-ax2.grid()
-ax2.set_xlabel('t [s]')
-ax2.set_ylabel('[A]')
-plt.tight_layout()
-plt.show()
+    ax2.clear()
+    ax2.plot(sim_time * 1e6, analysis.branches['vinductor_current'], label='L2 [A]')
+    ax2.legend(loc='upper right')
+    ax2.set_ylabel('[A]')
+    ax2.set_xlabel('t [us]')
+    ax2.grid()
+    plt.tight_layout()
+    plt.draw()
+    plt.pause(0.01)
 
-#f# save_figure('figure', 'buck-converter.png')
+if not live:
+    print(ngspice.status())
+    plot_data = ngspice.plot(simulation=None, plot_name=ngspice.last_plot)
+    analysis = plot_data.to_analysis()
+    update_plots(ax1, ax2, analysis.time, analysis)
+    plt.show(block=True)
+else:
+    simulation_done = False
+    while not simulation_done:
+        time.sleep(0.1)
+        ngspice.halt()
+        plot_data = ngspice.plot(simulation=None, plot_name=ngspice.last_plot)
+        print(ngspice.status())
+
+        analysis = plot_data.to_analysis()
+        sim_time = analysis.time
+        if sim_time[-1]._value < end_time - 1e-6:
+            ngspice.resume()
+        else:
+            simulation_done = True
+
+        update_plots(ax1, ax2, sim_time, analysis)
+        if simulation_done:
+            plt.show(block=True)
+            break

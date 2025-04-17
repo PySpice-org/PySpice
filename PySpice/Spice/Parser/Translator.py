@@ -74,7 +74,7 @@ class Builder(Translator):
         """
         self._circuit = Circuit(spice_code.title)
         self._ground = ground
-
+        
         for obj in spice_code.obj_lines:
             self.handle(obj)
 
@@ -152,6 +152,7 @@ class Builder(Translator):
 
     def handle_EndSubcircuit(self, obj: EndSubcircuit) -> None:
         raise NotImplementedError
+        # pass
 
     ##############################################
 
@@ -262,7 +263,15 @@ class Builder(Translator):
 
     def handle_Subcircuit(self, obj: Subcircuit, ground=Node.SPICE_GROUND_NUMBER) -> None:
         subcircuit = SubCircuit(obj._name, *obj._nodes)
-        SpiceParser._build_circuit(subcircuit, obj._statements, ground)
+        # Add all elements from obj._items to the subcircuit
+        for item in obj._items:
+            # Create a temporary Builder to handle each item in context of the subcircuit
+            temp_builder = Builder()
+            temp_builder._circuit = subcircuit
+            temp_builder._ground = ground
+            temp_builder.handle(item)
+        # Original SpiceParser._build_circuit(subcircuit, obj._statements, ground)
+        self._circuit.subcircuit(subcircuit)        
         return subcircuit
 
     ##############################################

@@ -104,6 +104,8 @@ class NgSpiceSharedSimulator(NgSpiceSimulator):
     @property
     def version(self):
         return self._ngspice_shared.ngspice_version
+    def _run(self, analysis_method, *args, **kwargs):
+        background = kwargs.pop('background', False)
 
     ##############################################
 
@@ -117,7 +119,6 @@ class NgSpiceSharedSimulator(NgSpiceSimulator):
         self._ngspice_shared.load_circuit(str(simulation))
         self._ngspice_shared.run()
         self._logger.debug(str(self._ngspice_shared.plot_names))
-
         plot_name = self._ngspice_shared.last_plot
         if plot_name == 'const':
             raise NameError('Simulation failed')

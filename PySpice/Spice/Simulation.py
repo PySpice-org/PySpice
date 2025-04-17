@@ -738,7 +738,7 @@ class Simulation:
 
         if 'probes' in kwargs:
             self.save(* kwargs.pop('probes'))
-
+        
         # Execute analysis implementation
         analysis_method(self, *args, **kwargs)
 

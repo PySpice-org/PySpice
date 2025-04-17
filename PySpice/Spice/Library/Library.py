@@ -70,16 +70,27 @@ class SpiceLibrary:
 
     ##############################################
 
-    def __init__(self, root_path: str | Path, scan: bool = False) -> None:
+    def __init__(self, root_path: str | Path, scan: bool = False, recurse: bool = False, section: bool = False) -> None:
+        # recurse will be removed in the future maybe. it's here because skidl uses it
+        # if recurse:
+        #     scan = recurse
         self._path = PathTools.expand_path(root_path)
         if not self._path.exists():
             self._path.mkdir(parents=True)
             self._logger.info(f"Created {self._path}")
+        # elif self._path.is_file():
+        #     self._path = self._path.parent
         self._subcircuits = {}
         self._models = {}
+        self._recurse = recurse
+        self._section = section
         if not scan:
             if self.has_db_path:
                 self.load()
+                '''Check if the library has the our path in the subcircuits.'''
+                paths = {Path(sub_path) for sub_path in self._subcircuits.values()}
+                if self._path not in paths:
+                    scan = True 
             else:
                 self._logger.info("Initialize library...")
                 scan = True
@@ -91,6 +102,9 @@ class SpiceLibrary:
 
     @property
     def db_path(self) -> Path:
+        if self._path.is_file():
+            # If the db path is for a file, use the file's parent directory
+            return self._path.parent.joinpath('db.pickle')
         return self._path.joinpath('db.pickle')
 
     @property
@@ -165,19 +179,36 @@ class SpiceLibrary:
     ##############################################
 
     def scan(self) -> None:
+        
         self._logger.info(f"Scan {self._path}...")
+        
+        # Handle the case where self._path is a file, not a directory
+        if self._path.is_file():
+            # Check if the file has a valid extension
+            _ = self._path.suffix.lower()
+            if _ in self.EXTENSIONS:
+                try:
+                    self._handle_library(self._path)
+                except Exception as e:
+                    self._logger.warning(f"Failed to parse {self._path}: {e}")
+            return
+                
+        # Handle the case where self._path is a directory
         for path in PathTools.walk(self._path):
             _ = path.suffix.lower()
             if _ in self.EXTENSIONS:
-                self._handle_library(path)
+                try:
+                    self._handle_library(path)
+                except Exception as e:
+                    self._logger.warning(f"Failed to parse {path}: {e}")
 
     ##############################################
 
     def _handle_library(self, path: Path) -> None:
-        spice_include = SpiceInclude(path)
+        spice_include = SpiceInclude(path, recurse=self._recurse, section=self._section)
         # Fixme: check overwrite
-        self._models.update({_.name: path for _ in spice_include.models})
-        self._subcircuits.update({_.name: path for _ in spice_include.subcircuits})
+        self._models.update({_.name: str(_.path) for _ in spice_include.models})
+        self._subcircuits.update({_.name: str(_.path) for _ in spice_include.subcircuits})
 
     ##############################################
 
@@ -192,16 +223,63 @@ class SpiceLibrary:
     def __getitem__(self, name: str) -> Subcircuit | Model:
         if not self:
             self._logger.warning("Empty library")
+        
+        # First, check if the requested item exists directly
+        path = None
         if name in self._subcircuits:
             path = self._subcircuits[name]
         elif name in self._models:
             path = self._models[name]
         else:
-            # print('Library {} not found in {}'.format(name, self._path))
-            # self._logger.warn('Library {} not found in {}'.format(name, self._path))
+            # Item not found directly - warn and raise KeyError
+            available = list(self._subcircuits.keys()) + list(self._models.keys())
+            available_str = ", ".join(available[:10])
+            if len(available) > 10:
+                available_str += f", ... ({len(available)-10} more)"
+            self._logger.warning(f"Library item '{name}' not found in {self._path}. Available: {available_str}")
             raise KeyError(name)
-        # Fixme: lazy ???
-        return SpiceInclude(path)[name]
+        
+        # Create SpiceInclude with recursion enabled if requested
+        spice_include = SpiceInclude(path, recurse=self._recurse)
+        
+        try:
+            # Try to get the item directly from this SpiceInclude
+            return spice_include[name]
+        except KeyError:
+            # Item exists in index but not in the file - search in parent directory
+            self._logger.info(f"Item '{name}' referenced in {path} but not found there. Searching in sibling files...")
+            
+            # Try to find the component in sibling library files
+            original_path = Path(path)
+            parent_dir = original_path.parent
+            
+            # Try looking for the item in other library files in the same directory
+            for lib_ext in self.EXTENSIONS:
+                for sibling_file in parent_dir.glob(f"*{lib_ext}"):
+                    if sibling_file == original_path:
+                        continue  # Skip the original file
+                        
+                    try:
+                        self._logger.info(f"Checking {sibling_file} for {name}")
+                        sibling_include = SpiceInclude(sibling_file, recurse=self._recurse)
+                        # Check if this file contains our item
+                        for subckt in sibling_include.subcircuits:
+                            if subckt.name == name:
+                                return subckt
+                        for model in sibling_include.models:
+                            if model.name == name:
+                                return model
+                    except Exception as e:
+                        self._logger.warning(f"Error checking {sibling_file}: {e}")
+            
+            # If we still can't find it, try one last method - force reparse everything
+            try:
+                self._logger.info(f"Attempting one last search with forced reparse for {name}")
+                reparse_include = SpiceInclude(path, rewrite_yaml=True, recurse=True)
+                return reparse_include[name]
+            except KeyError:
+                # Detailed error message when all recovery attempts fail
+                raise KeyError(f"'{name}' referenced in library index but not found in any source file. Check your include hierarchy.")
 
     ##############################################
 

@@ -1,0 +1,22 @@
+* generic OpAmp model
+* gain, phase, offset, limits to power supply
+
+.model mcrdlm5 c tc1 = 0 tc2 = 0 cox = {crdlm5} capsw = {crdlm5sw} w = {wminrdl} tnom = 25.0
+*.model sky130_fd_pr__res_generic_nd r tc1r = {tc1rsn} tc2r = {tc2rsn} rsh = {rdn} dw = {"-tol_nfom/2-nfom_dw/2"} tnom = 30.0
+
+*.include "../cells/nfet_01v8/sky130_fd_pr__nfet_01v8__tt.corner.spice"
+*.include "temp.lib"
+
+.subckt generic_comp in+ in- vcc vee out params: POLE=20 GAIN=20k VOFF=10m ROUT=10
+Voff in+ inoff dc {VOFF}
+G10 0 int inoff in- 100u
+R1 int 0 {GAIN/100u}
+C1 int 0 {1/(6.28*(GAIN/100u)*POLE)}
+Eout 2 0 int 0 1
+Rout 2 out {ROUT}
+Elow 3 0 vee 0 1
+Ehigh 8 0 vcc 0 1
+Dlow 3 int Dlimit
+Dhigh int 8 Dlimit
+.model Dlimit D N=0.01
+.ends

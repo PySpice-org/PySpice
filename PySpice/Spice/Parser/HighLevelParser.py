@@ -84,7 +84,7 @@ import os
 from ..Netlist import Node
 from ..StringTools import remove_multi_space
 from . import Ast
-from . import ElementData
+from .ElementData import ElementData
 from .Ast import AstNode
 from .Parser import SpiceParser
 from .SpiceSyntax import ElementLetters
@@ -313,7 +313,14 @@ class Element(Command):
         # Read nodes
         self._nodes = []
         number_of_pins = 0
-        data = ElementData.elements[self._letter]
+        from PySpice.Spice.Element import ElementParameterMetaClass
+        elements = {}
+        for letter, classes in ElementParameterMetaClass._classes.items():
+            element_data = ElementData(letter, classes)
+            elements[letter] = element_data
+            elements[letter.lower()] = element_data
+        # data = ElementData.elements[self._letter]
+        data = elements[self._letter]
         if not data.has_variable_number_of_pins:
             number_of_pins = data.number_of_pins
         else:   # Q or X
@@ -989,6 +996,7 @@ class SpiceSource:
         self._subcircuits = []
         self._circuit = Netlist()
         self._control = []
+        self._section = None
 
     ##############################################
 
@@ -1007,13 +1015,16 @@ class SpiceSource:
 
     ##############################################
 
-    def read(self, generator: Generator[tuple[int, str], None, None], title_line: bool=True) -> None:
+    def read(self, generator: Generator[tuple[int, str], None, None], title_line: bool=True, section: str=None ) -> None:
         """Preprocess lines. This method merges continuation lines and split command and comment.
 
         """
         self.reset()
         last_line = None
         last_command = None
+        we_are_in_lib = False
+        self._section = section
+        libname = None
         for line_number, line in generator:
             # print(f'>>>{line_number}///{line.rstrip()}')
             ### line = line.strip()
@@ -1048,6 +1059,14 @@ class SpiceSource:
                 last_line.append(line_number, '', comment)
             else:
                 last_line = SpiceLine(line_number, line_number, command, comment)
+                if command.startswith('.lib'):
+                    libname = command.split('lib')[1].strip().lower()
+                    we_are_in_lib = True
+                elif command.startswith('.endl'):
+                    we_are_in_lib = False
+                    libname = None
+                if self._section and libname != self._section.lower() and we_are_in_lib:
+                    continue
                 self._lines.append(last_line)
                 if command:
                     last_command = last_line
@@ -1097,7 +1116,10 @@ class SpiceSource:
                 continue
             cls = Command.get_cls(line, get_state() == SpiceStates.CONTROL)
             obj = cls(line, ast)
-            self._obj_lines.append(obj)
+
+            # don't append if in subcircuit. it will be added in the subcircuit anyway
+            if not_state(SpiceStates.SUBCIRCUIT):
+                self._obj_lines.append(obj)
             self._logger.debug(os.linesep + repr(obj))
             match obj:
                 case If():
@@ -1105,7 +1127,9 @@ class SpiceSource:
                     append(obj)
                     raise NotImplementedError
                 case Include():
-                    self._includes.append(obj)
+                    self._includes.append(obj.path)
+                case Library():
+                    self._libs.append(obj)
                 case Control():
                     state_stack.append(SpiceStates.CONTROL)
                     control.append(obj)
@@ -1157,10 +1181,10 @@ class SpiceSource:
 
     ##############################################
 
-    def parse_file(self, path: str | Path) -> None:
+    def parse_file(self, path: str | Path, section: str=None) -> None:
         with open(path, 'r', encoding='utf-8') as fh:
             generator = enumerate(fh.readlines())
-            self.read(generator, title_line=True)
+            self.read(generator, title_line=True, section=section)
             self._parse()
 
     ##############################################
@@ -1269,7 +1293,7 @@ class SpiceFile(SpiceSource):
 
     ##############################################
 
-    def __init__(self, path: str | Path) -> None:
+    def __init__(self, path: str | Path, section: str=None) -> None:
         super().__init__()
         self._path = Path(path)
-        self.parse_file(path)
+        self.parse_file(path, section)
