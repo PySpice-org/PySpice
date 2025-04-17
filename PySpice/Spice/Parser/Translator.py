@@ -80,17 +80,7 @@ class Builder(Translator):
         self._circuit = Circuit(_)
         self._ground = ground
         
-        # for obj in spice_code.obj_lines:
-        #     self.handle(obj)
-        for obj in spice_code._titles:
-            self.handle(obj)        
-        for obj in spice_code.circuit:
-            self.handle(obj)
-        for obj in spice_code.includes:
-            self.handle_Include(obj)
-        for obj in spice_code.models:
-            self.handle(obj)
-        for obj in spice_code._subcircuits:
+        for obj in spice_code.obj_lines:
             self.handle(obj)
 
         return self._circuit

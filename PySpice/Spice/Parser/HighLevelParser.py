@@ -1116,7 +1116,10 @@ class SpiceSource:
                 continue
             cls = Command.get_cls(line, get_state() == SpiceStates.CONTROL)
             obj = cls(line, ast)
-            self._obj_lines.append(obj)
+
+            # don't append if in subcircuit. it will be added in the subcircuit anyway
+            if not_state(SpiceStates.SUBCIRCUIT):
+                self._obj_lines.append(obj)
             self._logger.debug(os.linesep + repr(obj))
             match obj:
                 case If():
