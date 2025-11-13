@@ -82,18 +82,20 @@ from .SimulationType import SIMULATION_TYPE
 
 ####################################################################################################
 
+
 def ffi_string_utf8(x):
     bytelist = []
     i = 0
     while True:
-        c=x[i]
-        if c == b'\0': 
+        c = x[i]
+        if c == b'\0':
             break
         bytelist.append(c)
-        i+=1
+        i += 1
     return b''.join(bytelist).decode('utf-8')
 
 ####################################################################################################
+
 
 class Vector:
 
@@ -177,6 +179,7 @@ class Vector:
             return WaveForm.from_array(self.simplified_name, data, abscissa=abscissa)
 
 ####################################################################################################
+
 
 class Plot(dict):
 
@@ -263,7 +266,7 @@ class Plot(dict):
         # Fixme: separate v(vinput), analysis.R2.m
         return SensitivityAnalysis(
             simulation=self._simulation,
-            elements=self.elements(), # Fixme: internal parameters ???
+            elements=self.elements(),  # Fixme: internal parameters ???
             internal_parameters=self.internal_parameters(),
         )
 
@@ -318,6 +321,7 @@ class Plot(dict):
 
 ####################################################################################################
 
+
 class NgSpiceShared(object):
 
     _logger = _module_logger.getChild('NgSpiceShared')
@@ -329,11 +333,10 @@ class NgSpiceShared(object):
 
     ##############################################
 
-    _instances=None
+    _instances = None
     _ffis = {}
     _ngspice_shared_dict = {}
     _temp_dlls = {}
-    
 
     def __new__(cls, ngspice_id=None, send_data=False):
         """
@@ -343,7 +346,7 @@ class NgSpiceShared(object):
         If a duplicate of an instance is required, use the ngspice_id of the previously created instance.
         Use ngspice_id=None for auto-numbering of instances (recycling previously closed libraries).
         Use get_id() to get the instance id.
-        """ 
+        """
         assert type(ngspice_id) is int if ngspice_id is not None else True, "ngspice_id must be an int"
         # Fixme: send_data
         if __class__._instances is None:
@@ -356,14 +359,14 @@ multiple circuit simulated in lockstep one to the other. The lockstep functionna
 provided by the get_isrc_data and get_vsrc_data callback function.""")
             return __class__._instances[ngspice_id]
         else:
-            if ngspice_id is None: # find an empty slot
-                gc.collect() # Force garbage collection to make sure all instances have been released
-                slot=0 # starting point
+            if ngspice_id is None:  # find an empty slot
+                gc.collect()  # Force garbage collection to make sure all instances have been released
+                slot = 0  # starting point
                 while True:
                     if slot not in __class__._instances:
-                        break # found
-                    slot+=1
-                ngspice_id = slot # keep this id
+                        break  # found
+                    slot += 1
+                ngspice_id = slot  # keep this id
             cls._logger.info("New instance for id {}".format(ngspice_id))
             instance = object.__new__(cls)
             __class__._instances[ngspice_id] = instance
@@ -380,20 +383,20 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
         Set the *send_data* flag if you want to enable the output callback.
         """
         assert ngspice_id == self._ngspice_id if ngspice_id is not None else True, "__new__ must have been called first"
-        ### __init__ is not called for an instance copy
+        # ## __init__ is not called for an instance copy
 
         self._stdout = []
         self._stderr = []
-        
+
         self._init_ngspice(send_data)
 
         self._is_running = False
 
     ##############################################
-        
+
     def __del__(self):
         try:
-            self.quit() # this function generates a NameError
+            self.quit()  # this function generates a NameError
         except NameError:
             pass
         self._ffi.dlclose(self._ngspice_shared)
@@ -405,13 +408,13 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
             pass
         try:
             os.unlink(self._temp_dlls[self._ngspice_id])
-        except: 
-            "dlclose is not doing its job!" # do not know how to solve
+        except:
+            "dlclose is not doing its job!"  # do not know how to solve
             pass
 
     def get_id(self):
         return self._ngspice_id
-    
+
     def _load_library(self):
     ##############################################
 
@@ -430,21 +433,36 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
 
         library_path = self.LIBRARY_PATH.format('')
         # create a new instance of the DLL as per ngspice docs about parallelization
-        temp_dll = os.path.join(tempfile.gettempdir(), "ngspice_"+ str(self._ngspice_id) +".dll") 
+        temp_dll = os.path.join(tempfile.gettempdir(), "ngspice_" + str(self._ngspice_id) + ".dll")
         try:
             shutil.copy(library_path, temp_dll)
         except:
-            pass  # Already exist?
-        self._logger.debug('Load {}'.format(temp_dll))
-        try:  # TODO browse through dlls???
-            __class__._ngspice_shared_dict[self._ngspice_id] = ffi.dlopen(temp_dll) # the file may be busy from other application
-            self._ngspice_shared = __class__._ngspice_shared_dict[self._ngspice_id]
-        except: # dll may be in use
+            pass  # Ok already exists
+        try:  # TODO browse through dlls in case it is used???
+            __class__._ngspice_shared_dict[self._ngspice_id] = ffi.dlopen(temp_dll)  # the file may be busy from other application
+        except:  # The dll may be in use??? MAYBE TODO: try another one in the same folder.
             try:
                 os.unlink(temp_dll)
-            except: 
+            except:
                 pass
-            raise
+            try:
+                # On some computers, the dll cannot be copied to another folder
+                # It generates error 0x7e, dll cannot be loaded.
+                # So try copying in the same folder as the original
+                temp_dll = self.LIBRARY_PATH.format(f'_{self._ngspice_id}')
+                try:
+                    shutil.copy(library_path, temp_dll)
+                except:
+                    pass  # Ok already exists
+                __class__._ngspice_shared_dict[self._ngspice_id] = ffi.dlopen(temp_dll)  # the file may be busy from other application
+            except:
+                try:
+                    os.unlink(temp_dll)
+                except:
+                    pass
+                raise
+        self._logger.debug('Loaded {}'.format(temp_dll))
+        self._ngspice_shared = __class__._ngspice_shared_dict[self._ngspice_id]
         self.__class__._temp_dlls[self._ngspice_id] = temp_dll
         # Note: cannot yet execute command
 
@@ -467,7 +485,7 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
         self._get_isrc_data_c = ffi.callback('int (double *, double, char *, int, void *)', self._get_isrc_data)
 
         self_c = ffi.new_handle(self)
-        self._self_c = self_c # To prevent garbage collection
+        self._self_c = self_c  # To prevent garbage collection
 
         rc = self._ngspice_shared.ngSpice_Init(self._send_char_c,
                                                self._send_stat_c,
@@ -480,10 +498,10 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
             raise NameError("Ngspice_Init returned {}".format(rc))
 
         ngspice_id_c = ffi.new('int *', self._ngspice_id)
-        self._ngspice_id_c = ngspice_id_c # To prevent garbage collection
+        self._ngspice_id_c = ngspice_id_c  # To prevent garbage collection
         rc = self._ngspice_shared.ngSpice_Init_Sync(self._get_vsrc_data_c,
                                                     self._get_isrc_data_c,
-                                                    FFI.NULL, # GetSyncData
+                                                    FFI.NULL,  # GetSyncData
                                                     ngspice_id_c,
                                                     self_c)
         if rc:
@@ -569,7 +587,7 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
     ##############################################
 
     @staticmethod
-    def _send_init_data(data,  ngspice_id, user_data):
+    def _send_init_data(data, ngspice_id, user_data):
         """Callback to send back initialization vector data"""
         self = NgSpiceShared._ffis[ngspice_id].from_handle(user_data)
         # if self._logger.isEnabledFor(logging.DEBUG):
@@ -577,7 +595,7 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
         #     number_of_vectors = data.veccount
         #     for i in range(number_of_vectors):
         #         self._logger.debug('  Vector: ' + ffi_string_utf8(data.vecs[i].vecname))
-        return self.send_init_data(data, ngspice_id) # Fixme: should be a Python object
+        return self.send_init_data(data, ngspice_id)  # Fixme: should be a Python object
 
     ##############################################
 
@@ -626,7 +644,7 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
 
     ##############################################
 
-    def send_init_data(self, data,  ngspice_id):
+    def send_init_data(self, data, ngspice_id):
         """ Reimplement this callback in a subclass to process the initial data. """
         return 0
 
@@ -944,7 +962,7 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
                 parts = line.split(' = ')
             else:
                 parts = line.split(': ')
-            values[parts[0]] =  NgSpiceShared._to_python(parts[1])
+            values[parts[0]] = NgSpiceShared._to_python(parts[1])
         return values
 
     ##############################################
@@ -1036,7 +1054,7 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
     def load_circuit(self, circuit):
 
         """Load the given circuit string."""
-        
+
         ffi = NgSpiceShared._ffis[self._ngspice_id]
         circuit_lines = [line for line in str(circuit).split(os.linesep) if line]
         circuit_lines_keepalive = [ffi.new("char[]", line.encode('utf8'))
@@ -1120,14 +1138,14 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
     def _flags_to_str(flags):
 
         # enum dvec_flags {
-        #   VF_REAL = (1 << 0),		// The data is real.
-        #   VF_COMPLEX = (1 << 1),	// The data is complex.
-        #   VF_ACCUM = (1 << 2),	// writedata should save this vector.
-        #   VF_PLOT = (1 << 3),		// writedata should incrementally plot it.
-        #   VF_PRINT = (1 << 4),	// writedata should print this vector.
-        #   VF_MINGIVEN = (1 << 5),	// The v_minsignal value is valid.
-        #   VF_MAXGIVEN = (1 << 6),	// The v_maxsignal value is valid.
-        #   VF_PERMANENT = (1 << 7)	// Don't garbage collect this vector.
+        #   VF_REAL = (1 << 0),        // The data is real.
+        #   VF_COMPLEX = (1 << 1),    // The data is complex.
+        #   VF_ACCUM = (1 << 2),    // writedata should save this vector.
+        #   VF_PLOT = (1 << 3),        // writedata should incrementally plot it.
+        #   VF_PRINT = (1 << 4),    // writedata should print this vector.
+        #   VF_MINGIVEN = (1 << 5),    // The v_minsignal value is valid.
+        #   VF_MAXGIVEN = (1 << 6),    // The v_maxsignal value is valid.
+        #   VF_PERMANENT = (1 << 7)    // Don't garbage collect this vector.
         # };
 
         if flags & 1:
@@ -1178,14 +1196,14 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
                 if vector_info.v_compdata == FFI.NULL:
                     # for k in xrange(length):
                     #     print("  [{}] {}".format(k, vector_info.v_realdata[k]))
-                    tmp_array = np.frombuffer(ffi.buffer(vector_info.v_realdata, length*8), dtype=np.float64)
-                    array = np.array(tmp_array, dtype=tmp_array.dtype) # copy data
+                    tmp_array = np.frombuffer(ffi.buffer(vector_info.v_realdata, length * 8), dtype=np.float64)
+                    array = np.array(tmp_array, dtype=tmp_array.dtype)  # copy data
                 else:
                     # for k in xrange(length):
                     #     value = vector_info.v_compdata[k]
                     #     print(ffi.addressof(value, field='cx_real'), ffi.addressof(value, field='cx_imag'))
                     #     print("  [{}] {} + i {}".format(k, value.cx_real, value.cx_imag))
-                    tmp_array = np.frombuffer(ffi.buffer(vector_info.v_compdata, length*8*2), dtype=np.float64)
+                    tmp_array = np.frombuffer(ffi.buffer(vector_info.v_compdata, length * 8 * 2), dtype=np.float64)
                     array = np.array(tmp_array[0::2], dtype=np.complex64)
                     array.imag = tmp_array[1::2]
                 plot[vector_name] = Vector(self, vector_name, vector_type, array)
@@ -1197,6 +1215,7 @@ provided by the get_isrc_data and get_vsrc_data callback function.""")
 #
 # Platform setup
 #
+
 
 if ConfigInstall.OS.on_windows:
     drive = os.getenv('SystemDrive') or 'C:'
@@ -1217,4 +1236,4 @@ elif ConfigInstall.OS.on_linux:
     _path = 'libngspice{}.so'
 else:
     raise NotImplementedError
-NgSpiceShared.LIBRARY_PATH= _path
+NgSpiceShared.LIBRARY_PATH = _path
