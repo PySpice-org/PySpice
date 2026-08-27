@@ -81,6 +81,7 @@ __all__ = [
 
 ####################################################################################################
 
+from typing import TYPE_CHECKING
 from pathlib import Path
 import ctypes.util
 import logging
@@ -96,6 +97,7 @@ from cffi import FFI
 
 from PySpice.Config import ConfigInstall
 from PySpice.Probe.WaveForm import (
+    Analysis,
     OperatingPoint, SensitivityAnalysis,
     DcAnalysis, AcAnalysis, TransientAnalysis,
     PoleZeroAnalysis, NoiseAnalysis, DistortionAnalysis, TransferFunctionAnalysis,
@@ -107,6 +109,10 @@ from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_F, u_Degree
 # pylint: enable=no-name-in-module
 
 from .SimulationType import SIMULATION_TYPE
+
+if TYPE_CHECKING:
+    from ..Netlist import Circuit
+    from ..Simulation import Simulation
 
 ####################################################################################################
 
@@ -152,7 +158,13 @@ class Vector:
 
     ##############################################
 
-    def __init__(self, ngspice_shared, name, type_, data):
+    def __init__(
+        self,
+        ngspice_shared: 'NgSpiceShared',
+        name: str,
+        type_: EnumFactory,
+        data: np.ndarray,
+    ) -> None:
         self._ngspice_shared = ngspice_shared
         self._name = str(name)
         self._type = type_
@@ -163,31 +175,31 @@ class Vector:
 
     ##############################################
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'variable: {self._name} {self._type}'
 
     ##############################################
 
     @property
-    def is_interval_parameter(self):
+    def is_interval_parameter(self) -> bool:
         return self._name.startswith('@')
 
     ##############################################
 
     @property
-    def is_voltage_node(self):
+    def is_voltage_node(self) -> bool:
         return self._type == self._ngspice_shared.simulation_type.voltage and not self.is_interval_parameter
 
     ##############################################
 
     @property
-    def is_branch_current(self):
+    def is_branch_current(self) -> bool:
         return self._type == self._ngspice_shared.simulation_type.current and not self.is_interval_parameter
 
     ##############################################
 
     @property
-    def simplified_name(self):
+    def simplified_name(self) -> str:
         if self.is_voltage_node and self._name.startswith('V('):
             return self._name[2:-1]
         elif self.is_branch_current:
@@ -198,7 +210,12 @@ class Vector:
 
     ##############################################
 
-    def to_waveform(self, abscissa=None, to_real=False, to_float=False):
+    def to_waveform(
+        self,
+        abscissa: WaveForm = None,
+        to_real: bool = False,
+        to_float: bool = False,   # Fixme: unused
+    ) -> WaveForm:
         """ Return a :obj:`PySpice.Probe.WaveForm` instance. """
         data = self._data
         if to_real:
@@ -206,9 +223,11 @@ class Vector:
         # Fixme: else UnitValue instead of UnitValues
         # if to_float:
         #     data = float(data[0])
+        # Note: This is where we convert ndarray to WaveForm object
         if self._unit is not None:
             return WaveForm.from_unit_values(self.simplified_name, self._unit(data), abscissa=abscissa)
         else:
+            # Fixme: should happen ? cf. infra warning
             return WaveForm.from_array(self.simplified_name, data, abscissa=abscissa)
 
 ####################################################################################################
@@ -225,7 +244,7 @@ class Plot(dict):
 
     ##############################################
 
-    def __init__(self, simulation, plot_name):
+    def __init__(self, simulation: 'Simulation', plot_name: str) -> None:
         super().__init__()
         self._simulation = simulation
         self.plot_name = plot_name
@@ -233,39 +252,39 @@ class Plot(dict):
     ##############################################
 
     @property
-    def simulation(self):
+    def simulation(self) -> 'Simulation':
         return self._simulation
 
     ##############################################
 
-    def nodes(self, to_float=False, abscissa=None):
+    def nodes(self, to_float: bool = False, abscissa: WaveForm = None) -> list[WaveForm]:
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.values()
                 if variable.is_voltage_node]
 
     ##############################################
 
-    def branches(self, to_float=False, abscissa=None):
+    def branches(self, to_float: bool = False, abscissa: WaveForm = None) -> list[WaveForm]:
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.values()
                 if variable.is_branch_current]
 
     ##############################################
 
-    def internal_parameters(self, to_float=False, abscissa=None):
+    def internal_parameters(self, to_float: bool = False, abscissa: WaveForm = None) -> list[WaveForm]:
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.values()
                 if variable.is_interval_parameter]
 
     ##############################################
 
-    def elements(self, abscissa=None):
+    def elements(self, abscissa: WaveForm = None) -> list[WaveForm]:
         return [variable.to_waveform(abscissa, to_float=True)
                 for variable in self.values()]
 
     ##############################################
 
-    def to_analysis(self):
+    def to_analysis(self) -> Analysis:
         if self.plot_name.startswith('op'):
             return self._to_operating_point_analysis()
         elif self.plot_name.startswith('sens'):
@@ -289,7 +308,7 @@ class Plot(dict):
 
     ##############################################
 
-    def _to_operating_point_analysis(self):
+    def _to_operating_point_analysis(self) -> OperatingPoint:
         return OperatingPoint(
             simulation=self._simulation,
             nodes=self.nodes(to_float=True),
@@ -299,7 +318,7 @@ class Plot(dict):
 
     ##############################################
 
-    def _to_sensitivity_analysis(self):
+    def _to_sensitivity_analysis(self) -> SensitivityAnalysis:
         # Fixme: separate v(vinput), analysis.R2.m
         return SensitivityAnalysis(
             simulation=self._simulation,
@@ -309,7 +328,7 @@ class Plot(dict):
 
     ##############################################
 
-    def _to_dc_analysis(self):
+    def _to_dc_analysis(self) -> DcAnalysis:
         for name in ('v-sweep', 'i-sweep', 'temp-sweep'):
             if name in self:
                 sweep_variable = self[name]
@@ -327,7 +346,7 @@ class Plot(dict):
 
     ##############################################
 
-    def _to_ac_analysis(self):
+    def _to_ac_analysis(self) -> AcAnalysis:
         frequency = self['frequency'].to_waveform(to_real=True)
         return AcAnalysis(
             simulation=self._simulation,
@@ -339,7 +358,7 @@ class Plot(dict):
 
     ##############################################
 
-    def _to_transient_analysis(self):
+    def _to_transient_analysis(self) -> TransientAnalysis:
         time = self['time'].to_waveform(to_real=True)
         return TransientAnalysis(
             simulation=self._simulation,
@@ -351,7 +370,7 @@ class Plot(dict):
 
     ##############################################
 
-    def _to_polezero_analysis(self):
+    def _to_polezero_analysis(self) -> PoleZeroAnalysis:
         return PoleZeroAnalysis(
             simulation=self._simulation,
             nodes=self.nodes(),
@@ -361,7 +380,7 @@ class Plot(dict):
 
     ##############################################
 
-    def _to_noise_analysis(self):
+    def _to_noise_analysis(self) -> NoiseAnalysis:
         return NoiseAnalysis(
             simulation=self._simulation,
             nodes=self.nodes(),
@@ -371,7 +390,7 @@ class Plot(dict):
 
     ##############################################
 
-    def _to_distortion_analysis(self):
+    def _to_distortion_analysis(self) -> DistortionAnalysis:
         frequency = self['frequency'].to_waveform(to_real=True)
         return DistortionAnalysis(
             simulation=self._simulation,
@@ -383,7 +402,7 @@ class Plot(dict):
 
     ##############################################
 
-    def _to_transfer_function_analysis(self):
+    def _to_transfer_function_analysis(self) -> TransferFunctionAnalysis:
         return TransferFunctionAnalysis(
             simulation=self._simulation,
             nodes=self.nodes(),
@@ -456,7 +475,7 @@ class NgSpiceShared:
 
     ##############################################
 
-    def __init__(self, ngspice_id=0, send_data=False, verbose=False):
+    def __init__(self, ngspice_id=0, send_data=False, verbose=False) -> None:
         """ Set the *send_data* flag if you want to enable the output callback.
 
         Set the *ngspice_id* to an integer value if you want to run NgSpice in parallel.
@@ -504,7 +523,7 @@ class NgSpiceShared:
 
     ##############################################
 
-    def _load_library(self, verbose):
+    def _load_library(self, verbose) -> None:
         if ConfigInstall.OS.on_windows:
             # https://sourceforge.net/p/ngspice/discussion/133842/thread/1cece652/#4e32/5ab8/9027
             # When environment variable SPICE_LIB_DIR is empty, ngspice looks in C:\Spice64\share\ngspice\scripts
@@ -543,7 +562,7 @@ class NgSpiceShared:
 
     ##############################################
 
-    def _init_ngspice(self, send_data):
+    def _init_ngspice(self, send_data) -> None:
         # Ngspice API: ngSpice_Init ngSpice_Init_Sync
         self._send_char_c = ffi.callback('int (char *, int, void *)', self._send_char)
         self._send_stat_c = ffi.callback('int (char *, int, void *)', self._send_stat)
@@ -783,7 +802,7 @@ class NgSpiceShared:
     @staticmethod
     def _lines_to_dicts(lines):
         if lines:
-            values = dict(description=lines[0])
+            values = {'description': lines[0]}
             values.update({
                 parts[0]: NgSpiceShared._to_python(parts[1])
                 for parts in map(str.split, lines)
@@ -1134,7 +1153,7 @@ class NgSpiceShared:
 
     ##############################################
 
-    def load_circuit(self, circuit):
+    def load_circuit(self, circuit: 'Circuit') -> None:
         """Load the given circuit string."""
 
         # Ngspice API: ngSpice_Circ
@@ -1253,7 +1272,7 @@ class NgSpiceShared:
 
     ##############################################
 
-    def plot(self, simulation, plot_name):
+    def plot(self, simulation: 'Simulation', plot_name: str) -> Plot:
         """ Return the corresponding plot. """
         # Ngspice API: ngSpice_AllVecs ngGet_Vec_Info
 
@@ -1269,7 +1288,9 @@ class NgSpiceShared:
             vector_name = ffi_string_utf8(all_vectors_c[i])
             name = '.'.join((plot_name, vector_name))
             vector_info = self._ngspice_shared.ngGet_Vec_Info(name.encode('utf8'))
+            # pylint: disable=unsubscriptable-object
             vector_type = self._simulation_type[vector_info.v_type]
+            # pylint: enable=unsubscriptable-object
             length = vector_info.v_length
             # template = 'vector[{}] {} type {} flags {} length {}'
             # self._logger.debug(template.format(

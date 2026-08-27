@@ -18,6 +18,20 @@
 #
 ####################################################################################################
 
+__ALL__ = [
+    'AcAnalysis',
+    'Analysis',
+    'DcAnalysis',
+    'DistortionAnalysis',
+    'NoiseAnalysis',
+    'OperatingPoint',
+    'PoleZeroAnalysis',
+    'SensitivityAnalysis',
+    'TransferFunctionAnalysis',
+    'TransientAnalysis',
+    'WaveForm',
+]
+
 ####################################################################################################
 #
 # Note:
@@ -40,9 +54,10 @@ from typing import TYPE_CHECKING
 import logging
 import os
 
-# import numpy as np
+from PySpice.Unit.Unit import PrefixedUnit, UnitValues
 
 if TYPE_CHECKING:
+    import numpy as np
     from PySpice.Spice.Simulation import Simulation
 
 ####################################################################################################
@@ -50,10 +65,6 @@ if TYPE_CHECKING:
 NEWLINE = os.linesep
 
 _module_logger = logging.getLogger(__name__)
-
-####################################################################################################
-
-from PySpice.Unit.Unit import UnitValues
 
 ####################################################################################################
 
@@ -79,7 +90,13 @@ class WaveForm(UnitValues):
     ##############################################
 
     @classmethod
-    def from_unit_values(cls, name: str, array, title: str = None, abscissa=None) -> 'WaveForm':
+    def from_unit_values(
+        cls,
+        name: str,
+        array: UnitValues,
+        title: str = None,
+        abscissa: 'WaveForm' = None,
+    ) -> 'WaveForm':
         obj = cls(
             name,
             array.prefixed_unit,
@@ -94,8 +111,15 @@ class WaveForm(UnitValues):
     ##############################################
 
     @classmethod
-    def from_array(cls, name: str, array, title: str = None, abscissa=None) -> 'WaveForm':
+    def from_array(
+        cls,
+        name: str,
+        array: 'np.ndarray',
+        title: str = None,
+        abscissa: 'WaveForm' = None,
+    ) -> 'WaveForm':
         # Fixme: ok ???
+        #  prefixed_unit is None
         obj = cls(name, None, array.shape, title=title, abscissa=abscissa)
         obj[...] = array[...]
         return obj
@@ -103,9 +127,13 @@ class WaveForm(UnitValues):
     ##############################################
 
     def __new__(
-        cls, name, prefixed_unit, shape,
+        cls,
+        name: str,
+        prefixed_unit: PrefixedUnit,
+        shape,
         dtype=float, buffer=None, offset=0, strides=None, order=None,
-        title=None, abscissa=None,
+        title: str = None,
+        abscissa: 'WaveForm' = None,
     ):
         # Called first
         # cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
@@ -163,7 +191,7 @@ class WaveForm(UnitValues):
         return self._name
 
     @property
-    def abscissa(self):
+    def abscissa(self) -> 'WaveForm':
         return self._abscissa
 
     @property
@@ -265,10 +293,10 @@ class Analysis:
     def __init__(
         self,
         simulation: 'Simulation',
-        nodes=(),
-        branches=(),
-        elements=(),
-        internal_parameters=()
+        nodes: list[WaveForm] = (),
+        branches: list[WaveForm] = (),
+        elements: list[WaveForm] = (),
+        internal_parameters: list[WaveForm] = ()
     ) -> None:
         # Fixme: branches are elements in fact, and elements is not yet supported ...
         self._simulation = simulation
@@ -292,24 +320,24 @@ class Analysis:
         return self._simulation
 
     @property
-    def nodes(self):
+    def nodes(self) -> list[WaveForm]:
         return self._nodes
 
     @property
-    def branches(self):
+    def branches(self) -> list[WaveForm]:
         return self._branches
 
     @property
-    def elements(self):
+    def elements(self) -> list[WaveForm]:
         return self._elements
 
     @property
-    def internal_parameters(self):
+    def internal_parameters(self) -> list[WaveForm]:
         return self._internal_parameters
 
     ##############################################
 
-    def _get_item(self, name: str):
+    def _get_item(self, name: str) -> WaveForm:
         # Fixme: cache dict ???
         if name in self._nodes:
             return self._nodes[name]
@@ -324,7 +352,7 @@ class Analysis:
 
     ##############################################
 
-    def __getitem__(self, name: str):
+    def __getitem__(self, name: str) -> WaveForm:
         # handle analysis['foo']
         try:
             return self._get_item(name)
@@ -339,7 +367,7 @@ class Analysis:
 
     ##############################################
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> WaveForm:
         # handle analysis.foo
         try:
             return self.__getitem__(name)
