@@ -3,20 +3,17 @@
 
 ####################################################################################################
 
-from pathlib import Path
 import argparse
 import os
+from enum import IntEnum, auto
+from pathlib import Path
 
 ####################################################################################################
-#
-# Options
-#
 
 argument_parser = argparse.ArgumentParser(description='Fix header')
 
 argument_parser.add_argument(
-    '--source-path',
-    default=None,
+    'source_path',
     help='root path'
 )
 
@@ -24,66 +21,63 @@ args = argument_parser.parse_args()
 
 ####################################################################################################
 
+class State(IntEnum):
+    BEFORE_LICENSE = auto()
+    IN_LICENSE = auto()
+    AFTER_LICENSE = auto()
+
+####################################################################################################
+
 NEW_LICENSE = """
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-""".lstrip()
+# SPDX-License-Identifier: AGPL-3.0-or-later
+""".strip()
 
 ####################################################################################################
 
-def process_file(absolut_file_name):
-    print(f"> {absolut_file_name}")
-    BEFORE_LICENSE = 0
-    IN_LICENSE = 1
-    AFTER_LICENSE = 2
-    state = BEFORE_LICENSE
+def process_file(file_path: Path) -> None:
+    print(f"> {file_path}")
+    state = State.BEFORE_LICENSE
     lines = []
-    with open(absolut_file_name, 'r') as fh:
-        for line in fh.readlines():
-            if state == BEFORE_LICENSE:
-                if line.startswith('# This program'):
-                    #print("IN_LICENSE")
-                    state = IN_LICENSE
+    old_content = file_path.read_text()
+    if not old_content:
+        return
+    for line in old_content.splitlines():
+        match state:
+            case State.BEFORE_LICENSE:
+                if line.startswith('# Copyright'):
+                    # print("IN_LICENSE")
+                    lines.append(line)
+                    state = State.IN_LICENSE
                     lines.append(NEW_LICENSE)
-                    continue
-            elif state == IN_LICENSE:
+                else:
+                    lines.append(line)
+            case State.IN_LICENSE:
                 if line.strip().endswith('://www.gnu.org/licenses/>.'):
-                    state = AFTER_LICENSE
-                    #print("AFTER_LICENSE")
-                continue
-            lines.append(line)
-    content = ''.join(lines)
+                    # print("AFTER_LICENSE")
+                    state = State.AFTER_LICENSE
+            case State.AFTER_LICENSE:
+                lines.append(line)
+    content = '\n'.join(lines) + '\n'
     # print(content)
-    os.rename(absolut_file_name, str(absolut_file_name) + '~')
-    with open(absolut_file_name, 'w') as fh:
-            fh.write(content)
+    file_path.rename(str(file_path) + '~')
+    file_path.write_text(content)
 
 ####################################################################################################
 
-def is_py_file(file_name):
+def is_py_file(file_name: Path) -> bool:
     # return True
     return file_name.suffix in ('.py',)
 
 ####################################################################################################
 
-def walk(source_path):
-    for path, directories, files in os.walk(source_path):
+def walk(source_path: Path) -> None:
+    for path, _, files in os.walk(source_path):
         path = Path(path)
         for file_name in files:
             file_name = Path(file_name)
             if is_py_file(file_name):
-                absolut_file_name = path.joinpath(file_name)
-                process_file(absolut_file_name)
+                file_path = path.joinpath(file_name)
+                process_file(file_path)
 
 ####################################################################################################
 
