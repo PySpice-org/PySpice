@@ -98,8 +98,9 @@ class PythonDumper:
         'C': generic_wrapper('C'),
         'D': generic_model_wrapper('D'),
         'GND': GROUND,
-        'VDC': source('V'),
-        'VPULSE': source('V'),
+        'V': source('V'),
+        # 'VDC': source('V'),
+        # 'VPULSE': source('V'),
     }
 
     ##############################################
@@ -109,10 +110,10 @@ class PythonDumper:
         self._code = []
 
         for symbol in kicad_schema.symbols_by_reference:
-            self._logger.info(f"Symbol {symbol.lib_name} {symbol.reference}")
+            self._logger.info(f"Symbol {symbol.lib_name} {symbol.reference} {symbol.simulation_device}")
             handler = self.find_symbol(symbol)
             if handler is None:
-                self._logger.warning(f"any correspondance for {symbol.lib_name} {symbol.reference}")
+                self._logger.warning(f"any correspondance for {symbol.lib_name} {symbol.reference} {symbol.simulation_device}")
             elif handler != self.GROUND:
                 _ = handler(self, symbol)
                 self._code.append(_)
@@ -120,7 +121,9 @@ class PythonDumper:
     ##############################################
 
     def find_symbol(self, symbol: Symbol) -> Callable:
-        lib, name = symbol.lib_name.split(':')
+        name = symbol.simulation_device
+        if name is None:
+            _, name = symbol.lib_name.split(':')
         return self.SYMBOL_MAP.get(name, None)
 
     ##############################################
@@ -167,14 +170,15 @@ class PythonDumper:
             elif isinstance(arg, (int, float)):
                 arg = str(arg)
             elif isinstance(arg, (str)):
-                # arg = "'" + arg + "'"
-                arg = '"' + arg + '"'
+                arg = "'" + arg + "'"
+                # arg = '"' + arg + '"'
             args.append(arg)
         return ', '.join(args)
 
     ##############################################
 
     def on_generic(self, element, symbol):
+        self._logger.info(f"Element {symbol.reference} {symbol.simulation_paramaters}")
         reference = symbol.reference[len(element):]
         value = self._unit_value(element, symbol)
         args = [reference, *self._pins(symbol), value]
@@ -184,19 +188,37 @@ class PythonDumper:
     ##############################################
 
     def on_generic_model(self, element, symbol):
+        self._logger.info(f"Element with model {symbol.reference} {symbol.simulation_pins} {symbol.simulation_paramaters}")
         # Fixme: check XD
         reference = symbol.reference[len(element):]   # +1
-        args = [reference, symbol.value, *self._pins(symbol)]
+        pin_names = [_.name for _ in symbol.pins]
+        pins = self._pins(symbol)
+        match pin_names:
+            case ('K', 'A'):
+                pins = list(reversed(pins))
+        args = [reference, *pins]
         args_str = self._str_args(args)
-        return f"circuit.{element}({args_str})"
+        return f"circuit.{element}({args_str}, model='{symbol.value}')"
 
     ##############################################
 
     def on_source(self, element, symbol):
+        self._logger.info(f"Source {symbol.simulation_device} {symbol.simulation_type} {symbol.simulation_paramaters}")
         reference = symbol.reference[len(element):]
-        value = self._unit_value(element, symbol)
-        if symbol.reference[0] in ('V',):
-            value += '@u_V'
-        args = [reference, *self._pins(symbol), value]
+        match symbol.simulation_type.upper():
+            case 'PULSE':
+                element = 'PulseVoltageSource'
+        args = [reference, *self._pins(symbol)]
+        params = ''
+        if symbol.simulation_paramaters is not None:
+            sep = ', '
+            params = sep.join(symbol.simulation_paramaters.split(' '))
+        else:
+            value = self._unit_value(element, symbol)
+            if symbol.reference[0] in ('V',):
+                value += '@u_V'
+            args.append(value)
         args_str = self._str_args(args)
-        return f"circuit.{element}({args_str})"
+        if params:
+            params = sep + params
+        return f"circuit.{element}({args_str}{params})"
