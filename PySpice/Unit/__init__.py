@@ -87,11 +87,15 @@ Some examples of usage:
 
 ####################################################################################################
 
+from typing import TYPE_CHECKING, Union
 import logging
 import sys
 
 from . import Unit as _Unit
 from . import SiUnits as _SiUnits
+
+if TYPE_CHECKING:
+    from .Unit import PrefixedUnit, UnitValue
 
 ####################################################################################################
 
@@ -108,26 +112,29 @@ if not _has_matmul:
 
 class UnitValueShorcut:
 
+    """Class to implement :class:`UnitValue` shortcut like `u_F`"""
+
     ##############################################
 
-    def __init__(self, prefixed_unit):
+    def __init__(self, prefixed_unit: 'PrefixedUnit') -> None:
         self._prefixed_unit = prefixed_unit
 
     ##############################################
 
-    def _new_value(self, other):
+    def _new_value(self, other: Union[float]) -> 'UnitValue':
+        """Create a new unit value'"""
         return self._prefixed_unit.new_value(other)
 
     ##############################################
 
-    def __call__(self, other):
-        """self(other)"""
+    def __call__(self, other: Union[float]) -> 'UnitValue':
+        """Create a new unit value using `u_F(2)`"""
         return self._new_value(other)
 
     ##############################################
 
-    def __rmatmul__(self, other):
-        """other @ self"""
+    def __rmatmul__(self, other: Union[float]) -> 'UnitValue':
+        """Create a new unit value using `1@u_F`"""
         return self._new_value(other)
 
 ####################################################################################################
