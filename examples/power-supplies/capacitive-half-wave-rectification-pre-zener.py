@@ -1,5 +1,7 @@
 #r# This example shows a capacitive power supply with a pre zener half-rectification.
 
+# Fixme: where is comes from ???
+
 ####################################################################################################
 
 import matplotlib.pyplot as plt
