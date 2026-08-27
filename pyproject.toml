@@ -17,13 +17,14 @@ classifiers = [
 readme = "README.md"
 requires-python = ">=3.15"
 dependencies = [
-    "PyYAML>=5.3",
-    "cffi>=1.14",
-    "matplotlib>=3.2",
-    "numpy>=1.18",
-    "ply>=3.11",
-    "scipy>=1.4",
-    "requests>=2.23",
+  "PyYAML>=5.3",
+  "cffi>=1.14",
+  "colorama>=0.4.6",  # pyspice_post_installation.py
+  "matplotlib>=3.2",
+  "numpy>=1.18",
+  "ply>=3.11",  # PySpice/Spice/Parser/Parser.py
+  "requests>=2.23", # pyspice_post_installation.py
+  "scipy>=1.4",
 ]
 
 
@@ -34,9 +35,20 @@ Homepage = "https://pyspice.fabrice-salvaire.fr"
 
 [dependency-groups]
 dev = [
-    "rassumfrassum>=0.3.4",
-    "ruff>=0.16.5",
-    "ty>=0.0.75",
+  "invoke>=3.0.3",
+  "rassumfrassum>=0.3.4",
+  "ruff>=0.16.5",
+  "ty>=0.0.75",
+
+  # beautifulsoup4
+  # 
+  # PyGithub
+  # 
+  # # Build documentation
+  # sphinx
+  # sphinxcontrib-getthecode
+  # pyterate
+  # pelican
 ]
 
 
