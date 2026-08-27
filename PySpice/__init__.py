@@ -27,13 +27,15 @@ __all__ = [
 
 ####################################################################################################
 
+from PySpice.Probe.Plot import plot
+from PySpice.Spice.Library import SpiceLibrary
+from PySpice.Spice.Netlist import Circuit, SubCircuit, SubCircuitFactory
+from PySpice.Spice.Simulator import Simulator
+
+####################################################################################################
+
 __version__ = '1.6'
 GIT_TAG = 'v1.6-branched'
 
 def show_version():
-    print('PySpice Version {}'.format(__version__))
-
-from PySpice.Probe.Plot import plot
-from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Spice.Netlist import  Circuit, SubCircuit, SubCircuitFactory
-from PySpice.Spice.Simulator import Simulator
+    print(f'PySpice Version {__version__}')

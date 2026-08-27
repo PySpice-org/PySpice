@@ -28,7 +28,8 @@ __all__ = [
 
 ####################################################################################################
 
-from typing import Any, Iterable
+from typing import Any
+from collections.abc import Iterable
 import os
 
 from .unit import str_spice
