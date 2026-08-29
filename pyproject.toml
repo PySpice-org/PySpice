@@ -1,11 +1,33 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+# requires = ["uv_build >= 0.12.5, <0.13.0"]
+# build-backend = "uv_build"
+
 [project]
 name = "PySpice"
 version = "1.6"
+
+dependencies = [
+  "PyYAML>=6.0.3",
+  "cffi>=2.1.1",
+  "colorama>=0.4.6",  # pyspice_post_installation.py
+  "matplotlib>=3.11.1",
+  "numpy>=2.5.2",
+  "ply>=3.11",  # PySpice/Spice/Parser/Parser.py
+  "requests>=2.34.2", # pyspice_post_installation.py
+  "scipy>=1.18.1",
+]
+
+requires-python = ">=3.15"
+
+author = {name = "Fabrice SALVAIRE", email="pyspice@fabrice-salvaire.fr"}
+maintainer = {name = "Fabrice SALVAIRE", email="pyspice@fabrice-salvaire.fr"}
 description = "Simulate electronic circuit using Python and the Ngspice / Xyce simulators"
-author = {name = "Fabrice Salvaire", email="pyspice@fabrice-salvaire.fr"}
+readme = "README.md"
 license = "AGPL-3.0-or-later"
+license-files = ["LICENSE.md"]  # "agpl-3.0.md"
 keywords = ["ngspice", "xyce", "spice", "berkeley", "electronic", "circuit", "simulation", "simulator"]
-# cf. http://pypi.python.org/pypi?%3Aaction=list_classifiers
 classifiers = [
     "Topic :: Scientific/Engineering",
     "Intended Audience :: Education",
@@ -14,36 +36,30 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.15",
 ]
-readme = "README.md"
-requires-python = ">=3.15"
-dependencies = [
-  "PyYAML>=5.3",
-  "cffi>=1.14",
-  "colorama>=0.4.6",  # pyspice_post_installation.py
-  "matplotlib>=3.2",
-  "numpy>=1.18",
-  "ply>=3.11",  # PySpice/Spice/Parser/Parser.py
-  "requests>=2.23", # pyspice_post_installation.py
-  "scipy>=1.4",
-]
-
 
 [project.urls]
+# cf. https://packaging.python.org/en/latest/specifications/well-known-project-urls/#well-known-labels
 Homepage = "https://pyspice.fabrice-salvaire.fr"
-#  https://github.com/FabriceSalvaire/PySpice
+Source = "https://github.com/FabriceSalvaire/PySpice"
+# Download = ""
+# Changelog = ""
+# ReleaseNotes = ""
+# Documentation = ""
+# Issues = ""
+# Funding = ""
 
 
 [dependency-groups]
 dev = [
+  "hatchling>=1.32.0",
   "invoke>=3.0.3",
   "rassumfrassum>=0.3.4",
   "ruff>=0.16.5",
   "ty>=0.0.75",
-
   # beautifulsoup4
-  # 
+  #
   # PyGithub
-  # 
+  #
   # # Build documentation
   # sphinx
   # sphinxcontrib-getthecode
@@ -51,6 +67,17 @@ dev = [
   # pelican
 ]
 
+
+[tool.hatch.build.targets.sdist]
+# https://hatch.pypa.io/latest/config/build/#file-selection
+only-include = ["PySpice"]
+# include = [
+# ]
+# exclude = [
+# ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["PySpice"]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories
