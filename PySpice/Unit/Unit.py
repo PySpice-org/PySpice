@@ -18,7 +18,8 @@ A shortcut is defined for each unit prefix, e.g. :class:`pico`, :class:`nano`, :
 ####################################################################################################
 
 import logging
-from typing import Callable, Iterable, Iterator, Self, Union
+from typing import Self, Union
+from collections.abc import Callable, Iterable, Iterator
 # , Slice
 
 import collections.abc as collections

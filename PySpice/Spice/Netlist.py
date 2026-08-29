@@ -67,7 +67,8 @@ To simulate the circuit, we must create a simulator instance using the :meth:`Ci
 
 from collections import OrderedDict
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator, Self, Union
+from typing import TYPE_CHECKING, Self, Union
+from collections.abc import Iterator
 import keyword
 import logging
 import os
@@ -84,8 +85,8 @@ from .Element import Pin, Element
 from .StringTools import join_list, prefix_lines
 
 if TYPE_CHECKING:
-    from .Simulator import Simulator
     from . import Library
+    from .Simulator import Simulator
 
 ####################################################################################################
 
@@ -115,7 +116,7 @@ class Node:
 
     ##############################################
 
-    def __init__(self, netlist: 'Netlist', name: str) -> None:
+    def __init__(self, netlist: Netlist, name: str) -> None:
         self._warn_iskeyword(name)
         self._netlist = netlist
         self._name = str(name)
@@ -132,7 +133,7 @@ class Node:
     ##############################################
 
     @property
-    def netlist(self) -> 'Netlist':
+    def netlist(self) -> Netlist:
         return self._netlist
 
     @property
@@ -187,7 +188,7 @@ class Node:
 
     ##############################################
 
-    def merge(self, node: 'Node') -> None:
+    def merge(self, node: Node) -> None:
         self._logger.info(f"Merge {self} and {node}")
         for pin in list(node.pins):
             pin.disconnect()
@@ -196,7 +197,7 @@ class Node:
 
     ##############################################
 
-    def __iadd__(self, args: Union['Node', Pin, list[Union['Node', Pin]]]) -> Self:
+    def __iadd__(self, args: Node | Pin | list[Node | Pin]) -> Self:
         """Connect a node, a pin or a list of them to the node."""
         if isinstance(args, (Node, Pin)):
             args = (args,)
@@ -249,7 +250,7 @@ class Netlist:
 
     ##############################################
 
-    def copy_to(self, netlist: 'Netlist') -> 'Netlist':
+    def copy_to(self, netlist: Netlist) -> Netlist:
         for subcircuit in self.subcircuits:
             netlist.subcircuit(subcircuit)
         for element in self.elements:
@@ -424,7 +425,7 @@ class Netlist:
 
     ##############################################
 
-    def subcircuit(self, subcircuit: 'SubCircuit') -> None:
+    def subcircuit(self, subcircuit: SubCircuit) -> None:
         """Add a sub-circuit."""
         # Fixme: subcircuit is a class
         self._subcircuits[str(subcircuit.name)] = subcircuit
@@ -590,7 +591,7 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def clone(self, title: str = None) -> 'Circuit':
+    def clone(self, title: str = None) -> Circuit:
         if title is None:
             title = self.title
 
@@ -612,7 +613,7 @@ class Circuit(Netlist):
 
     ##############################################
 
-    def include(self, path: Union[Path, str, 'Library.SubCircuit', 'Library.Model'], warn: bool = True) -> None:
+    def include(self, path: Path | str | Library.SubCircuit | Library.Model, warn: bool = True) -> None:
         """Include a file."""
         # Fixme: str(path) ?
         # Fixme: circular import...

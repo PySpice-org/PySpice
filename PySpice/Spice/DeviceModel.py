@@ -61,7 +61,6 @@ class DeviceModel:
     ##############################################
 
     def __init__(self, name, modele_type, **parameters):
-
         self._name = str(name)
         self._model_type = str(modele_type)
 

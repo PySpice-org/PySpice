@@ -30,9 +30,7 @@ __all__ = [
 
 import logging
 
-####################################################################################################
-
-from ..Unit import as_s, as_Hz
+from ..Unit import as_Hz, as_s  # ty: ignore[unresolved-import]
 from .StringTools import join_list
 
 ####################################################################################################
@@ -61,7 +59,7 @@ class AnalysisParameters:
     ##############################################
 
     def __str__(self):
-        return '.{0.analysis_name} {1}'.format(self, join_list(self.to_list()))
+        return f'.{self.analysis_name} {join_list(self.to_list())}'
 
 ####################################################################################################
 
@@ -106,7 +104,6 @@ class AcSensitivityAnalysisParameters(AnalysisParameters):
     ##############################################
 
     def __init__(self, output_variable, variation, number_of_points, start_frequency, stop_frequency):
-
         if variation not in ('dec', 'oct', 'lin'):
             raise ValueError("Incorrect variation type")
 
@@ -160,7 +157,6 @@ class DCAnalysisParameters(AnalysisParameters):
     ##############################################
 
     def __init__(self, **kwargs):
-
         self._parameters = []
         for variable, value_slice in kwargs.items():
             variable_lower = variable.lower()
@@ -192,9 +188,7 @@ class ACAnalysisParameters(AnalysisParameters):
     ##############################################
 
     def __init__(self, variation, number_of_points, start_frequency, stop_frequency):
-
         # Fixme: use mixin
-
         if variation not in ('dec', 'oct', 'lin'):
             raise ValueError("Incorrect variation type")
 
@@ -241,39 +235,46 @@ class TransientAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, step_time, end_time, start_time=0, max_time=None, use_initial_condition=False):
-
+    def __init__(
+            self,
+            step_time: float,
+            end_time: float,
+            start_time: float = 0,
+            max_time: float | None = None,
+            use_initial_condition: bool = False,
+    ) -> None:
+        # Fixme: as_s -> PeriodValue
         self._step_time = as_s(step_time)
         self._end_time = as_s(end_time)
         self._start_time = as_s(start_time)
-        self._max_time = as_s(max_time, none=True)
+        self._max_time = as_s(max_time, none=True)  # ty: ignore[invalid-argument-type]
         self._use_initial_condition = use_initial_condition
 
     ##############################################
 
     @property
-    def step_time(self):
+    def step_time(self) -> float:
         return self._step_time
 
     @property
-    def end_time(self):
+    def end_time(self) -> float:
         return self._end_time
 
     @property
-    def start_time(self):
+    def start_time(self) -> float:
         return self._start_time
 
     @property
-    def max_time(self):
+    def max_time(self) -> float | None:
         return self._max_time
 
     @property
-    def use_initial_condition(self):
+    def use_initial_condition(self) -> bool:
         return self._use_initial_condition
 
     ##############################################
 
-    def to_list(self):
+    def to_list(self) -> tuple[float, float, float, float | None, str | None]:
         return (
             self._step_time,
             self._end_time,
@@ -295,10 +296,9 @@ class MeasureParameters(AnalysisParameters):
     ##############################################
 
     def __init__(self, analysis_type, name, *args):
-
         _analysis_type = str(analysis_type).upper()
         if _analysis_type not in ('AC', 'DC', 'OP', 'TRAN', 'TF', 'NOISE'):
-            raise ValueError('Incorrect analysis type {}'.format(analysis_type))
+            raise ValueError(f'Incorrect analysis type {analysis_type}')
 
         self._parameters = [_analysis_type, name, *args]
 
@@ -324,7 +324,6 @@ class PoleZeroAnalysisParameters(AnalysisParameters):
     ##############################################
 
     def __init__(self, node1, node2, node3, node4, tf_type, pz_type):
-
         self._nodes = (node1, node2, node3, node4)
         self._tf_type = tf_type   # transfert_function
         self._pz_type = pz_type   # pole_zero
@@ -370,7 +369,6 @@ class NoiseAnalysisParameters(AnalysisParameters):
     ##############################################
 
     def __init__(self, output, src, variation, points, start_frequency, stop_frequency, points_per_summary):
-
         self._output = output
         self._src = src
         self._variation = variation
@@ -413,7 +411,6 @@ class NoiseAnalysisParameters(AnalysisParameters):
     ##############################################
 
     def to_list(self):
-
         parameters = [
             self._output,
             self._src,
@@ -422,10 +419,8 @@ class NoiseAnalysisParameters(AnalysisParameters):
             self._start_frequency,
             self._stop_frequency,
         ]
-
         if self._points_per_summary:
             parameters.append(self._points_per_summary)
-
         return parameters
 
 ####################################################################################################
@@ -471,17 +466,14 @@ class DistortionAnalysisParameters(AnalysisParameters):
     ##############################################
 
     def to_list(self):
-
         parameters = [
             self._variation,
             self._points,
             self._start_frequency,
             self._stop_frequency,
         ]
-
         if self._f2overf1:
             parameters.append(self._f2overf1)
-
         return parameters
 
 ####################################################################################################

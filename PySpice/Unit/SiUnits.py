@@ -13,7 +13,7 @@
 
 ####################################################################################################
 
-from .Unit import UnitPrefix, SiBaseUnit, Unit
+from .Unit import SiBaseUnit, Unit, UnitPrefix
 
 ####################################################################################################
 
@@ -289,7 +289,7 @@ class Becquerel(Unit):
     UNIT_NAME = 'becquerel'
     UNIT_SUFFIX = 'Bq'
     QUANTITY = 'radioactivity (decays per unit time)'
-    SI_UNIT = 's^-1' # same as Hertz
+    SI_UNIT = 's^-1'  # same as Hertz
 
 class Gray(Unit):
     UNIT_NAME = 'gray'

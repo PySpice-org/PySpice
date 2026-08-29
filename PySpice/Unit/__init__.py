@@ -75,12 +75,12 @@ Some examples of usage:
 
 ####################################################################################################
 
-from typing import TYPE_CHECKING, Union
 import logging
 import sys
+from typing import TYPE_CHECKING
 
-from . import Unit as _Unit
 from . import SiUnits as _SiUnits
+from . import Unit as _Unit
 
 if TYPE_CHECKING:
     from .Unit import PrefixedUnit, UnitValue
@@ -104,24 +104,24 @@ class UnitValueShorcut:
 
     ##############################################
 
-    def __init__(self, prefixed_unit: 'PrefixedUnit') -> None:
+    def __init__(self, prefixed_unit: PrefixedUnit) -> None:
         self._prefixed_unit = prefixed_unit
 
     ##############################################
 
-    def _new_value(self, other: Union[float]) -> 'UnitValue':
+    def _new_value(self, other: float) -> UnitValue:
         """Create a new unit value'"""
         return self._prefixed_unit.new_value(other)
 
     ##############################################
 
-    def __call__(self, other: Union[float]) -> 'UnitValue':
+    def __call__(self, other: float) -> UnitValue:
         """Create a new unit value using `u_F(2)`"""
         return self._new_value(other)
 
     ##############################################
 
-    def __rmatmul__(self, other: Union[float]) -> 'UnitValue':
+    def __rmatmul__(self, other: float) -> UnitValue:
         """Create a new unit value using `1@u_F`"""
         return self._new_value(other)
 
@@ -161,7 +161,7 @@ def _build_prefix_shortcut(unit_prefix):
 
 for unit_prefix in _Unit.UnitPrefixMetaclass.prefix_iter():
     if unit_prefix.__class__ != _Unit.ZeroPower:
-        _build_prefix_shortcut(unit_prefix)   # capture unit_prefix
+        _build_prefix_shortcut(unit_prefix) # capture unit_prefix
 
 ####################################################################################################
 
@@ -171,13 +171,13 @@ class FrequencyValue(_Unit.UnitValue, _Unit.FrequencyMixin):
     pass
 
 # Fixme:
-class FrequencyValues(_Unit.UnitValues):   # , _Unit.FrequencyMixin
+class FrequencyValues(_Unit.UnitValues):  # , _Unit.FrequencyMixin
     pass
 
 class PeriodValue(_Unit.UnitValue, _Unit.PeriodMixin):
     pass
 
-class PeriodValues(_Unit.UnitValues):   # , _Unit.PeriodMixin
+class PeriodValues(_Unit.UnitValues):  # , _Unit.PeriodMixin
     pass
 
 ####################################################################################################
