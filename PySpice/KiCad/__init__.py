@@ -8,7 +8,7 @@
 
 __all__ = [
     'PythonDumper',
-    'Spicedumper',
+    'SpiceDumper',
 ]
 
 ####################################################################################################
@@ -29,24 +29,29 @@ _module_logger = logging.getLogger(__name__)
 
 LINESEP = os.linesep
 
-type ElementHandler = Callable[[PythonDumper, Symbol], str]
+type ElementHandler = Callable[[BaseDumper, Symbol], str | list[str]]
 
 ####################################################################################################
 
 class BaseDumper:
 
+    _logger = _module_logger.getChild('BaseDumper')
+
     def generic_wrapper(element: str) -> ElementHandler:
         def wrapper(self, symbol):
+            self.on_generic_log(element, symbol)
             return self.on_generic(element, symbol)
         return wrapper
 
     def generic_model_wrapper(element: str) -> ElementHandler:
         def wrapper(self, symbol):
+            self.on_generic_model_log(element, symbol)
             return self.on_generic_model(element, symbol)
         return wrapper
 
     def source(element: str) -> ElementHandler:
         def wrapper(self, symbol):
+            self.on_source_log(element, symbol)
             return self.on_source(element, symbol)
         return wrapper
 
@@ -65,9 +70,8 @@ class BaseDumper:
 
     ##############################################
 
-    def __init__(self, kicad_schema: KiCadSchema, use_pyspice_unit: bool = False) -> None:
-        self._use_pyspice_unit = use_pyspice_unit
-        self._code = []
+    def __init__(self, kicad_schema: KiCadSchema) -> None:
+        self._code: list[str] = []
 
         for symbol in kicad_schema.symbols_by_reference:
             self._logger.info(f"Symbol {symbol.lib_name} {symbol.reference} {symbol.simulation_device}")
@@ -79,7 +83,11 @@ class BaseDumper:
                     pass
                 case _:
                     _ = handler(self, symbol)
-                    self._code.append(_)
+                    match _:
+                        case str():
+                            self._code.append(_)
+                        case _:
+                            self._code += _
 
     ##############################################
 
@@ -93,6 +101,21 @@ class BaseDumper:
 
     def __str__(self) -> str:
         return LINESEP.join(self._code)
+
+    ##############################################
+
+    def on_generic_log(self, element: str, symbol: Symbol) -> None:
+        self._logger.info(f"Element '{symbol.reference}' params='{symbol.simulation_paramaters}'")
+
+    ##############################################
+
+    def on_generic_model_log(self, element: str, symbol: Symbol) -> None:
+        self._logger.info(f"Element with model '{symbol.reference}' pins='{symbol.simulation_pins}'  value='{symbol.value}' params='{symbol.simulation_paramaters}'")
+
+    ##############################################
+
+    def on_source_log(self, element: str, symbol: Symbol) -> None:
+        self._logger.info(f"Source '{symbol.simulation_device}' type='{symbol.simulation_type}' value='{symbol.value}' params='{symbol.simulation_paramaters}'")
 
 ####################################################################################################
 
@@ -131,7 +154,6 @@ class SpiceDumper(BaseDumper):
     ##############################################
 
     def on_generic(self, element: str, symbol: Symbol) -> str:
-        self._logger.info(f"Element '{symbol.reference}' params='{symbol.simulation_paramaters}'")
         reference = symbol.reference[len(element):]
         value = self._unit_value(element, symbol)
         args = [reference, *self._pins(symbol), value]
@@ -140,129 +162,43 @@ class SpiceDumper(BaseDumper):
 
     ##############################################
 
-    def on_generic_model(self, element: str, symbol: Symbol) -> str:
-        self._logger.info(f"Element with model '{symbol.reference}' pins='{symbol.simulation_pins}' params='{symbol.simulation_paramaters}'")
+    def on_generic_model(self, element: str, symbol: Symbol) -> list[str]:
         # Fixme: check XD
         reference = symbol.reference[len(element):]   # +1
-        # pin_names = [_.name for _ in symbol.pins]
         pins = self._pins(symbol)
-        # match pin_names:
-        #     case ('K', 'A'):
-        #         pins = list(reversed(pins))
         args = [reference, *pins]
         args_str = self._str_args(args)  # ty: ignore[invalid-argument-type]
         model_name = f'__{symbol.value}{reference}'
-        lines = [
+        return [
             f".model {model_name} {element} {symbol.simulation_paramaters}",
             f"{element}{args_str} {model_name}",
         ]
-        # Fixme: __str__ join
-        return LINESEP.join(lines)
 
     ##############################################
 
     def on_source(self, element: str, symbol: Symbol) -> str:
-        self._logger.info(f"Source '{symbol.simulation_device}' type='{symbol.simulation_type}' params='{symbol.simulation_paramaters}'")
         reference = symbol.reference[len(element):]
         args = [reference, *self._pins(symbol)]
         args_str = self._str_args(args)  # ty: ignore[invalid-argument-type]
-        return f"{element}{args_str} {symbol.simulation_type}( {symbol.simulation_paramaters} )"
+        if symbol.simulation_paramaters:
+            return f"{element}{args_str} {symbol.simulation_type}( {symbol.simulation_paramaters} )"
+        else:
+            value = self._unit_value(element, symbol)
+            return f"{element}{args_str} {symbol.simulation_type} {value}"
 
 ####################################################################################################
 
-class PythonDumper:
+class PythonDumper(BaseDumper):
 
     _logger = _module_logger.getChild('PythonDumper')
 
-    def generic_wrapper(element: str) -> ElementHandler:
-        def wrapper(self, symbol):
-            return self.on_generic(element, symbol)
-        return wrapper
-
-    def generic_model_wrapper(element: str) -> ElementHandler:
-        def wrapper(self, symbol):
-            return self.on_generic_model(element, symbol)
-        return wrapper
-
-    def source(element: str) -> ElementHandler:
-        def wrapper(self, symbol):
-            return self.on_source(element, symbol)
-        return wrapper
-
-    GROUND = 0
-
-    # SYMBOL_MAP = {
-    #     'Device:C': generic_wrapper('C'),
-    #     'Device:R': generic_wrapper('R'),
-    #     'Simulation_SPICE:D':  generic_model_wrapper('D'),
-    #     'power:GND': GROUND,
-    #     'spice-ngspice:0': GROUND,
-    #     'spice-ngspice:C': generic_wrapper('C'),
-    #     'spice-ngspice:CHOKE': None,
-    #     'spice-ngspice:CURRENT_MEASURE': None,
-    #     'spice-ngspice:Csmall': generic_wrapper('C'),
-    #     'spice-ngspice:DIODE':  generic_model_wrapper('D'),
-    #     'spice-ngspice:INDUCTOR': generic_wrapper('L'),
-    #     'spice-ngspice:ISOURCE': generic_wrapper('I'),
-    #     'spice-ngspice:ISRC_ICTL': None,
-    #     'spice-ngspice:ISRC_VCTL': None,
-    #     'spice-ngspice:NMOS': None,
-    #     'spice-ngspice:OPAMP': None,
-    #     'spice-ngspice:PMOS': None,
-    #     'spice-ngspice:QNPN': None,
-    #     'spice-ngspice:QPNP': None,
-    #     'spice-ngspice:R': generic_wrapper('R'),
-    #     'spice-ngspice:Rsmall': generic_wrapper('R'),
-    #     'spice-ngspice:SWITCH': None,
-    #     'spice-ngspice:TOGGLE': None,
-    #     'spice-ngspice:VSOURCE': generic_wrapper('V'),
-    #     'spice-ngspice:VSRC_ICTL': None,
-    #     'spice-ngspice:VSRC_VCTL': None,
-    #     'spice-ngspice:Vsrc': generic_wrapper('V'),
-    #     'spice-ngspice:ZENOR': None,
-    # }
-
-    SYMBOL_MAP: dict[str, ElementHandler | int] = {
-        'R': generic_wrapper('R'),
-        'L': generic_wrapper('L'),
-        'C': generic_wrapper('C'),
-        'D': generic_model_wrapper('D'),
-        'GND': GROUND,  # Fixme: typing is int
-        'V': source('V'),
-        # 'VDC': source('V'),
-        # 'VPULSE': source('V'),
-    }
+    SEP = ', '
 
     ##############################################
 
     def __init__(self, kicad_schema: KiCadSchema, use_pyspice_unit: bool = False) -> None:
         self._use_pyspice_unit = use_pyspice_unit
-        self._code = []
-
-        for symbol in kicad_schema.symbols_by_reference:
-            self._logger.info(f"Symbol {symbol.lib_name} {symbol.reference} {symbol.simulation_device}")
-            handler = self.find_symbol(symbol)
-            match handler:
-                case None:
-                    self._logger.warning(f"any correspondance for '{symbol.lib_name}' '{symbol.reference}' '{symbol.simulation_device}'")
-                case int():  # for ground i.e. != self.GROUND
-                    pass
-                case _:
-                    _ = handler(self, symbol)
-                    self._code.append(_)
-
-    ##############################################
-
-    def find_symbol(self, symbol: Symbol) -> ElementHandler | int | None:
-        name = symbol.simulation_device
-        if not name:
-            _, name = symbol.lib_name.split(':')
-        return self.SYMBOL_MAP.get(name, None)
-
-    ##############################################
-
-    def __str__(self) -> str:
-        return LINESEP.join(self._code)
+        super().__init__(kicad_schema)
 
     ##############################################
 
@@ -306,12 +242,23 @@ class PythonDumper:
                 arg = "'" + arg + "'"
                 # arg = '"' + arg + '"'
             args.append(arg)
-        return ', '.join(args)
+        return self.SEP.join(args)
+
+    ##############################################
+
+    def _split_parameters(self, symbol: Symbol) -> dict[str, str]:
+        d = {}
+        for _ in symbol.simulation_paramaters.split(' '):
+            key, value = _.split('=')
+            d[key] = value
+        return d
+
+    def _format_parameters(self, symbol: Symbol) -> str:
+        return self.SEP.join([f"{key}='{value}'" for key, value in self._split_parameters(symbol).items()])
 
     ##############################################
 
     def on_generic(self, element: str, symbol: Symbol) -> str:
-        self._logger.info(f"Element {symbol.reference} {symbol.simulation_paramaters}")
         reference = symbol.reference[len(element):]
         value = self._unit_value(element, symbol)
         args = [reference, *self._pins(symbol), value]
@@ -320,8 +267,7 @@ class PythonDumper:
 
     ##############################################
 
-    def on_generic_model(self, element: str, symbol: Symbol) -> str:
-        self._logger.info(f"Element with model {symbol.reference} {symbol.simulation_pins} {symbol.simulation_paramaters}")
+    def on_generic_model(self, element: str, symbol: Symbol) -> list[str]:
         # Fixme: check XD
         reference = symbol.reference[len(element):]   # +1
         pin_names = [_.name for _ in symbol.pins]
@@ -331,27 +277,34 @@ class PythonDumper:
                 pins = list(reversed(pins))
         args = [reference, *pins]
         args_str = self._str_args(args)  # ty: ignore[invalid-argument-type]
-        return f"circuit.{element}({args_str}, model='{symbol.value}')"
+        model_name = f'{symbol.value}{reference}'
+        # Fixme: versus match
+        mode_type = {
+            'D': 'diode',
+        }[element]
+        parameters = self._format_parameters(symbol)
+        return [
+            f"circuit.model({model_name}, {mode_type}, {parameters})",
+            f"circuit.{element}({args_str}, model='{model_name}')",
+        ]
 
     ##############################################
 
     def on_source(self, element: str, symbol: Symbol) -> str:
-        self._logger.info(f"Source {symbol.simulation_device} {symbol.simulation_type} {symbol.simulation_paramaters}")
         reference = symbol.reference[len(element):]
         match symbol.simulation_type.upper():
             case 'PULSE':
                 element = 'PulseVoltageSource'
         args = [reference, *self._pins(symbol)]
-        params = ''
+        parameters = ''
         if symbol.simulation_paramaters:
-            sep = ', '
-            params = sep.join(symbol.simulation_paramaters.split(' '))
+            parameters = self._format_parameters(symbol)
+            if parameters:
+                parameters = self.SEP + parameters
         else:
             value = self._unit_value(element, symbol)
             if symbol.reference[0] in ('V',):
                 value += '@u_V'
             args.append(value)
         args_str = self._str_args(args)  # ty: ignore[invalid-argument-type]
-        if params:
-            params = sep + params
-        return f"circuit.{element}({args_str}{params})"
+        return f"circuit.{element}({args_str}{parameters})"
