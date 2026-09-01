@@ -83,7 +83,7 @@ packages = ["PySpice"]
 # Exclude a variety of commonly ignored directories
 # exclude = [...]
 
-line-length = 100
+line-length = 140
 indent-width = 4
 
 target-version = "py315"
@@ -110,8 +110,9 @@ select = [
 "I",
 ]
 ignore = [
-"E302", # blank-lines-top-level
-"E305", # blank-lines-after-function-or-class
+  "E265", # no-space-after-block-comment
+  "E302", # blank-lines-top-level
+  "E305", # blank-lines-after-function-or-class
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
