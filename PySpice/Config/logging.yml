@@ -50,7 +50,7 @@ loggers:
     level: INFO
     # level: WARNING
 
-  KiCadRW:
+  kicadrw:
     # level: DEBUG
     level: INFO
     # level: WARNING
