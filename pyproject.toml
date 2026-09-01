@@ -55,7 +55,7 @@ dev = [
   "invoke>=3.0.3",
   "rassumfrassum>=0.3.4",
   "ruff>=0.16.5",
-  "ty>=0.0.75",
+  "ty==0.0.77",
   # beautifulsoup4
   #
   # PyGithub
