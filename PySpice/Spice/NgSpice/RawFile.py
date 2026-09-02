@@ -6,14 +6,6 @@
 #
 ####################################################################################################
 
-####################################################################################################
-
-import os
-
-from ..RawFile import VariableAbc, RawFileAbc
-
-####################################################################################################
-
 """This module provide tools to read the output of Ngspice.
 
 Header
@@ -78,6 +70,9 @@ Time, node voltages and source branch currents:
 ####################################################################################################
 
 import logging
+import os
+
+from ..RawFile import RawFileAbc, VariableAbc
 
 ####################################################################################################
 
@@ -91,20 +86,19 @@ class Variable(VariableAbc):
 
     ##############################################
 
-    def is_voltage_node(self):
+    def is_voltage_node(self) -> bool:
         return self.name.startswith('v(')
 
     ##############################################
 
-    def is_branch_current(self):
+    def is_branch_current(self) -> bool:
         # source branch current
         return self.name.startswith('i(')
 
     ##############################################
 
     @property
-    def simplified_name(self):
-
+    def simplified_name(self) -> str:
         if self.is_voltage_node() or self.is_branch_current():
             return self.name[2:-1]
         else:
@@ -151,22 +145,18 @@ class RawFile(RawFileAbc):
 
     ##############################################
 
-    def __init__(self, stdout, number_of_points):
-
+    def __init__(self, stdout: bytes, number_of_points: int) -> None:
         self.number_of_points = number_of_points
+        self._simulation = None
 
         raw_data = self._read_header(stdout)
         self._read_variable_data(raw_data)
         # self._to_analysis()
 
-        self._simulation = None
-
     ##############################################
 
-    def _read_header(self, stdout):
-
+    def _read_header(self, stdout: bytes) -> bytes:
         """ Parse the header """
-
         binary_line = b'Binary:' + os.linesep.encode('ascii')
         binary_location = stdout.find(binary_line)
         if binary_location < 0:
@@ -182,7 +172,7 @@ class RawFile(RawFileAbc):
         self.warnings = [self._read_header_field_line(header_line_iterator, 'Warning')
                          for i in range(stdout.count(b'Warning'))]
         for warning in self.warnings:
-            self._logger.warn(warning)
+            self._logger.warning(warning)
         self.title = self._read_header_field_line(header_line_iterator, 'Title')
         self.date = self._read_header_field_line(header_line_iterator, 'Date')
         self.plot_name = self._read_header_field_line(header_line_iterator, 'Plotname')
@@ -197,10 +187,8 @@ class RawFile(RawFileAbc):
 
     ##############################################
 
-    def fix_case(self):
-
+    def fix_case(self) -> None:
         """ Ngspice return lower case names. This method fixes the case of the variable names. """
-
         circuit = self.circuit
         element_translation = {element.lower():element for element in circuit.element_names}
         node_translation = {node.lower():node for node in circuit.node_names}
@@ -210,13 +198,10 @@ class RawFile(RawFileAbc):
     ##############################################
 
     def _to_dc_analysis(self):
-
         if 'v(v-sweep)' in self.variables:
             sweep_variable = self.variables['v(v-sweep)']
         elif 'v(i-sweep)' in self.variables:
             sweep_variable = self.variables['v(i-sweep)']
         else:
-            #
             raise NotImplementedError
-
         return super()._to_dc_analysis(sweep_variable)

@@ -6,31 +6,26 @@
 #
 ####################################################################################################
 
-####################################################################################################
-
-import os
-
-####################################################################################################
-
 """This module provide tools to read raw output.
 """
 
 ####################################################################################################
 
-from PySpice.Unit import u_Degree, u_V, u_A, u_s, u_Hz
-
-####################################################################################################
-
 import logging
+from collections.abc import Iterator
+
 import numpy as np
 
-####################################################################################################
-
 from PySpice.Probe.WaveForm import (
-    OperatingPoint, SensitivityAnalysis,
-    DcAnalysis, AcAnalysis, TransientAnalysis,
+    AcAnalysis,
+    DcAnalysis,
+    OperatingPoint,
+    SensitivityAnalysis,
+    TransientAnalysis,
     WaveForm,
 )
+from PySpice.Unit import u_A, u_Degree, u_Hz, u_s, u_V
+from PySpice.Unit.Unit import Unit
 
 ####################################################################################################
 
@@ -55,19 +50,17 @@ class VariableAbc:
 
     ##############################################
 
-    def __init__(self, index, name, unit):
-
+    def __init__(self, index: int, name: str, unit: Unit | None) -> None:
         # Fixme: self._ ?
-
         self._index = int(index)
         self.name = str(name)
-        self._unit = unit # could be guessed from name also for voltage node and branch current
-        self.data = None
+        self._unit = unit  # could be guessed from name also for voltage node and branch current
+        self.data: np.ndarray = None  # ty: ignore[invalid-assignment]
 
     ##############################################
 
     @property
-    def index(self):
+    def index(self) -> int:
         return self._index
 
     # @property
@@ -80,62 +73,62 @@ class VariableAbc:
 
     ##############################################
 
-    def __repr__(self):
-        return 'variable[{0._index}]: {0.name} [{0._unit}]'.format(self)
+    def __repr__(self) -> str:
+        return f'variable[{self._index}]: {self.name} [{self._unit}]'
 
     ##############################################
 
-    def is_voltage_node(self):
+    def is_voltage_node(self) -> bool:
         raise NotImplementedError
 
     ##############################################
 
-    def is_branch_current(self):
+    def is_branch_current(self) -> bool:
         raise NotImplementedError
 
     ##############################################
 
     @property
-    def is_interval_parameter(self):
-        return self.name.startswith('@') # Fixme: Xyce ???
+    def is_interval_parameter(self) -> bool:
+        return self.name.startswith('@')  # Fixme: Xyce ???
 
     ##############################################
 
     @staticmethod
-    def to_voltage_name(node):
-        return 'v({})'.format(node)
+    def to_voltage_name(node) -> str:
+        return f'v({node})'
 
     ##############################################
 
     @staticmethod
-    def to_branch_name(element):
-        return 'i({})'.format(element)
+    def to_branch_name(element) -> str:
+        return f'i({element})'
 
     ##############################################
 
-    def fix_case(self, element_translation, node_translation):
-
+    def fix_case(self, element_translation, node_translation) -> None:
         """ Update the name to the right case. """
-
         if self.is_branch_current():
             if self.simplified_name in element_translation:
                 self.name = self.to_branch_name(element_translation[self.simplified_name])
-        elif self.is_voltage_node():
-            if self.simplified_name in node_translation:
-                self.name = self.to_voltage_name(node_translation[self.simplified_name])
+        elif self.is_voltage_node() and self.simplified_name in node_translation:
+            self.name = self.to_voltage_name(node_translation[self.simplified_name])
 
     ##############################################
 
     @property
-    def simplified_name(self):
+    def simplified_name(self) -> str:
         raise NotImplementedError
 
     ##############################################
 
-    def to_waveform(self, abscissa=None, to_real=False, to_float=False):
-
+    def to_waveform(
+            self,
+            abscissa: WaveForm | None = None,
+            to_real: bool = False,
+            to_float: bool = False,
+    ) -> WaveForm:
         """ Return a :obj:`PySpice.Probe.WaveForm` instance. """
-
         data = self.data
         if to_real:
             data = data.real
@@ -156,6 +149,21 @@ class RawFileAbc:
     """
 
     _logger = _module_logger.getChild('RawFileAbc')
+
+    _variable_cls: VariableAbc
+
+    ##############################################
+
+    def __init__(self) -> None:
+        self.flags: str
+        self.number_of_points: int
+        self.number_of_variables: int
+        self.plot_name: str
+
+    ##############################################
+
+    def fix_case(self) -> None:
+        raise NotImplementedError
 
     ##############################################
 
@@ -187,12 +195,9 @@ class RawFileAbc:
 
     ##############################################
 
-    def _read_line(self, header_line_iterator):
-
+    def _read_line(self, header_line_iterator: Iterator[bytes]) -> str:
         """ Return the next line """
-
         # Fixme: self._header_line_iterator, etc.
-
         line = None
         while not line:
             line = next(header_line_iterator)
@@ -200,53 +205,47 @@ class RawFileAbc:
 
     ##############################################
 
-    def _read_header_line(self, header_line_iterator, head_line):
-
+    def _read_header_line(self, header_line_iterator: Iterator[bytes], head_line: str) -> str:
         """ Read an header line and check it starts with *head_line*. """
-
         line = self._read_line(header_line_iterator)
         self._logger.debug(line)
         if line.startswith(head_line):
             return line
         else:
-            raise NameError("Unexpected line: %s" % (line))
+            raise NameError(f"Unexpected line: {line}")
 
     ##############################################
 
-    def _read_header_field_line(self, header_line_iterator, expected_label, has_value=True):
-
+    def _read_header_field_line(self, header_line_iterator: Iterator[bytes], expected_label: str, has_value: bool = True):
         """ Read an header line and check it starts with *expected_label*.
 
         Return the values next to the label if the flag *has_value* is set.
         """
-
         line = self._read_line(header_line_iterator)
         self._logger.debug(line)
         if has_value:
             # a title can have ': ' after 'title: '
-            location = line.find(': ') # first occurence
-            label, value = line[:location], line[location+2:]
+            location = line.find(': ')  # first occurence
+            label, value = line[:location], line[location + 2:]
         else:
             label = line[:-1]
         if label != expected_label:
-            raise NameError("Expected label %s instead of %s" % (expected_label, label))
+            raise NameError(f"Expected label {expected_label} instead of {label}")
         if has_value:
             return value.strip()
 
     ##############################################
 
-    def _read_temperature_line(self, header_line_iterator):
-
+    def _read_temperature_line(self, header_line_iterator: Iterator[bytes]) -> tuple[u_Degree, u_Degree]:
         # Doing analysis at TEMP = 25.000000 and TNOM = 25.000000
-
         line = self._read_header_line(header_line_iterator, 'Doing analysis at TEMP')
         pattern1 = 'TEMP = '
         pattern2 = ' and TNOM = '
         pos1 = line.find(pattern1)
         pos2 = line.find(pattern2)
         if pos1 != -1 and pos2 != -1:
-            part1 = line[pos1+len(pattern1):pos2]
-            part2 = line[pos2+len(pattern2):].strip()
+            part1 = line[pos1 + len(pattern1):pos2]
+            part2 = line[pos2 + len(pattern2):].strip()
             temperature = u_Degree(float(part1))
             nominal_temperature = u_Degree(float(part2))
         else:
@@ -256,34 +255,32 @@ class RawFileAbc:
 
     ##############################################
 
-    def _read_header_variables(self, header_line_iterator):
-
+    def _read_header_variables(self, header_line_iterator: Iterator[bytes]) -> None:
         self.variables = {}
-        for i in range(self.number_of_variables):
+        for _ in range(self.number_of_variables):
             line = (next(header_line_iterator)).decode('utf-8')
             self._logger.debug(line)
             items = [x.strip() for x in line.split('\t') if x]
             # 0 frequency frequency grid=3
             index, name, unit = items[:3]
             #  unit = time, voltage, current
-            unit = self._name_to_unit[unit] # convert to Unit
-            self.variables[name] = self._variable_cls(index, name, unit)
+            unit = self._name_to_unit[unit]  # convert to Unit
+            self.variables[name] = self._variable_cls(index, name, unit)  # ty: ignore[call-non-callable]
         # self._read_header_field_line(header_line_iterator, 'Binary', has_value=False)
 
     ##############################################
 
-    def _read_variable_data(self, raw_data):
-
+    def _read_variable_data(self, raw_data: bytes) -> None:
         """ Read the raw data and set the variable values. """
+        match self.flags:
+            case 'real':
+                number_of_columns = self.number_of_variables
+            case 'complex':
+                number_of_columns = 2 * self.number_of_variables
+            case _:
+                raise NotImplementedError
 
-        if self.flags == 'real':
-            number_of_columns = self.number_of_variables
-        elif self.flags == 'complex':
-            number_of_columns = 2*self.number_of_variables
-        else:
-            raise NotImplementedError
-
-        input_data = np.fromstring(raw_data, count=number_of_columns*self.number_of_points, dtype='f8')
+        input_data = np.fromstring(raw_data, count=number_of_columns * self.number_of_points, dtype='f8')  # ty: ignore[no-matching-overload]
         input_data = input_data.reshape((self.number_of_points, number_of_columns))
         input_data = input_data.transpose()
         # np.savetxt('raw.txt', input_data)
@@ -296,55 +293,52 @@ class RawFileAbc:
 
     ##############################################
 
-    def nodes(self, to_float=False, abscissa=None):
+    def nodes(self, to_float: bool = False, abscissa=None) -> list[WaveForm]:
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.variables.values()
                 if variable.is_voltage_node()]
 
     ##############################################
 
-    def branches(self, to_float=False, abscissa=None):
+    def branches(self, to_float: bool = False, abscissa=None) -> list[WaveForm]:
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.variables.values()
                 if variable.is_branch_current()]
 
     ##############################################
 
-    def internal_parameters(self, to_float=False, abscissa=None):
+    def internal_parameters(self, to_float: bool = False, abscissa=None) -> list[WaveForm]:
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.variables.values()
                 if variable.is_interval_parameter]
 
     ##############################################
 
-    def elements(self, abscissa=None):
+    def elements(self, abscissa=None) -> list[WaveForm]:
         return [variable.to_waveform(abscissa, to_float=True)
                 for variable in self.variables.values()]
 
     ##############################################
 
     def to_analysis(self):
-
         self.fix_case()
-
-        if self.plot_name == 'Operating Point':
-            return self._to_operating_point_analysis()
-        elif self.plot_name == 'Sensitivity Analysis':
-            return self._to_sensitivity_analysis()
-        elif self.plot_name == 'DC transfer characteristic':
-            return self._to_dc_analysis()
-        elif self.plot_name == 'AC Analysis':
-            return self._to_ac_analysis()
-        elif self.plot_name == 'Transient Analysis':
-            return self._to_transient_analysis()
-        else:
-
-            raise NotImplementedError("Unsupported plot name {}".format(self.plot_name))
+        match self.plot_name:
+            case 'Operating Point':
+                return self._to_operating_point_analysis()
+            case 'Sensitivity Analysis':
+                return self._to_sensitivity_analysis()
+            case 'DC transfer characteristic':
+                return self._to_dc_analysis()  # Fixme: 
+            case 'AC Analysis':
+                return self._to_ac_analysis()
+            case 'Transient Analysis':
+                return self._to_transient_analysis()
+            case _:
+                raise NotImplementedError(f"Unsupported plot name {self.plot_name}")
 
     ##############################################
 
-    def _to_operating_point_analysis(self):
-
+    def _to_operating_point_analysis(self) -> OperatingPoint:
         return OperatingPoint(
             simulation=self.simulation,
             nodes=self.nodes(to_float=True),
@@ -353,17 +347,17 @@ class RawFileAbc:
 
     ##############################################
 
-    def _to_sensitivity_analysis(self):
+    def _to_sensitivity_analysis(self) -> SensitivityAnalysis:
         # Fixme: test .SENS I (VTEST)
         # Fixme: separate v(vinput), analysis.R2.m
         return SensitivityAnalysis(
             simulation=self.simulation,
             elements=self.elements(),
-        )
+        )  # Fixme:
 
     ##############################################
 
-    def _to_dc_analysis(self, sweep_variable):
+    def _to_dc_analysis(self, sweep_variable) -> DcAnalysis:
         sweep = sweep_variable.to_waveform()
         return DcAnalysis(
             simulation=self.simulation,
@@ -375,7 +369,7 @@ class RawFileAbc:
 
     ##############################################
 
-    def _to_ac_analysis(self):
+    def _to_ac_analysis(self) -> AcAnalysis:
         frequency = self.variables['frequency'].to_waveform(to_real=True)
         return AcAnalysis(
             simulation=self.simulation,
@@ -387,7 +381,7 @@ class RawFileAbc:
 
     ##############################################
 
-    def _to_transient_analysis(self):
+    def _to_transient_analysis(self) -> TransientAnalysis:
         time = self.variables['time'].to_waveform(to_real=True)
         return TransientAnalysis(
             simulation=self.simulation,
