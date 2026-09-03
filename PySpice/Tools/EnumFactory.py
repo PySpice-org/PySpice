@@ -6,6 +6,8 @@
 #
 ####################################################################################################
 
+# Fixme: vs Enum
+
 """ This module provides an implementation for enumerate.
 
 The enumerate factory :func:`EnumFactory` builds a enumerate from a list of names and assigns to
@@ -61,7 +63,6 @@ class ReadOnlyMetaClass(type):
     ##############################################
 
     def __setattr__(self, name, value):
-
         raise NotImplementedError
 
 ####################################################################################################
@@ -73,13 +74,11 @@ class EnumMetaClass(ReadOnlyMetaClass):
     ##############################################
 
     def __len__(self):
-
         return self._size
 
     ##############################################
 
     def __getitem__(self, i):
-
         return self._index[i]
 
 ####################################################################################################
@@ -91,7 +90,6 @@ class ExplicitEnumMetaClass(ReadOnlyMetaClass):
     ##############################################
 
     def __contains__(self, item):
-
         return item in self.constants
 
 ####################################################################################################
@@ -110,35 +108,29 @@ class EnumConstant:
     ##############################################
 
     def __eq__(self, other):
-
         return self._value == int(other)
 
     ##############################################
 
     def __int__(self):
-
         return self._value
 
     ##############################################
 
     def __hash__(self):
-
         return self._value
 
     ##############################################
 
     def __repr__(self):
-
         return self._name
 
 ####################################################################################################
 
 def EnumFactory(enum_name, enum_tuple):
-
     """ Return an :class:`EnumMetaClass` instance, where *enum_name* is the class name and
     *enum_tuple* is an iterable of constant's names.
     """
-
     index = [EnumConstant(name, value) for value, name in enumerate(enum_tuple)]
 
     obj_dict = {}
@@ -151,14 +143,11 @@ def EnumFactory(enum_name, enum_tuple):
 ####################################################################################################
 
 def ExplicitEnumFactory(enum_name, enum_dict):
-
     """ Return an :class:`ExplicitEnumMetaClass` instance, where *enum_name* is the class name and
     *enum_dict* is a dict of constant's names and their values.
     """
-
     obj_dict = {}
     obj_dict['constants'] = list(enum_dict.values())
     for name, value in list(enum_dict.items()):
         obj_dict[name] = EnumConstant(name, value)
-
     return ExplicitEnumMetaClass(enum_name, (), obj_dict)

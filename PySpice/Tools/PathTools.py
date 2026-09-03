@@ -10,14 +10,15 @@ __all__ = ['expand_path', 'find', 'walk']
 
 ####################################################################################################
 
-from typing import Iterator
-
 import os
+from collections.abc import Iterator
 from pathlib import Path
+
+type PathStr = Path | str
 
 ####################################################################################################
 
-def find(file_name: str, directories: list[str]) -> Path:
+def find(file_name: str, directories: tuple[str] | list[str]) -> Path:
     # Fixme: bytes ???
     #  on Linux path are bytes, thus some files can be invalid utf8...
     # if isinstance(directories, bytes):
@@ -33,7 +34,7 @@ def find(file_name: str, directories: list[str]) -> Path:
 
 ####################################################################################################
 
-def expand_path(path: Path | str) -> Path:
+def expand_path(path: PathStr) -> Path:
     # Substrings of the form $name or ${name} are replaced by the value of environment variable name.
     # On Unix and Windows, return the argument with an initial component of ~ or ~user
     # replaced by that user’s home directory.
@@ -42,7 +43,7 @@ def expand_path(path: Path | str) -> Path:
 
 ####################################################################################################
 
-def walk(path: Path | str, followlinks: bool = False) -> Iterator[Path]:
+def walk(path: PathStr, followlinks: bool = False) -> Iterator[Path]:
     for root, _, files in Path(path).walk(follow_symlinks=followlinks):
         for filename in files:
             yield Path(root).joinpath(filename)
