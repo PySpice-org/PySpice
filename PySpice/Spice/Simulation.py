@@ -15,20 +15,19 @@ starting by a dot at the end of the desk.
 
 ####################################################################################################
 
-from typing import TYPE_CHECKING
-from datetime import datetime
+import datetime
 import logging
 import os
-
-####################################################################################################
+from collections.abc import Callable, ValuesView
+from typing import TYPE_CHECKING, Any, NotRequired, TypedDict, Unpack, cast
 
 from ..Tools.TextBuffer import TextBuffer
-# pylint: disable=no-name-in-module
 from ..Unit import as_Degree, u_Degree
-# pylint: enable=no-name-in-module
+from ..Unit.Unit import UnitValue
 from .AnalysisParameters import (
     ACAnalysisParameters,
     AcSensitivityAnalysisParameters,
+    AnalysisParameters,
     DCAnalysisParameters,
     DcSensitivityAnalysisParameters,
     DistortionAnalysisParameters,
@@ -39,10 +38,12 @@ from .AnalysisParameters import (
     TransferFunctionAnalysisParameters,
     TransientAnalysisParameters,
 )
-from .StringTools import join_list, join_dict
+from .StringTools import join_dict, join_list
 from .unit import str_spice
 
 if TYPE_CHECKING:
+    from PySpice.Probe.WaveForm import Analysis
+
     from .Netlist import Circuit
     from .Simulator import Simulator
 
@@ -51,6 +52,15 @@ if TYPE_CHECKING:
 _module_logger = logging.getLogger(__name__)
 
 ####################################################################################################
+
+class SimulationParams(TypedDict):
+    temperature: NotRequired[u_Degree]  # = DEFAULT_Temperature
+    nominal_temperature: NotRequired[u_Degree]  # = DEFAULT_Temperature
+
+class RunSimulationParams(TypedDict):
+    log_desk: NotRequired[bool]
+    probes: NotRequired[list[str]]
+    run: NotRequired[bool]
 
 class Simulation:
 
@@ -84,26 +94,25 @@ class Simulation:
 
     ##############################################
 
-    def __init__(self, simulator: 'Simulator', circuit: 'Circuit', **kwargs) -> None:
+    def __init__(self, simulator: Simulator, circuit: Circuit, **kwargs: Unpack[SimulationParams]) -> None:
         self._simulator = simulator
         self._circuit = circuit
 
-        self._options = {}   # .options
-        self._measures = []   # .measure
-        self._initial_condition = {}   # .ic
-        self._node_set = {}   # .nodeset
-        self._saved_nodes = set()
-        self._analyses = {}
-
+        self._options: dict[str, str | bool | None] = {}   # .options
         self.temperature = kwargs.get('temperature', self.DEFAULT_TEMPERATURE)
         self.nominal_temperature = kwargs.get('nominal_temperature', self.DEFAULT_TEMPERATURE)
 
-        self._simulation_date = None
-        self._simulation_duration = None
+        self._measures: list[str] = []   # .measure
+        self._initial_condition: dict[str, str] = {}   # .ic
+        self._node_set: dict[str, str] = {}   # .nodeset
+        self._saved_nodes: set[str] = set()
+        self._analyses: dict[str, AnalysisParameters] = {}
+        self._simulation_date: datetime.datetime = None  # ty: ignore[invalid-assignment]
+        self._simulation_duration: datetime.timedelta = None  # ty: ignore[invalid-assignment]
 
     ##############################################
 
-    def __getstate__(self) -> dict:
+    def __getstate__(self) -> dict[str, Any]:
         # Pickle: get state
         state = self.__dict__.copy()
         # state['_simulator'] = self._simulator.__class__.__name__
@@ -113,7 +122,7 @@ class Simulation:
 
     ##############################################
 
-    def __setstate__(self, state: dict) -> None:
+    def __setstate__(self, state: dict[str, Any]) -> None:
         # Pickle: restore state
         self.__dict__.update(state)
         # Fixme: ok ??? duplicate simulator ???
@@ -123,11 +132,11 @@ class Simulation:
     ##############################################
 
     @property
-    def circuit(self) -> 'Circuit':
+    def circuit(self) -> Circuit:
         return self._circuit
 
     @property
-    def simulator(self) -> 'Simulator':
+    def simulator(self) -> Simulator:
         return self._simulator
 
     ##############################################
@@ -141,11 +150,11 @@ class Simulation:
         return self._simulator.version
 
     @property
-    def simulation_date(self) -> str:
+    def simulation_date(self) -> datetime.datetime:
         return self._simulation_date
 
     @property
-    def simulation_duration(self):
+    def simulation_duration(self) -> datetime.timedelta:
         return self._simulation_duration
 
     ##############################################
@@ -159,7 +168,7 @@ class Simulation:
     ##############################################
 
     @property
-    def temperature(self):
+    def temperature(self) -> u_Degree:
         return self._options['TEMP']
 
     @temperature.setter
@@ -169,7 +178,7 @@ class Simulation:
     ##############################################
 
     @property
-    def nominal_temperature(self):
+    def nominal_temperature(self) -> u_Degree:
         return self._options['TNOM']
 
     @nominal_temperature.setter
@@ -179,12 +188,12 @@ class Simulation:
     ##############################################
 
     @staticmethod
-    def _make_initial_condition_dict(kwargs: dict) -> dict:
+    def _make_initial_condition_dict(kwargs: dict[str, UnitValue | str]) -> dict[str, str]:
         return {f"V({key})": str_spice(value) for key, value in kwargs.items()}
 
     ##############################################
 
-    def initial_condition(self, **kwargs) -> None:
+    def initial_condition(self, **kwargs: UnitValue | str) -> None:
         """Set initial condition for voltage nodes.
 
         Usage::
@@ -223,7 +232,7 @@ class Simulation:
 
     ##############################################
 
-    def node_set(self, **kwargs) -> None:
+    def node_set(self, **kwargs: UnitValue | str) -> None:
         """Specify initial node voltage guesses.
 
         Usage::
@@ -248,7 +257,7 @@ class Simulation:
 
     ##############################################
 
-    def save(self, *args) -> None:
+    def save(self, *args: str) -> None:
         # Fixme: pass Node for voltage node, Element for source branch current, ...
         """Set the list of saved vectors.
 
@@ -276,12 +285,12 @@ class Simulation:
     ##############################################
 
     @property
-    def save_currents(self):
+    def save_currents(self) -> bool:
         """ Save all currents. """
-        return self._options.get('SAVECURRENTS', False)
+        return cast(bool, self._options.get('SAVECURRENTS', False))
 
     @save_currents.setter
-    def save_currents(self, value) -> None:
+    def save_currents(self, value: bool) -> None:
         if value:
             self._options['SAVECURRENTS'] = True
         else:
@@ -294,14 +303,14 @@ class Simulation:
 
     ##############################################
 
-    def analysis_iter(self):
+    def analysis_iter(self) -> ValuesView[AnalysisParameters]:
         # Fixme: -> analyses / item()
         #   used for ???
         return self._analyses.values()
 
     ##############################################
 
-    def _add_analysis(self, analysis_parameters) -> None:
+    def _add_analysis(self, analysis_parameters: AnalysisParameters) -> None:
         self._analyses[analysis_parameters.analysis_name] = analysis_parameters
 
     ##############################################
@@ -317,7 +326,7 @@ class Simulation:
 
     ##############################################
 
-    def _impl_dc_sensitivity(self, output_variable) -> None:
+    def _impl_dc_sensitivity(self, output_variable: str) -> None:
         """Compute the sensitivity of the DC operating point of a node voltage or voltage-source
         branch current to all non-zero device parameters.
 
@@ -343,7 +352,15 @@ class Simulation:
 
     ##############################################
 
-    def _impl_ac_sensitivity(self, output_variable, variation, number_of_points, start_frequency, stop_frequency) -> None:
+    # Fixme: implement AnalysisParameters protocol
+    def _impl_ac_sensitivity(
+            self,
+            output_variable: str,
+            variation,
+            number_of_points,
+            start_frequency,
+            stop_frequency,
+    ) -> None:
         """Compute the sensitivity of the AC values of a node voltage or voltage-source branch
         current to all non-zero device parameters.
 
@@ -412,7 +429,13 @@ class Simulation:
 
     ##############################################
 
-    def _impl_ac(self, variation, number_of_points, start_frequency, stop_frequency) -> None:
+    def _impl_ac(
+            self,
+            variation,
+            number_of_points,
+            start_frequency,
+            stop_frequency,
+    ) -> None:
         # fixme: concise keyword ?
         """Perform a small-signal AC analysis of the circuit where all non-linear devices are linearized
         around their actual DC operating point.
@@ -547,7 +570,7 @@ class Simulation:
         points,
         start_frequency,
         stop_frequency,
-        points_per_summary=None,
+        points_per_summary: int | None = None,
     ):
         """Perform a Pole-Zero analysis of the circuit.
 
@@ -555,7 +578,8 @@ class Simulation:
         src - signal source, typically an ac voltage input.
         variation - must be 'dec' or 'lin' or 'oct' for decade, linear, or octave.
         points, start_frequency, stop_frequency - number of points, start and stop frequencies.
-        points_per_summary - if specified, the noise contributions of each noise generator is produced every points_per_summary frequency points.
+        points_per_summary - if specified, the noise contributions of each noise generator
+            is produced every points_per_summary frequency points.
 
         See section 15.3.4 of ngspice manual.
 
@@ -581,7 +605,12 @@ class Simulation:
             raise NameError("variation must be 'dec' or 'lin' or 'oct'")
         output = f'V({output_node}, {ref_node})'
         self._add_analysis(
-            NoiseAnalysisParameters(output, src, variation, points, start_frequency, stop_frequency, points_per_summary)
+            NoiseAnalysisParameters(
+                output, src,
+                variation, points,
+                start_frequency, stop_frequency,
+                points_per_summary,
+            )
         )
 
     ##############################################
@@ -618,7 +647,14 @@ class Simulation:
 
     ##############################################
 
-    def _impl_distortion(self, variation, points, start_frequency, stop_frequency, f2overf1=None) -> None:
+    def _impl_distortion(
+            self,
+            variation,
+            points,
+            start_frequency,
+            stop_frequency,
+            f2overf1=None,
+    ) -> None:
         """Perform a distortion analysis of the circuit.
 
         variation, points, start_frequency, stop_frequency - typical ac range parameters.
@@ -661,12 +697,13 @@ class Simulation:
 
     ##############################################
 
-    def str_options(self, unit: bool = True) -> str:
+    def str_options(self, unit: bool = True) -> TextBuffer:
         # Fixme: use cls settings ???
         if unit:
             _str = str_spice
         else:
-            _str = lambda x: str_spice(x, unit)
+            def _str(x):
+                return str_spice(x, unit)
         netlist = TextBuffer()
         for key, value in self._options.items():
             _ = f'.options {key}'
@@ -735,38 +772,54 @@ class Simulation:
 
         # Run simulation ?
         if run:
-            self._simulation_date = datetime.now()
-            _ = self._simulator.run(self)
-            self._simulation_duration = datetime.now() - self._simulation_date
-            return _
+            now = datetime.datetime.now()
+            self._simulation_date = now
+            analysis = self._simulator.run(self)
+            self._simulation_duration = now - self._simulation_date
+            return analysis
+
+    ##############################################
+
+    # Fixme: cf. impl
+    ac: Callable
+    ac_sensitivity: Callable
+    dc: Callable
+    dc_sensitivity: Callable
+    distortion: Callable
+    measure: Callable
+    noise: Callable
+    operating_point: Callable
+    polezero: Callable
+    transfer_function: Callable
+    transient: Callable
+
+    tf: Callable
 
 ####################################################################################################
 
-# Register analysis wrappers and shortcuts s in Simulation
+# Register analysis wrappers and shortcuts in Simulation
 
-def _make_wrapper(analysis_method):
+def _make_wrapper(analysis_method: Callable) -> Callable:
     def wrapper(self, *args, **kwargs):
         return self._run(analysis_method, *args, **kwargs)
     return wrapper
 
 _ANALYSES_PREFIX = '_impl_'
-
-_ANALYSES_METHOD = [
+_ANALYSES_METHOD: list[Callable] = [
     method
     for method in Simulation.__dict__.values()
     if callable(method) and method.__name__.startswith(_ANALYSES_PREFIX)
 ]
 
-_SHORTCUTS = {
+_SHORTCUTS: dict[str, str] = {
     'transfer_function': 'tf',
 }
 
 for _analysis_method in _ANALYSES_METHOD:
     _wrapper = _make_wrapper(_analysis_method)
     _wrapper.__doc__ = _analysis_method.__doc__
-    _analysis = _analysis_method.__name__[len(_ANALYSES_PREFIX):]
+    _analysis = _analysis_method.__name__[len(_ANALYSES_PREFIX):]  # ty: ignore[unresolved-attribute]
     setattr(Simulation, _analysis, _wrapper)
-
-    _shortcut = _SHORTCUTS.get(_analysis, None)
+    _shortcut = _SHORTCUTS.get(_analysis)
     if _shortcut:
         setattr(Simulation, _shortcut, _wrapper)
