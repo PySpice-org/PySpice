@@ -111,17 +111,22 @@ class Node:
     ##############################################
 
     @classmethod
-    def _warn_iskeyword(cls, name: str) -> None:
-        if keyword.iskeyword(name):
+    def _warn_iskeyword(cls, name: str | int) -> None:
+        if keyword.iskeyword(str(name)):
             cls._logger.warning(f"Node name '{name}' is a Python keyword")
 
     ##############################################
 
-    def __init__(self, netlist: Netlist, name: str) -> None:
+    def __init__(self, netlist: Netlist, name: str | int) -> None:
         self._warn_iskeyword(name)
+        self._name: str | int
+        match name:
+            case int():
+                self._name = name
+            case _:
+                self._name = str(name)
         self._netlist = netlist
-        self._name = str(name)
-        self._pins = set()
+        self._pins: set[Pin] = set()
 
     ##############################################
 
@@ -129,7 +134,7 @@ class Node:
         return f'Node {self._name}'
 
     def __str__(self) -> str:
-        return self._name
+        return str(self._name)
 
     ##############################################
 
@@ -199,22 +204,22 @@ class Node:
 
     ##############################################
 
-    def __iadd__(self, args: Node | Pin | list[Node | Pin]) -> Self:
+    def __iadd__(self, args: Node | Pin | Iterable[Node | Pin]) -> Self:
         """Connect a node, a pin or a list of them to the node."""
-        if isinstance(args, (Node, Pin)):
-            args = (args,)
-        for obj in args:
-            if isinstance(obj, Node):
-                # node <=> node
-                self.merge(obj)
-            elif isinstance(obj, Pin):
-                # node <= pin
-                if obj.connected:
-                    self.merge(obj.node)
-                else:
-                    obj.connect(self)
-            else:
-                raise ValueError(f"Invalid object {type(obj)}")
+        _ = (args,) if isinstance(args, (Node, Pin)) else args
+        for obj in _:
+            match obj:
+                case Node():
+                    # node <=> node
+                    self.merge(obj)
+                case Pin():
+                    # node <= pin
+                    if obj.connected:
+                        self.merge(obj.node)  # ty: ignore[invalid-argument-type]
+                    else:
+                        obj.connect(self)
+                case _:
+                    raise ValueError(f"Invalid object {type(obj)} for connection")
         return self
 
 ####################################################################################################
@@ -522,10 +527,10 @@ class SubCircuit(Netlist):
 
     def check_nodes(self) -> None:
         """Check for dangling nodes in the subcircuit."""
-        nodes = self._external_nodes
+        nodes = set(self._external_nodes)
         connected_nodes = set()
         for element in self.elements:
-            connected_nodes.add(nodes & element.nodes)
+            connected_nodes.add(nodes & set(element.nodes))
         not_connected_nodes = nodes - connected_nodes
         if not_connected_nodes:
             raise NameError(f"SubCircuit Nodes {not_connected_nodes} are not connected")
@@ -722,7 +727,7 @@ class Circuit(Netlist):
     ##############################################
 
     def __str__(self) -> str:
-        return self.str(simulator=None)
+        return self.to_str(simulator=None)
 
     ##############################################
 

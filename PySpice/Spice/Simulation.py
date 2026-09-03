@@ -716,7 +716,7 @@ class Simulation:
     ##############################################
 
     def str_netlist(self) -> str:
-        return self._circuit.str(simulator=self.simulator.SIMULATOR)
+        return self._circuit.to_str(simulator=self.simulator.SIMULATOR)
 
     ##############################################
 

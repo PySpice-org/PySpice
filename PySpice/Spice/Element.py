@@ -173,38 +173,46 @@ class Pin(PinDefinition):
 
     def disconnect(self) -> None:
         # used in Element.detach
-        if self.connected:
+        # Fixme: ty: if self.connected:
+        if self._node is not None:
             self._node.disconnect(self)
             self._node = None
 
     def __iadd__(self, obj: Node | Pin) -> Self:
         """Connect a node or a pin to the node."""
         from .Netlist import Node
-        if isinstance(obj, Node):
-            # pin <= node  ===  node <= pin
-            self.connect(obj)
-        elif isinstance(obj, Pin):
-            # pin <=> pin
-            if self.connected:
-                if obj.connected:
-                    # connected <=> connected
-                    self._node.merge(obj._node)
+        match obj:
+            case Node():
+                # pin <= node  ===  node <= pin
+                self.connect(obj)
+            case Pin():
+                # pin <=> pin
+                # Fixme: due to typing, check if relevant
+                if obj._node is None:
+                    raise ValueError(f"Pin {obj} is not connected")
+                if self._element.netlist is None:
+                    raise ValueError(f"Element of pin {obj} is not linked to a netlist")
+                # Fixme: ty: if self.connected:
+                if self._node is not None:
+                    if obj.connected:
+                        # connected <=> connected
+                        self._node.merge(obj._node)
+                    else:
+                        # connected <=> dangling
+                        obj.connect(self._node)
                 else:
-                    # connected <=> dangling
-                    obj.connect(self._node)
-            else:
-                if obj.connected:
-                    # dangling <=> connected
-                    self.connect(obj._node)
-                else:
-                    # dangling <=> dangling
-                    # Create a new node
-                    name = f'{self._element.name}-{self._name}'
-                    node = self._element.netlist.get_node(name, create=True)
-                    self.connect(node)
-                    obj.connect(node)
-        else:
-            raise ValueError(f"Invalid object {type(obj)}")
+                    if obj.connected:
+                        # dangling <=> connected
+                        self.connect(obj._node)
+                    else:
+                        # dangling <=> dangling
+                        # Create a new node
+                        name = f'{self._element.name}-{self._name}'
+                        node = self._element.netlist.get_node(name, create=True)
+                        self.connect(node)
+                        obj.connect(node)
+            case _:
+                raise ValueError(f"Invalid object {type(obj)} for node connection")
         return self
 
     ##############################################
