@@ -750,9 +750,9 @@ class Simulation:
 
     ##############################################
 
-    def _run(self, analysis_method, *args, **kwargs):
+    def _run(self, analysis_method: Callable, *args, **kwargs: Unpack[RunSimulationParams]) -> Analysis | None:
         # Trick to execute code before/after the analysis implementation
-        log_desk = kwargs.pop('log_desk', None)
+        log_desk = kwargs.pop('log_desk', False)
         run = kwargs.pop('run', True)
 
         if 'probes' in kwargs:
