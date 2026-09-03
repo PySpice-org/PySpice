@@ -35,8 +35,6 @@ import os
 import re
 import subprocess
 
-####################################################################################################
-
 from .RawFile import RawFile
 
 ####################################################################################################
@@ -47,8 +45,8 @@ _module_logger = logging.getLogger(__name__)
 
 class SpiceServer:
 
-    """This class wraps the execution of ngspice in server mode and convert the output to a Python data
-    structure.
+    """This class wraps the execution of ngspice in server mode and convert the output to a Python
+    data structure.
 
     Example of usage::
 
@@ -65,12 +63,12 @@ class SpiceServer:
 
     ##############################################
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._spice_command = kwargs.get('spice_command') or self.SPICE_COMMAND
 
     ##############################################
 
-    def _decode_number_of_points(self, line):
+    def _decode_number_of_points(self, line: str) -> int:
         """Decode the number of points in the given line."""
         match = re.match(r'@@@ (\d+) (\d+)', line)
         if match is not None:
@@ -119,19 +117,18 @@ class SpiceServer:
 
     ##############################################
 
-    def __call__(self, spice_input):
-
+    def __call__(self, spice_input: str) -> RawFile:
         """Run SPICE in server mode as a subprocess for the given input and return a
         :obj:`PySpice.RawFile.RawFile` instance.
 
         """
-
         self._logger.info("Start the spice subprocess")
-
-        process = subprocess.Popen((self._spice_command, '-s'),
-                                   stdin=subprocess.PIPE,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
+        process = subprocess.Popen(
+            (self._spice_command, '-s'),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         input_ = str(spice_input).encode('utf-8')
         stdout, stderr = process.communicate(input_)
         # stdout = stdout.decode('utf-8')

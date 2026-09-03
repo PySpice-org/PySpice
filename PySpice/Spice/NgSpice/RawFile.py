@@ -148,7 +148,6 @@ class RawFile(RawFileAbc):
     def __init__(self, stdout: bytes, number_of_points: int) -> None:
         self.number_of_points = number_of_points
         self._simulation = None
-
         raw_data = self._read_header(stdout)
         self._read_variable_data(raw_data)
         # self._to_analysis()
@@ -190,8 +189,8 @@ class RawFile(RawFileAbc):
     def fix_case(self) -> None:
         """ Ngspice return lower case names. This method fixes the case of the variable names. """
         circuit = self.circuit
-        element_translation = {element.lower():element for element in circuit.element_names}
-        node_translation = {node.lower():node for node in circuit.node_names}
+        element_translation = {element.lower(): element for element in circuit.element_names}
+        node_translation = {node.lower(): node for node in circuit.node_names}
         for variable in self.variables.values():
             variable.fix_case(element_translation, node_translation)
 

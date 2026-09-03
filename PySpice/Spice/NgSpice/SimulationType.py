@@ -16,9 +16,9 @@ __all__ = [
 ####################################################################################################
 
 # For a new ngspice relase, we just have to check this file hasn't changed
-#   ngspice-xx/src/include/ngspice/sim.h
+#   ngspice-xx/src/include/ngspice/sim.h vs local sim.h
 
-SIMULATION_TYPE = {}
+SIMULATION_TYPE: dict[int | str, str] = {}
 
 SIMULATION_TYPE[26] = (
     'no_type',
@@ -72,7 +72,7 @@ SIMULATION_TYPE[27] = (
 
 LAST_VERSION = 42   # released on 2023-12-27
 
-for version in range(28, LAST_VERSION +1):
+for version in range(28, LAST_VERSION + 1):
     SIMULATION_TYPE[version] = SIMULATION_TYPE[27]
 
 SIMULATION_TYPE['last'] = SIMULATION_TYPE[LAST_VERSION]
