@@ -6,17 +6,22 @@
 #
 ####################################################################################################
 
-####################################################################################################
-
 __all__ = ['Extractor']
 
 ####################################################################################################
 
 import hashlib
 import os
+from collections.abc import Iterable
 from pathlib import Path
 
 from bs4 import BeautifulSoup
+
+####################################################################################################
+
+type PathStr = Path | str
+
+LINESEP = os.linesep
 
 ####################################################################################################
 
@@ -24,12 +29,11 @@ class Extractor:
 
     ##############################################
 
-    def __init__(self, input_: str | Path, output: str | Path) -> None:
-        self._input = input_
-        self._output = output
+    def __init__(self, input_: PathStr, output: PathStr) -> None:
+        self._input = Path(input_)
+        self._output = Path(output)
 
-        with open(self._input, 'r') as fh:
-            html_doc = fh.read()
+        html_doc = self._input.read_text()
 
         parser = 'html.parser'
         # parser = 'lxml'
@@ -59,15 +63,15 @@ class Extractor:
     ##############################################
 
     def _write_line(self, line: str) -> None:
-        self._fh.write(line + os.linesep)
+        self._fh.write(line + LINESEP)
 
-    def _write_lines(self, lines: str) -> None:
-        self._fh.write(os.linesep.join(lines) + os.linesep)
+    def _write_lines(self, lines: Iterable[str]) -> None:
+        self._fh.write(LINESEP.join(lines) + LINESEP)
 
     ##############################################
 
     def _handle_h(self, tag: BeautifulSoup.Tag) -> None:
-        RULE = '#'*100
+        RULE = '#' * 100
         text = []
         for _ in tag.text.splitlines():
             _ = _.strip()
@@ -85,11 +89,11 @@ class Extractor:
     ##############################################
 
     def _handle_pre(self, tag: BeautifulSoup.Tag) -> None:
-        TRIPLE_QUOTE = '"'*3
+        TRIPLE_QUOTE = '"' * 3
         for pre in tag.find_all('pre', 'listings'):
             text = pre.text
             if text:
-                text = os.linesep.join([line.rstrip() for line in text.splitlines()])
+                text = LINESEP.join([line.rstrip() for line in text.splitlines()])
                 digest = hashlib.sha1(text.encode('utf-8')).hexdigest()
                 digest = digest[:4]
                 if digest not in self._digests:
@@ -102,7 +106,7 @@ class Extractor:
                     digest += '-too-short'
                 lines = [
                     '',
-                    '#'*50,
+                    '#' * 50,
                     f'# @{pre.sourceline}',
                     '',
                     f's{digest} = {TRIPLE_QUOTE}',
@@ -114,22 +118,19 @@ class Extractor:
 ####################################################################################################
 
 if __name__ == '__main__':
-
     import argparse
-
-    argument_parser = argparse.ArgumentParser(description='Extract examples from ngspice HTML manual')
-
+    argument_parser = argparse.ArgumentParser(
+        description='Extract examples from ngspice HTML manual'
+    )
     # .../ngspice-manuals-git/build_html/manual.html
     argument_parser.add_argument(
         'input', metavar="MANUAL.HTML",
         help='html manual path'
     )
-
     argument_parser.add_argument(
         'output', metavar="OUTPUT",
         help='output'
     )
-
     args = argument_parser.parse_args()
 
     Extractor(args.input, args.output)

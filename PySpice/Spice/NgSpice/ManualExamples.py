@@ -4,6 +4,8 @@
 #
 ####################################################################################################
 
+# ruff: ignore[no-indented-block-comment]
+
 """Ngspice Examples
 
 Conventions string identifier is of the form [sEF]sha_digest
@@ -25,7 +27,9 @@ Usage::
 
 ####################################################################################################
 
-from typing import Generator
+from collections.abc import Generator
+
+####################################################################################################
 
 class Examples:
 
@@ -40,13 +44,13 @@ class Examples:
     ##############################################
 
     @classmethod
-    def subclasses(cls):   # -> Iterator[Examples]:
+    def subclasses(cls):  # -> Iterator[Examples]:
         return iter(cls._subclasses)
 
     ##############################################
 
     @classmethod
-    def iter_on_examples(cls, label: str = None) -> Generator[tuple[str, str], None, None]:
+    def iter_on_examples(cls, label: str | None = None) -> Generator[tuple[str, str]]:
         if label is None:
             # Fixme:
             for key, value in cls.__dict__.items():

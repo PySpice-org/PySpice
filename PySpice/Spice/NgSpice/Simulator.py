@@ -11,10 +11,8 @@
 
 ####################################################################################################
 
-from typing import TYPE_CHECKING
 import logging
-
-####################################################################################################
+from typing import TYPE_CHECKING
 
 from ..Simulator import Simulator
 from .Server import SpiceServer
@@ -22,6 +20,7 @@ from .Shared import NgSpiceShared
 
 if TYPE_CHECKING:
     from PySpice.Probe.WaveForm import Analysis
+
     from ..Simulation import Simulation
 
 ####################################################################################################
@@ -56,14 +55,14 @@ class NgSpiceSubprocessSimulator(NgSpiceSimulator):
 
     ##############################################
 
-    def customise(self, simulation: 'Simulation') -> None:
+    def customise(self, simulation: Simulation) -> None:
         # quicker to subclass...
         simulation.options('NOINIT')
         simulation.options(filetype='binary')
 
     ##############################################
 
-    def run(self, simulation: 'Simulation', *args, **kwargs):
+    def run(self, simulation: Simulation, *args, **kwargs):
         raw_file = self._spice_server(spice_input=str(simulation))
         raw_file.simulation = simulation
         # for field in raw_file.variables:
@@ -80,7 +79,7 @@ class NgSpiceSharedSimulator(NgSpiceSimulator):
 
     def __init__(self, **kwargs) -> None:
         # super().__init__(**kwargs)
-        ngspice_shared = kwargs.get('ngspice_shared', None)
+        ngspice_shared = kwargs.get('ngspice_shared', None)  # ruff: ignore[dict-get-with-none-default]
         if ngspice_shared is None:
             self._ngspice_shared = NgSpiceShared.new_instance()
         else:
@@ -100,7 +99,7 @@ class NgSpiceSharedSimulator(NgSpiceSimulator):
 
     ##############################################
 
-    def run(self, simulation: 'Simulation') -> 'Analysis':
+    def run(self, simulation: Simulation) -> Analysis:
         # Release the memory holding the output data
         self._ngspice_shared.destroy()
 
