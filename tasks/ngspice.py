@@ -8,14 +8,13 @@
 
 ####################################################################################################
 
-from pathlib import Path
 import os
 import shutil
 import sys
+from pathlib import Path
+from typing import cast
 
 from invoke import task
-
-####################################################################################################
 
 from PySpice.Spice import NgSpice
 
@@ -38,22 +37,22 @@ WINDOWS_DLL_URL = RELEASE_URL + '/{0}/ngspice-{0}_dll_64.zip'
 
 @task()
 def get_last_version(ctx):
-    from bs4 import BeautifulSoup
     import requests
+    from bs4 import BeautifulSoup, Tag
     response = requests.get(RELEASE_URL, timeout=10)
     assert response.status_code == requests.codes.ok
     soup = BeautifulSoup(response.text, 'html.parser')
     divs = soup.find_all('tr', attrs={'class': 'folder'})
     for div in divs:
         if 'title' in div.attrs:
-            version = div.attrs['title']
+            version = cast(str, div.attrs['title'])
             try:
                 version = int(version)
                 if not hasattr(ctx, 'ngspice_last_version'):
                     ctx.ngspice_last_version = version
-                date = div.find('td', attrs={'headers': 'files_date_h'}).get_text()
+                date = cast(Tag, div.find('td', attrs={'headers': 'files_date_h'})).get_text()
                 print(f'version {version} on {date}')
-            except:
+            except Exception:
                 # raise NameError('Bad version {}'.format(version))
                 pass
 
