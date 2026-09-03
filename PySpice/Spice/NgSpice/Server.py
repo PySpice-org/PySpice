@@ -78,12 +78,10 @@ class SpiceServer:
 
     ##############################################
 
-    def _parse_stdout(self, stdout):
-
+    def _parse_stdout(self, stdout: bytes) -> None:
         """Parse stdout for errors."""
-
+        # stdout = stdout.decode('utf-8')
         # self._logger.debug(os.linesep + stdout)
-
         error_found = False
         # UnicodeDecodeError: 'utf-8' codec can't decode byte 0xc0 in position 870: invalid start byte
         # lines = stdout.decode('utf-8').splitlines()
@@ -91,18 +89,19 @@ class SpiceServer:
         for line_index, line in enumerate(lines):
             if line.startswith(b'Error '):
                 error_found = True
-                self._logger.error(os.linesep + line.decode('utf-8') + os.linesep + lines[line_index+1].decode('utf-8'))
+                self._logger.error(
+                    os.linesep + line.decode('utf-8') + os.linesep +
+                    lines[line_index+1].decode('utf-8')
+                )
         if error_found:
             raise NameError("Errors was found by Spice")
 
     ##############################################
 
-    def _parse_stderr(self, stderr):
-
+    def _parse_stderr(self, stderr_bytes: bytes) -> int:
         """Parse stderr for warnings and return the number of points."""
-
+        stderr = stderr_bytes.decode('utf-8')
         self._logger.debug(os.linesep + stderr)
-
         stderr_lines = stderr.splitlines()
         number_of_points = None
         for line in stderr_lines:
@@ -112,7 +111,12 @@ class SpiceServer:
                 raise NameError('Simulation aborted' + os.linesep + stderr)
             elif line.startswith('@@@'):
                 number_of_points = self._decode_number_of_points(line)
-
+        if number_of_points is None:
+            raise NameError(
+                'The number of points was not found in the standard error buffer,'
+                ' ngspice returned:' + os.linesep +
+                stderr
+            )
         return number_of_points
 
     ##############################################
@@ -131,14 +135,6 @@ class SpiceServer:
         )
         input_ = str(spice_input).encode('utf-8')
         stdout, stderr = process.communicate(input_)
-        # stdout = stdout.decode('utf-8')
-        stderr = stderr.decode('utf-8')
-
         self._parse_stdout(stdout)
         number_of_points = self._parse_stderr(stderr)
-        if number_of_points is None:
-            raise NameError('The number of points was not found in the standard error buffer,'
-                            ' ngspice returned:' + os.linesep +
-                            stderr)
-
         return RawFile(stdout, number_of_points)
