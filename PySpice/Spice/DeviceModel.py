@@ -78,7 +78,7 @@ class DeviceModel:
 
     def clone(self) -> Self:
         # Fixme: clone parameters ???
-        return self.__class__(self._name, self._model_type, self._parameters)
+        return self.__class__(self._name, self._model_type, **self._parameters)
 
     ##############################################
 
