@@ -260,7 +260,8 @@ class PulseMixin(SourceMixinAbc):
         #   Warning: vpulse: no DC value, transient time 0 value used
         # Fixme: to func?
         return join_list((
-            'DC {}'.format(str_spice(self.dc_offset)),
+            # 'DC {}'.format(str_spice(self.dc_offset)),
+            '',
             'PULSE(' +
             join_list((self.initial_value, self.pulsed_value, self.delay_time,
                        self.rise_time, self.fall_time, self.pulse_width, self.period,
