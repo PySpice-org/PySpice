@@ -8,23 +8,21 @@
 
 # Fixme: versus PySpice.Plot ???
 
-####################################################################################################
-
 """This module implements plotting helper."""
 
 ####################################################################################################
 
 import matplotlib.pyplot as plt
 
+from .WaveForm import WaveForm
+
 ####################################################################################################
 
-def plot(waveform, *args, **kwargs):
-
+def plot(waveform: WaveForm, *args, **kwargs) -> None:
     """Plot a waveform using the current Axes instance or the one specified by the *axis* key
     argument. Additional parameters are passed to the Matplotlib plot function.
 
     """
-
     axis = kwargs.get('axis', plt.gca())
     if 'axis' in kwargs:
         del kwargs['axis']

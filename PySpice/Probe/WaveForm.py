@@ -6,6 +6,12 @@
 #
 ####################################################################################################
 
+"""This module implements classes to handle analysis output.
+
+"""
+
+####################################################################################################
+
 __ALL__ = [
     'AcAnalysis',
     'Analysis',
@@ -28,24 +34,19 @@ __ALL__ = [
 #
 ####################################################################################################
 
-####################################################################################################
-
-"""This module implements classes to handle analysis output.
-
-"""
-
 # https://numpy.org/doc/stable/user/basics.subclassing.html#basics-subclassing
 
 ####################################################################################################
 
-from typing import TYPE_CHECKING
 import logging
 import os
+from typing import TYPE_CHECKING
 
 from PySpice.Unit.Unit import PrefixedUnit, UnitValues
 
 if TYPE_CHECKING:
     import numpy as np
+
     from PySpice.Spice.Simulation import Simulation
 
 ####################################################################################################
@@ -82,9 +83,9 @@ class WaveForm(UnitValues):
         cls,
         name: str,
         array: UnitValues,
-        title: str = None,
-        abscissa: 'WaveForm' = None,
-    ) -> 'WaveForm':
+        title: str | None = None,
+        abscissa: WaveForm | None = None,
+    ) -> WaveForm:
         obj = cls(
             name,
             array.prefixed_unit,
@@ -102,14 +103,14 @@ class WaveForm(UnitValues):
     def from_array(
         cls,
         name: str,
-        array: 'np.ndarray',
-        title: str = None,
-        abscissa: 'WaveForm' = None,
-    ) -> 'WaveForm':
+        array: np.ndarray,
+        title: str | None = None,
+        abscissa: WaveForm | None = None,
+    ) -> WaveForm:
         # Fixme: ok ???
         #  prefixed_unit is None
         obj = cls(name, None, array.shape, title=title, abscissa=abscissa)
-        obj[...] = array[...]
+        obj[...] = array[...]  # ty: ignore[invalid-assignment]
         return obj
 
     ##############################################
@@ -117,29 +118,29 @@ class WaveForm(UnitValues):
     def __new__(
         cls,
         name: str,
-        prefixed_unit: PrefixedUnit,
+        prefixed_unit: PrefixedUnit | None,
         shape,
         dtype=float, buffer=None, offset=0, strides=None, order=None,
-        title: str = None,
-        abscissa: 'WaveForm' = None,
+        title: str | None = None,
+        abscissa: WaveForm | None = None,
     ):
         # Called first
         # cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
 
         # call UnitValues.__new__(...)
-        obj = super(WaveForm, cls).__new__(cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)
+        obj = super(WaveForm, cls).__new__(cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)  # ruff: ignore[super-call-with-parameters]
         # obj = np.asarray(data).view(cls)
 
         # extra attributes
         obj._name = str(name)
-        obj._title = title   # str(title)
-        obj._abscissa = abscissa    # Numpy array
+        obj._title = title  # str(title)
+        obj._abscissa = abscissa  # Numpy array
 
         return obj
 
     ##############################################
 
-    def __array_finalize__(self, obj) -> None:
+    def __array_finalize__(self, obj: UnitValues) -> None:
         # Called after __new__
         # self._logger.info('')
 
@@ -150,9 +151,9 @@ class WaveForm(UnitValues):
         #     return
 
         # extra attributes
-        self._name = getattr(obj, 'name', None)
-        self._title = getattr(obj, 'title', None)
-        self._abscissa = getattr(obj, 'abscissa', None)
+        self._name: str = getattr(obj, 'name', None)  # ty: ignore[invalid-assignment]
+        self._title: str | None = getattr(obj, 'title', None)
+        self._abscissa: WaveForm | None = getattr(obj, 'abscissa', None)
 
     ##############################################
 
@@ -179,15 +180,15 @@ class WaveForm(UnitValues):
         return self._name
 
     @property
-    def abscissa(self) -> 'WaveForm':
+    def abscissa(self) -> WaveForm | None:
         return self._abscissa
 
     @property
-    def title(self) -> str:
+    def title(self) -> str | None:
         return self._title
 
     @title.setter
-    def title(self, value: str) -> None:
+    def title(self, value: str | None) -> None:
         if value is not None:
             self._title = str(value)
         else:
@@ -280,11 +281,11 @@ class Analysis:
 
     def __init__(
         self,
-        simulation: 'Simulation',
-        nodes: list[WaveForm] = (),
-        branches: list[WaveForm] = (),
-        elements: list[WaveForm] = (),
-        internal_parameters: list[WaveForm] = ()
+        simulation: Simulation,
+        nodes: list[WaveForm] | tuple[()] = (),
+        branches: list[WaveForm] | tuple[()] = (),
+        elements: list[WaveForm] | tuple[()] = (),
+        internal_parameters: list[WaveForm] | tuple[()] = ()
     ) -> None:
         # Fixme: branches are elements in fact, and elements is not yet supported ...
         self._simulation = simulation
@@ -303,24 +304,24 @@ class Analysis:
     ##############################################
 
     @property
-    def simulation(self) -> 'Simulation':
+    def simulation(self) -> Simulation:
         """Return the simulation instance"""
         return self._simulation
 
     @property
-    def nodes(self) -> list[WaveForm]:
+    def nodes(self) -> dict[str, WaveForm]:
         return self._nodes
 
     @property
-    def branches(self) -> list[WaveForm]:
+    def branches(self) -> dict[str, WaveForm]:
         return self._branches
 
     @property
-    def elements(self) -> list[WaveForm]:
+    def elements(self) -> dict[str, WaveForm]:
         return self._elements
 
     @property
-    def internal_parameters(self) -> list[WaveForm]:
+    def internal_parameters(self) -> dict[str, WaveForm]:
         return self._internal_parameters
 
     ##############################################
@@ -351,7 +352,7 @@ class Analysis:
 
     @staticmethod
     def _format_dict(d: dict) -> str:
-        return NEWLINE.join([' '*2 + str(x) for x in d])
+        return NEWLINE.join([' ' * 2 + str(x) for x in d])
 
     ##############################################
 
@@ -381,7 +382,7 @@ class SensitivityAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation: 'Simulation', elements, internal_parameters) -> None:
+    def __init__(self, simulation: Simulation, elements, internal_parameters) -> None:
         super().__init__(
             simulation=simulation,
             elements=elements,
@@ -406,7 +407,7 @@ class DcAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation: 'Simulation', sweep, nodes, branches, internal_parameters) -> None:
+    def __init__(self, simulation: Simulation, sweep, nodes, branches, internal_parameters) -> None:
         super().__init__(
             simulation=simulation,
             nodes=nodes,
@@ -430,7 +431,7 @@ class AcAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation: 'Simulation', frequency, nodes, branches, internal_parameters) -> None:
+    def __init__(self, simulation: Simulation, frequency, nodes, branches, internal_parameters) -> None:
         super().__init__(
             simulation=simulation,
             nodes=nodes,
@@ -454,7 +455,7 @@ class TransientAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation: 'Simulation', time, nodes, branches, internal_parameters) -> None:
+    def __init__(self, simulation: Simulation, time, nodes, branches, internal_parameters) -> None:
         super().__init__(
             simulation=simulation,
             nodes=nodes,
@@ -473,12 +474,11 @@ class TransientAnalysis(Analysis):
 ####################################################################################################
 
 class PoleZeroAnalysis(Analysis):
-
     """This class implements a Pole-Zero analysis."""
 
     ##############################################
 
-    def __init__(self, simulation: 'Simulation', nodes, branches, internal_parameters) -> None:
+    def __init__(self, simulation: Simulation, nodes, branches, internal_parameters) -> None:
         super().__init__(
             simulation=simulation, nodes=nodes, branches=branches,
             internal_parameters=internal_parameters,
@@ -492,7 +492,7 @@ class NoiseAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation: 'Simulation', nodes, branches, internal_parameters):
+    def __init__(self, simulation: Simulation, nodes, branches, internal_parameters):
         super().__init__(
             simulation=simulation,
             nodes=nodes,
@@ -508,7 +508,7 @@ class DistortionAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation: 'Simulation', frequency, nodes, branches, internal_parameters) -> None:
+    def __init__(self, simulation: Simulation, frequency, nodes, branches, internal_parameters) -> None:
         super().__init__(
             simulation=simulation,
             nodes=nodes,
@@ -532,7 +532,7 @@ class TransferFunctionAnalysis(Analysis):
 
     ##############################################
 
-    def __init__(self, simulation: 'Simulation', nodes, branches, internal_parameters) -> None:
+    def __init__(self, simulation: Simulation, nodes, branches, internal_parameters) -> None:
         super().__init__(
             simulation=simulation,
             nodes=nodes,
