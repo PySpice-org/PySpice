@@ -13,23 +13,24 @@ A shortcut is defined for each unit prefix, e.g. :class:`pico`, :class:`nano`, :
 
 """
 
+####################################################################################################
+
+__all__ = ['Unit', 'UnitValue', 'UnitValues']
+
 # https://numpy.org/doc/stable/user/basics.subclassing.html#basics-subclassing
 
 ####################################################################################################
 
-import logging
-from typing import Self, Union
-from collections.abc import Callable, Iterable, Iterator
-# , Slice
-
 import collections.abc as collections
+import logging
 import math
-# import numbers
+from collections.abc import Callable, Iterable, Iterator
+from typing import Self
 
+# import numbers
 import numpy as np
 
 ####################################################################################################
-
 from PySpice.Tools.EnumFactory import EnumFactory
 
 ####################################################################################################
@@ -51,7 +52,7 @@ class UnitPrefixMetaclass(type):
     #     super().__init_subclass__(**kwargs)
     #     cls.subclasses.append(cls)
 
-    def __new__(mcs, class_name, base_classes, attributes) -> 'UnitPrefix':
+    def __new__(mcs, class_name, base_classes, attributes) -> UnitPrefix:
         cls = type.__new__(mcs, class_name, base_classes, attributes)
         if class_name != 'UnitPrefix':
             mcs.register_prefix(cls)
@@ -60,7 +61,7 @@ class UnitPrefixMetaclass(type):
     ##############################################
 
     @classmethod
-    def register_prefix(mcs, cls: 'UnitPrefix') -> None:
+    def register_prefix(mcs, cls: UnitPrefix) -> None:
         power = cls.POWER
         if power is None:
             raise ValueError(f'Power is None for {cls.__name__}')
@@ -69,13 +70,13 @@ class UnitPrefixMetaclass(type):
     ##############################################
 
     @classmethod
-    def prefix_iter(mcs) -> Iterator['UnitPrefix']:
+    def prefix_iter(mcs) -> Iterator[UnitPrefix]:
         return mcs._prefixes.values()
 
     ##############################################
 
     @classmethod
-    def get(mcs, power: int) -> 'UnitPrefix':
+    def get(mcs, power: int) -> UnitPrefix:
         return mcs._prefixes[power]
 
 ####################################################################################################
@@ -89,7 +90,7 @@ class UnitPrefix(metaclass=UnitPrefixMetaclass):
 
     ##############################################
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> str:  # Fixme: due to str member
         _ = self.__class__.__name__
         return f'{_}({self.POWER}, {self.PREFIX})'
 
@@ -138,22 +139,22 @@ class UnitPrefix(metaclass=UnitPrefixMetaclass):
 
     ##############################################
 
-    def __eq__(self, other: 'UnitPrefix') -> bool:
+    def __eq__(self, other: UnitPrefix) -> bool:
         return self.POWER == other.POWER
 
     ##############################################
 
-    def __ne__(self, other: 'UnitPrefix') -> bool:
+    def __ne__(self, other: UnitPrefix) -> bool:
         return self.POWER != other.POWER
 
     ##############################################
 
-    def __lt__(self, other: 'UnitPrefix') -> bool:
+    def __lt__(self, other: UnitPrefix) -> bool:
         return self.POWER < other.POWER
 
     ##############################################
 
-    def __gt__(self, other: 'UnitPrefix') -> bool:
+    def __gt__(self, other: UnitPrefix) -> bool:
         return self.POWER > other.POWER
 
     ##############################################
@@ -245,10 +246,7 @@ class SiDerivedUnit:
             for prefixed_units in string.split('*'):
                 parts = prefixed_units.split('^')
                 unit = parts[0]
-                if len(parts) == 1:
-                    powers = 1
-                else:
-                    powers = int(parts[1])
+                powers = 1 if len(parts) == 1 else int(parts[1])
                 si_powers[unit] += powers
         return si_powers
 
@@ -290,7 +288,7 @@ class SiDerivedUnit:
 
     # @property
     def is_unit_less(self) -> bool:
-        return self._hash == '0'*len(self.BASE_UNITS)
+        return self._hash == '0' * len(self.BASE_UNITS)
 
     ##############################################
 
@@ -299,29 +297,29 @@ class SiDerivedUnit:
 
     ##############################################
 
-    def clone(self) -> 'SiDerivedUnit':
+    def clone(self) -> SiDerivedUnit:
         return self.__class__(powers=self._powers)
 
     ##############################################
 
-    def __eq__(self, other: 'SiDerivedUnit') -> bool:
+    def __eq__(self, other: SiDerivedUnit) -> bool:
         return self._hash == other.hash
 
     ##############################################
 
-    def __ne__(self, other: 'SiDerivedUnit') -> bool:
+    def __ne__(self, other: SiDerivedUnit) -> bool:
         return self._hash != other.hash
 
     ##############################################
 
-    def __mul__(self, other: 'SiDerivedUnit') -> bool:
+    def __mul__(self, other: SiDerivedUnit) -> bool:
         powers = {unit: self._powers[unit] + other._powers[unit]
                   for unit in self.BASE_UNITS}
         return self.__class__(powers=powers)
 
     ##############################################
 
-    def __imul__(self, other: 'SiDerivedUnit') -> Self:
+    def __imul__(self, other: SiDerivedUnit) -> Self:
         for unit in self.BASE_UNITS:
             self._powers[unit] += other.powers[unit]
         self._hash = self.to_hash(self._powers)
@@ -330,14 +328,14 @@ class SiDerivedUnit:
 
     ##############################################
 
-    def __truediv__(self, other: 'SiDerivedUnit') -> 'SiDerivedUnit':
+    def __truediv__(self, other: SiDerivedUnit) -> SiDerivedUnit:
         powers = {unit: self._powers[unit] - other._powers[unit]
                   for unit in self.BASE_UNITS}
         return self.__class__(powers=powers)
 
     ##############################################
 
-    def __itruediv__(self, other: 'SiDerivedUnit') -> Self:
+    def __itruediv__(self, other: SiDerivedUnit) -> Self:
         for unit in self.BASE_UNITS:
             self._powers[unit] -= other.powers[unit]
         self._hash = self.to_hash(self._powers)
@@ -346,30 +344,30 @@ class SiDerivedUnit:
 
     ##############################################
 
-    def power(self, value) -> 'SiDerivedUnit':
+    def power(self, value) -> SiDerivedUnit:
         powers = {unit: self._powers[unit] * value
                   for unit in self.BASE_UNITS}
         return self.__class__(powers=powers)
 
     ##############################################
 
-    def reciprocal(self) -> 'SiDerivedUnit':
+    def reciprocal(self) -> SiDerivedUnit:
         return self.power(-1)
 
     ##############################################
 
-    def sqrt(self) -> 'SiDerivedUnit':
-        return self.power(1/2)
+    def sqrt(self) -> SiDerivedUnit:
+        return self.power(1 / 2)
 
     ##############################################
 
-    def square(self) -> 'SiDerivedUnit':
+    def square(self) -> SiDerivedUnit:
         return self.power(2)
 
     ##############################################
 
-    def cbrt(self) -> 'SiDerivedUnit':
-        return self.power(1/3)
+    def cbrt(self) -> SiDerivedUnit:
+        return self.power(1 / 3)
 
 ####################################################################################################
 
@@ -391,11 +389,11 @@ class UnitMetaclass(type):
     ##############################################
 
     @classmethod
-    def init_unit(mcs, cls: 'Unit') -> None:
+    def init_unit(mcs, cls: Unit) -> None:
         si_unit = cls.SI_UNIT
         if not (isinstance(si_unit, SiDerivedUnit) and si_unit):
             # si_unit is not defined
-            if cls.is_base_unit():
+            if cls.is_base_unit():  # ruff: ignore[if-else-block-instead-of-if-exp]
                 si_unit = SiDerivedUnit(cls.UNIT_SUFFIX)
             else:   # str
                 si_unit = SiDerivedUnit(si_unit)
@@ -404,7 +402,7 @@ class UnitMetaclass(type):
     ##############################################
 
     @classmethod
-    def register_unit(mcs, cls: 'Unit') -> None:
+    def register_unit(mcs, cls: Unit) -> None:
         obj = cls()
         mcs._units[obj.unit_suffix] = obj
         if obj.si_unit:
@@ -414,26 +412,26 @@ class UnitMetaclass(type):
     ##############################################
 
     @classmethod
-    def unit_iter(mcs) -> Iterator['Unit']:
+    def unit_iter(mcs) -> Iterator[Unit]:
         return mcs._units.values()
 
     ##############################################
 
     # Fixme: wrong / unused
     @classmethod
-    def from_prefix(mcs, prefix) -> 'Unit':
+    def from_prefix(mcs, prefix) -> Unit:
         return mcs._units__.get(prefix, None)
 
     ##############################################
 
     @classmethod
-    def from_hash(mcs, hash_: str) -> 'Unit':
+    def from_hash(mcs, hash_: str) -> Unit:
         return mcs._hash_map.get(hash_, None)
 
     ##############################################
 
     @classmethod
-    def from_si_unit(mcs, si_unit: str, unique: bool = True) -> 'Unit':
+    def from_si_unit(mcs, si_unit: str, unique: bool = True) -> Unit:
         # Fixme:
         #  - handle power of units
         #      unit -> numpy vector, divide and test for identical factor
@@ -533,20 +531,20 @@ class Unit(metaclass=UnitMetaclass):
 
     ##############################################
 
-    def __eq__(self, other: 'Unit') -> bool:
+    def __eq__(self, other: Unit) -> bool:
         """self == other"""
         return self._si_unit == other.si_unit
 
     ##############################################
 
-    def __ne__(self, other: 'Unit') -> bool:
+    def __ne__(self, other: Unit) -> bool:
         """self != other"""
         # The default __ne__ doesn't negate __eq__ until 3.0.
         return not self == other
 
     ##############################################
 
-    def _equivalent_prefixed_unit(self, si_unit: SiDerivedUnit) -> 'PrefixedUnit':
+    def _equivalent_prefixed_unit(self, si_unit: SiDerivedUnit) -> PrefixedUnit:
         equivalent_unit = PrefixedUnit.from_si_unit(si_unit)
         if equivalent_unit is not None:
             return equivalent_unit
@@ -555,7 +553,7 @@ class Unit(metaclass=UnitMetaclass):
 
     ##############################################
 
-    def _equivalent_unit(self, si_unit: SiDerivedUnit) -> 'Unit':
+    def _equivalent_unit(self, si_unit: SiDerivedUnit) -> Unit:
         equivalent_unit = UnitMetaclass.from_si_unit(si_unit)
         if equivalent_unit is not None:
             return equivalent_unit
@@ -564,7 +562,7 @@ class Unit(metaclass=UnitMetaclass):
 
     ##############################################
 
-    def _equivalent_unit_or_power(self, si_unit: SiDerivedUnit, prefixed_unit: 'PrefixedUnit') -> 'Unit':
+    def _equivalent_unit_or_power(self, si_unit: SiDerivedUnit, prefixed_unit: PrefixedUnit) -> Unit:
         if prefixed_unit:
             return self._equivalent_prefixed_unit(si_unit)
         else:
@@ -572,43 +570,43 @@ class Unit(metaclass=UnitMetaclass):
 
     ##############################################
 
-    def multiply(self, other: 'Unit', prefixed_unit: bool = False) -> 'Unit':
+    def multiply(self, other: Unit, prefixed_unit: bool = False) -> Unit:
         si_unit = self._si_unit * other.si_unit
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
-    def divide(self, other: 'Unit', prefixed_unit: bool = False) -> 'Unit':
+    def divide(self, other: Unit, prefixed_unit: bool = False) -> Unit:
         si_unit = self._si_unit / other.si_unit
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
-    def power(self, exponent, prefixed_unit: bool = False) -> 'Unit':
+    def power(self, exponent, prefixed_unit: bool = False) -> Unit:
         si_unit = self._si_unit.power(exponent)
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
-    def reciprocal(self, prefixed_unit: bool = False) -> 'Unit':
+    def reciprocal(self, prefixed_unit: bool = False) -> Unit:
         si_unit = self._si_unit.reciprocal()
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
-    def sqrt(self, prefixed_unit: bool = False) -> 'Unit':
+    def sqrt(self, prefixed_unit: bool = False) -> Unit:
         si_unit = self._si_unit.sqrt()
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
-    def square(self, prefixed_unit: bool = False) -> 'Unit':
+    def square(self, prefixed_unit: bool = False) -> Unit:
         si_unit = self._si_unit.square()
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
     ##############################################
 
-    def cbrt(self, prefixed_unit: bool = False) -> 'Unit':
+    def cbrt(self, prefixed_unit: bool = False) -> Unit:
         si_unit = self._si_unit.cbrt()
         return self._equivalent_unit_or_power(si_unit, prefixed_unit)
 
@@ -628,7 +626,7 @@ class Unit(metaclass=UnitMetaclass):
     ##############################################
 
     # Fixme:
-    def validate(self, value: Union['UnitValue', ], none: bool = False) -> 'UnitValue':
+    def validate(self, value: UnitValue, none: bool = False) -> UnitValue:
         if none and value is None:
             return None
         if isinstance(value, UnitValue):
@@ -674,17 +672,14 @@ class PrefixedUnit:
     ##############################################
 
     @classmethod
-    def register(cls, prefixed_unit: 'PrefixedUnit') -> None:
+    def register(cls, prefixed_unit: PrefixedUnit) -> None:
         unit = prefixed_unit.unit
         unit_prefix = prefixed_unit.power
         if unit_prefix.is_unit and unit.is_default_unit():
             key = unit.si_unit.hash
             # print('Register', key, prefixed_unit)
             cls._unit_map[key] = prefixed_unit
-        if unit.unit_suffix:
-            unit_key = str(unit)
-        else:
-            unit_key = '_'
+        unit_key = str(unit) if unit.unit_suffix else '_'
         power_key = unit_prefix.power
         # print('Register', unit_key, power_key, prefixed_unit)
         if unit_key not in cls._prefixed_unit_map:
@@ -694,13 +689,13 @@ class PrefixedUnit:
     ##############################################
 
     @classmethod
-    def from_si_unit(cls, si_unit: SiDerivedUnit) -> 'PrefixedUnit':
+    def from_si_unit(cls, si_unit: SiDerivedUnit) -> PrefixedUnit:
         return cls._unit_map.get(si_unit.hash, None)
 
     ##############################################
 
     @classmethod
-    def from_prefixed_unit(cls, unit: 'Unit', power: int = 0) -> 'PrefixedUnit':
+    def from_prefixed_unit(cls, unit: Unit, power: int = 0) -> PrefixedUnit:
         if unit.unit_suffix:
             unit_key = str(unit)
         else:
@@ -716,7 +711,7 @@ class PrefixedUnit:
 
     def __init__(
         self,
-        unit: 'Unit' = None,
+        unit: Unit = None,
         power: UnitPrefix = None,
         value_ctor: Callable = None,
         values_ctor: Callable = None,
@@ -744,7 +739,7 @@ class PrefixedUnit:
     ##############################################
 
     @property
-    def unit(self) -> 'Unit':
+    def unit(self) -> Unit:
         return self._unit
 
     @property
@@ -763,34 +758,34 @@ class PrefixedUnit:
 
     ##############################################
 
-    def clone(self) -> 'PrefixedUnit':
+    def clone(self) -> PrefixedUnit:
         return self.__class__(self._unit, self._power)
 
     ##############################################
 
-    def is_same_unit(self, other: 'Unit') -> bool:
+    def is_same_unit(self, other: Unit) -> bool:
         return self._unit == other.unit
 
     ##############################################
 
-    def check_unit(self, other: 'Unit') -> None:
+    def check_unit(self, other: Unit) -> None:
         if not self.is_same_unit(other):
             raise UnitError(f'{self} versus {other}')
 
     ##############################################
 
-    def is_same_power(self, other: 'Unit') -> bool:
+    def is_same_power(self, other: Unit) -> bool:
         return self._power == other.power
 
     ##############################################
 
-    def __eq__(self, other: 'Unit') -> bool:
+    def __eq__(self, other: Unit) -> bool:
         """self == other"""
         return self.is_same_unit(other) and self.is_same_power(other)
 
     ##############################################
 
-    def __ne__(self, other: 'Unit') -> bool:
+    def __ne__(self, other: Unit) -> bool:
         """self != other"""
         # The default __ne__ doesn't negate __eq__ until 3.0.
         return not self == other
@@ -828,7 +823,7 @@ class PrefixedUnit:
                 string = string.replace('℃', '')  # U+2103
                 # U+2109 ℉
                 string = string.replace('Ω', 'Ohm')  # U+CEA0
-                string = string.replace('μ',   'u')  # U+CEBC
+                string = string.replace('μ', 'u')  # U+CEBC
         return string
 
     ##############################################
@@ -845,8 +840,8 @@ class PrefixedUnit:
 
     def new_value(
         self,
-        value: Union[int, float, Iterable, np.ndarray]
-    ) -> Union['UnitValue', 'UnitValues']:
+        value: int | float | Iterable | np.ndarray
+    ) -> UnitValue | UnitValues:
         if isinstance(value, np.ndarray):
             return self._values_ctor.from_ndarray(value, self)
         elif isinstance(value, collections.Iterable):
@@ -868,7 +863,7 @@ class UnitValue:   # numbers.Real
     ##############################################
 
     @classmethod
-    def simple_value(cls, value: int | float) -> 'UnitValue':
+    def simple_value(cls, value: int | float) -> UnitValue:
         # cf. supra _simple_prefixed_unit = PrefixedUnit()
         return cls(_simple_prefixed_unit, value)
 
@@ -919,12 +914,12 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def clone(self) -> 'UnitValue':
+    def clone(self) -> UnitValue:
         return self.__class__(self._prefixed_unit, self._value)
 
     ##############################################
 
-    def clone_prefixed_unit(self, value: int | float) -> 'UnitValue':
+    def clone_prefixed_unit(self, value: int | float) -> UnitValue:
         return self.__class__(self._prefixed_unit, value)
 
     ##############################################
@@ -939,23 +934,23 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def is_same_unit(self, other: 'UnitValue') -> bool:
+    def is_same_unit(self, other: UnitValue) -> bool:
         return self._prefixed_unit.is_same_unit(other.prefixed_unit)
 
     ##############################################
 
-    def _check_unit(self, other: 'UnitValue') -> None:
+    def _check_unit(self, other: UnitValue) -> None:
         if not self.is_same_unit(other):
             raise UnitError
 
     ##############################################
 
-    def is_same_power(self, other: 'UnitValue') -> bool:
+    def is_same_power(self, other: UnitValue) -> bool:
         return self._prefixed_unit.is_same_power(other.prefixed_unit)
 
     ##############################################
 
-    def __eq__(self, other: 'UnitValue') -> bool:
+    def __eq__(self, other: UnitValue) -> bool:
         """self == other"""
         if isinstance(other, UnitValue):
             return self.is_same_unit(other) and float(self) == float(other)
@@ -964,14 +959,14 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __ne__(self, other: 'UnitValue') -> bool:
+    def __ne__(self, other: UnitValue) -> bool:
         """self != other"""
         # The default __ne__ doesn't negate __eq__ until 3.0.
         return not self == other
 
     ##############################################
 
-    def _convert_value(self, other: 'UnitValue') -> 'UnitValue':
+    def _convert_value(self, other: UnitValue) -> UnitValue:
         """Convert the value of other to the power of self."""
         self._check_unit(other)
         if self.is_same_power(other):
@@ -1026,7 +1021,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __add__(self, other: 'UnitValue') -> 'UnitValue':
+    def __add__(self, other: UnitValue) -> UnitValue:
         """self + other"""
         if isinstance(other, UnitValue):
             self._check_unit(other)
@@ -1038,7 +1033,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __iadd__(self, other: 'UnitValue') -> Self:
+    def __iadd__(self, other: UnitValue) -> Self:
         """self += other"""
         self._check_unit(other)
         self._value += self._convert_value(other)
@@ -1046,25 +1041,25 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __radd__(self, other: 'UnitValue') -> 'UnitValue':
+    def __radd__(self, other: UnitValue) -> UnitValue:
         """other + self"""
         return float(self) + other
 
     ##############################################
 
-    def __neg__(self) -> 'UnitValue':
+    def __neg__(self) -> UnitValue:
         """-self"""
         return self.clone_prefixed_unit(-self._value)
 
     ##############################################
 
-    def __pos__(self) -> 'UnitValue':
+    def __pos__(self) -> UnitValue:
         """+self"""
         return self.clone()
 
     ##############################################
 
-    def __sub__(self, other: 'UnitValue') -> 'UnitValue':
+    def __sub__(self, other: UnitValue) -> UnitValue:
         """self - other"""
         if isinstance(other, UnitValue):
             self._check_unit(other)
@@ -1076,7 +1071,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __isub__(self, other: 'UnitValue') -> Self:
+    def __isub__(self, other: UnitValue) -> Self:
         """self -= other"""
         self._check_unit(other)
         self._value -= self._convert_value(other)
@@ -1084,13 +1079,13 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __rsub__(self, other: 'UnitValue') -> 'UnitValue':
+    def __rsub__(self, other: UnitValue) -> UnitValue:
         """other - self"""
         return other - float(self)
 
     ##############################################
 
-    def __mul__(self, other: 'UnitValue') -> 'UnitValue':
+    def __mul__(self, other: UnitValue) -> UnitValue:
         """self * other"""
         if isinstance(other, UnitValue):
             equivalent_unit = self.unit.multiply(other.unit, True)
@@ -1107,7 +1102,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __imul__(self, other: 'UnitValue') -> Self:
+    def __imul__(self, other: UnitValue) -> Self:
         """self *= other"""
         if isinstance(other, UnitValue):
             raise UnitError
@@ -1118,7 +1113,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __rmul__(self, other: 'UnitValue') -> 'UnitValue':
+    def __rmul__(self, other: UnitValue) -> UnitValue:
         """other * self"""
         if isinstance(other, UnitValue):
             raise NotImplementedError   # Fixme: when ???
@@ -1127,7 +1122,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __floordiv__(self, other: 'UnitValue') -> 'UnitValue':
+    def __floordiv__(self, other: UnitValue) -> UnitValue:
         """self // other """
         if isinstance(other, UnitValue):
             equivalent_unit = self.unit.divide(other.unit, True)
@@ -1144,7 +1139,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __ifloordiv__(self, other: 'UnitValue') -> Self:
+    def __ifloordiv__(self, other: UnitValue) -> Self:
         """self //= other """
         if isinstance(other, UnitValue):
             raise NotImplementedError
@@ -1154,7 +1149,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __rfloordiv__(self, other: 'UnitValue') -> 'UnitValue':
+    def __rfloordiv__(self, other: UnitValue) -> UnitValue:
         """other // self"""
         if isinstance(other, UnitValue):
             raise NotImplementedError   # Fixme: when ???
@@ -1163,7 +1158,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __truediv__(self, other: 'UnitValue') -> 'UnitValue':
+    def __truediv__(self, other: UnitValue) -> UnitValue:
         """self / other"""
         if isinstance(other, UnitValue):
             equivalent_unit = self.unit.divide(other.unit, True)
@@ -1180,7 +1175,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __itruediv__(self, other: 'UnitValue') -> Self:
+    def __itruediv__(self, other: UnitValue) -> Self:
         """self /= other"""
         if isinstance(other, UnitValue):
             raise NotImplementedError
@@ -1190,7 +1185,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __rtruediv__(self, other: 'UnitValue') -> 'UnitValue':
+    def __rtruediv__(self, other: UnitValue) -> UnitValue:
         """other / self"""
         if isinstance(other, UnitValue):
             raise NotImplementedError   # Fixme: when ???
@@ -1199,7 +1194,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __pow__(self, exponent) -> 'UnitValue':
+    def __pow__(self, exponent) -> UnitValue:
         """self**exponent; should promote to float or complex when necessary."""
         new_obj = self.clone()
         new_obj._value **= float(exponent)
@@ -1213,19 +1208,19 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __rpow__(self, base) -> 'UnitValue':
+    def __rpow__(self, base) -> UnitValue:
         """base ** self"""
         raise NotImplementedError
 
     ##############################################
 
-    def __abs__(self) -> 'UnitValue':
+    def __abs__(self) -> UnitValue:
         """Returns the Real distance from 0. Called for abs(self)."""
         return self.clone_prefixed_unit(abs(self._value))
 
     ##############################################
 
-    def __trunc__(self) -> 'UnitValue':
+    def __trunc__(self) -> UnitValue:
         """trunc(self): Truncates self to an Integral.
 
         Returns an Integral i such that:
@@ -1239,7 +1234,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __divmod__(self, other: 'UnitValue') -> 'UnitValue':
+    def __divmod__(self, other: UnitValue) -> UnitValue:
         """divmod(self, other): The pair (self // other, self % other).
 
         Sometimes this can be computed faster than the pair of
@@ -1249,7 +1244,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __rdivmod__(self, other: 'UnitValue') -> 'UnitValue':
+    def __rdivmod__(self, other: UnitValue) -> UnitValue:
         """divmod(other, self): The pair (self // other, self % other).
 
         Sometimes this can be computed faster than the pair of
@@ -1259,19 +1254,19 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __mod__(self, other: 'UnitValue') -> 'UnitValue':
+    def __mod__(self, other: UnitValue) -> UnitValue:
         """self % other"""
         raise NotImplementedError
 
     ##############################################
 
-    def __rmod__(self, other: 'UnitValue') -> 'UnitValue':
+    def __rmod__(self, other: UnitValue) -> UnitValue:
         """other % self"""
         raise NotImplementedError
 
     ##############################################
 
-    def __lt__(self, other: 'UnitValue') -> bool:
+    def __lt__(self, other: UnitValue) -> bool:
         """self < other
 
         < on Reals defines a total ordering, except perhaps for NaN.
@@ -1281,7 +1276,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def __le__(self, other: 'UnitValue') -> bool:
+    def __le__(self, other: UnitValue) -> bool:
         """self <= other"""
         return float(self) <= float(other)
 
@@ -1302,7 +1297,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def reciprocal(self) -> 'UnitValue':
+    def reciprocal(self) -> UnitValue:
         equivalent_unit = self.unit.reciprocal(prefixed_unit=True)
         reciprocal_value = 1. / float(self)
         return equivalent_unit.new_value(reciprocal_value)
@@ -1319,7 +1314,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def convert(self, prefixed_unit: PrefixedUnit) -> 'UnitValue':
+    def convert(self, prefixed_unit: PrefixedUnit) -> UnitValue:
         """Convert the value to another power."""
         self._prefixed_unit.check_unit(prefixed_unit)
         if self._prefixed_unit.is_same_power(prefixed_unit):
@@ -1330,7 +1325,7 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def convert_to_power(self, power: int = 0) -> 'UnitValue':
+    def convert_to_power(self, power: int = 0) -> UnitValue:
         """Convert the value to another power."""
         if power == 0:
             value = float(self)
@@ -1340,11 +1335,11 @@ class UnitValue:   # numbers.Real
 
     ##############################################
 
-    def canonise(self) -> 'UnitValue':
+    def canonise(self) -> UnitValue:
         # log10(10**n) = n    log10(1) = 0   log10(10**-n) = -n   log10(0) = -oo
         try:
             abs_value = abs(float(self))
-            log = math.log(abs_value)/math.log(1000)
+            log = math.log(abs_value) / math.log(1000)
             # if abs_value >= 1:
             #     power = 3 * int(log)
             # else:
@@ -1500,7 +1495,7 @@ class UnitValues(np.ndarray):
     ##############################################
 
     @classmethod
-    def from_ndarray(cls, array: np.ndarray, prefixed_unit: PrefixedUnit) -> 'UnitValues':
+    def from_ndarray(cls, array: np.ndarray, prefixed_unit: PrefixedUnit) -> UnitValues:
         # cls._logger.debug('UnitValues.__new__ ' + str((cls, array, prefixed_unit)))
         # obj = cls(prefixed_unit, array.shape, array.dtype) # Fixme: buffer ???
         # obj[...] = array[...]
@@ -1521,14 +1516,14 @@ class UnitValues(np.ndarray):
         #  obj = UnitValues(prefixed_unit, shape)
 
         # cls._logger.debug('UnitValues.__new__ ' + str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
-        obj = super(UnitValues, cls).__new__(cls, shape, dtype, buffer, offset, strides, order)
+        obj = super(UnitValues, cls).__new__(cls, shape, dtype, buffer, offset, strides, order)  # ruff: ignore[super-call-with-parameters]
         # obj = np.asarray(input_array).view(cls)
         obj._prefixed_unit = prefixed_unit
         return obj
 
     ##############################################
 
-    def __array_finalize__(self, obj: 'UnitValues') -> None:
+    def __array_finalize__(self, obj: UnitValues) -> None:
         # self._logger.debug('UnitValues.__new__ ' + '\n  {}'.format(obj))
 
         # self is a new object resulting from ndarray.__new__(UnitValues, ...)
@@ -1594,7 +1589,7 @@ class UnitValues(np.ndarray):
         prefixed_unit = self._prefixed_unit
 
         conversion = self.UFUNC_MAP[ufunc]
-        self._logger.debug("Conversion for {} is {}".format(ufunc, conversion))
+        self._logger.debug(f"Conversion for {ufunc} is {conversion}")
 
         # e.g. np.mean do an internal call to reduce
         if method != '__call__':
@@ -1604,14 +1599,14 @@ class UnitValues(np.ndarray):
         args = []
         if conversion == self.CONVERSION.NO_CONVERSION:
             # should be 1 arg
-            args = [( input_.as_ndarray(False) if isinstance(input_, UnitValues) else input_ )
+            args = [(input_.as_ndarray(False) if isinstance(input_, UnitValues) else input_)
                     for input_ in inputs]
         #
         elif conversion == self.CONVERSION.FLOAT:
             if not prefixed_unit.is_unit_less:
                 # raise ValueError("Must be unit less")
                 self._logger.warning("Should be unit less")
-            args = [( input_.as_ndarray(True) if isinstance(input_, UnitValues) else input_ )
+            args = [(input_.as_ndarray(True) if isinstance(input_, UnitValues) else input_)
                     for input_ in inputs]
         #
         elif conversion in (self.CONVERSION.UNIT_MATCH, self.CONVERSION.UNIT_MATCH_NO_OUT_CAST):
@@ -1686,7 +1681,7 @@ class UnitValues(np.ndarray):
             outputs = (None,) * ufunc.nout
 
         # Call ufunc
-        results = super(UnitValues, self).__array_ufunc__(ufunc, method, *args, **kwargs)
+        results = super(UnitValues, self).__array_ufunc__(ufunc, method, *args, **kwargs)  # ruff: ignore[super-call-with-parameters]
         if results is NotImplemented:
             return NotImplemented
 
@@ -1724,7 +1719,7 @@ class UnitValues(np.ndarray):
     ##############################################
 
     def __getitem__(self, slice_) -> UnitValue:
-        value = super(UnitValues, self).__getitem__(slice_)
+        value = super(UnitValues, self).__getitem__(slice_)  # ruff: ignore[super-call-with-parameters]
         if isinstance(value, UnitValue):   # slice
             return value
         else:
@@ -1732,14 +1727,14 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def __setitem__(self, slice_, value: 'UnitValue') -> None:
+    def __setitem__(self, slice_, value: UnitValue) -> None:
         if isinstance(value, UnitValue):
             self._check_unit(value)
             value = self._convert_value(value).value
         elif isinstance(value, UnitValues):
             self._check_unit(value)
             value = self._convert_value(value)
-        super(UnitValues, self).__setitem__(slice_, value)
+        super(UnitValues, self).__setitem__(slice_, value)  # ruff: ignore[super-call-with-parameters]
 
     ##############################################
 
@@ -1754,7 +1749,7 @@ class UnitValues(np.ndarray):
 
     def __reduce__(self):
         # https://docs.python.org/3/library/pickle.html#object.__reduce__
-        np_state = super(UnitValues, self).__reduce__()
+        np_state = super(UnitValues).__reduce__()
         # ( <built-in function _reconstruct>,
         #   (<class 'PySpice.Unit.Unit.UnitValues'>, (0,), b'b'),
         #   (1, (1, 1), dtype('float64'), False, b'\x00\x00\x80?\x00\x00\x80?') )
@@ -1765,7 +1760,7 @@ class UnitValues(np.ndarray):
 
     def __setstate__(self, state):
         # https://docs.python.org/3/library/pickle.html#object.__setstate__
-        super(UnitValues, self).__setstate__(state[1:])
+        super(UnitValues).__setstate__(state[1:])
         self._prefixed_unit = state[0]
 
     ##############################################
@@ -1800,23 +1795,23 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def is_same_unit(self, other: 'UnitValues') -> bool:
+    def is_same_unit(self, other: UnitValues) -> bool:
         return self._prefixed_unit.is_same_unit(other.prefixed_unit)
 
     ##############################################
 
-    def _check_unit(self, other: 'UnitValues'):
+    def _check_unit(self, other: UnitValues):
         if not self.is_same_unit(other):
             raise UnitError
 
     ##############################################
 
-    def is_same_power(self, other: 'UnitValues') -> bool:
+    def is_same_power(self, other: UnitValues) -> bool:
         return self._prefixed_unit.is_same_power(other.prefixed_unit)
 
     ##############################################
 
-    def __eq__(self, other: 'UnitValues') -> bool:
+    def __eq__(self, other: UnitValues) -> bool:
         """self == other"""
         if isinstance(other, UnitValues):
             return self.is_same_unit(other) and self.as_ndarray() == other.as_ndarray()
@@ -1825,7 +1820,7 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def _convert_value(self, other: 'UnitValues'):
+    def _convert_value(self, other: UnitValues):
         """Convert the value of other to the power of self."""
         self._check_unit(other)
         if self.is_same_power(other):
@@ -1840,7 +1835,7 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def reciprocal(self) -> 'UnitValues':
+    def reciprocal(self) -> UnitValues:
         equivalent_unit = self.unit.reciprocal(prefixed_unit=True)
         reciprocal_value = 1. / np.as_ndarray(True)
         return self.from_ndarray(reciprocal_value, equivalent_unit)
@@ -1856,7 +1851,7 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def convert(self, prefixed_unit: PrefixedUnit) -> 'UnitValues':
+    def convert(self, prefixed_unit: PrefixedUnit) -> UnitValues:
         """Convert the value to another power."""
         self._prefixed_unit.check_unit(prefixed_unit)
         if self._prefixed_unit.is_same_power(prefixed_unit):
@@ -1867,7 +1862,7 @@ class UnitValues(np.ndarray):
 
     ##############################################
 
-    def convert_to_power(self, power: int = 0) -> 'UnitValues':
+    def convert_to_power(self, power: int = 0) -> UnitValues:
         """Convert the value to another power."""
         value = self.as_ndarray(True)
         if power != 0:
