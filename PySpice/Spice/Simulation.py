@@ -277,10 +277,11 @@ class Simulation:
 
     ##############################################
 
-    def save_internal_parameters(self, *args) -> None:
+    def save_internal_parameters(self, *args: str) -> None:
         """This method is similar to`save` but assume *all*."""
         # Fixme: ok ???
-        self.save(list(args) + ['all'])
+        # self.save(list(args) + ['all'])
+        self.save(*args, 'all')
 
     ##############################################
 
