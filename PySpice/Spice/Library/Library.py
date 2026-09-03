@@ -6,18 +6,20 @@
 #
 ####################################################################################################
 
-####################################################################################################
+__all__ = ['SpiceLibrary']
 
-from pathlib import Path
-from typing import Iterable, Iterator
+####################################################################################################
 
 import logging
 import os
 import pickle
 import re
+from collections.abc import Iterable, Iterator
+from pathlib import Path
 
-from PySpice.Spice.Parser import Subcircuit, Model
+from PySpice.Spice.Parser import Model, Subcircuit
 from PySpice.Tools import PathTools
+
 from .SpiceInclude import SpiceInclude, is_yaml
 
 ####################################################################################################
@@ -58,7 +60,7 @@ class SpiceLibrary:
 
     ##############################################
 
-    def __init__(self, root_path: str | Path, scan: bool = False) -> None:
+    def __init__(self, root_path: Path | str, scan: bool = False) -> None:
         self._path = PathTools.expand_path(root_path)
         if not self._path.exists():
             self._path.mkdir(parents=True)
@@ -92,7 +94,7 @@ class SpiceLibrary:
 
     ##############################################
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict:
         # state = self.__dict__.copy()
         state = {
             'subcircuits': self._subcircuits,
@@ -102,7 +104,7 @@ class SpiceLibrary:
 
     ##############################################
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict) -> None:
         # self.__dict__.update(state)
         self._subcircuits = state['subcircuits']
         self._models = state['models']
@@ -123,8 +125,7 @@ class SpiceLibrary:
     ##############################################
 
     def _category_path(self, category: str) -> Path:
-        category = category.split('/')
-        return self._path.joinpath(*category)
+        return self._path.joinpath(*category.split('/'))
 
     ##############################################
 
@@ -140,11 +141,11 @@ class SpiceLibrary:
 
     def _list_categories(self, path: Path | str, level: int = 0) -> str:
         text = ''
-        indent = ' '*4*level
+        indent = ' ' * 4 * level
         for entry in sorted(os.scandir(path), key=lambda entry: entry.name):
             if entry.is_dir():
                 text += f'{indent}{entry.name}' + NEWLINE
-                text += self._list_categories(entry.path, level+1)
+                text += self._list_categories(entry.path, level + 1)
         return text
 
     def list_categories(self) -> str:
@@ -217,10 +218,10 @@ class SpiceLibrary:
 
     def search(self, regexp: str) -> Iterable[tuple[str, SpiceInclude]]:
         """ Return dict of all models/subcircuits with names matching regex. """
-        regexp = re.compile(regexp)
+        cregexp = re.compile(regexp)
         models_subcircuits = {**self._models, **self._subcircuits}
         if not models_subcircuits:
             self._logger.warning("Empty library")
         for name, _ in models_subcircuits.items():
-            if regexp.search(name):
+            if cregexp.search(name):
                 yield name, SpiceInclude(_)
