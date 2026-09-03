@@ -222,23 +222,32 @@ class RawFileAbc:
 
     ##############################################
 
-    def _read_header_field_line(self, header_line_iterator: Iterator[bytes], expected_label: str, has_value: bool = True):
-        """ Read an header line and check it starts with *expected_label*.
+    def _read_header_field_line(self, header_line_iterator: Iterator[bytes], expected_label: str) -> str:
+        """ Read an header line and check it starts with *expected_label* and colon.
 
-        Return the values next to the label if the flag *has_value* is set.
+        Return the values next to the label.
         """
         line = self._read_line(header_line_iterator)
         self._logger.debug(line)
-        if has_value:
-            # a title can have ': ' after 'title: '
-            location = line.find(': ')  # first occurence
-            label, value = line[:location], line[location + 2:]
-        else:
-            label = line[:-1]
+        # a title can have ': ' after 'title: '
+        location = line.find(': ')  # first occurence
+        label, value = line[:location], line[location + 2:]
         if label != expected_label:
-            raise NameError(f"Expected label {expected_label} instead of {label}")
-        if has_value:
-            return value.strip()
+            raise NameError(f"Expected label '{label}' instead of '{expected_label}'")
+        return value.strip()
+
+    ##############################################
+
+    def _read_header_section_line(self, header_line_iterator: Iterator[bytes], expected_label: str) -> str:
+        """ Read an header line and check it starts with *expected_label*.
+
+        Return the line.
+        """
+        line = self._read_line(header_line_iterator)
+        self._logger.debug(line)
+        if not line.startswith(expected_label):
+            raise NameError(f"Expected section '{line}' instead of '{expected_label}'")
+        return line
 
     ##############################################
 
@@ -286,7 +295,7 @@ class RawFileAbc:
             case _:
                 raise NotImplementedError
 
-        input_data = np.fromstring(raw_data, count=number_of_columns * self.number_of_points, dtype='f8')  # ty: ignore[no-matching-overload]
+        input_data = np.frombuffer(raw_data, count=number_of_columns * self.number_of_points, dtype='f8')
         input_data = input_data.reshape((self.number_of_points, number_of_columns))
         input_data = input_data.transpose()
         # np.savetxt('raw.txt', input_data)

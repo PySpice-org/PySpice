@@ -163,22 +163,33 @@ class RawFile(RawFileAbc):
         raw_data_start = binary_location + len(binary_line)
         # self._logger.debug(os.linesep + stdout[:raw_data_start].decode('utf-8'))
         header_lines = stdout[:binary_location].splitlines()
+        if logging.root.level >= logging.DEBUG:
+            self._logger.debug(
+                'Header is' + os.linesep +
+                os.linesep.join(_.decode('utf8') for _ in header_lines)
+            )
         raw_data = stdout[raw_data_start:]
         header_line_iterator = iter(header_lines)
-
+        # Fixme: set header_line_iterator in obj
+        # Fixme: Note: No compatibility mode selected!
+        self.note = self._read_header_field_line(header_line_iterator, 'Note')
         self.circuit_name = self._read_header_field_line(header_line_iterator, 'Circuit')
         self.temperature, self.nominal_temperature = self._read_temperature_line(header_line_iterator)
-        self.warnings = [self._read_header_field_line(header_line_iterator, 'Warning')
-                         for i in range(stdout.count(b'Warning'))]
+        self.warnings = [
+            self._read_header_field_line(header_line_iterator, 'Warning')
+            for _ in range(stdout.count(b'Warning'))
+        ]
         for warning in self.warnings:
             self._logger.warning(warning)
+        self.using_sparse = self._read_header_section_line(header_line_iterator, 'Using')
         self.title = self._read_header_field_line(header_line_iterator, 'Title')
         self.date = self._read_header_field_line(header_line_iterator, 'Date')
+        self.command = self._read_header_field_line(header_line_iterator, 'Command')
         self.plot_name = self._read_header_field_line(header_line_iterator, 'Plotname')
         self.flags = self._read_header_field_line(header_line_iterator, 'Flags')
         self.number_of_variables = int(self._read_header_field_line(header_line_iterator, 'No. Variables'))
         self._read_header_field_line(header_line_iterator, 'No. Points')
-        self._read_header_field_line(header_line_iterator, 'Variables', has_value=False)
+        self._read_header_section_line(header_line_iterator, 'Variables')
         self._read_header_field_line(header_line_iterator, 'No. of Data Columns ')
         self._read_header_variables(header_line_iterator)
 
