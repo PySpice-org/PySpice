@@ -21,18 +21,22 @@ __all__ = [
 
 ####################################################################################################
 
-from collections import OrderedDict
 import logging
-
-####################################################################################################
+from collections import OrderedDict
+from collections.abc import Callable, Iterable, Iterator
+from typing import TYPE_CHECKING, Self, cast
 
 from .ElementParameter import (
+    FlagParameter,
+    KeyValueParameter,
     ParameterDescriptor,
     PositionalElementParameter,
-    FlagParameter, KeyValueParameter,
 )
 from .FakeDipole import FakeDipole
 from .StringTools import join_list
+
+if TYPE_CHECKING:
+    from .Netlist import Circuit, Netlist, Node
 
 ####################################################################################################
 
@@ -46,7 +50,13 @@ class PinDefinition:
 
     ##############################################
 
-    def __init__(self, position, name=None, alias=None, optional=False):
+    def __init__(
+            self,
+            position: int,
+            name: str | None = None,
+            alias: str | None = None,
+            optional: bool = False,
+    ) -> None:
         self._position = position
         self._name = name
         self._alias = alias
@@ -54,14 +64,14 @@ class PinDefinition:
 
     ##############################################
 
-    def clone(self):
+    def clone(self) -> PinDefinition:
         # Fixme: self.__class__ ???
         #  unused in code
         return PinDefinition(self._position, self._name, self._alias, self._optional)
 
     ##############################################
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         _ = f"Pin #{self._position} {self._name}"
         if self._alias:
             _ += f"or {self._alias}"
@@ -72,30 +82,30 @@ class PinDefinition:
     ##############################################
 
     @property
-    def position(self):
+    def position(self) -> int:
         return self._position
 
     @property
-    def name(self):
+    def name(self) -> str | None:
         return self._name
 
     @property
-    def alias(self):
+    def alias(self) -> str | None:
         return self._alias
 
     @property
-    def optional(self):
+    def optional(self) -> bool:
         return self._optional
 
 ####################################################################################################
 
 class OptionalPin:
 
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self._name = name
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
 ####################################################################################################
@@ -112,31 +122,31 @@ class Pin(PinDefinition):
 
     ##############################################
 
-    def __init__(self, element, pin_definition, node):
+    def __init__(self, element: Element, pin_definition: PinDefinition, node: Node) -> None:
         super().__init__(pin_definition.position, pin_definition.name, pin_definition.alias)
         self._element = element
-        self._node = node
+        self._node: Node | None = node  # str for ammeter and None when deconnected
         if self.connected:
             node.connect(self)
 
     ##############################################
 
     @property
-    def element(self):
+    def element(self) -> Element:
         return self._element
 
     @property
-    def node(self):
+    def node(self) -> Node | None:
         return self._node
 
     ##############################################
 
     @property
-    def dangling(self):
+    def dangling(self) -> bool:
         return self._node is None
 
     @property
-    def connected(self):
+    def connected(self) -> bool:
         return self._node is not None
 
     # def __bool__(self):
@@ -144,7 +154,7 @@ class Pin(PinDefinition):
 
     ##############################################
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         _ = f"Pin {self._name} of {self._element.name}"
         if self.dangling:
             return f"{_} is dangling"
@@ -153,7 +163,7 @@ class Pin(PinDefinition):
 
     ##############################################
 
-    def connect(self, node):
+    def connect(self, node: Node) -> None:
         # Fixme: if not isinstance(node, Node) ???
         # in ctor netlist.get_node(node, True)
         if self.connected:
@@ -161,13 +171,13 @@ class Pin(PinDefinition):
         node.connect(self)
         self._node = node
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         # used in Element.detach
         if self.connected:
             self._node.disconnect(self)
             self._node = None
 
-    def __iadd__(self, obj):
+    def __iadd__(self, obj: Node | Pin) -> Self:
         """Connect a node or a pin to the node."""
         from .Netlist import Node
         if isinstance(obj, Node):
@@ -199,7 +209,7 @@ class Pin(PinDefinition):
 
     ##############################################
 
-    def add_current_probe(self, circuit):
+    def add_current_probe(self, circuit: Circuit) -> None:
         """Add a current probe between the node and the pin.
 
         The ammeter is named *ElementName_PinName*.
@@ -208,9 +218,11 @@ class Pin(PinDefinition):
         # Fixme: require a reference to circuit
         # Fixme: add it to a list
         if self.connected:
-            node = self._node
+            old_node = self._node
+            if self._name is None:
+                raise ValueError('Pin name {name} is None')
             self._node = '_'.join((self._element.name, self._name))
-            circuit.V(self._node, node, self._node, '0')
+            circuit.V(self._node, old_node, self._node, '0')
         else:
             raise NameError("Dangling pin")
 
@@ -241,11 +253,9 @@ class ElementParameterMetaClass(type):
 
     ##############################################
 
-    def __new__(meta_cls, class_name, base_classes, namespace):
-
+    def __new__(meta_cls: type[type], class_name: str, base_classes: tuple, namespace: dict) -> ElementParameterMetaClass:
         # __new__ is called for the creation of a class depending of this metaclass, i.e. at module loading
         # It customises the namespace of the new class
-
         # Collect positional and optional parameters from class attribute dict
         positional_parameters = {}
         parameters = {}
@@ -286,13 +296,13 @@ class ElementParameterMetaClass(type):
 
         # Initialise pins
 
-        def make_pin_getter(position):
-            def getter(self):
+        def make_pin_getter(position: int) -> Callable:
+            def getter(self) -> Pin:
                 return self._pins[position]
             return getter
 
-        def make_optional_pin_getter(position):
-            def getter(self):
+        def make_optional_pin_getter(position: int) -> Callable:
+            def getter(self) -> Pin | None:
                 return self._pins[position] if position < len(self._pins) else None
             return getter
 
@@ -326,16 +336,13 @@ class ElementParameterMetaClass(type):
         else:
             _module_logger.debug(f"{class_name} don't define a PINS attribute")
 
-        return type.__new__(meta_cls, class_name, base_classes, namespace)
+        return cast(ElementParameterMetaClass, type.__new__(meta_cls, class_name, base_classes, namespace))
 
     ##############################################
 
-    def __init__(meta_cls, class_name, base_classes, namespace):
-
+    def __init__(meta_cls: type[type], class_name: str, base_classes: tuple, namespace: dict) -> None:
         # __init__ is called after the class is created (__new__)
-
         type.__init__(meta_cls, class_name, base_classes, namespace)
-
         # Collect basic element classes
         if 'PREFIX' in namespace:
             prefix = namespace['PREFIX']
@@ -352,16 +359,16 @@ class ElementParameterMetaClass(type):
     #       e.g. Resistor.number_of_pins or Resistor.__class__.number_of_pins
 
     @property
-    def number_of_pins(cls):
+    def number_of_pins(cls) -> int:
         #! Fixme: many pins ???
-        number_of_pins = len(cls.PINS)
+        _number_of_pins = len(cls.PINS)
         if cls.__number_of_optional_pins__:
-            return slice(number_of_pins - cls.__number_of_optional_pins__, number_of_pins +1)
+            return slice(_number_of_pins - cls.__number_of_optional_pins__, _number_of_pins +1)
         else:
-            return number_of_pins
+            return _number_of_pins
 
     @property
-    def number_of_positional_parameters(cls):
+    def number_of_positional_parameters(cls) -> int:
         return len(cls._positional_parameters)
 
     @property
@@ -402,8 +409,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
-    def __init__(self, netlist, name, *args, **kwargs):
-
+    def __init__(self, netlist: Netlist, name: str, *args, **kwargs) -> None:
         self._netlist = netlist
         self._name = str(name)
         self.raw_spice = ''
@@ -433,63 +439,61 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
-    def has_parameter(self, name):
+    def has_parameter(self, name: str) -> bool:
         return hasattr(self, '_' + name)
 
     ##############################################
 
-    def copy_to(self, element):
-
+    def copy_to(self, element: Element) -> None:
         for parameter_dict in self._positional_parameters, self._optional_parameters:
             for parameter in parameter_dict.values():
                 if hasattr(self, parameter.attribute_name):
                     value = getattr(self, parameter.attribute_name)
                     setattr(element, parameter.attribute_name, value)
-
         if hasattr(self, 'raw_spice'):
             element.raw_spice = self.raw_spice
 
     ##############################################
 
     @property
-    def netlist(self):
+    def netlist(self) -> Netlist | None:
         return self._netlist
 
     @property
-    def name(self):
-        return self.PREFIX + self._name
+    def name(self) -> str:
+        return self.PREFIX + self._name  # ty: ignore[unsupported-operator]
 
     @property
-    def pins(self):
+    def pins(self) -> list[Pin]:
         return self._pins
 
     ##############################################
 
-    def detach(self):
+    def detach(self) -> Self:
         for pin in self._pins:
             pin.disconnect()
-        self._netlist._remove_element(self)
+        self._netlist._remove_element(self)  # ty: ignore[unresolved-attribute]
         self._netlist = None
         return self
 
     ##############################################
 
     @property
-    def nodes(self):
+    def nodes(self) -> list[Node]:
         return [pin.node for pin in self._pins]
 
     @property
-    def node_names(self):
+    def node_names(self) -> list[str]:
         return [str(x) for x in self.nodes]
 
     ##############################################
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__class__.__name__ + ' ' + self.name
 
     ##############################################
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: float) -> None:
         # Implement alias for parameters
         if name in self._spice_to_parameters:
             parameter = self._spice_to_parameters[name]
@@ -504,7 +508,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> float:
         # Implement alias for parameters
         if name in self._spice_to_parameters:
             parameter = self._spice_to_parameters[name]
@@ -514,7 +518,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
-    def format_node_names(self):
+    def format_node_names(self) -> str:
         """ Return the formatted list of nodes. """
         for pin in self.pins:
             if pin.dangling:
@@ -524,7 +528,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
-    def parameter_iterator(self):
+    def parameter_iterator(self) -> Iterator:
         """ This iterator returns the parameter in the right order. """
         # Fixme: .parameters ???
         for parameter_dict in self._positional_parameters, self._optional_parameters:
@@ -540,13 +544,13 @@ class Element(metaclass=ElementParameterMetaClass):
 
     ##############################################
 
-    def format_spice_parameters(self):
+    def format_spice_parameters(self) -> str:
         """ Return the formatted list of parameters. """
         return join_list([parameter.to_str(self) for parameter in self.parameter_iterator()])
 
     ##############################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         """ Return the SPICE element definition. """
         return join_list((self.format_node_names(), self.format_spice_parameters(), self.raw_spice))
 
@@ -558,7 +562,7 @@ class AnyPinElement(Element):
 
     ##############################################
 
-    def copy_to(self, netlist):
+    def copy_to(self, netlist: Netlist) -> Self:  # ty: ignore[invalid-method-override]
         element = self.__class__(netlist, self._name)
         super().copy_to(element)
         return element
@@ -569,8 +573,7 @@ class FixedPinElement(Element):
 
     ##############################################
 
-    def __init__(self, netlist, name, *args, **kwargs):
-
+    def __init__(self, netlist: Netlist, name: str, *args, **kwargs) -> None:
         # Get nodes
         # Usage: if pins are passed using keywords then args must be empty
         #        optional pins are passed as keyword
@@ -585,7 +588,7 @@ class FixedPinElement(Element):
             else:
                 nodes = args[:expected_number_of_pins]
                 args = args[expected_number_of_pins:]
-                pin_definition_nodes = zip(self.PINS, nodes)
+                pin_definition_nodes = zip(self.PINS, nodes)  # ruff: ignore[zip-without-explicit-strict]
         else:
             for pin_definition in self.PINS:
                 if pin_definition.name in kwargs:
@@ -602,12 +605,14 @@ class FixedPinElement(Element):
 
         super().__init__(netlist, name, *args, **kwargs)
 
-        self._pins = [Pin(self, pin_definition, netlist.get_node(node, True))
-                      for pin_definition, node in pin_definition_nodes]
+        self._pins = tuple(
+            Pin(self, pin_definition, netlist.get_node(node, True))
+            for pin_definition, node in pin_definition_nodes
+            )
 
     ##############################################
 
-    def copy_to(self, netlist):
+    def copy_to(self, netlist: Netlist) -> Self:  # ty: ignore[invalid-method-override]
         element = self.__class__(netlist, self._name, *self.nodes)
         super().copy_to(element)
         return element
@@ -620,14 +625,22 @@ class NPinElement(Element):
 
     ##############################################
 
-    def __init__(self, netlist, name, nodes, *args, **kwargs):
+    def __init__(
+            self,
+            netlist: Netlist,
+            name: str,
+            nodes: Iterable[str],
+            *args, **kwargs,
+    ) -> None:
         super().__init__(netlist, name, *args, **kwargs)
-        self._pins = [Pin(self, PinDefinition(position), netlist.get_node(node, True))
-                      for position, node in enumerate(nodes)]
+        self._pins = tuple(
+            Pin(self, PinDefinition(position), netlist.get_node(node, True))
+            for position, node in enumerate(nodes)
+        )
 
     ##############################################
 
-    def copy_to(self, netlist):
+    def copy_to(self, netlist: Netlist) -> Self:  # ty: ignore[invalid-method-override]
         nodes = [str(x) for x in self.nodes]
         element = self.__class__(netlist, self._name, nodes)
         super().copy_to(element)
