@@ -361,7 +361,7 @@ class SpiceInclude:
             spice_file = SpiceFile(self._path)
         except ParseError as exception:
             # Parse problem with this file, so skip it and keep going.
-            self._logger.warn(f"Parse error in Spice library {self._path}{NEWLINE}{exception}")
+            self._logger.warning(f"Parse error in Spice library {self._path}{NEWLINE}{exception}")
         self._inner_includes = [Path(str(_)) for _ in spice_file.includes]
         self._inner_libraries = [Path(str(_)) for _ in spice_file.libraries]
         for subcircuit in spice_file.subcircuits:
@@ -384,31 +384,28 @@ class SpiceInclude:
     ##############################################
 
     def write_yaml(self):
-        with open(self.yaml_path, 'w', encoding='utf8') as fh:
-            data = {
-                # 'path': str(self._path),
-                'path': self._path.name,
-                'date': self.mtime.isoformat(),
-                'digest': self.digest,
-                'description': self._description,
-            }
-            if self._models:
-                data['models'] = [_.to_yaml() for _ in self.models]
-            if self._subcircuits:
-                data['subcircuits'] = [_.to_yaml() for _ in self.subcircuits]
-            if self._inner_includes:
-                data['inner_includes'] = self._inner_includes
-            if self._inner_libraries:
-                data['inner_libraries'] = self._inner_libraries
+        data = {
+            # 'path': str(self._path),
+            'path': self._path.name,
+            'date': self.mtime.isoformat(),
+            'digest': self.digest,
+            'description': self._description,
+        }
+        if self._models:
+            data['models'] = [_.to_yaml() for _ in self.models]
+        if self._subcircuits:
+            data['subcircuits'] = [_.to_yaml() for _ in self.subcircuits]
+        if self._inner_includes:
+            data['inner_includes'] = self._inner_includes
+        if self._inner_libraries:
+            data['inner_libraries'] = self._inner_libraries
             # data['recursive_digest'] = self.recursive_digest
-            fh.write(yaml.dump(data, sort_keys=False))
+        self.yaml_path.write_text(yaml.dump(data, sort_keys=False))
 
     ##############################################
 
     def _read_yaml(self) -> dict:
-        with open(self.yaml_path, 'r', encoding='utf8') as fh:
-            data = yaml.load(fh.read(), Loader=yaml.SafeLoader)
-        return data
+        return yaml.load(self.yaml_path.read_text(), Loader=yaml.SafeLoader)
 
     ##############################################
 
@@ -430,9 +427,7 @@ class SpiceInclude:
     ##############################################
 
     def _compute_digest(self, func) -> str:
-        with open(self._path, 'rb') as fh:
-            _ = func(fh.read()).hexdigest()
-        return _
+        return func(self._path.read_bytes()).hexdigest()
 
     ##############################################
 
@@ -443,9 +438,8 @@ class SpiceInclude:
 
     def _compute_recursive_digest(self) -> str:
         if self._inner_includes:
-            return self._digest + '[' + '/'.join([_.digest for _ in self._inner_includes]) + ']'
-        else:
-            return self._digest
+            return self.digest + '[' + '/'.join([_.digest for _ in self._inner_includes]) + ']'
+        return self.digest
 
     ##############################################
 
