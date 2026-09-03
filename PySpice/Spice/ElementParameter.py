@@ -12,8 +12,13 @@
 
 ####################################################################################################
 
+from typing import TYPE_CHECKING
+
 from ..Unit import Unit
 from .unit import str_spice
+
+if TYPE_CHECKING:
+    from .Element import Element
 
 ####################################################################################################
 
@@ -33,27 +38,27 @@ class ParameterDescriptor:
 
     ##############################################
 
-    def __init__(self, default=None):
+    def __init__(self, default: bool | int | None = None) -> None:
         self._default_value = default
-        self._attribute_name = None
+        self._attribute_name: str = None  # ty: ignore[invalid-assignment]
 
     ##############################################
 
     @property
-    def default_value(self):
+    def default_value(self) -> bool | int | None:
         return self._default_value
 
     @property
-    def attribute_name(self):
+    def attribute_name(self) -> str:
         return self._attribute_name
 
     @attribute_name.setter
-    def attribute_name(self, name):
+    def attribute_name(self, name: str) -> None:
         self._attribute_name = name
 
     ##############################################
 
-    def __get__(self, instance, owner=None):
+    def __get__(self, instance: Element, owner=None):
         try:
             return getattr(instance, '_' + self._attribute_name)
         except AttributeError:
@@ -61,12 +66,12 @@ class ParameterDescriptor:
 
     ##############################################
 
-    def __set__(self, instance, value):
+    def __set__(self, instance: Element, value):
         setattr(instance, '_' + self._attribute_name, value)
 
     ##############################################
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__class__.__name__
 
     ##############################################
@@ -77,18 +82,18 @@ class ParameterDescriptor:
 
     ##############################################
 
-    def nonzero(self, instance):
+    def nonzero(self, instance: Element) -> bool:
         return self.__get__(instance) is not None
 
     ##############################################
 
-    def to_str(self, instance):
+    def to_str(self, instance: Element) -> str:
         """Convert the parameter's value to SPICE syntax."""
         raise NotImplementedError
 
     ##############################################
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self._attribute_name < other.attribute_name
 
 ####################################################################################################
@@ -109,7 +114,7 @@ class PositionalElementParameter(ParameterDescriptor):
 
     ##############################################
 
-    def __init__(self, position, default=None, key_parameter=False):
+    def __init__(self, position: int, default=None, key_parameter: bool = False) -> None:
         super().__init__(default)
         self._position = position
         self._key_parameter = key_parameter
@@ -117,21 +122,21 @@ class PositionalElementParameter(ParameterDescriptor):
     ##############################################
 
     @property
-    def position(self):
+    def position(self) -> int:
         return self._position
 
     @property
-    def key_parameter(self):
+    def key_parameter(self) -> bool:
         return self._key_parameter
 
     ##############################################
 
-    def to_str(self, instance):
+    def to_str(self, instance: Element) -> str:
         return str_spice(self.__get__(instance))
 
     ##############################################
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self._position < other.position
 
 ####################################################################################################
@@ -142,7 +147,7 @@ class ElementNamePositionalParameter(PositionalElementParameter):
 
     ##############################################
 
-    def validate(self, value):
+    def validate(self, value) -> str:
         return str(value)
 
 ####################################################################################################
@@ -153,7 +158,7 @@ class ExpressionPositionalParameter(PositionalElementParameter):
 
     ##############################################
 
-    def validate(self, value):
+    def validate(self, value) -> str:
         return str(value)
 
 ####################################################################################################
@@ -164,17 +169,17 @@ class FloatPositionalParameter(PositionalElementParameter):
 
     ##############################################
 
-    def __init__(self, position, unit=None, **kwargs):
+    def __init__(self, position: int, unit=None, **kwargs) -> None:
         super().__init__(position, **kwargs)
         self._unit = unit
 
     ##############################################
 
-    def validate(self, value):
-        if isinstance(value, Unit):
+    def validate(self, value) -> Unit:  # ty: ignore[invalid-type-form]
+        if isinstance(value, Unit):  # ty: ignore[invalid-argument-type]
             return value
         else:
-            return Unit(value)
+            return Unit(value)  # ty: ignore[call-non-callable]
 
 ####################################################################################################
 
@@ -184,12 +189,12 @@ class InitialStatePositionalParameter(PositionalElementParameter):
 
     ##############################################
 
-    def validate(self, value):
-        return bool(value) # Fixme: check KeyParameter
+    def validate(self, value) -> bool:
+        return bool(value)  # Fixme: check KeyParameter
 
     ##############################################
 
-    def to_str(self, instance):
+    def to_str(self, instance: Element) -> str:
         if self.__get__(instance):
             return 'on'
         else:
@@ -203,7 +208,7 @@ class ModelPositionalParameter(PositionalElementParameter):
 
     ##############################################
 
-    def validate(self, value):
+    def validate(self, value) -> str:
         return str(value)
 
 ####################################################################################################
@@ -221,18 +226,18 @@ class FlagParameter(ParameterDescriptor):
 
     ##############################################
 
-    def __init__(self, spice_name, default=False):
+    def __init__(self, spice_name: str, default: bool = False) -> None:
         super().__init__(default)
         self.spice_name = spice_name
 
     ##############################################
 
-    def nonzero(self, instance):
+    def nonzero(self, instance: Element) -> bool:
         return bool(self.__get__(instance))
 
     ##############################################
 
-    def to_str(self, instance):
+    def to_str(self, instance: Element) -> str:
         if self.nonzero(instance):
             return 'off'
         else:
@@ -253,18 +258,18 @@ class KeyValueParameter(ParameterDescriptor):
 
     ##############################################
 
-    def __init__(self, spice_name, default=None):
+    def __init__(self, spice_name: str, default=None) -> None:
         super().__init__(default)
         self.spice_name = spice_name
 
     ##############################################
 
-    def str_value(self, instance):
+    def str_value(self, instance: Element) -> str:
         return str_spice(self.__get__(instance))
 
     ##############################################
 
-    def to_str(self, instance):
+    def to_str(self, instance: Element) -> str:
         if bool(self):
             _ = self.str_value(instance)
             return f'{self.spice_name}={_}'
@@ -279,12 +284,12 @@ class BoolKeyParameter(KeyValueParameter):
 
     ##############################################
 
-    def nonzero(self, instance):
+    def nonzero(self, instance: Element) -> bool:
         return bool(self.__get__(instance))
 
     ##############################################
 
-    def str_value(self, instance):
+    def str_value(self, instance: Element) -> str:
         if self.nonzero(instance):
             return '1'
         else:
@@ -298,7 +303,7 @@ class ExpressionKeyParameter(KeyValueParameter):
 
     ##############################################
 
-    def validate(self, value):
+    def validate(self, value) -> str:
         return str(value)
 
 ####################################################################################################
@@ -309,13 +314,13 @@ class FloatKeyParameter(KeyValueParameter):
 
     ##############################################
 
-    def __init__(self, spice_name, unit=None, **kwargs):
+    def __init__(self, spice_name: str, unit=None, **kwargs) -> None:
         super().__init__(spice_name, **kwargs)
         self._unit = unit
 
     ##############################################
 
-    def validate(self, value):
+    def validate(self, value) -> float:
         return float(value)
 
 ####################################################################################################
@@ -326,7 +331,7 @@ class FloatPairKeyParameter(KeyValueParameter):
 
     ##############################################
 
-    def validate(self, pair):
+    def validate(self, pair) -> tuple[float, float]:  # ty: ignore[invalid-method-override]
         if len(pair) == 2:
             return (float(pair[0]), float(pair[1]))
         else:
@@ -334,7 +339,7 @@ class FloatPairKeyParameter(KeyValueParameter):
 
     ##############################################
 
-    def str_value(self, instance):
+    def str_value(self, instance: Element) -> str:
         return ','.join([str(value) for value in self.__get__(instance)])
 
 ####################################################################################################
@@ -345,7 +350,7 @@ class FloatTripletKeyParameter(FloatPairKeyParameter):
 
     ##############################################
 
-    def validate(self, uplet):
+    def validate(self, uplet) -> tuple[float, float, float]:  # ty: ignore[invalid-method-override]
         if len(uplet) == 3:
             return (float(uplet[0]), float(uplet[1]), float(uplet[2]))
         else:
@@ -359,5 +364,5 @@ class IntKeyParameter(KeyValueParameter):
 
     ##############################################
 
-    def validate(self, value):
+    def validate(self, value) -> int:
         return int(value)

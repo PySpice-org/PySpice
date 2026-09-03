@@ -30,7 +30,7 @@ __all__ = [
 
 import logging
 
-from ..Unit import as_Hz, as_s  # ty: ignore[unresolved-import]
+from ..Unit import as_Hz, as_s, u_Hz, u_s
 from .StringTools import join_list
 
 ####################################################################################################
@@ -43,22 +43,22 @@ class AnalysisParameters:
 
     """Base class for analysis parameters"""
 
-    _ANALYSIS_NAME = None
+    _ANALYSIS_NAME: str = None  # ty: ignore[invalid-assignment]
 
     ##############################################
 
     @property
-    def analysis_name(self):
+    def analysis_name(self) -> str:
         return self._ANALYSIS_NAME
 
     ##############################################
 
-    def to_list(self):
+    def to_list(self) -> tuple:
         return ()
 
     ##############################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'.{self.analysis_name} {join_list(self.to_list())}'
 
 ####################################################################################################
@@ -79,18 +79,18 @@ class DcSensitivityAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, output_variable):
+    def __init__(self, output_variable: str) -> None:
         self._output_variable = output_variable
 
     ##############################################
 
     @property
-    def output_variable(self):
+    def output_variable(self) -> str:
         return self._output_variable
 
     ##############################################
 
-    def to_list(self):
+    def to_list(self) -> tuple:
         return (self._output_variable,)
 
 ####################################################################################################
@@ -103,41 +103,48 @@ class AcSensitivityAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, output_variable, variation, number_of_points, start_frequency, stop_frequency):
+    def __init__(
+            self,
+            output_variable: str,
+            variation: str,
+            number_of_points: int,
+            start_frequency: u_Hz | float,
+            stop_frequency: u_Hz | float,
+    ) -> None:
         if variation not in ('dec', 'oct', 'lin'):
             raise ValueError("Incorrect variation type")
 
         self._output_variable = output_variable
         self._variation = variation
         self._number_of_points = number_of_points
-        self._start_frequency = as_Hz(start_frequency)
-        self._stop_frequency = as_Hz(stop_frequency)
+        self._start_frequency: u_Hz = as_Hz(start_frequency)
+        self._stop_frequency: u_Hz = as_Hz(stop_frequency)
 
     ##############################################
 
     @property
-    def output_variable(self):
+    def output_variable(self) -> str:
         return self._output_variable
 
     @property
-    def variation(self):
+    def variation(self) -> str:
         return self._variation
 
     @property
-    def number_of_points(self):
+    def number_of_points(self) -> int:
         return self._number_of_points
 
     @property
-    def start_frequency(self):
+    def start_frequency(self) -> u_Hz:
         return self._start_frequency
 
     @property
-    def stop_frequency(self):
+    def stop_frequency(self) -> u_Hz:
         return self._stop_frequency
 
     ##############################################
 
-    def to_list(self):
+    def to_list(self) -> tuple[str, str, int, u_Hz, u_Hz]:
         return (
             self._output_variable,
             self._variation,
@@ -169,13 +176,13 @@ class DCAnalysisParameters(AnalysisParameters):
     ##############################################
 
     @property
-    def parameters(self):
+    def parameters(self) -> list:
         return self._parameters
 
     ##############################################
 
-    def to_list(self):
-        return self._parameters
+    def to_list(self) -> tuple:
+        return tuple(self._parameters)
 
 ####################################################################################################
 
@@ -187,37 +194,43 @@ class ACAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, variation, number_of_points, start_frequency, stop_frequency):
+    def __init__(
+            self,
+            variation: str,
+            number_of_points: int,
+            start_frequency: u_Hz | float,
+            stop_frequency: u_Hz | float,
+    ) -> None:
         # Fixme: use mixin
         if variation not in ('dec', 'oct', 'lin'):
             raise ValueError("Incorrect variation type")
 
         self._variation = variation
         self._number_of_points = number_of_points
-        self._start_frequency = as_Hz(start_frequency)
-        self._stop_frequency = as_Hz(stop_frequency)
+        self._start_frequency: u_Hz = as_Hz(start_frequency)
+        self._stop_frequency: u_Hz = as_Hz(stop_frequency)
 
     ##############################################
 
     @property
-    def variation(self):
+    def variation(self) -> str:
         return self._variation
 
     @property
-    def number_of_points(self):
+    def number_of_points(self) -> int:
         return self._number_of_points
 
     @property
-    def start_frequency(self):
+    def start_frequency(self) -> u_Hz:
         return self._start_frequency
 
     @property
-    def stop_frequency(self):
+    def stop_frequency(self) -> u_Hz:
         return self._stop_frequency
 
     ##############################################
 
-    def to_list(self):
+    def to_list(self) -> tuple[str, int, u_Hz, u_Hz]:
         return (
             self._variation,
             self._number_of_points,
@@ -244,28 +257,28 @@ class TransientAnalysisParameters(AnalysisParameters):
             use_initial_condition: bool = False,
     ) -> None:
         # Fixme: as_s -> PeriodValue
-        self._step_time = as_s(step_time)
-        self._end_time = as_s(end_time)
-        self._start_time = as_s(start_time)
-        self._max_time = as_s(max_time, none=True)  # ty: ignore[invalid-argument-type]
+        self._step_time: u_s = as_s(step_time)
+        self._end_time: u_s = as_s(end_time)
+        self._start_time: u_s = as_s(start_time)
+        self._max_time: u_s | None = as_s(max_time, none=True)  # ty: ignore[invalid-argument-type]
         self._use_initial_condition = use_initial_condition
 
     ##############################################
 
     @property
-    def step_time(self) -> float:
+    def step_time(self) -> u_s:
         return self._step_time
 
     @property
-    def end_time(self) -> float:
+    def end_time(self) -> u_s:
         return self._end_time
 
     @property
-    def start_time(self) -> float:
+    def start_time(self) -> u_s:
         return self._start_time
 
     @property
-    def max_time(self) -> float | None:
+    def max_time(self) -> u_s | None:
         return self._max_time
 
     @property
@@ -274,7 +287,7 @@ class TransientAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def to_list(self) -> tuple[float, float, float, float | None, str | None]:
+    def to_list(self) -> tuple[u_s, u_s, u_s, u_s | None, str | None]:
         return (
             self._step_time,
             self._end_time,
@@ -295,23 +308,22 @@ class MeasureParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, analysis_type, name, *args):
+    def __init__(self, analysis_type: str, name: str, *args):
         _analysis_type = str(analysis_type).upper()
         if _analysis_type not in ('AC', 'DC', 'OP', 'TRAN', 'TF', 'NOISE'):
             raise ValueError(f'Incorrect analysis type {analysis_type}')
-
         self._parameters = [_analysis_type, name, *args]
 
     ##############################################
 
     @property
-    def parameters(self):
+    def parameters(self) -> list:
         return self._parameters
 
     ##############################################
 
-    def to_list(self):
-        return self._parameters
+    def to_list(self) -> tuple:
+        return tuple(self._parameters)
 
 ####################################################################################################
 
@@ -323,7 +335,7 @@ class PoleZeroAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, node1, node2, node3, node4, tf_type, pz_type):
+    def __init__(self, node1, node2, node3, node4, tf_type, pz_type) -> None:
         self._nodes = (node1, node2, node3, node4)
         self._tf_type = tf_type   # transfert_function
         self._pz_type = pz_type   # pole_zero
@@ -355,8 +367,8 @@ class PoleZeroAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def to_list(self):
-        return list(self._nodes) + [self._tf_type, self._pz_type]
+    def to_list(self) -> tuple:
+        return tuple(list(self._nodes) + [self._tf_type, self._pz_type])
 
 ####################################################################################################
 
@@ -368,13 +380,22 @@ class NoiseAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, output, src, variation, points, start_frequency, stop_frequency, points_per_summary):
+    def __init__(
+            self,
+            output,
+            src,
+            variation: str,
+            points,
+            start_frequency: u_Hz | float,
+            stop_frequency: u_Hz | float,
+            points_per_summary: int | None,
+    ) -> None:
         self._output = output
         self._src = src
         self._variation = variation
         self._points = points
-        self._start_frequency = start_frequency
-        self._stop_frequency = stop_frequency
+        self._start_frequency: u_Hz = as_Hz(start_frequency)
+        self._stop_frequency: u_Hz = as_Hz(stop_frequency)
         self._points_per_summary = points_per_summary
 
     ##############################################
@@ -388,7 +409,7 @@ class NoiseAnalysisParameters(AnalysisParameters):
         return self._src
 
     @property
-    def variation(self):
+    def variation(self) -> str:
         return self._variation
 
     @property
@@ -397,20 +418,20 @@ class NoiseAnalysisParameters(AnalysisParameters):
 
     # Fixme: mixin
     @property
-    def start_frequency(self):
+    def start_frequency(self) -> u_Hz:
         return self._start_frequency
 
     @property
-    def stop_frequency(self):
+    def stop_frequency(self) -> u_Hz:
         return self._stop_frequency
 
     @property
-    def points_per_summary(self):
+    def points_per_summary(self) -> int | None:
         return self._points_per_summary
 
     ##############################################
 
-    def to_list(self):
+    def to_list(self) -> tuple:
         parameters = [
             self._output,
             self._src,
@@ -421,7 +442,7 @@ class NoiseAnalysisParameters(AnalysisParameters):
         ]
         if self._points_per_summary:
             parameters.append(self._points_per_summary)
-        return parameters
+        return tuple(parameters)
 
 ####################################################################################################
 
@@ -433,18 +454,24 @@ class DistortionAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, variation, points, start_frequency, stop_frequency, f2overf1):
-
+    def __init__(
+            self,
+            variation,
+            points,
+            start_frequency: u_Hz | float,
+            stop_frequency: u_Hz | float,
+            f2overf1,
+    ) -> None:
         self._variation = variation
         self._points = points
-        self._start_frequency = start_frequency
-        self._stop_frequency = stop_frequency
+        self._start_frequency: u_Hz = as_Hz(start_frequency)
+        self._stop_frequency: u_Hz = as_Hz(stop_frequency)
         self._f2overf1 = f2overf1
 
     ##############################################
 
     @property
-    def variation(self):
+    def variation(self) -> str:
         return self._variation
 
     @property
@@ -452,11 +479,11 @@ class DistortionAnalysisParameters(AnalysisParameters):
         return self._points
 
     @property
-    def start_frequency(self):
+    def start_frequency(self) -> u_Hz:
         return self._start_frequency
 
     @property
-    def stop_frequency(self):
+    def stop_frequency(self) -> u_Hz:
         return self._stop_frequency
 
     @property
@@ -465,7 +492,7 @@ class DistortionAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def to_list(self):
+    def to_list(self) -> tuple:
         parameters = [
             self._variation,
             self._points,
@@ -474,7 +501,7 @@ class DistortionAnalysisParameters(AnalysisParameters):
         ]
         if self._f2overf1:
             parameters.append(self._f2overf1)
-        return parameters
+        return tuple(parameters)
 
 ####################################################################################################
 
@@ -486,7 +513,7 @@ class TransferFunctionAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def __init__(self, outvar, insrc):
+    def __init__(self, outvar, insrc) -> None:
         self._outvar = outvar
         self._insrc = insrc
 
@@ -502,5 +529,5 @@ class TransferFunctionAnalysisParameters(AnalysisParameters):
 
     ##############################################
 
-    def to_list(self):
+    def to_list(self) -> tuple:
         return (self._outvar, self._insrc)
