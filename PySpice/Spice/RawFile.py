@@ -13,6 +13,7 @@
 
 import logging
 from collections.abc import Iterator
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -24,8 +25,11 @@ from PySpice.Probe.WaveForm import (
     TransientAnalysis,
     WaveForm,
 )
-from PySpice.Unit import u_A, u_Degree, u_Hz, u_s, u_V
-from PySpice.Unit.Unit import Unit
+from PySpice.Unit import UnitValueShorcut, u_A, u_Degree, u_Hz, u_s, u_V
+
+if TYPE_CHECKING:
+    from .Netlist import Circuit
+    from .Simulation import Simulation
 
 ####################################################################################################
 
@@ -50,7 +54,7 @@ class VariableAbc:
 
     ##############################################
 
-    def __init__(self, index: int, name: str, unit: Unit | None) -> None:
+    def __init__(self, index: int, name: str, unit: UnitValueShorcut | None) -> None:
         # Fixme: self._ ?
         self._index = int(index)
         self.name = str(name)
@@ -95,18 +99,18 @@ class VariableAbc:
     ##############################################
 
     @staticmethod
-    def to_voltage_name(node) -> str:
+    def to_voltage_name(node: str) -> str:
         return f'v({node})'
 
     ##############################################
 
     @staticmethod
-    def to_branch_name(element) -> str:
+    def to_branch_name(element: str) -> str:
         return f'i({element})'
 
     ##############################################
 
-    def fix_case(self, element_translation, node_translation) -> None:
+    def fix_case(self, element_translation: dict[str, str], node_translation: dict[str, str],) -> None:
         """ Update the name to the right case. """
         if self.is_branch_current():
             if self.simplified_name in element_translation:
@@ -155,6 +159,7 @@ class RawFileAbc:
     ##############################################
 
     def __init__(self) -> None:
+        self._simulation: Simulation | None
         self.flags: str
         self.number_of_points: int
         self.number_of_variables: int
@@ -168,21 +173,21 @@ class RawFileAbc:
     ##############################################
 
     @property
-    def simulation(self):
+    def simulation(self) -> Simulation:
         if self._simulation is not None:
             return self._simulation
         else:
             raise NameError('Simulation is undefined')
 
     @simulation.setter
-    def simulation(self, value):
+    def simulation(self, value: Simulation):
         self._simulation = value
 
     ##############################################
 
     @property
-    def circuit(self):
-        return self._simulation.circuit
+    def circuit(self) -> Circuit:
+        return self.simulation.circuit
 
     ##############################################
 
@@ -198,6 +203,7 @@ class RawFileAbc:
     def _read_line(self, header_line_iterator: Iterator[bytes]) -> str:
         """ Return the next line """
         # Fixme: self._header_line_iterator, etc.
+        # skip empty line
         line = None
         while not line:
             line = next(header_line_iterator)
@@ -285,9 +291,9 @@ class RawFileAbc:
         input_data = input_data.transpose()
         # np.savetxt('raw.txt', input_data)
         if self.flags == 'complex':
-            raw_data = input_data
-            input_data = np.array(raw_data[0::2], dtype='complex128')
-            input_data.imag = raw_data[1::2]
+            _ = input_data
+            input_data = np.array(_[0::2], dtype='complex128')
+            input_data.imag = _[1::2]
         for variable in self.variables.values():
             variable.data = input_data[variable.index]
 
@@ -334,7 +340,7 @@ class RawFileAbc:
             case 'Transient Analysis':
                 return self._to_transient_analysis()
             case _:
-                raise NotImplementedError(f"Unsupported plot name {self.plot_name}")
+                raise NotImplementedError(f"Unsupported plot name '{self.plot_name}'")
 
     ##############################################
 

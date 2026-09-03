@@ -6,25 +6,25 @@
 #
 ####################################################################################################
 
-__all__ = ['Simulator']
-
-####################################################################################################
-
 """This module provides the base class for simulator and a factory method.
 
 """
 
 ####################################################################################################
 
-from typing import TYPE_CHECKING
-import logging
+__all__ = ['Simulator']
 
 ####################################################################################################
 
+import logging
+from typing import TYPE_CHECKING, NotRequired, TypedDict, Unpack
+
 from ..Config import ConfigInstall
-from .Simulation import Simulation
+from .Simulation import Simulation, SimulationParams
 
 if TYPE_CHECKING:
+    from PySpice.Probe.WaveForm import Analysis
+
     from .Netlist import Circuit
 
 ####################################################################################################
@@ -34,6 +34,10 @@ _module_logger = logging.getLogger(__name__)
 ####################################################################################################
 
 # Fixme: DOC: Each analysis mode is performed by a method that return the measured probes.
+
+class SimulatorParams(TypedDict):
+    simulator: NotRequired[str | None]  # = None
+    parallel: NotRequired[bool]  # = False for Xyce
 
 class Simulator:
 
@@ -45,7 +49,7 @@ class Simulator:
 
     #: Define the default simulator
     DEFAULT_SIMULATOR = None
-    if ConfigInstall.OS.on_windows:
+    if ConfigInstall.OS.on_windows:  # ruff: ignore[if-else-block-instead-of-if-exp]
         DEFAULT_SIMULATOR = 'ngspice-shared'
     else:
         # DEFAULT_SIMULATOR = 'ngspice-subprocess'
@@ -62,12 +66,12 @@ class Simulator:
         'xyce-parallel',
     )
 
-    SIMULATOR = None   # for subclass
+    SIMULATOR = None  # for subclass
 
     ##############################################
 
     @classmethod
-    def factory(cls, *args, **kwargs) -> 'Simulator':
+    def factory(cls, *args, **kwargs: Unpack[SimulatorParams]) -> Simulator:
         """Factory to instantiate a simulator.
 
         By default, it instantiates the simulator defined in :obj:`DEFAULT_SIMULATOR`, however you
@@ -92,15 +96,16 @@ class Simulator:
         sub_cls = None
 
         if simulator not in cls.SIMULATORS:
-            raise NameError(f"Unknown simulator {simulator}")
+            raise ValueError(f"Unknown simulator {simulator}")
 
         if simulator.startswith('ngspice'):
-            if simulator == 'ngspice-subprocess':
-                from .NgSpice.Simulator import NgSpiceSubprocessSimulator
-                sub_cls = NgSpiceSubprocessSimulator
-            elif simulator in ('ngspice', 'ngspice-shared'):
-                from .NgSpice.Simulator import NgSpiceSharedSimulator
-                sub_cls = NgSpiceSharedSimulator
+            match simulator:
+                case 'ngspice-subprocess':
+                    from .NgSpice.Simulator import NgSpiceSubprocessSimulator
+                    sub_cls = NgSpiceSubprocessSimulator
+                case 'ngspice' | 'ngspice-shared':
+                    from .NgSpice.Simulator import NgSpiceSharedSimulator
+                    sub_cls = NgSpiceSharedSimulator
 
         elif simulator.startswith('xyce'):
             from .Xyce.Simulator import XyceSimulator
@@ -110,10 +115,17 @@ class Simulator:
 
         if sub_cls is not None:
             obj = sub_cls(*args, **kwargs)
-            obj._AS_SIMULATOR = simulator
+            # Fixme: pass as arg ?
+            obj._as_simulator = simulator
+            cls._logger.info(f"Simulator is {sub_cls.__name__}")
             return obj
         else:
-            raise ValueError('Unknown simulator')
+            raise ValueError(f"Unknown simulator {simulator}")
+
+    ##############################################
+
+    def __init__(self) -> None:
+        self._as_simulator: str
 
     ##############################################
 
@@ -123,7 +135,7 @@ class Simulator:
 
     ##############################################
 
-    def simulation(self, circuit: 'Circuit', **kwargs) -> 'Simulation':
+    def simulation(self, circuit: Circuit, **kwargs: Unpack[SimulationParams]) -> Simulation:
         """Create a new simulation for the circuit.
 
         Return a :obj:`PySpice.Spice.Simulation` instance`
@@ -136,7 +148,7 @@ class Simulator:
 
     @property
     def name(self) -> str:
-        return self._AS_SIMULATOR
+        return self._as_simulator
 
     @property
     def version(self) -> str:
@@ -149,6 +161,6 @@ class Simulator:
 
     ##############################################
 
-    def run(self, simulation: Simulation) -> None:
+    def run(self, simulation: Simulation) -> Analysis:
         """Run the simulation and return the waveforms."""
         raise NotImplementedError
