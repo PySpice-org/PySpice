@@ -864,6 +864,12 @@ class NgSpiceShared:
         else:
             return self._stdout
 
+    def exec_command(self, command: str) -> str:
+        return cast(str, self._exec_command(command))
+
+    def exec_command_unjoined(self, command: str) -> list[str]:
+        return cast(list[str], self._exec_command(command, join_lines=False))
+
     ##############################################
 
     def _get_version(self) -> None:
@@ -976,8 +982,8 @@ class NgSpiceShared:
 
     ##############################################
 
-    def _show(self, command):
-        lines = self.exec_command(command, join_lines=False)
+    def _show(self, command: str) -> str | dict:
+        lines = self.exec_command_unjoined(command)  # , join_lines=False
         if lines:
             values = self._lines_to_dicts(lines)
             return values
@@ -1065,7 +1071,7 @@ class NgSpiceShared:
         if not ressources:
             ressources = ['everything']  # ty: ignore[invalid-assignment]
         command = 'rusage ' + ' '.join(ressources)
-        lines = self.exec_command(command, join_lines=False)
+        lines = self.exec_command_unjoined(command)  # , join_lines=False
         values = {}
         for line in lines:
             parts = line.split(' = ') if '=' in line else line.split(': ')
