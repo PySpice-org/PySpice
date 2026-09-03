@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ####################################################################################################
 #
 # PySpice - A Spice Package for Python
@@ -14,16 +12,18 @@
 
 ####################################################################################################
 
-from ..Math import rms_to_amplitude, amplitude_to_rms
-from ..Unit import as_s, as_V, as_A, as_Hz
-from .BasicElement import VoltageSource, CurrentSource
-from .StringTools import join_list, join_dict
+from collections.abc import Callable, Iterable
+
+from ..Math import amplitude_to_rms, rms_to_amplitude
+from ..Unit import as_A, as_Hz, as_s, as_V, u_Hz, u_s
+from .BasicElement import CurrentSource, VoltageSource
+from .StringTools import join_dict, join_list
 from .unit import str_spice, str_spice_list
 
 ####################################################################################################
 
 class SourceMixinAbc:
-    AS_UNIT = None
+    AS_UNIT: Callable = None  # ty: ignore[invalid-assignment]
 
 ####################################################################################################
 
@@ -88,12 +88,16 @@ class SinusoidalMixin(SourceMixinAbc):
 
     ##############################################
 
-    def __init__(self,
-                 dc_offset=0,
-                 ac_magnitude=1,
-                 offset=0, amplitude=1, frequency=50,
-                 delay=0, damping_factor=0):
-
+    def __init__(
+            self,
+            dc_offset: float = 0,
+            ac_magnitude: float = 1,
+            offset: float = 0,
+            amplitude: float = 1,
+            frequency: float = 50,
+            delay: float = 0,
+            damping_factor: float = 0,
+    ) -> None:
         self.dc_offset = self.AS_UNIT(dc_offset)
         self.ac_magnitude = self.AS_UNIT(ac_magnitude)
         self.offset = self.AS_UNIT(offset)
@@ -105,23 +109,24 @@ class SinusoidalMixin(SourceMixinAbc):
     ##############################################
 
     @property
-    def rms_voltage(self):
+    def rms_voltage(self) -> float:
         # Fixme: ok ???
         return amplitude_to_rms(self.amplitude * self.ac_magnitude)
 
     ##############################################
 
     @property
-    def period(self):
+    def period(self) -> u_s:
         return self.frequency.period
 
     ##############################################
 
-    def format_spice_parameters(self):
+    def format_spice_parameters(self) -> str:
+        dc, ac = str_spice_list(self.dc_offset, self.ac_magnitude)
         sin_part = join_list((self.offset, self.amplitude, self.frequency, self.delay, self.damping_factor))
         return join_list((
-            'DC {} AC {}'.format(*str_spice_list(self.dc_offset, self.ac_magnitude)),
-            'SIN({})'.format(sin_part),
+            f'DC {dc} AC {ac}',
+            f'SIN({sin_part})',
         ))
 
 ####################################################################################################
@@ -201,17 +206,21 @@ class PulseMixin(SourceMixinAbc):
 
     ##############################################
 
-    def __init__(self,
-                 initial_value, pulsed_value,
-                 pulse_width, period,
-                 delay_time=0, rise_time=0, fall_time=0,
-                 phase=None,
-                 dc_offset=0):
-
+    def __init__(
+            self,
+            initial_value: float,
+            pulsed_value: float,
+            pulse_width: float,
+            period: float,
+            delay_time: float = 0,
+            rise_time: float = 0,
+            fall_time: float = 0,
+            phase: float | None = None,
+            dc_offset: float = 0,
+    ) -> None:
         # Fixme: default
         #  rise_time, fall_time = Tstep
         #  pulse_width, period = Tstop
-
         self.dc_offset = self.AS_UNIT(dc_offset)   # Fixme: -> SourceMixinAbc
         self.initial_value = self.AS_UNIT(initial_value)
         self.pulsed_value = self.AS_UNIT(pulsed_value)
@@ -241,16 +250,14 @@ class PulseMixin(SourceMixinAbc):
     ##############################################
 
     @property
-    def frequency(self):
+    def frequency(self) -> u_Hz:
         return self.period.frequency
 
     ##############################################
 
-    def format_spice_parameters(self):
-
+    def format_spice_parameters(self) -> str:
         # if DC is not provided, ngspice complains
         #   Warning: vpulse: no DC value, transient time 0 value used
-
         # Fixme: to func?
         return join_list((
             'DC {}'.format(str_spice(self.dc_offset)),
@@ -306,23 +313,26 @@ class ExponentialMixin(SourceMixinAbc):
 
     ##############################################
 
-    def __init__(self,
-                 initial_value, pulsed_value,
-                 rise_delay_time=.0, rise_time_constant=None,
-                 fall_delay_time=None, fall_time_constant=None):
-
+    def __init__(
+            self,
+            initial_value: float,
+            pulsed_value: float,
+            rise_delay_time: float = .0,
+            rise_time_constant: float | None = None,
+            fall_delay_time: float | None = None,
+            fall_time_constant: float | None = None,
+    ) -> None:
         # Fixme: default
-
         self.initial_value = self.AS_UNIT(initial_value)
         self.pulsed_value = self.AS_UNIT(pulsed_value)
         self.rise_delay_time = as_s(rise_delay_time)
-        self.rise_time_constant = as_s(rise_time_constant)
-        self.fall_delay_time = as_s(fall_delay_time)
-        self.fall_time_constant = as_s(fall_time_constant)
+        self.rise_time_constant = as_s(rise_time_constant)  # ty: ignore[invalid-argument-type]
+        self.fall_delay_time = as_s(fall_delay_time)  # ty: ignore[invalid-argument-type]
+        self.fall_time_constant = as_s(fall_time_constant)  # ty: ignore[invalid-argument-type]
 
     ##############################################
 
-    def format_spice_parameters(self):
+    def format_spice_parameters(self) -> str:
         # Fixme: to func?
         return ('EXP(' +
                 join_list((self.initial_value, self.pulsed_value,
@@ -363,18 +373,22 @@ class PieceWiseLinearMixin(SourceMixinAbc):
 
     ##############################################
 
-    def __init__(self, values, repeat_time=None, delay_time=None, dc=None):
+    def __init__(
+            self,
+            values: Iterable[tuple[float, float]],
+            repeat_time: float | None = None,
+            delay_time: float | None = None,
+            dc: float | None = None,
+    ) -> None:
         self.values = sum(([as_s(t), self.AS_UNIT(x)] for (t, x) in values), [])
-        self.repeat_time = as_s(repeat_time, none=True)
-        self.delay_time = as_s(delay_time, none=True)
+        self.repeat_time = as_s(repeat_time, none=True)  # ty: ignore[invalid-argument-type]
+        self.delay_time = as_s(delay_time, none=True)  # ty: ignore[invalid-argument-type]
         self.dc = self.AS_UNIT(dc, none=True)
 
     ##############################################
 
-    def format_spice_parameters(self):
-
+    def format_spice_parameters(self) -> str:
         # Fixme: to func?
-
         d = {}
         if self.repeat_time is not None:
             d["r"] = self.repeat_time
@@ -383,7 +397,7 @@ class PieceWiseLinearMixin(SourceMixinAbc):
 
         _ = ""
         if self.dc is not None:
-            _ += "DC {} ".format(str_spice(self.dc))
+            _ += f"DC {str_spice(self.dc)} "
         _ += "PWL(" + join_list(self.values)
         if d:
             _ += " " + join_dict(d)   # OrderedDict(
@@ -425,7 +439,14 @@ class SingleFrequencyFMMixin(SourceMixinAbc):
 
     ##############################################
 
-    def __init__(self, offset, amplitude, carrier_frequency, modulation_index, signal_frequency):
+    def __init__(
+            self,
+            offset: float,
+            amplitude: float,
+            carrier_frequency: float,
+            modulation_index: float,
+            signal_frequency: float,
+    ) -> None:
         self.offset = self.AS_UNIT(offset)
         self.amplitude = self.AS_UNIT(amplitude)
         self.carrier_frequency = as_Hz(carrier_frequency)
@@ -434,7 +455,7 @@ class SingleFrequencyFMMixin(SourceMixinAbc):
 
     ##############################################
 
-    def format_spice_parameters(self):
+    def format_spice_parameters(self) -> str:
         # Fixme: to func?
         return ('SFFM(' +
                 join_list((self.offset, self.amplitude, self.carrier_frequency,
@@ -475,10 +496,15 @@ class AmplitudeModulatedMixin(SourceMixinAbc):
 
     ##############################################
 
-    def __init__(self, offset, amplitude, modulating_frequency, carrier_frequency, signal_delay):
-
+    def __init__(
+            self,
+            offset: float,
+            amplitude: float,
+            modulating_frequency: float,
+            carrier_frequency: float,
+            signal_delay: float,
+    ) -> None:
         # Fixme: default
-
         self.offset = self.AS_UNIT(offset)
         self.amplitude = self.AS_UNIT(amplitude)
         self.carrier_frequency = as_Hz(carrier_frequency)
@@ -487,7 +513,7 @@ class AmplitudeModulatedMixin(SourceMixinAbc):
 
     ##############################################
 
-    def format_spice_parameters(self):
+    def format_spice_parameters(self) -> str:
         # Fixme: to func?
         return ('AM(' +
                 join_list((self.offset, self.amplitude, self.carrier_frequency,
@@ -532,7 +558,14 @@ class RandomMixin(SourceMixinAbc):
 
     ##############################################
 
-    def __init__(self, random_type, duration=0, time_delay=0, parameter1=1, parameter2=0):
+    def __init__(
+            self,
+            random_type: float,
+            duration: float = 0,
+            time_delay: float = 0,
+            parameter1: float = 1,
+            parameter2: float = 0,
+    ) -> None:
         # Fixme: random_type and parameters
         self.random_type = random_type
         self.duration = as_s(duration)
@@ -542,8 +575,7 @@ class RandomMixin(SourceMixinAbc):
 
     ##############################################
 
-    def format_spice_parameters(self):
-
+    def format_spice_parameters(self) -> str:
         if self.random_type == 'uniform':
             random_type = 1
         elif self.random_type == 'exponential':
@@ -553,8 +585,7 @@ class RandomMixin(SourceMixinAbc):
         elif self.random_type == 'poisson':
             random_type = 4
         else:
-            raise ValueError("Wrong random type {}".format(self.random_type))
-
+            raise ValueError(f"Wrong random type {self.random_type}")
         # Fixme: to func?
         return ('TRRANDOM(' +
                 join_list((random_type, self.duration, self.time_delay,
@@ -573,7 +604,14 @@ class SinusoidalVoltageSource(VoltageSource, VoltageSourceMixinAbc, SinusoidalMi
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         SinusoidalMixin.__init__(self, *args, **kwargs)
 
@@ -593,7 +631,14 @@ class SinusoidalCurrentSource(CurrentSource, CurrentSourceMixinAbc, SinusoidalMi
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         SinusoidalMixin.__init__(self, *args, **kwargs)
 
@@ -607,10 +652,20 @@ class AcLine(SinusoidalVoltageSource):
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, rms_voltage=230, frequency=50):
-        super().__init__(netlist, name, node_plus, node_minus,
-                         amplitude=rms_to_amplitude(rms_voltage),
-                         frequency=frequency)
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            rms_voltage: float = 230,
+            frequency: float = 50,
+    ) -> None:
+        super().__init__(
+            netlist, name, node_plus, node_minus,
+            amplitude=rms_to_amplitude(rms_voltage),
+            frequency=frequency,
+        )
 
 ####################################################################################################
 
@@ -624,7 +679,14 @@ class PulseVoltageSource(VoltageSource, VoltageSourceMixinAbc, PulseMixin):
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         PulseMixin.__init__(self, *args, **kwargs)
 
@@ -644,7 +706,14 @@ class PulseCurrentSource(CurrentSource, CurrentSourceMixinAbc, PulseMixin):
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         PulseMixin.__init__(self, *args, **kwargs)
 
@@ -664,7 +733,14 @@ class ExponentialVoltageSource(VoltageSource, VoltageSourceMixinAbc, Exponential
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         ExponentialMixin.__init__(self, *args, **kwargs)
 
@@ -684,7 +760,14 @@ class ExponentialCurrentSource(CurrentSource, CurrentSourceMixinAbc, Exponential
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         ExponentialMixin.__init__(self, *args, **kwargs)
 
@@ -704,7 +787,14 @@ class PieceWiseLinearVoltageSource(VoltageSource, VoltageSourceMixinAbc, PieceWi
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         PieceWiseLinearMixin.__init__(self, *args, **kwargs)
 
@@ -724,7 +814,14 @@ class PieceWiseLinearCurrentSource(CurrentSource, CurrentSourceMixinAbc, PieceWi
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         PieceWiseLinearMixin.__init__(self, *args, **kwargs)
 
@@ -744,8 +841,14 @@ class SingleFrequencyFMVoltageSource(VoltageSource, VoltageSourceMixinAbc, Singl
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
-
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         SingleFrequencyFMMixin.__init__(self, *args, **kwargs)
 
@@ -765,7 +868,14 @@ class SingleFrequencyFMCurrentSource(CurrentSource, CurrentSourceMixinAbc, Singl
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         SingleFrequencyFMMixin.__init__(self, *args, **kwargs)
 
@@ -785,7 +895,14 @@ class AmplitudeModulatedVoltageSource(VoltageSource, VoltageSourceMixinAbc, Ampl
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         AmplitudeModulatedMixin.__init__(self, *args, **kwargs)
 
@@ -805,7 +922,14 @@ class AmplitudeModulatedCurrentSource(CurrentSource, CurrentSourceMixinAbc, Ampl
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         AmplitudeModulatedMixin.__init__(self, *args, **kwargs)
 
@@ -825,7 +949,14 @@ class RandomVoltageSource(VoltageSource, VoltageSourceMixinAbc, RandomMixin):
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         VoltageSource.__init__(self, netlist, name, node_plus, node_minus)
         RandomMixin.__init__(self, *args, **kwargs)
 
@@ -845,7 +976,14 @@ class RandomCurrentSource(CurrentSource, CurrentSourceMixinAbc, RandomMixin):
 
     ##############################################
 
-    def __init__(self, netlist, name, node_plus, node_minus, *args, **kwargs):
+    def __init__(
+            self,
+            netlist,
+            name: str,
+            node_plus: str,
+            node_minus: str,
+            *args, **kwargs,
+    ) -> None:
         CurrentSource.__init__(self, netlist, name, node_plus, node_minus)
         RandomMixin.__init__(self, *args, **kwargs)
 

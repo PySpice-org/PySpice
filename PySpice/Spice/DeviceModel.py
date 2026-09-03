@@ -10,6 +10,9 @@ __all__ = ['DeviceModel']
 
 ####################################################################################################
 
+from collections.abc import KeysView
+from typing import Self
+
 from .StringTools import join_dict
 
 ####################################################################################################
@@ -60,7 +63,8 @@ class DeviceModel:
 
     ##############################################
 
-    def __init__(self, name, modele_type, **parameters):
+    def __init__(self, name: str, modele_type: str, **parameters: str) -> None:
+        # Fixme: parameters as UnitValueShorcut ?
         self._name = str(name)
         self._model_type = str(modele_type)
 
@@ -72,32 +76,32 @@ class DeviceModel:
 
     ##############################################
 
-    def clone(self):
+    def clone(self) -> Self:
         # Fixme: clone parameters ???
         return self.__class__(self._name, self._model_type, self._parameters)
 
     ##############################################
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def model_type(self):
+    def model_type(self) -> str:
         return self._model_type
 
     @property
-    def parameters(self):
+    def parameters(self) -> KeysView:
         return self._parameters.keys()
 
     ##############################################
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> str:
         return self._parameters[name]
 
     ##############################################
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> str:
         try:
             return self._parameters[name]
         except KeyError as exception:
@@ -107,11 +111,11 @@ class DeviceModel:
 
     ##############################################
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.__class__) + ' ' + self.name
 
     ##############################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         parameters = join_dict(self._parameters)
         return f".model {self._name} {self._model_type} ({parameters})"
